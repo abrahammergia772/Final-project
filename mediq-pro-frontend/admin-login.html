@@ -83,8 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       showToast("Welcome, " + getUserName() + "!", "success");
-      // Go to the site root — the single-page shell shows the admin dashboard,
-      // and the URL stays clean (nothing after the domain)
+      // One-shot flag: the root page will auto-enter the admin dashboard once,
+      // then always show the login page on later visits.
+      try { sessionStorage.setItem("mediq_autoenter", "1"); } catch (e) {}
       window.location.replace("./");
     } else {
       showErr(res.error || "Invalid administrator credentials.");

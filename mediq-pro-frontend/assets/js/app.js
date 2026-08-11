@@ -198,7 +198,12 @@ window.SPA = { mode: true, current: "" };
         });
       }));
     }
-    // Already logged in? go straight in (URL stays at root)
-    if (getSession()) enterApp();
+    // Browsing the site root ALWAYS shows the login page — even if a previous
+    // session exists in localStorage (fresh login each visit).
+    // The only exception is a one-shot auto-enter flag set by admin-login.html,
+    // so the Administrator portal can drop you straight into the admin dashboard.
+    let autoEnter = false;
+    try { autoEnter = sessionStorage.getItem("mediq_autoenter") === "1"; sessionStorage.removeItem("mediq_autoenter"); } catch (e) {}
+    if (autoEnter && getSession()) enterApp(); else showLogin();
   });
 })();
