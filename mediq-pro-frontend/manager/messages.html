@@ -169,8 +169,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.MESSAGES).then(r => { if (r.ok) { INBOX = r.data.items; renderInbox(); } });
+  apiFetch(CONFIG.ENDPOINTS.MESSAGES).then(r => {
+    if (r.ok) {
+      INBOX = r.data.items;
+      // Merge health reports sent to this user by the doctor (Reports page)
+      mergeSentReports();
+      renderInbox();
+    }
+  });
   apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(r => { if (r.ok) { SENT = r.data.items; renderSent(); } });
+}
+
+// Health reports sent to this patient by a doctor appear in the inbox
+function mergeSentReports() {
+  let sent = [];
+  try { sent = JSON.parse(localStorage.getItem("mediq_pro_sent_reports") || "[]"); } catch (e) {}
+  const who = getUserName();
+  sent.filter(s => s.patient === who || (who === "Test User" && s.patient === "Abel Mekonnen"))
+      .forEach(s => {
+        INBOX.unshift({
+          id: uid("MSG"), from: s.from || "Dr. Daniel Alemu", from_role: "Doctor",
+          subject: s.subject, body: s.body, date: s.date || new Date().toISOString(),
+          read: false, priority: s.priority || "normal", replies: [], isReport: true
+        });
+      });
 }
 
 function lastText(m) {
@@ -193,6 +215,7 @@ function renderInbox() {
           <span class="badge badge-primary">${esc(m.from_role)}</span>
           <span class="mc-min-label">Minimized — double-click to restore</span>
           ${m.priority === "high" ? '<span class="badge badge-danger">High</span>' : ""}
+          ${m.isReport ? '<span class="badge badge-primary">📄 Health Report</span>' : ""}
           ${m.replies.length ? `<span class="badge badge-info">${m.replies.length} reply${m.replies.length > 1 ? "s" : ""}</span>` : ""}
           <span class="mc-time">${formatDateTime(m.date)}</span>
         </div>

@@ -35,7 +35,7 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**90 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**95 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
 
 ### Messaging, accounts & access control
 
@@ -48,8 +48,9 @@ Final-project/
 - **🕐 Shifts & Attendance (all hospital workers)** — every worker (admin, manager, doctor, nurse, pharmacist, laboratory, reception) has a **fingerprint check-in panel** with an animated scanner: attendance is captured **automatically by fingerprint devices** when staff enter the facility (demo-simulated; touch to scan/check out), plus their shift roster for the week and attendance history with a 7-day sparkline.
   - **Admin** additionally manages **shift templates** (create/edit/delete), the **shift roster** (assign staff), **all workers' attendance** (filterable, CSV export) and **fingerprint devices** (status, enrolled staff, sync).
   - **Manager** additionally sees **department attendance** with **manual override** for absent staff and the department roster.
-- **📄 Documents** — a patient document library for every staff role (lab reports, prescriptions, consent forms, referral letters, insurance, ID copies…) with search, type/patient filters, upload, view, download and delete; patients see **their own** documents on their Documents tab.
+- **📄 Documents (role-based access)** — every staff role has **role-scoped access**: each role sees only the document types it handles (laboratory → lab reports, pharmacist → prescriptions, reception → consent/insurance, nurse → clinical view-only, etc.) and each role gets only the actions it's allowed (upload / edit / delete / view / download per role). Patients **no longer have a Documents tab**.
 - **🪪 Patient Information & Card system** — staff roles get a **card-grid patient directory** (name, ID, blood type, condition, status) with a full **Patient Information** popup (emergency contact, insurance, chronic conditions…) and one-click **printable Patient ID card** with barcode. Patients get their own **Health Card** page (gradient hospital card with photo, blood type, emergency contact, barcode) that can be printed or emailed.
+- **📊 Reports for all staff roles** — admin, manager, doctor, nurse, pharmacist, laboratory and reception each get role-appropriate **report generation** (templates, date range, print/CSV, generated-report history). The **doctor can compose an individual health report and send it to a specific patient** — it lands in that patient's Messages inbox as a 📄 Health Report.
 - **🎬 Health Videos (free YouTube AI suggestions)** — patients get **video suggestions matched to their conditions** (e.g. hypertension → Mayo Clinic's "Explains Hypertension") with embedded players, thumbnails and "Open on YouTube" links; an AI search box finds educational videos for any topic. Doctors get a condition-driven video library to share with patients. **100% free**: verified videos are embedded/thumbnailed; a **live YouTube Data API key** is configured in `config.js` to upgrade the search to real, always-fresh results (graceful fallback to the curated library if the API is unreachable). Every suggestion shows an "educational only — not medical advice" disclaimer.
 
 ### Professional features (added per role)

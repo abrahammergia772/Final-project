@@ -29,10 +29,10 @@ const CONFIG = {
 
   // Demo accounts used when DEMO_MODE is true (also reachable from the login page)
   DEMO_ACCOUNTS: {
-    admin:      { password: "admin123",      name: "Solomon Tadesse",  role: "admin" },
+    admin:      { reports: 1, password: "admin123",      name: "Solomon Tadesse",  role: "admin" },
     manager:    { password: "manager123",    name: "Hanna Bekele",     role: "manager" },
     doctor:     { password: "doctor123",     name: "Dr. Daniel Alemu", role: "doctor" },
-    nurse:      { password: "nurse123",      name: "Marta Tesfaye",    role: "nurse" },
+    nurse:      { reports: 1, password: "nurse123",      name: "Marta Tesfaye",    role: "nurse" },
     pharmacist: { password: "pharmacist123", name: "Yonas Girma",      role: "pharmacist" },
     laboratory: { password: "lab123",        name: "Sara Worku",       role: "laboratory" },
     reception:  { password: "reception123",  name: "Liya Hailu",       role: "reception" },
@@ -107,7 +107,7 @@ const CONFIG = {
     pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
     laboratory: { testrequests: 1, samples: 1, results: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
     reception:  { registration: 1, appointments: 1, insurance: 1, queue: 1, shifts: 1, documents: 1, patients: 1, messages: 1, settings: 1 },
-    patient:    { appointments: 1, records: 1, bills: 1, complaints: 1, documents: 1, healthcard: 1, videos: 1, messages: 1, ai: 1, settings: 1 }
+    patient:    { appointments: 1, records: 1, bills: 1, complaints: 1, healthcard: 1, videos: 1, messages: 1, ai: 1, settings: 1 }
   }
 };
 

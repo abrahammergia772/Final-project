@@ -24,6 +24,7 @@
 <a class="nav-link" href="settings.html" data-perm="settings" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
 <a class="nav-link" href="shifts.html" data-perm="shifts" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="nav-label">Shifts & Attendance</span></a>
 <a class="nav-link active" href="documents.html" data-perm="documents" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Documents</span></a>
+<a class="nav-link" href="reports.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20V10M18 20V4M6 20v-4"/></svg><span class="nav-label">Reports</span></a>
 <a class="nav-link" href="patients.html" data-perm="patients" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
 <div class="nav-section-label">SYSTEM & AI</div>
 <a class="nav-link" href="ai-config.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span class="nav-label">AI Configuration</span></a>
@@ -145,16 +146,27 @@ document.addEventListener("DOMContentLoaded", () => {
 let DOCS = [], PATIENTS = [];
 const DOC_ICONS = {"Lab Report":"flask","Prescription":"file-text","Consent Form":"file-plus","Referral Letter":"share","Insurance":"shield","ID Copy":"card","Other":"file-text"};
 const DOC_TINTS = {"Lab Report":"#F0F9FF|#0369A1","Prescription":"#ECFDF5|#065F46","Consent Form":"#FFFBEB|#D97706","Referral Letter":"#F5F3FF|#7C3AED","Insurance":"#EFF6FF|#1A56DB","ID Copy":"#FEF2F2|#DC2626","Other":"#F3F4F6|#6B7280"};
+// Role-based document permissions (injected per role by the builder):
+//   can { upload, edit, delete } · allowed document types (scope)
+const DOC_PERMS = {"upload":1,"edit":1,"delete":1};
+const DOC_ALLOWED = ["Lab Report","Prescription","Consent Form","Referral Letter","Insurance","ID Copy","Other"]; // array of allowed types (empty = all)
+function allowed(d) { return !DOC_ALLOWED.length || DOC_ALLOWED.includes(d.type); }
 function loadPageData() {
   Promise.all([apiFetch(CONFIG.ENDPOINTS.DOCUMENTS), apiFetch(CONFIG.ENDPOINTS.PATIENTS)]).then(([d, p]) => {
     if (d.ok) DOCS = d.data.items;
     if (p.ok) PATIENTS = p.data.items;
+    applyScope();
     renderDocs();
   });
-  document.getElementById("btnUpload").addEventListener("click", uploadModal);
+  const up = document.getElementById("btnUpload");
+  if (up) up.style.display = DOC_PERMS.upload ? "" : "none";
   document.getElementById("docSearch").addEventListener("input", debounce(() => renderDocs(), 200));
   document.getElementById("docType").addEventListener("change", renderDocs);
   document.getElementById("docPatient").addEventListener("change", renderDocs);
+}
+function applyScope() {
+  // Show only the document types this role is allowed to handle
+  if (DOC_ALLOWED.length) DOCS = DOCS.filter(allowed);
 }
 function filtered() {
   const q = document.getElementById("docSearch").value.trim().toLowerCase();
@@ -171,7 +183,7 @@ function renderDocs() {
   const byPatient = {};
   DOCS.forEach(d => { byPatient[d.patient] = (byPatient[d.patient] || 0) + 1; });
   const stats = [
-    ["file-text", DOCS.length, "Total Documents", "", ""],
+    ["file-text", DOCS.length, "Documents in scope", "", ""],
     ["flask", DOCS.filter(d => d.type === "Lab Report").length, "Lab Reports", "flask", "color-info"],
     ["file-text", DOCS.filter(d => d.type === "Prescription").length, "Prescriptions", "file-text", "color-success"],
     ["users", Object.keys(byPatient).length, "Patients with Files", "users", "color-warning"]
@@ -192,9 +204,10 @@ function renderDocs() {
       <div class="doc-foot">
         <button class="btn btn-secondary btn-sm" onclick="viewDoc('${d.id}')">${ICONS.eye} View</button>
         <button class="btn btn-outline btn-sm" onclick="dlDoc('${d.id}')">${ICONS.download} Download</button>
-        <button class="btn-icon danger" title="Delete" onclick="delDoc('${d.id}')" style="margin-left:auto">${ICONS.trash}</button>
+        ${DOC_PERMS.edit ? `<button class="btn btn-secondary btn-sm" onclick="editDoc('${d.id}')">${ICONS.edit} Edit</button>` : ""}
+        ${DOC_PERMS.delete ? `<button class="btn-icon danger" title="Delete" onclick="delDoc('${d.id}')" style="margin-left:auto">${ICONS.trash}</button>` : ""}
       </div></div>`;
-  }).join("") : '<div class="empty-state" style="grid-column:1/-1">No documents match your filters.</div>';
+  }).join("") : '<div class="empty-state" style="grid-column:1/-1">No documents in your scope.</div>';
 }
 function viewDoc(id) {
   const d = DOCS.find(x => x.id === id);
@@ -211,7 +224,7 @@ function viewDoc(id) {
         ${ICONS[DOC_ICONS[d.type] || "file-text"]} &nbsp; ${esc(d.type)} preview (demo)
       </div>
       <div class="mt-3" style="font-size:13px;color:#374151">${esc(d.summary)}</div>`,
-    footer: `<button class="btn btn-secondary" data-close>Close</button><button class="btn btn-primary" onclick="dlDoc('${d.id}')">${ICONS.download} Download</button>`
+    footer: `<button class="btn btn-secondary" data-close>Close</button>${DOC_PERMS.edit ? `<button class="btn btn-secondary" onclick="editDoc('${d.id}')">${ICONS.edit} Edit</button>` : ""}<button class="btn btn-primary" onclick="dlDoc('${d.id}')">${ICONS.download} Download</button>`
   }, {
     size: "lg",
     onMount: (ov) => { ov.querySelector("[data-close]").onclick = () => ov.remove(); }
@@ -223,6 +236,32 @@ async function delDoc(id) {
   if (!ok) return;
   DOCS = DOCS.filter(d => d.id !== id); renderDocs();
   showToast("Document deleted", "success");
+}
+function editDoc(id) {
+  const d = DOCS.find(x => x.id === id);
+  if (!d) return;
+  openModal({
+    title: "Edit Document",
+    body: `<div class="form-group"><label>Document Type</label><select class="form-control" id="eType"><option>Lab Report</option><option>Prescription</option><option>Consent Form</option><option>Referral Letter</option><option>Insurance</option><option>ID Copy</option><option>Other</option></select></div>
+      <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="eTitle" value="${esc(d.title)}"></div>
+      <div class="form-group"><label>Summary</label><textarea class="form-control" rows="3" id="eSum">${esc(d.summary)}</textarea></div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="eSave">${ICONS.check} Save Changes</button>`
+  }, {
+    onMount: (ov) => {
+      ov.querySelector("[data-c]").onclick = () => ov.remove();
+      ov.querySelector("#eType").value = d.type;
+      ov.querySelector("#eSave").onclick = () => {
+        const title = ov.querySelector("#eTitle").value.trim();
+        if (!title) { showToast("Title is required", "error"); return; }
+        d.title = title;
+        d.type = ov.querySelector("#eType").value;
+        d.summary = ov.querySelector("#eSum").value.trim() || d.summary;
+        d.edited_by = getUserName();
+        renderDocs(); ov.remove();
+        showToast("Document updated", "success");
+      };
+    }
+  });
 }
 function uploadModal() {
   openModal({

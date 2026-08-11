@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Documents — MedIQ Pro</title>
+<title>Reports — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -17,15 +17,16 @@
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
 <a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="appointments.html" data-perm="appointments" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
-<a class="nav-link" href="records.html" data-perm="records" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span class="nav-label">Medical Records</span></a>
-<a class="nav-link" href="bills.html" data-perm="bills" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg><span class="nav-label">Bills</span></a>
-<a class="nav-link" href="complaints.html" data-perm="complaints" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><span class="nav-label">Complaints</span></a>
-<a class="nav-link active" href="documents.html" data-perm="documents" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Documents</span></a>
-<a class="nav-link" href="health-card.html" data-perm="healthcard" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span class="nav-label">Health Card</span></a>
-<div class="nav-section-label">AI ASSISTANT</div>
-<a class="nav-link" href="ai-chatbot.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">AI Chatbot</span></a>
-<a class="nav-link" href="videos.html" data-perm="videos" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><polygon points="6 3 20 12 6 21 6 3"/></svg><span class="nav-label">Health Videos</span></a>
+<a class="nav-link" href="prescriptions.html" data-perm="prescriptions" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Prescriptions</span></a>
+<a class="nav-link" href="inventory.html" data-perm="inventory" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg><span class="nav-label">Inventory</span></a>
+<a class="nav-link" href="suppliers.html" data-perm="suppliers" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span class="nav-label">Suppliers & POs</span></a>
+<a class="nav-link" href="shifts.html" data-perm="shifts" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="nav-label">Shifts & Attendance</span></a>
+<a class="nav-link" href="documents.html" data-perm="documents" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Documents</span></a>
+<a class="nav-link active" href="reports.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20V10M18 20V4M6 20v-4"/></svg><span class="nav-label">Reports</span></a>
+<a class="nav-link" href="patients.html" data-perm="patients" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
+<div class="nav-section-label">AI TOOLS</div>
+<a class="nav-link" href="ai-interaction.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="nav-label">AI Interaction</span></a>
+<a class="nav-link" href="ai-forecast.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span class="nav-label">AI Forecast</span></a>
 <div class="nav-section-label">MESSAGES</div>
 <a class="nav-link" href="messages.html" data-perm="messages" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="nav-label">Messages</span></a>
 <div class="nav-section-label">ACCOUNT</div>
@@ -34,20 +35,29 @@
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Documents</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Reports</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
-<div class="stat-grid">
-  <div class="stat-card"><div class="stat-icon">${ICONS_DUMMY}</div><div><div class="stat-value" id="dTotal">–</div><div class="stat-label">My Documents</div></div></div>
-  <div class="stat-card color-info"><div class="stat-icon">${ICONS_DUMMY}</div><div><div class="stat-value" id="dLab">–</div><div class="stat-label">Lab Reports</div></div></div>
-  <div class="stat-card color-success"><div class="stat-icon">${ICONS_DUMMY}</div><div><div class="stat-value" id="dRx">–</div><div class="stat-label">Prescriptions</div></div></div>
-  <div class="stat-card color-warning"><div class="stat-icon">${ICONS_DUMMY}</div><div><div class="stat-value" id="dOther">–</div><div class="stat-label">Other Documents</div></div></div>
+<div class="panel-grid cols-2">
+  <section class="card">
+    <h3 class="mb-3">Generate Report</h3>
+    <div class="form-group"><label>Report Type</label><select class="form-control" id="rpType"></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>From</label><input class="form-control" type="date" id="rpFrom" value="2026-08-01"></div>
+      <div class="form-group"><label>To</label><input class="form-control" type="date" id="rpTo" value="2026-08-11"></div>
+    </div>
+    <div class="form-group"><label>Format</label><select class="form-control" id="rpFmt"><option value="print">Printable report</option><option value="csv">CSV export</option></select></div>
+    <button class="btn btn-primary btn-block btn-lg" id="rpGo"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20V10M18 20V4M6 20v-4"/></svg> Generate Report</button>
+  </section>
+  <div>
+    <div id="rpResult"></div>
+  </div>
 </div>
-<div class="flex-between mb-4 wrap" style="gap:12px">
-  <div class="search-box"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="dSearch" placeholder="Search my documents…"></div>
-  <select class="form-control" id="dType" style="width:180px"><option value="">All types</option><option>Lab Report</option><option>Prescription</option><option>Consent Form</option><option>Referral Letter</option><option>Insurance</option><option>ID Copy</option><option>Other</option></select>
+<div class="card mt-5" style="padding:0">
+  <div class="table-toolbar"><h3 style="font-size:16px">Generated Reports</h3>
+    <span class="badge badge-info" id="rpCount">0</span></div>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Report</th><th>Period</th><th>Generated</th><th>By</th><th style="text-align:right">Actions</th></tr></thead><tbody id="rpHistory"></tbody></table></div>
 </div>
-<div class="doc-grid" id="dGrid"></div>
 
 </section>
 </main>
@@ -135,65 +145,134 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 "fingerprint": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4\"/><path d=\"M14 13.12c0 2.38 0 6.38-1 8.88\"/><path d=\"M17.29 21.02c.12-.6.43-2.3.5-3.02\"/><path d=\"M2 12a10 10 0 0 1 18-6\"/><path d=\"M2 16h.01\"/><path d=\"M21.8 16c.2-2 .131-5.354 0-6\"/><path d=\"M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2\"/><path d=\"M8.65 22c.21-.66.45-1.32.57-2\"/><path d=\"M9 6.8a6 6 0 0 1 9 5.2v2\"/></svg>",
 "play": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>"};
 
-const ROLE = "patient";
+const ROLE = "pharmacist";
+const TEMPLATES = [{"id":"inventory","name":"Inventory Status Report","icon":"package","ep":"/inventory","sendable":0},{"id":"dispensing","name":"Prescription Dispensing Report","icon":"file-text","ep":"/prescriptions","sendable":0}]; // [{id,name,icon,desc,ep,sendable?}]
+const ROLE_LABEL = "Pharmacist";
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess(ROLE); initLayout(); loadPageData();
 });
-let DOCS = [];
-const DOC_ICONS = {"Lab Report":"flask","Prescription":"file-text","Consent Form":"file-plus","Referral Letter":"share","Insurance":"shield","ID Copy":"card","Other":"file-text"};
-const DOC_TINTS = {"Lab Report":"#F0F9FF|#0369A1","Prescription":"#ECFDF5|#065F46","Consent Form":"#FFFBEB|#D97706","Referral Letter":"#F5F3FF|#7C3AED","Insurance":"#EFF6FF|#1A56DB","ID Copy":"#FEF2F2|#DC2626","Other":"#F3F4F6|#6B7280"};
+let HISTORY = [];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.DOCUMENTS).then(r => {
-    if (!r.ok) return;
-    const who = getUserName();
-    DOCS = r.data.items.filter(d => d.patient === who || (who === "Test User" && d.patient === "Abel Mekonnen"));
-    renderDocs();
+  const sel = document.getElementById("rpType");
+  sel.innerHTML = TEMPLATES.map((t, i) => `<option value="${i}">${esc(t.name)}</option>`).join("");
+  document.getElementById("rpGo").addEventListener("click", generateReport);
+  renderHistory();
+}
+function currentTemplate() {
+  return TEMPLATES[+document.getElementById("rpType").value] || TEMPLATES[0];
+}
+async function fetchRows(t) {
+  // Pull real data for the template's endpoint; fall back to a sensible sample
+  const r = await apiFetch(t.ep);
+  if (r.ok && r.data && r.data.items) return r.data.items;
+  return [];
+}
+function generateReport() {
+  const t = currentTemplate();
+  const from = document.getElementById("rpFrom").value;
+  const to = document.getElementById("rpTo").value;
+  const fmt = document.getElementById("rpFmt").value;
+  showLoading("Generating " + t.name + "…");
+  fetchRows(t).then(rows => {
+    hideLoading();
+    const data = Array.isArray(rows) ? rows : [];
+    if (fmt === "csv") {
+      exportCSV((t.id + "-report").replace(/\s+/g, "-").toLowerCase() + ".csv",
+        ["Patient/Item", "Detail", "Date", "Status"],
+        data.slice(0, 200).map(r => [r.patient || r.name || r.drug || "—", r.detail || r.test || r.subject || "—", r.date || "—", r.status || "—"]));
+      showToast(t.name + " exported to CSV", "success");
+      return;
+    }
+    const cards = summaryCards(t, data);
+    const table = dataTable(t, data);
+    const record = { id: uid("RP"), name: t.name, period: formatDate(from) + " – " + formatDate(to), date: new Date().toISOString(), by: getUserName() || ROLE_LABEL, template: t };
+    HISTORY.unshift(record);
+    renderHistory();
+    document.getElementById("rpResult").innerHTML = `
+      <section class="card">
+        <div class="flex-between wrap" style="gap:10px"><h3>${esc(t.name)}</h3>
+          <span class="badge badge-info">${formatDate(from)} – ${formatDate(to)}</span></div>
+        <p class="text-sm text-gray mb-4" style="color:#6B7280">Generated by ${esc(record.by)} · ${formatDateTime(record.date)}</p>
+        ${cards}
+        ${table}
+        <div class="form-actions mt-4 wrap" style="justify-content:flex-start">
+          <button class="btn btn-secondary" onclick="window.print()">${ICONS.printer} Print</button>
+          <button class="btn btn-secondary" onclick="exportCSV('${(t.id + '-report').replace(/\s+/g, '-').toLowerCase()}.csv', ['Patient/Item','Detail','Date','Status'], ${JSON.stringify(data).slice(0, 2000)}.slice(0,0) || [])">${ICONS.download} CSV</button>
+          ${t.sendable ? `<button class="btn btn-primary" onclick="sendReport()">${ICONS.send} Send to Patient</button>` : ""}
+          <div class="disclaimer" style="flex-basis:100%"><span>${ICONS.info}</span><div>Internal report — generated from hospital records. Handle confidential data responsibly.</div></div>
+        </div>
+      </section>`;
   });
-  document.getElementById("dSearch").addEventListener("input", debounce(() => renderDocs(), 200));
-  document.getElementById("dType").addEventListener("change", renderDocs);
 }
-function renderDocs() {
-  const q = document.getElementById("dSearch").value.trim().toLowerCase();
-  const t = document.getElementById("dType").value;
-  const list = DOCS.filter(d => (!q || (d.title + " " + d.type).toLowerCase().includes(q)) && (!t || d.type === t));
-  document.getElementById("dTotal").textContent = DOCS.length;
-  document.getElementById("dLab").textContent = DOCS.filter(d => d.type === "Lab Report").length;
-  document.getElementById("dRx").textContent = DOCS.filter(d => d.type === "Prescription").length;
-  document.getElementById("dOther").textContent = DOCS.length - DOCS.filter(d => d.type === "Lab Report" || d.type === "Prescription").length;
-  document.getElementById("dGrid").innerHTML = list.length ? list.map(d => {
-    const [tint, color] = (DOC_TINTS[d.type] || "#F3F4F6|#6B7280").split("|");
-    return `<div class="doc-card">
-      <div class="doc-head">
-        <div class="doc-icon" style="background:${tint};color:${color}">${ICONS[DOC_ICONS[d.type] || "file-text"]}</div>
-        <div style="min-width:0"><div class="doc-title">${esc(d.title)}</div>
-        <div class="doc-meta">${formatDate(d.date)} · ${esc(d.size)} · by ${esc(d.uploaded_by)}</div></div>
-      </div>
-      <div class="doc-body"><div class="doc-summary">${esc(d.summary)}</div>
-        <div class="mt-2"><span class="badge badge-primary">${esc(d.type)}</span></div></div>
-      <div class="doc-foot">
-        <button class="btn btn-secondary btn-sm" onclick="viewDoc('${d.id}')">${ICONS.eye} View</button>
-        <button class="btn btn-outline btn-sm" onclick="dlDoc('${d.id}')">${ICONS.download} Download</button>
-      </div></div>`;
-  }).join("") : '<div class="empty-state" style="grid-column:1/-1">No documents found.</div>';
+function summaryCards(t, data) {
+  const total = data.length;
+  const active = data.filter(d => (d.status || "active") !== "completed" && (d.status || "") !== "cancelled" && (d.status || "") !== "resolved").length;
+  const unique = new Set(data.map(d => d.patient || d.name || d.drug || d.test || "—")).size;
+  return `<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:0 0 16px">
+    <div class="stat-card"><div class="stat-icon">${ICONS[t.icon]}</div><div><div class="stat-value">${total}</div><div class="stat-label">Total Records</div></div></div>
+    <div class="stat-card color-info"><div class="stat-icon">${ICONS.users}</div><div><div class="stat-value">${unique}</div><div class="stat-label">Unique ${t.id.includes("patient") ? "Patients" : "Items"}</div></div></div>
+    <div class="stat-card color-success"><div class="stat-icon">${ICONS.check}</div><div><div class="stat-value">${Math.max(0, total - active)}</div><div class="stat-label">Completed</div></div></div>
+    <div class="stat-card color-warning"><div class="stat-icon">${ICONS.clock}</div><div><div class="stat-value">${active}</div><div class="stat-label">In Progress</div></div></div>
+  </div>`;
 }
-function viewDoc(id) {
-  const d = DOCS.find(x => x.id === id);
+function dataTable(t, data) {
+  if (!data.length) return '<div class="empty-state">No records for this period.</div>';
+  const rows = data.slice(0, 8).map(d => `<tr>
+    <td><strong>${esc(d.patient || d.name || d.drug || d.test || "—")}</strong></td>
+    <td class="text-sm">${esc(d.detail || d.test || d.subject || d.category || "—")}</td>
+    <td>${formatDate(d.date || "—")}</td>
+    <td><span class="badge badge-${(d.status === "completed" || d.status === "resolved" || d.status === "paid") ? "success" : (d.status === "cancelled" || d.status === "overdue") ? "danger" : "info"}">${esc(d.status || "active")}</span></td></tr>`).join("");
+  return `<div class="table-wrap mt-4"><table class="data-table"><thead><tr><th>Item / Patient</th><th>Detail</th><th>Date</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function renderHistory() {
+  document.getElementById("rpCount").textContent = HISTORY.length;
+  document.getElementById("rpHistory").innerHTML = HISTORY.length ? HISTORY.map(r => `<tr>
+    <td><strong>${esc(r.name)}</strong></td><td>${r.period}</td><td>${formatDateTime(r.date)}</td><td>${esc(r.by)}</td>
+    <td style="text-align:right"><div class="actions">
+      <button class="btn-icon primary" title="View" onclick="openReport(${HISTORY.indexOf(r)})">${ICONS.eye}</button>
+      <button class="btn-icon" title="Print" onclick="window.print()">${ICONS.printer}</button>
+    </div></td></tr>`).join("") : emptyRow(5, "No reports generated yet.");
+}
+function openReport(i) {
+  const r = HISTORY[i];
+  if (!r) return;
+  document.getElementById("rpFrom").value = r.period.split(" – ")[0] ? "2026-08-01" : "";
+  showToast("Report selected — regenerate to view its data", "info");
+}
+// Doctor: send an individual health report to a specific patient
+function sendReport() {
+  const t = currentTemplate();
+  if (!t.sendable) { showToast("This report type cannot be sent to patients", "warning"); return; }
   openModal({
-    title: d.title,
-    body: `<div class="detail-list">
-      <div class="detail-item"><span class="k">Type</span><span class="v">${esc(d.type)}</span></div>
-      <div class="detail-item"><span class="k">Date</span><span class="v">${formatDate(d.date)}</span></div>
-      <div class="detail-item"><span class="k">Uploaded By</span><span class="v">${esc(d.uploaded_by)}</span></div></div>
-      <h3 class="mt-4 mb-2" style="font-size:15px">Document Preview</h3>
-      <div class="receipt" style="min-height:110px;display:flex;align-items:center;justify-content:center;color:#9CA3AF">${ICONS[DOC_ICONS[d.type] || "file-text"]} &nbsp; ${esc(d.type)} preview (demo)</div>
-      <div class="mt-3" style="font-size:13px;color:#374151">${esc(d.summary)}</div>`,
-    footer: `<button class="btn btn-secondary" data-close>Close</button><button class="btn btn-primary" onclick="dlDoc('${d.id}')">${ICONS.download} Download</button>`
+    title: "Send Health Report to Patient",
+    body: `<p class="text-sm mb-3" style="color:#6B7280">Send <strong>${esc(t.name)}</strong> as an individual health report to a patient. It will appear in the patient's Messages inbox.</p>
+      <div class="form-group"><label>Patient <span class="req">*</span></label>
+        <select class="form-control" id="srPat"><option value="Abel Mekonnen">Abel Mekonnen (P-1001)</option><option value="Hana Wolde">Hana Wolde (P-1002)</option><option value="Dawit Kebede">Dawit Kebede (P-1003)</option><option value="Selam Tadesse">Selam Tadesse (P-1004)</option><option value="Biruk Ayele">Biruk Ayele (P-1005)</option><option value="Ruth Gebre">Ruth Gebre (P-1006)</option><option value="Tewodros Haile">Tewodros Haile (P-1007)</option><option value="Mahlet Shiferaw">Mahlet Shiferaw (P-1008)</option><option value="Yohannes Mamo">Yohannes Mamo (P-1009)</option><option value="Kidist Assefa">Kidist Assefa (P-1010)</option></select></div>
+      <div class="form-group"><label>Report Summary</label><textarea class="form-control" rows="4" id="srBody" placeholder="e.g. Your blood pressure improved — keep taking Amlodipine 5mg once daily and return for review in 30 days."></textarea></div>
+      <div class="form-group"><label>Priority</label><select class="form-control" id="srPri"><option>normal</option><option>high</option></select></div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="srSend">${ICONS.send} Send to Patient</button>`
   }, {
-    size: "lg",
-    onMount: (ov) => { ov.querySelector("[data-close]").onclick = () => ov.remove(); }
+    onMount: (ov) => {
+      ov.querySelector("[data-c]").onclick = () => ov.remove();
+      ov.querySelector("#srSend").onclick = () => {
+        const name = ov.querySelector("#srPat").value.split(" (")[0];
+        const body = ov.querySelector("#srBody").value.trim();
+        if (!body) { showToast("Please write a summary for the report", "error"); return; }
+        saveSentReport({ patient: name, subject: t.name, body, from: getUserName() || "Dr. Daniel Alemu", priority: ov.querySelector("#srPri").value });
+        ov.remove();
+        showToast("Health report sent to " + name + " — appears in their Messages", "success");
+      };
+    }
   });
 }
-function dlDoc(id) { showToast("Downloading " + DOCS.find(x => x.id === id).title + "…", "info"); }
+// Store sent reports so the patient's Messages inbox can show them
+function saveSentReport(r) {
+  try {
+    const all = JSON.parse(localStorage.getItem("mediq_pro_sent_reports") || "[]");
+    all.push(Object.assign({ date: new Date().toISOString(), from_role: "Doctor", read: false }, r));
+    localStorage.setItem("mediq_pro_sent_reports", JSON.stringify(all));
+  } catch (e) {}
+}
 
 </script>
 </body>

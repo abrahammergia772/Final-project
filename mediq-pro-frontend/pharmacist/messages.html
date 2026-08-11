@@ -22,6 +22,7 @@
 <a class="nav-link" href="suppliers.html" data-perm="suppliers" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span class="nav-label">Suppliers & POs</span></a>
 <a class="nav-link" href="shifts.html" data-perm="shifts" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="nav-label">Shifts & Attendance</span></a>
 <a class="nav-link" href="documents.html" data-perm="documents" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Documents</span></a>
+<a class="nav-link" href="reports.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20V10M18 20V4M6 20v-4"/></svg><span class="nav-label">Reports</span></a>
 <a class="nav-link" href="patients.html" data-perm="patients" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
 <div class="nav-section-label">AI TOOLS</div>
 <a class="nav-link" href="ai-interaction.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="nav-label">AI Interaction</span></a>
@@ -168,8 +169,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.MESSAGES).then(r => { if (r.ok) { INBOX = r.data.items; renderInbox(); } });
+  apiFetch(CONFIG.ENDPOINTS.MESSAGES).then(r => {
+    if (r.ok) {
+      INBOX = r.data.items;
+      // Merge health reports sent to this user by the doctor (Reports page)
+      mergeSentReports();
+      renderInbox();
+    }
+  });
   apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(r => { if (r.ok) { SENT = r.data.items; renderSent(); } });
+}
+
+// Health reports sent to this patient by a doctor appear in the inbox
+function mergeSentReports() {
+  let sent = [];
+  try { sent = JSON.parse(localStorage.getItem("mediq_pro_sent_reports") || "[]"); } catch (e) {}
+  const who = getUserName();
+  sent.filter(s => s.patient === who || (who === "Test User" && s.patient === "Abel Mekonnen"))
+      .forEach(s => {
+        INBOX.unshift({
+          id: uid("MSG"), from: s.from || "Dr. Daniel Alemu", from_role: "Doctor",
+          subject: s.subject, body: s.body, date: s.date || new Date().toISOString(),
+          read: false, priority: s.priority || "normal", replies: [], isReport: true
+        });
+      });
 }
 
 function lastText(m) {
@@ -192,6 +215,7 @@ function renderInbox() {
           <span class="badge badge-primary">${esc(m.from_role)}</span>
           <span class="mc-min-label">Minimized — double-click to restore</span>
           ${m.priority === "high" ? '<span class="badge badge-danger">High</span>' : ""}
+          ${m.isReport ? '<span class="badge badge-primary">📄 Health Report</span>' : ""}
           ${m.replies.length ? `<span class="badge badge-info">${m.replies.length} reply${m.replies.length > 1 ? "s" : ""}</span>` : ""}
           <span class="mc-time">${formatDateTime(m.date)}</span>
         </div>
