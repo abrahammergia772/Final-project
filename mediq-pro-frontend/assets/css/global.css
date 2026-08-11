@@ -143,3 +143,9 @@ h3 { font-size: 18px; font-weight: 600; }
   h2 { font-size: 18px; }
   .hide-sm { display: none !important; }
 }
+
+/* ---------- 5. Compact density (user setting) ---------- */
+body.compact .card { padding: var(--sp-4); }
+body.compact .stat-card { padding: var(--sp-4); }
+body.compact .data-table tbody td { padding: 8px 12px; }
+body.compact .page-body { padding-top: var(--sp-4); }

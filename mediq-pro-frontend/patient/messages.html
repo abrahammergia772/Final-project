@@ -25,6 +25,8 @@
 <a class="nav-link" href="ai-chatbot.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">AI Chatbot</span></a>
 <div class="nav-section-label">MESSAGES</div>
 <a class="nav-link active" href="messages.html" data-perm="messages" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="nav-label">Messages</span></a>
+<div class="nav-section-label">ACCOUNT</div>
+<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
@@ -165,12 +167,18 @@ function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(r => { if (r.ok) { SENT = r.data.items; renderSent(); } });
 }
 
+function lastText(m) {
+  const arr = m.replies || [];
+  return arr.length ? arr[arr.length - 1].body : m.body;
+}
 function renderInbox() {
   const list = document.getElementById("inboxList");
   const unread = INBOX.filter(m => !m.read).length;
   document.getElementById("unreadCount").textContent = unread;
   document.getElementById("inboxCount").textContent = INBOX.length + " messages";
-  list.innerHTML = INBOX.length ? INBOX.map(m => `
+  list.innerHTML = INBOX.length ? INBOX.map(m => {
+    m.replies = m.replies || [];
+    return `
     <div class="msg-card ${m.read ? "" : "unread"} ${m.min ? "minimized" : ""}" data-id="${m.id}">
       <div class="mc-avatar">${initialsOf(m.from)}</div>
       <div class="mc-main">
@@ -179,12 +187,14 @@ function renderInbox() {
           <span class="badge badge-primary">${esc(m.from_role)}</span>
           <span class="mc-min-label">Minimized — double-click to restore</span>
           ${m.priority === "high" ? '<span class="badge badge-danger">High</span>' : ""}
+          ${m.replies.length ? `<span class="badge badge-info">${m.replies.length} reply${m.replies.length > 1 ? "s" : ""}</span>` : ""}
           <span class="mc-time">${formatDateTime(m.date)}</span>
         </div>
         <div class="mc-subject">${esc(m.subject)}</div>
-        <div class="mc-snippet">${esc(m.snippet || m.body)}</div>
+        <div class="mc-snippet">${m.replies.length ? "You → " : ""}${esc(lastText(m))}</div>
       </div>
-    </div>`).join("") : '<div class="empty-state">Inbox is empty.</div>';
+    </div>`;
+  }).join("") : '<div class="empty-state">Inbox is empty.</div>';
   document.querySelectorAll(".msg-card").forEach(card => {
     card.addEventListener("click", () => {
       clearTimeout(card._t);
@@ -216,10 +226,19 @@ function toggleMin(id) {
   if (m) { m.min = !m.min; renderInbox(); }
 }
 
+function threadBubbles(m) {
+  const items = [{ who: "them", name: m.from, body: m.body, date: m.date }];
+  (m.replies || []).forEach(r => items.push({ who: r.from === "me" ? "me" : "them", name: r.from === "me" ? "You" : m.from, body: r.body, date: r.date }));
+  return items.map(x => `
+    <div class="chat-msg ${x.who === "me" ? "user" : "ai"}"><strong style="display:block;font-size:12px;margin-bottom:4px">${esc(x.name)}</strong>
+      <span>${esc(x.body)}</span><span class="msg-time">${formatDateTime(x.date)}</span></div>`).join("");
+}
+
 function openMessage(id) {
   const m = INBOX.find(x => x.id === id);
   if (!m) return;
   m.read = true; m.min = false;
+  m.replies = m.replies || [];
   renderInbox();
   openModal({
     title: m.subject,
@@ -227,27 +246,32 @@ function openMessage(id) {
       <div class="detail-item"><span class="k">From</span><span class="v">${esc(m.from)} (${esc(m.from_role)})</span></div>
       <div class="detail-item"><span class="k">Date</span><span class="v">${formatDateTime(m.date)}</span></div>
       <div class="detail-item"><span class="k">Priority</span><span class="v">${m.priority === "high" ? '<span class="badge badge-danger">High</span>' : '<span class="badge badge-neutral">Normal</span>'}</span></div>
+      <div class="detail-item"><span class="k">Replies</span><span class="v">${m.replies.length}</span></div>
     </div>
-    <h3 class="mt-4 mb-2" style="font-size:15px">Message</h3>
-    <div class="alert alert-info mb-0"><span>${ICONS.mail}</span><div class="alert-body" style="font-size:14px">${esc(m.body)}</div></div>`,
-    footer: `<button class="btn btn-secondary" data-close>Close</button><button class="btn btn-primary" data-reply>${ICONS.send} Reply</button>`,
+    <h3 class="mt-4 mb-2" style="font-size:15px">Conversation</h3>
+    <div class="chat-area" style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;max-height:320px;overflow-y:auto">${threadBubbles(m)}</div>`,
+    footer: `<button class="btn btn-secondary" data-close>Close</button><button class="btn btn-primary" data-reply>${ICONS.send} Reply</button>`
+  }, {
     size: "lg",
     onMount: (ov) => {
       ov.querySelector("[data-close]").onclick = () => ov.remove();
-      ov.querySelector("[data-reply]").onclick = () => { ov.remove(); composeModal(m.from, "Re: " + m.subject); };
+      ov.querySelector("[data-reply]").onclick = () => { ov.remove(); composeModal(m.from, "Re: " + m.subject, m); };
     }
   });
 }
 
-function composeModal(replyTo, replySubj) {
+function composeModal(replyTo, replySubj, threadMsg) {
+  const toOpts = [...new Set([...(threadMsg ? [threadMsg.from] : []), ...RECIPIENTS])];
   openModal({
-    title: "Compose Message",
+    title: threadMsg ? "Reply to " + threadMsg.from : "Compose Message",
     body: `<div class="form-group"><label>To <span class="req">*</span></label>
-      <select class="form-control" id="cTo">${RECIPIENTS.map(r => `<option ${r === replyTo ? "selected" : ""}>${esc(r)}</option>`).join("")}</select></div>
+      <input class="form-control" id="cTo" list="cToOpts" value="${replyTo ? esc(replyTo) : ""}">
+      <datalist id="cToOpts">${toOpts.map(r => `<option value="${esc(r)}">`).join("")}</datalist></div>
       <div class="form-group"><label>Subject</label><input class="form-control" id="cSubj" value="${replySubj ? esc(replySubj) : ""}" placeholder="Message subject"></div>
       <div class="form-group"><label>Message <span class="req">*</span></label><textarea class="form-control" rows="4" id="cBody" placeholder="Write your message…"></textarea></div>
       <div class="form-group"><label>Priority</label><select class="form-control" id="cPri"><option>normal</option><option>high</option></select></div>`,
-    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="cSend">${ICONS.send} Send Message</button>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="cSend">${ICONS.send} ${threadMsg ? "Send Reply" : "Send Message"}</button>`
+  }, {
     onMount: (ov) => {
       ov.querySelector("[data-c]").onclick = () => ov.remove();
       ov.querySelector("#cSend").onclick = () => {
@@ -255,20 +279,35 @@ function composeModal(replyTo, replySubj) {
         const body = ov.querySelector("#cBody").value.trim();
         const subject = ov.querySelector("#cSubj").value.trim() || "Message from " + getUserName();
         if (!body) { showToast("Message body is required", "error"); return; }
-        SENT.unshift({ id: uid("SENT"), to, subject, body, date: new Date().toISOString() });
+        const now = new Date().toISOString();
+        SENT.unshift({ id: uid("SENT"), to, subject, body, date: now });
         renderSent();
         ov.remove();
-        showToast("Message sent to " + to, "success");
-        // simulate a reply arriving a little later (demo)
-        setTimeout(() => {
-          INBOX.unshift({
-            id: uid("MSG"), from: to, from_role: "Staff", subject: "Re: " + subject,
-            body: "Thank you for your message. A team member will review it and get back to you shortly. — MedIQ Pro messaging",
-            date: new Date().toISOString(), read: false, priority: "normal"
-          });
+        if (threadMsg) {
+          // Reply lands inside the same conversation thread
+          threadMsg.replies.push({ from: "me", body, date: now });
+          threadMsg.date = now;
           renderInbox();
-          showToast("New reply received from " + to, "info");
-        }, 2500);
+          showToast("Reply sent to " + to, "success");
+          setTimeout(() => {
+            threadMsg.replies.push({ from: "them", body: "Thank you — we've received your reply and will get back to you shortly.", date: new Date().toISOString() });
+            threadMsg.read = false;
+            renderInbox();
+            showToast("New reply from " + to, "info");
+          }, 2200);
+        } else {
+          showToast("Message sent to " + to, "success");
+          // new message → a reply arrives as a new inbox item (demo)
+          setTimeout(() => {
+            INBOX.unshift({
+              id: uid("MSG"), from: to, from_role: "Staff", subject: "Re: " + subject,
+              body: "Thank you for your message. A team member will review it and get back to you shortly. — MedIQ Pro messaging",
+              date: new Date().toISOString(), read: false, priority: "normal", replies: []
+            });
+            renderInbox();
+            showToast("New reply received from " + to, "info");
+          }, 2500);
+        }
       };
     }
   });
