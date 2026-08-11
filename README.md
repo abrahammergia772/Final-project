@@ -35,7 +35,7 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**58 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**66 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
 
 ### Messaging, accounts & access control
 
@@ -44,6 +44,7 @@ Final-project/
 - **🔑 Forgot password** (`forgot-password.html`) — email → 6-digit reset code → set new password (3-step flow).
 - **🔔 Notifications open full detail** — clicking any notification in the topbar bell opens a popup with category, time, status and full message, plus a link to the related page.
 - **🛡️ Permission-controlled tabs** — the admin can grant/revoke every tab per role on the **Roles & Permissions** page; changes apply **automatically** — a granted tab appears in that role's sidebar on their next load, a revoked one disappears.
+- **📢 Complaints** — patients submit complaints (category, priority, description) and track status; only the **General Manager** can read every complaint and give a solution, which the patient then sees in their portal. The patient's old **Lab Results** tab was removed.
 
 ### Professional features (added per role)
 

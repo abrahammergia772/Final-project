@@ -304,6 +304,14 @@ const MOCK = {
     { id: "SENT-503", to: "Pharmacy", subject: "Refill confirmation", body: "Thank you for confirming the refill. The patient has been notified.", date: "2026-08-11T07:55:00" }
   ],
 
+  complaints: [
+    { id: "CMP-101", reporter: "Abel Mekonnen", reporter_role: "patient", category: "Billing", subject: "Incorrect charge on my invoice", description: "I was charged 500 ETB for an ECG that was not performed during my last visit on 05/08. The cashier said to contact the manager, so here I am.", priority: "high", date: "2026-08-10T09:30:00", status: "resolved", solution: "We reviewed your account and found the ECG charge was added by mistake. The 500 ETB has been refunded and will appear as a credit on your next bill. Apologies for the inconvenience.", resolved_by: "Hanna Bekele", resolved_date: "2026-08-11T08:00:00" },
+    { id: "CMP-102", reporter: "Abel Mekonnen", reporter_role: "patient", category: "Service Quality", subject: "Long waiting time at OPD", description: "I waited over 2 hours at the OPD despite having a confirmed 09:00 appointment. This is the second time this month.", priority: "normal", date: "2026-08-09T14:00:00", status: "in-review", solution: "" },
+    { id: "CMP-103", reporter: "Hana Wolde", reporter_role: "patient", category: "Facility / Cleanliness", subject: "Broken fan in waiting area", description: "The ceiling fan in the OPD waiting area has been broken for over a week. It is very hot for patients, especially mothers with children.", priority: "normal", date: "2026-08-08T10:00:00", status: "pending", solution: "" },
+    { id: "CMP-104", reporter: "Abel Mekonnen", reporter_role: "patient", category: "Staff Conduct", subject: "Unhelpful front desk staff", description: "The receptionist on duty at 08:00 was dismissive when I asked about rescheduling my appointment. I felt unheard.", priority: "high", date: "2026-08-07T11:00:00", status: "pending", solution: "" },
+    { id: "CMP-105", reporter: "Selam Tadesse", reporter_role: "patient", category: "Treatment / Care", subject: "Dizziness with new medication", description: "Since starting the new blood pressure medication I have been feeling dizzy in the morning. Should I continue taking it?", priority: "urgent", date: "2026-08-06T16:00:00", status: "resolved", solution: "Reviewed with Dr. Meron Assefa: the dizziness is a known side effect. Your dose has been reduced to half a tablet and we recommend follow-up in 3 days. If dizziness persists or worsens, come to the emergency department.", resolved_by: "Hanna Bekele", resolved_date: "2026-08-07T09:00:00" }
+  ],
+
   vitals_history: {
     "P-1004": [
       { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
@@ -406,6 +414,9 @@ function mockResponse(endpoint, method, body) {
       break;
     case CONFIG.ENDPOINTS.NOTIFICATIONS.replace(/^\//, ""):
       data = list(MOCK.messages.slice(0, 4));
+      break;
+    case CONFIG.ENDPOINTS.COMPLAINTS.replace(/^\//, ""):
+      data = list(MOCK.complaints);
       break;
 
     // ---------- Auth ----------
