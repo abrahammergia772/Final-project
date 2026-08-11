@@ -164,14 +164,17 @@ function thumb(v) {
 }
 function videoCard(v) {
   const t = thumb(v);
+  const canPlay = !!v.video_id && v.embeddable !== false;
+  const action = canPlay ? `openVideo('${v.id}')` : `window.open('${watchUrl(v)}','_blank')`;
   return `<div class="doc-card">
-    <div style="position:relative;aspect-ratio:16/9;background:#111827;cursor:pointer" onclick="openVideo('${v.id}')" title="Click to play">
+    <div style="position:relative;aspect-ratio:16/9;background:#111827;cursor:pointer" onclick="${action}" title="${canPlay ? "Click to play" : "Opens on YouTube"}">
       ${t
         ? `<img src="${t}" alt="${esc(v.title)}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
         : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#fff;flex-direction:column;gap:8px">${ICONS.play}<span class="text-sm">Watch here</span></div>`}
       <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-        <span style="width:52px;height:52px;border-radius:50%;background:rgba(26,86,219,.92);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)">${ICONS.play}</span>
+        <span style="width:52px;height:52px;border-radius:50%;background:${canPlay ? "rgba(26,86,219,.92)" : "rgba(17,24,39,.75)"};display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)">${ICONS.play}</span>
       </span>
+      ${!canPlay ? '<span style="position:absolute;top:8px;right:8px;background:rgba(17,24,39,.8);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px">Plays on YouTube</span>' : ""}
     </div>
     <div class="doc-body">
       <div class="doc-title" style="font-weight:700;font-size:14px;line-height:1.3">${esc(v.title)}</div>
@@ -180,8 +183,10 @@ function videoCard(v) {
       <div class="mt-2"><span class="badge badge-primary">${esc(v.category)}</span></div>
     </div>
     <div class="doc-foot">
-      <button class="btn btn-primary btn-sm" onclick="openVideo('${v.id}')">${ICONS.play} Play here</button>
-      ${v.video_id ? `<a class="btn btn-secondary btn-sm" href="${watchUrl(v)}" target="_blank" rel="noopener" title="Open on YouTube in a new tab">${ICONS.share} YouTube</a>` : ""}
+      ${canPlay
+        ? `<button class="btn btn-primary btn-sm" onclick="openVideo('${v.id}')">${ICONS.play} Play here</button>
+           <a class="btn btn-secondary btn-sm" href="${watchUrl(v)}" target="_blank" rel="noopener" title="Open on YouTube in a new tab">${ICONS.share} YouTube</a>`
+        : `<a class="btn btn-primary btn-sm" href="${watchUrl(v)}" target="_blank" rel="noopener">${ICONS.share} Watch on YouTube</a>`}
     </div>
   </div>`;
 }
@@ -189,12 +194,13 @@ function videoCard(v) {
 function openVideo(id) {
   const v = VIDS.find(x => x.id === id);
   if (!v) return;
-  const embed = v.video_id
-    ? `<div style="aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
-        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${v.video_id}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>`
-    : `<div style="aspect-ratio:16/9;background:linear-gradient(135deg,#1E3A8A,#1A56DB);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:10px;text-align:center;padding:20px">
-        ${ICONS.play}<div class="text-sm">This suggestion opens the best matching health videos on YouTube.</div>
+  if (!v.video_id || v.embeddable === false) {
+    window.open(watchUrl(v), "_blank");
+    showToast("This video plays on YouTube — opening it now", "info");
+    return;
+  }
+  const embed = `<div style="aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
+        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${v.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="${esc(v.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>`;
   openModal({
     title: v.title,

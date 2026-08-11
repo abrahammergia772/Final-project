@@ -226,7 +226,11 @@ function suggestVideosFor(conds) {
 }
 function playChatVideo(id) {
   const v = VIDS.find(x => x.id === id) || LIVE_VIDS.find(x => x.id === id);
-  if (!v || !v.video_id) { if (v) window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent(v.title), "_blank"); return; }
+  if (!v) return;
+  if (!v.video_id || v.embeddable === false) {
+    window.open("https://www.youtube.com/watch?v=" + (v.video_id || "") || "https://www.youtube.com/results?search_query=" + encodeURIComponent(v.title), "_blank");
+    return;
+  }
   openModal({
     title: v.title,
     body: `<div style="aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">

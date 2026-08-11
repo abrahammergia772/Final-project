@@ -90,7 +90,7 @@ async function searchYouTube(query, maxResults = 12) {
   if (!CONFIG.YOUTUBE_API_KEY) throw new Error("no-youtube-key");
   const q = query.toLowerCase().includes("health") ? query : query + " health";
   const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=" + maxResults +
-              "&q=" + encodeURIComponent(q) + "&type=video&safeSearch=strict&relevanceLanguage=en&key=" + CONFIG.YOUTUBE_API_KEY;
+              "&q=" + encodeURIComponent(q) + "&type=video&videoEmbeddable=true&safeSearch=strict&relevanceLanguage=en&key=" + CONFIG.YOUTUBE_API_KEY;
   const res = await fetch(url);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -110,7 +110,8 @@ async function searchYouTube(query, maxResults = 12) {
     category: "Live results",
     description: it.snippet.description || "",
     thumb: it.snippet.thumbnails && it.snippet.thumbnails.high ? it.snippet.thumbnails.high.url : null,
-    live: true
+    live: true,
+    embeddable: true
   })).filter(isHealthVideo).slice(0, maxResults);
 }
 
@@ -422,14 +423,14 @@ const MOCK = {
 
   videos: [
     // --- Verified YouTube video IDs (public health-education channels) ---
-    { id: "V-1", title: "Mayo Clinic Explains Hypertension", channel: "Mayo Clinic", video_id: "r5XTTeP039Q", search: "", conditions: ["hypertension", "heart disease", "ckd"], duration: "6:12", views: "1.4M", category: "Understanding the condition", description: "Dr. Leslie Thomas walks through what high blood pressure is, its risks, and how to manage it." },
-    { id: "V-2", title: "Type 2 Diabetes — Medical Animation", channel: "Medical Animations", video_id: "OImJMiFJ8Qo", search: "", conditions: ["diabetes", "diabetes type 2"], duration: "4:08", views: "980K", category: "Understanding the condition", description: "What happens in the body with type 2 diabetes, and why blood sugar control matters." },
-    { id: "V-3", title: "How to Measure Your Blood Sugar", channel: "Mayo Clinic", video_id: "nxIJeHWlhF4", search: "", conditions: ["diabetes", "diabetes type 2"], duration: "2:55", views: "720K", category: "Self-care", description: "A certified diabetes educator demonstrates how to check your blood sugar correctly." },
-    { id: "V-4", title: "Malaria — Osmosis Study Video", channel: "Osmosis from Elsevier", video_id: "3_2TnCqBFcY", search: "", conditions: ["malaria", "fever"], duration: "9:12", views: "2.1M", category: "Understanding the condition", description: "How malaria spreads through mosquitoes, its symptoms, and prevention." },
-    { id: "V-5", title: "Coronary Artery Disease — Signs, Causes, Prevention", channel: "Cleveland Clinic", video_id: "xSx3F9sswyE", search: "", conditions: ["heart disease", "cad"], duration: "8:40", views: "1.1M", category: "Understanding the condition", description: "Learn about coronary artery disease, its risk factors, and how to prevent it." },
-    { id: "V-6", title: "Coronary Artery Disease: Symptoms, Causes, Treatments", channel: "Mass General Brigham", video_id: "5YZPM8F-A9A", search: "", conditions: ["heart disease", "cad", "chest pain"], duration: "5:30", views: "640K", category: "Understanding the condition", description: "Dr. Farouc Jaffer explains CAD symptoms, causes, and treatment options." },
-    { id: "V-7", title: "Tuberculosis (TB) Symptoms Animation", channel: "Health Animations", video_id: "VnF47GGAU8g", search: "", conditions: ["tb", "tuberculosis", "cough"], duration: "2:20", views: "810K", category: "Understanding the condition", description: "A visual guide to the common symptoms of TB and when to see a doctor." },
-    { id: "V-8", title: "How the Body Reacts to Tuberculosis", channel: "Health Animations", video_id: "hTscEEWD5Ho", search: "", conditions: ["tb", "tuberculosis"], duration: "3:05", views: "450K", category: "Understanding the condition", description: "How the TB bacterium spreads and how your body fights it." },
+    { id: "V-1", title: "Mayo Clinic Explains Hypertension", channel: "Mayo Clinic", video_id: "r5XTTeP039Q", embeddable: true, search: "", conditions: ["hypertension", "heart disease", "ckd"], duration: "6:12", views: "1.4M", category: "Understanding the condition", description: "Dr. Leslie Thomas walks through what high blood pressure is, its risks, and how to manage it." },
+    { id: "V-2", title: "Understanding Type 2 Diabetes — Animated Patient Education", channel: "Animated Diabetes Patient", video_id: "JAjZv41iUJU", search: "", conditions: ["diabetes", "diabetes type 2"], duration: "~5 min", views: "1.2M", category: "Understanding the condition", description: "What happens in the body with type 2 diabetes, and why blood sugar control matters.", embeddable: true },
+    { id: "V-3", title: "How to Measure Your Blood Sugar", channel: "Mayo Clinic", video_id: "nxIJeHWlhF4", embeddable: true, search: "", conditions: ["diabetes", "diabetes type 2"], duration: "2:55", views: "720K", category: "Self-care", description: "A certified diabetes educator demonstrates how to check your blood sugar correctly." },
+    { id: "V-4", title: "Malaria — Osmosis Study Video", channel: "Osmosis from Elsevier", video_id: "3_2TnCqBFcY", embeddable: true, search: "", conditions: ["malaria", "fever"], duration: "9:12", views: "2.1M", category: "Understanding the condition", description: "How malaria spreads through mosquitoes, its symptoms, and prevention." },
+    { id: "V-5", title: "Coronary Artery Disease — Signs, Causes, Prevention", channel: "Cleveland Clinic", video_id: "xSx3F9sswyE", embeddable: true, search: "", conditions: ["heart disease", "cad"], duration: "8:40", views: "1.1M", category: "Understanding the condition", description: "Learn about coronary artery disease, its risk factors, and how to prevent it." },
+    { id: "V-6", title: "Coronary Artery Disease: Symptoms, Causes, Treatments", channel: "Mass General Brigham", video_id: "5YZPM8F-A9A", embeddable: true, search: "", conditions: ["heart disease", "cad", "chest pain"], duration: "5:30", views: "640K", category: "Understanding the condition", description: "Dr. Farouc Jaffer explains CAD symptoms, causes, and treatment options." },
+    { id: "V-7", title: "Tuberculosis (TB) Symptoms Animation", channel: "Health Animations", video_id: "VnF47GGAU8g", embeddable: true, search: "", conditions: ["tb", "tuberculosis", "cough"], duration: "2:20", views: "810K", category: "Understanding the condition", description: "A visual guide to the common symptoms of TB and when to see a doctor." },
+    { id: "V-8", title: "How the Body Reacts to Tuberculosis", channel: "Health Animations", video_id: "hTscEEWD5Ho", embeddable: true, search: "", conditions: ["tb", "tuberculosis"], duration: "3:05", views: "450K", category: "Understanding the condition", description: "How the TB bacterium spreads and how your body fights it." },
 
     // --- Search-linked suggestions (open targeted YouTube search — always free, no key) ---
     { id: "V-9", title: "What is Asthma? — Patient Education", channel: "YouTube Health Education", video_id: null, search: "what is asthma patient education video", conditions: ["asthma"], duration: "~4 min", views: "—", category: "Understanding the condition", description: "Understand asthma triggers, inhaler use, and when to seek urgent care." },
