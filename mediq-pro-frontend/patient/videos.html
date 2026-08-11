@@ -352,8 +352,22 @@ function searchVideos() {
   const curatedFallback = () => {
     apiFetch(CONFIG.ENDPOINTS.VIDEO_SEARCH, "POST", { query: q, conditions: MY_CONDITIONS }).then(r => {
       if (!r.ok) { hideLoading(); showToast("Video search unavailable", "error"); return; }
-      renderGrid(document.getElementById("patVideoGrid"), r.data.items, "No health videos found for '" + esc(q) + "'. Try another topic.");
-      document.getElementById("myConds").textContent = 'search results for "' + esc(q) + '"';
+      const items = r.data.items || [];
+      if (items.length) {
+        VIDS = items;
+        renderGrid(document.getElementById("patVideoGrid"), items, "No health videos found.");
+        document.getElementById("myConds").textContent = 'search results for "' + esc(q) + '"';
+      } else {
+        // Nothing in the library — offer to open matching videos on YouTube
+        document.getElementById("patVideoGrid").innerHTML =
+          '<div class="empty-state" style="grid-column:1/-1">' +
+          '<div style="font-size:42px">🎬</div><p style="margin-top:8px">No in-site videos for <strong>' + esc(q) + '</strong> yet.</p>' +
+          '<button class="btn btn-primary mt-3" id="ytSearchFallback" type="button">' + ICONS.share + ' Find on YouTube</button>' +
+          '</div>';
+        document.getElementById("myConds").textContent = 'search results for "' + esc(q) + '"';
+        const fbBtn = document.getElementById("ytSearchFallback");
+        if (fbBtn) fbBtn.onclick = function () { window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " health education"), "_blank"); };
+      }
     });
   };
   if (HAS_YT) {

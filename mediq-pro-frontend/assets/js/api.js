@@ -445,6 +445,21 @@ const MOCK = {
     { id: "V-18", title: "Managing Stress & Mental Health", channel: "YouTube Health Education", video_id: null, search: "managing stress mental health self care", conditions: ["stress", "mental health", "anxiety"], duration: "~5 min", views: "—", category: "Wellness", description: "Simple daily habits to reduce stress and protect mental health." }
   ],
 
+  extra_videos: [
+    { id: "V-19", title: "Fatty Liver Disease — Causes, Diagnosis and Treatment", channel: "The Ottawa Hospital", video_id: "re4yEU8UGWo", search: "", conditions: ["liver", "liver disease", "fatty liver", "liver problem"], duration: "~4 min", views: "1.5M", category: "Understanding the condition", description: "A hepatologist explains fatty liver disease (MASLD) — causes, symptoms and how it is managed.", embeddable: true },
+    { id: "V-20", title: "Liver Disease — Mayo Clinic", channel: "Mayo Clinic", video_id: "SUAugMHDnOw", search: "", conditions: ["liver", "liver disease", "hepatitis", "cirrhosis", "liver cancer", "jaundice"], duration: "5:10", views: "1.2M", category: "Understanding the condition", description: "A Mayo Clinic hepatologist discusses liver disease — including the most common forms and warning signs.", embeddable: true },
+    { id: "V-21", title: "The ABCs of Hepatitis — Causes, Symptoms & Treatment", channel: "Health Education", video_id: "TtfJmux3aiM", search: "", conditions: ["hepatitis", "liver", "liver disease", "jaundice", "yellow eyes"], duration: "4:20", views: "680K", category: "Understanding the condition", description: "Hepatitis causes liver inflammation — often silent but serious. Learn the A, B, C types and how they spread.", embeddable: true },
+    { id: "V-22", title: "What is Diarrhea? — Causes, Signs, Symptoms & Treatment", channel: "Medical Centric", video_id: "EGtihfAhd_c", search: "", conditions: ["diarrhea", "diarrhoea", "loose stool", "gastroenteritis", "food poisoning", "stomach", "dehydration", "vomiting"], duration: "3:15", views: "2.4M", category: "Understanding the condition", description: "What causes diarrhea, when it is dangerous, and how to prevent dehydration — especially for children.", embeddable: true },
+    { id: "V-23", title: "Pneumonia: Causes, Symptoms, Diagnosis & Treatments", channel: "Level Up RN (Ask A Nurse)", video_id: "vp8FXgcunfE", search: "", conditions: ["pneumonia", "cough", "breathing", "chest infection", "lungs", "fever"], duration: "7:10", views: "890K", category: "Understanding the condition", description: "What pneumonia is, its signs and symptoms, and when you need urgent care.", embeddable: true },
+    { id: "V-24", title: "Pneumonia — Overview", channel: "Ninja Nerd", video_id: "lzyUVVOqyS0", search: "", conditions: ["pneumonia", "lungs", "cough", "breathing", "chest pain"], duration: "~6 min", views: "1.1M", category: "Understanding the condition", description: "A detailed but clear overview of pneumonia and how it affects the lungs.", embeddable: true },
+    { id: "V-25", title: "Stroke Education — Causes and Effects", channel: "Health Education", video_id: "DrPXM-LFATA", search: "", conditions: ["stroke", "brain", "paralysis", "numbness", "weakness", "face drooping"], duration: "5:30", views: "1.8M", category: "Understanding the condition", description: "What happens during a stroke, the FAST warning signs, and how to prevent one.", embeddable: true },
+    { id: "V-26", title: "What is a Migraine? — Osmosis", channel: "Osmosis from Elsevier", video_id: "DMhKBUgizO8", search: "", conditions: ["migraine", "headache", "head pain", "nausea"], duration: "6:20", views: "950K", category: "Understanding the condition", description: "Why migraines happen and what is different about them compared to normal headaches.", embeddable: true },
+    { id: "V-27", title: "Rheumatoid Arthritis — Disease Overview", channel: "Johns Hopkins Rheumatology", video_id: "7PRe46JE3sE", search: "", conditions: ["arthritis", "rheumatoid", "joint pain", "joints", "swelling"], duration: "~4 min", views: "760K", category: "Understanding the condition", description: "What happens in the joints with rheumatoid arthritis and how treatment works.", embeddable: true },
+    { id: "V-28", title: "Rheumatoid Arthritis — Signs & Symptoms", channel: "Johns Hopkins Rheumatology", video_id: "iBV6dhEUdpc", search: "", conditions: ["arthritis", "rheumatoid", "joint pain", "morning stiffness"], duration: "~3 min", views: "540K", category: "Understanding the condition", description: "Recognize the early signs of rheumatoid arthritis — swelling, stiffness and fatigue.", embeddable: true },
+    { id: "V-29", title: "Understanding Cholesterol", channel: "Patient Education Animation", video_id: "_qzT246x8DE", search: "", conditions: ["cholesterol", "heart", "heart disease", "blood pressure", "fats", "lipid"], duration: "3:45", views: "1.3M", category: "Understanding the condition", description: "What high cholesterol means for your heart and how it is caused.", embeddable: true },
+    { id: "V-30", title: "Understanding Kidney Stones", channel: "Zero To Finals", video_id: "DK9AkAVDoho", search: "", conditions: ["kidney stones", "kidney", "stones", "urine", "back pain", "flank pain", "uti"], duration: "6:10", views: "1.6M", category: "Understanding the condition", description: "How kidney stones form, the pain they cause, and how they are treated.", embeddable: true }
+  ],
+
   vitals_history: {
     "P-1004": [
       { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
@@ -574,13 +589,13 @@ function mockResponse(endpoint, method, body) {
     // Data API v3 instead; this demo router returns curated results.
     // ============================================================
     case CONFIG.ENDPOINTS.VIDEOS.replace(/^\//, ""):
-      data = list(MOCK.videos);
+      data = list(MOCK.videos.concat(MOCK.extra_videos || []));
       break;
     case CONFIG.ENDPOINTS.VIDEO_SEARCH.replace(/^\//, ""):
       if (method === "POST") {
         const q = String((body && body.query) || "").toLowerCase();
         const conds = (body && body.conditions) || [];
-        let list = MOCK.videos.filter(v => {
+        let list = MOCK.videos.concat(MOCK.extra_videos || []).filter(v => {
           const hay = (v.title + " " + v.channel + " " + v.description + " " + v.conditions.join(" ")).toLowerCase();
           return !q || hay.includes(q);
         });

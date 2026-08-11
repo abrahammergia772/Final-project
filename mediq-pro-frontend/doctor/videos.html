@@ -273,7 +273,7 @@ function renderGrid(el, list, emptyMsg) {
   el.innerHTML = list.length ? list.map(videoCard).join("") : `<div class="empty-state" style="grid-column:1/-1">${emptyMsg || "No videos found."}</div>`;
 }
 
-const CONDITIONS = ["Hypertension", "Diabetes Type 2", "Asthma", "Heart Disease", "Chronic Kidney Disease", "Thyroid Disorder", "Malaria", "Tuberculosis", "Anemia", "Pregnancy", "Healthy Diet", "Stress & Mental Health"];
+const CONDITIONS = ["Hypertension", "Diabetes Type 2", "Asthma", "Heart Disease", "Chronic Kidney Disease", "Liver Disease", "Hepatitis", "Diarrhea", "Pneumonia", "Stroke", "Migraine", "Arthritis", "Cholesterol", "Kidney Stones", "Thyroid Disorder", "Malaria", "Tuberculosis", "Anemia", "Pregnancy", "Healthy Diet", "Stress & Mental Health"];
 const HAS_YT = !!CONFIG.YOUTUBE_API_KEY;
 function afterVideos() {
   const sel = document.getElementById("docCond");
