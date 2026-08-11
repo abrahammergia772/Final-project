@@ -188,6 +188,11 @@ body.sidebar-collapsed .sidebar-footer { padding: 10px; }
 body.sidebar-collapsed .user-box { justify-content: center; padding: 8px; }
 body.sidebar-collapsed .user-box .u-logout { justify-content: center; padding: 0; }
 body.sidebar-collapsed .user-box .u-logout svg { margin: 0; }
+/* Logout label (desktop) */
+.user-box .u-logout { display: inline-flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: var(--radius-sm); }
+.user-box .u-logout:hover { background: rgba(255,255,255,0.12); }
+.user-box .u-logout svg { width: 17px; height: 17px; }
+.user-box .u-logout-label { font-size: 11px; font-weight: 600; }
 
 /* ---------- Mobile (off-canvas) ---------- */
 .mobile-overlay {

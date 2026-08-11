@@ -121,7 +121,7 @@ window.SPA = { mode: true, current: "" };
     sb += '<div class="nav-section-label">ACCOUNT</div>';
     sb += '<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu>' + (window.ICONS.settings || "") + '<span class="nav-label">Settings</span></a>';
     sb += "</nav>";
-    sb += '<div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff">' + (window.ICONS.logout || "") + "</button></div></div>";
+    sb += '<div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff">' + (window.ICONS.logout || "") + '<span class="u-logout-label">Log out</span></button></div></div>';
     $("#sidebar").innerHTML = sb;
     // Topbar
     let tb = '<div class="topbar-left"><button class="hamburger" id="hamburger">' + (window.ICONS.menu || "") + "</button><h1 class=\"page-title\" id=\"topbarTitle\">Dashboard</h1></div>";
