@@ -148,6 +148,7 @@ function watchUrl(v) {
                     : "https://www.youtube.com/results?search_query=" + encodeURIComponent(v.search);
 }
 function thumb(v) {
+  if (v.thumb) return v.thumb;
   if (v.video_id) return "https://i.ytimg.com/vi/" + v.video_id + "/hqdefault.jpg";
   return null;
 }
@@ -203,6 +204,7 @@ function renderGrid(el, list, emptyMsg) {
 }
 
 const CONDITIONS = ["Hypertension", "Diabetes Type 2", "Asthma", "Heart Disease", "Chronic Kidney Disease", "Thyroid Disorder", "Malaria", "Tuberculosis", "Anemia", "Pregnancy", "Healthy Diet", "Stress & Mental Health"];
+const HAS_YT = !!CONFIG.YOUTUBE_API_KEY;
 function afterVideos() {
   const sel = document.getElementById("docCond");
   sel.innerHTML = CONDITIONS.map(c => `<option>${esc(c)}</option>`).join("");
@@ -214,7 +216,14 @@ function showForCondition(cond) {
   const lower = cond.toLowerCase();
   const match = VIDS.filter(v => v.conditions.some(t => lower.includes(t) || t.includes(lower)));
   const rest = VIDS.filter(v => !match.includes(v));
-  renderGrid(document.getElementById("docVideoGrid"), match.concat(rest).slice(0, 9), "No videos for this condition.");
+  const grid = document.getElementById("docVideoGrid");
+  renderGrid(grid, match.concat(rest).slice(0, 9), "No videos for this condition.");
+  // Upgrade to live YouTube results when the API key is configured
+  if (HAS_YT) {
+    searchYouTube(cond + " patient education", 9).then(items => {
+      if (items.length) { VIDS = items; renderGrid(grid, items, "No videos for this condition."); }
+    }).catch(() => {});
+  }
 }
 function shareVideo(id) {
   const v = VIDS.find(x => x.id === id);

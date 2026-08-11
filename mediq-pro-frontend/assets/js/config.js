@@ -11,7 +11,9 @@ const CONFIG = {
   // Videos feature uses the built-in curated library + targeted YouTube search
   // links (100% free, no key). Add a key to enable live AI video search:
   //   https://console.cloud.google.com/apis/library/youtube.googleapis.com
-  YOUTUBE_API_KEY: "",
+  // NOTE: this key is client-side, so restrict it in Google Cloud Console to
+  // your domain/referrer (API & Services → Credentials → key → HTTP referrers).
+  YOUTUBE_API_KEY: "AIzaSyDOzuPwsTrqLKzcMSaZiuO93tJiOUDATkU",
 
   // Backend (FastAPI) — replace with your Render URL before deploy
   API_BASE_URL: "https://your-backend.onrender.com",

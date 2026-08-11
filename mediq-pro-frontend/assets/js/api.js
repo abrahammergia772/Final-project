@@ -73,6 +73,36 @@ const delay = (ms) => new Promise(r => setTimeout(r, ms));
 let mockSeq = 0;
 const uid = (p) => (p || "ID") + "-" + (1000 + (mockSeq++ % 9000));
 
+// ---------- Live YouTube search (free YouTube Data API v3) ----------
+// Used by the Health Videos feature when CONFIG.YOUTUBE_API_KEY is set.
+// Throws on failure so callers can degrade to the curated library.
+async function searchYouTube(query, maxResults = 12) {
+  if (!CONFIG.YOUTUBE_API_KEY) throw new Error("no-youtube-key");
+  const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=" + maxResults +
+              "&q=" + encodeURIComponent(query) + "&type=video&safeSearch=strict&key=" + CONFIG.YOUTUBE_API_KEY;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const reason = (err.error && err.error.errors && err.error.errors[0] && err.error.errors[0].reason) || ("HTTP " + res.status);
+    throw new Error(reason || "youtube-api-error");
+  }
+  const data = await res.json();
+  return (data.items || []).map((it, i) => ({
+    id: "YT-" + it.id.videoId + "-" + i,
+    title: it.snippet.title,
+    channel: it.snippet.channelTitle,
+    video_id: it.id.videoId,
+    search: "",
+    conditions: [],
+    duration: "—",
+    views: "—",
+    category: "Live results",
+    description: it.snippet.description || "",
+    thumb: it.snippet.thumbnails && it.snippet.thumbnails.high ? it.snippet.thumbnails.high.url : null,
+    live: true
+  }));
+}
+
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 // ============================================================

@@ -156,6 +156,7 @@ function watchUrl(v) {
                     : "https://www.youtube.com/results?search_query=" + encodeURIComponent(v.search);
 }
 function thumb(v) {
+  if (v.thumb) return v.thumb;
   if (v.video_id) return "https://i.ytimg.com/vi/" + v.video_id + "/hqdefault.jpg";
   return null;
 }
@@ -211,30 +212,64 @@ function renderGrid(el, list, emptyMsg) {
 }
 
 const MY_CONDITIONS = ["Hypertension", "Diabetes Type 2"];
+const HAS_YT = !!CONFIG.YOUTUBE_API_KEY;
 function afterVideos() {
   document.getElementById("myConds").textContent = MY_CONDITIONS.join(", ");
+  // Instant curated suggestions first
   showForConditions(MY_CONDITIONS);
+  // Then upgrade to LIVE YouTube results when the API key is configured
+  if (HAS_YT) loadLiveSuggestions(MY_CONDITIONS);
   document.getElementById("btnSearch").addEventListener("click", searchVideos);
   document.getElementById("vidSearch").addEventListener("keydown", e => { if (e.key === "Enter") searchVideos(); });
-  document.getElementById("btnRefine").addEventListener("click", () => {
-    showLoading("AI finding videos for you…");
-    setTimeout(() => {
-      hideLoading();
-      openModal({
-        title: "AI Video Suggestions",
-        body: `<p style="color:#6B7280;font-size:14px">Based on your conditions (${esc(MY_CONDITIONS.join(", "))}) and general health topics, here are the top suggestions:</p>
-          <div class="doc-grid mt-4" id="aiVidGrid"></div>`,
-        footer: `<button class="btn btn-primary" data-close>Close</button>`
-      }, {
-        size: "lg",
-        onMount: (ov) => {
-          ov.querySelector("[data-close]").onclick = () => ov.remove();
-          const grid = ov.querySelector("#aiVidGrid");
-          grid.innerHTML = VIDS.slice(0, 6).map(videoCard).join("");
-        }
+  document.getElementById("btnRefine").addEventListener("click", askAI);
+}
+function loadLiveSuggestions(conds) {
+  showLoading("Fetching live YouTube videos for your conditions…");
+  const queries = conds.map(c => c + " patient education");
+  Promise.allSettled(queries.map(q => searchYouTube(q, 6))).then(results => {
+    hideLoading();
+    const seen = {}, merged = [];
+    results.forEach(r => {
+      if (r.status !== "fulfilled") return;
+      r.value.forEach(v => {
+        if (!seen[v.video_id]) { seen[v.video_id] = 1; merged.push(v); }
       });
-    }, 800);
+    });
+    if (merged.length) {
+      VIDS = merged;
+      document.getElementById("myConds").textContent = MY_CONDITIONS.join(", ") + " · live from YouTube";
+      renderGrid(document.getElementById("patVideoGrid"), merged.slice(0, 8), "No live results.");
+    }
+    // else keep the curated suggestions already shown
   });
+}
+function askAI() {
+  const done = (items) => {
+    openModal({
+      title: "AI Video Suggestions",
+      body: `<p style="color:#6B7280;font-size:14px">Based on your conditions (${esc(MY_CONDITIONS.join(", "))})${HAS_YT ? " — live results from YouTube" : ""}:</p>
+        <div class="doc-grid mt-4" id="aiVidGrid"></div>`,
+      footer: `<button class="btn btn-primary" data-close>Close</button>`
+    }, {
+      size: "lg",
+      onMount: (ov) => {
+        ov.querySelector("[data-close]").onclick = () => ov.remove();
+        ov.querySelector("#aiVidGrid").innerHTML = items.map(videoCard).join("");
+      }
+    });
+  };
+  showLoading("AI finding videos for you…");
+  if (HAS_YT) {
+    Promise.allSettled(MY_CONDITIONS.map(c => searchYouTube(c + " patient education", 4))).then(results => {
+      hideLoading();
+      const seen = {}, merged = [];
+      results.forEach(r => { if (r.status === "fulfilled") r.value.forEach(v => { if (!seen[v.video_id]) { seen[v.video_id] = 1; merged.push(v); } }); });
+      if (merged.length) VIDS = merged;
+      done(merged.length ? merged : VIDS.slice(0, 6));
+    });
+  } else {
+    setTimeout(() => { hideLoading(); done(VIDS.slice(0, 6)); }, 800);
+  }
 }
 function showForConditions(conds) {
   const lower = conds.map(c => c.toLowerCase());
@@ -246,12 +281,23 @@ function searchVideos() {
   const q = document.getElementById("vidSearch").value.trim();
   if (!q) { showToast("Type a topic to search", "info"); return; }
   showLoading("AI searching for videos…");
-  apiFetch(CONFIG.ENDPOINTS.VIDEO_SEARCH, "POST", { query: q, conditions: MY_CONDITIONS }).then(r => {
-    hideLoading();
-    if (!r.ok) { showToast("Video search unavailable", "error"); return; }
-    VIDS = r.data.items.length ? r.data.items : VIDS;
-    renderGrid(document.getElementById("patVideoGrid"), r.data.items, "No videos found for '" + esc(q) + "'. Try another topic.");
-    document.getElementById("myConds").textContent = 'results for "' + esc(q) + '"';
+  const run = (live, curated) => {
+    if (HAS_YT) {
+      searchYouTube(q).then(items => {
+        hideLoading();
+        if (!items.length) throw new Error("empty");
+        VIDS = items;
+        renderGrid(document.getElementById("patVideoGrid"), items, "No videos found for '" + esc(q) + "'. Try another topic.");
+        document.getElementById("myConds").textContent = 'live results for "' + esc(q) + '"';
+      }).catch(() => { hideLoading(); curated(); });
+    } else { hideLoading(); curated(); }
+  };
+  run(q, () => {
+    apiFetch(CONFIG.ENDPOINTS.VIDEO_SEARCH, "POST", { query: q, conditions: MY_CONDITIONS }).then(r => {
+      if (!r.ok) { showToast("Video search unavailable", "error"); return; }
+      renderGrid(document.getElementById("patVideoGrid"), r.data.items, "No videos found for '" + esc(q) + "'. Try another topic.");
+      document.getElementById("myConds").textContent = 'results for "' + esc(q) + '"';
+    });
   });
 }
 
