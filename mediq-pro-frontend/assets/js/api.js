@@ -76,10 +76,21 @@ const uid = (p) => (p || "ID") + "-" + (1000 + (mockSeq++ % 9000));
 // ---------- Live YouTube search (free YouTube Data API v3) ----------
 // Used by the Health Videos feature when CONFIG.YOUTUBE_API_KEY is set.
 // Throws on failure so callers can degrade to the curated library.
+// Results are filtered to HEALTH content only (no music/gaming/entertainment).
+const YT_HEALTH_KEYWORDS = ["health", "medical", "doctor", "medicine", "disease", "patient", "care", "treatment", "symptom", "hospital", "clinic", "nutrition", "diet", "wellness", "exercis", "prevent", "hypertension", "diabetes", "asthma", "cancer", "heart", "kidney", "thyroid", "anemia", "pregnancy", "stress", "mental", "tuberculosis", "malaria", "infection", "fever", "cough", "blood", "pain", "weight", "sleep", "vaccin", "therapy", "depression", "anxiety", "smoking", "alcohol", "hygiene", "sanitation", "first aid"];
+const YT_BLOCK_KEYWORDS = ["music video", "lyrics", "gameplay", "gaming", "let's play", "trailer", "movie", "prank", "comedy", "stand-up", "sports highlights", "highlights", "reaction", "vlog", "unboxing", "fifa", "minecraft", "dance", "karaoke", "review of phone", "test drive"];
+const YT_TRUSTED_CHANNELS = ["mayo clinic", "cleveland clinic", "osmosis", "mass general", "johns hopkins", "nhs", "webmd", "medlineplus", "healthline", "nucleus medical", "medscape", "harvard health", "stanford health", "ted-ed", "med school insiders"];
+function isHealthVideo(v) {
+  const hay = (v.title + " " + (v.description || "") + " " + v.channel).toLowerCase();
+  if (YT_BLOCK_KEYWORDS.some(b => hay.includes(b))) return false;
+  if (YT_TRUSTED_CHANNELS.some(t => hay.includes(t))) return true;
+  return YT_HEALTH_KEYWORDS.some(k => hay.includes(k));
+}
 async function searchYouTube(query, maxResults = 12) {
   if (!CONFIG.YOUTUBE_API_KEY) throw new Error("no-youtube-key");
+  const q = query.toLowerCase().includes("health") ? query : query + " health";
   const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=" + maxResults +
-              "&q=" + encodeURIComponent(query) + "&type=video&safeSearch=strict&key=" + CONFIG.YOUTUBE_API_KEY;
+              "&q=" + encodeURIComponent(q) + "&type=video&safeSearch=strict&relevanceLanguage=en&key=" + CONFIG.YOUTUBE_API_KEY;
   const res = await fetch(url);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -100,7 +111,7 @@ async function searchYouTube(query, maxResults = 12) {
     description: it.snippet.description || "",
     thumb: it.snippet.thumbnails && it.snippet.thumbnails.high ? it.snippet.thumbnails.high.url : null,
     live: true
-  }));
+  })).filter(isHealthVideo).slice(0, maxResults);
 }
 
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }

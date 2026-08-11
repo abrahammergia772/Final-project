@@ -303,3 +303,22 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
 .demo-role:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
 .demo-role .dr-icon { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .demo-role .dr-icon svg { width: 15px; height: 15px; }
+
+/* ---------- AI chatbot → related video suggestions ---------- */
+.ai-vid-row {
+  display: flex; gap: 10px; align-items: center; cursor: pointer;
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 10px; margin-bottom: 8px; transition: border-color .15s ease, box-shadow .15s ease;
+}
+.ai-vid-row:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.ai-vid-thumb {
+  width: 74px; height: 46px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
+  background: var(--light-gray); display: flex; align-items: center; justify-content: center; color: var(--primary);
+}
+.ai-vid-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ai-vid-thumb svg { width: 20px; height: 20px; }
+.ai-vid-info { flex: 1; min-width: 0; }
+.ai-vid-title { font-weight: 600; font-size: 13px; line-height: 1.3; }
+.ai-vid-sub { font-size: 11px; color: var(--gray); margin-top: 1px; }
+.ai-vid-play { color: var(--primary); flex-shrink: 0; }
+.ai-vid-play svg { width: 22px; height: 22px; }
