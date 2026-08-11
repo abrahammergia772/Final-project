@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Settings — MedIQ Pro</title>
+<title>Shifts & Attendance — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -17,90 +17,64 @@
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
 <a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="patients.html" data-perm="patients" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
-<a class="nav-link" href="consultation.html" data-perm="consultation" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg><span class="nav-label">Consultation</span></a>
-<a class="nav-link" href="prescriptions.html" data-perm="prescriptions" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Prescriptions</span></a>
-<a class="nav-link" href="appointments.html" data-perm="appointments" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
-<a class="nav-link" href="referrals.html" data-perm="referrals" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></svg><span class="nav-label">Referrals</span></a>
-<a class="nav-link" href="shifts.html" data-perm="shifts" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="nav-label">Shifts & Attendance</span></a>
+<a class="nav-link" href="departments.html" data-perm="departments" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M8 10h.01M16 10h.01M12 10h.01M8 14h.01M16 14h.01M12 14h.01"/></svg><span class="nav-label">Departments</span></a>
+<a class="nav-link" href="staff.html" data-perm="staff" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span class="nav-label">Staff</span></a>
+<a class="nav-link" href="reports.html" data-perm="reports" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20V10M18 20V4M6 20v-4"/></svg><span class="nav-label">Reports</span></a>
+<a class="nav-link" href="finance.html" data-perm="finance" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg><span class="nav-label">Finance</span></a>
+<a class="nav-link" href="complaints.html" data-perm="complaints" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><span class="nav-label">Complaints</span></a>
+<a class="nav-link active" href="shifts.html" data-perm="shifts" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="nav-label">Shifts & Attendance</span></a>
 <div class="nav-section-label">AI TOOLS</div>
-<a class="nav-link" href="ai-diagnosis.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg><span class="nav-label">AI Diagnosis</span></a>
+<a class="nav-link" href="ai-insights.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3l1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7L4.4 10.6l5.7-1.9z"/><path d="M19 15l.9 2.7 2.7.9-2.7.9L19 22.2l-.9-2.7-2.7-.9 2.7-.9z"/></svg><span class="nav-label">AI Insights</span></a>
 <div class="nav-section-label">MESSAGES</div>
 <a class="nav-link" href="messages.html" data-perm="messages" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="nav-label">Messages</span></a>
 <div class="nav-section-label">ACCOUNT</div>
-<a class="nav-link active" href="settings.html" data-perm="settings" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Settings</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Shifts & Attendance</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
 <div class="panel-grid cols-2">
+  <section class="card">
+    <h3 class="mb-1">Fingerprint Check-in</h3>
+    <p class="text-sm mb-3" style="color:#6B7280">Attendance is captured <strong>automatically</strong> by the fingerprint device when you enter the facility — no manual entry needed. Touch the scanner to see it live.</p>
+    <div class="fp-panel">
+      <div class="fp-scanner" id="fpScanner" title="Touch to scan"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg></div>
+      <div class="fp-status">
+        <div class="fp-main" id="fpMain">Present</div>
+        <div class="fp-sub" id="fpSub">Checked in at 06:58 via fingerprint</div>
+      </div>
+      <div class="fp-meta">
+        <span class="fp-m-item"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg> Device: <strong>FP-01 · Main Entrance</strong></span>
+        <span class="fp-m-item"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Auto-capture: <strong class="text-success">ON</strong></span>
+      </div>
+    </div>
+  </section>
   <div>
     <section class="card mb-4">
-      <h3 class="mb-3">Profile Information</h3>
-      <div class="flex" style="gap:14px;margin-bottom:16px;flex-wrap:wrap">
-        <span class="avatar" style="width:56px;height:56px;font-size:22px" data-user-initials>…</span>
-        <div>
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('stAvatar').click()">Change Photo</button>
-          <input type="file" id="stAvatar" accept="image/*" class="hidden" onchange="showToast('Profile photo updated','success')">
-          <div class="hint" style="margin-top:4px">PNG or JPG, max 2 MB</div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Full Name</label><input class="form-control" id="stName"></div>
-        <div class="form-group"><label>Email</label><input class="form-control" type="email" id="stEmail"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Phone</label><input class="form-control" id="stPhone" value="+251 9xx xxx xxx"></div>
-        <div class="form-group"><label>Role</label><input class="form-control" id="stRole" disabled></div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group"><label>Specialty</label><input class="form-control" id="stExtra1" value="Internal Medicine"></div>
-        <div class="form-group"><label>Default Consultation (min)</label><select class="form-control" id="stExtra2"><option>15</option><option selected>20</option><option>30</option><option>45</option></select></div>
-      </div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px dashed #E5E7EB"><div><div style="font-weight:600">Auto-notify on lab results</div><div class="text-sm" style="color:#6B7280">Push a notification when results arrive</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
-      <div class="form-actions"><button class="btn btn-primary" onclick="saveProfile()">Save Profile</button></div>
+      <h3 class="mb-3">My Attendance — This Month</h3>
+      <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);margin:0" id="myStatCards"></div>
+      <div class="chart-box mt-4" id="mySpark"></div>
     </section>
-    <section class="card">
-      <h3 class="mb-3">Password &amp; Security</h3>
-      <div class="form-group"><label>Current Password</label><input class="form-control" type="password" id="stCur" placeholder="••••••••"></div>
-      <div class="form-row">
-        <div class="form-group"><label>New Password</label><input class="form-control" type="password" id="stNew1" placeholder="Min 8 characters"></div>
-        <div class="form-group"><label>Confirm New Password</label><input class="form-control" type="password" id="stNew2" placeholder="Repeat password"></div>
-      </div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Two-Factor Authentication</div><div class="text-sm" style="color:#6B7280">Extra OTP step at login</div></div><label class="toggle"><input type="checkbox"><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Session Timeout</div><div class="text-sm" style="color:#6B7280">Auto-logout after inactivity</div></div><select class="form-control" style="width:150px"><option>30 minutes</option><option selected>1 hour</option><option>4 hours</option><option>8 hours</option></select></div>
-      <div class="form-actions"><button class="btn btn-primary" onclick="saveSecurity()">Update Password</button></div>
-    </section>
-  </div>
-  <div>
-    <section class="card mb-4">
-      <h3 class="mb-3">Notification Preferences</h3>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Email alerts</div><div class="text-sm" style="color:#6B7280">Send updates to my email</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">SMS alerts</div><div class="text-sm" style="color:#6B7280">Text messages for urgent items</div></div><label class="toggle"><input type="checkbox"><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">In-app notifications</div><div class="text-sm" style="color:#6B7280">Show the bell notifications</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">AI module alerts</div><div class="text-sm" style="color:#6B7280">Alerts from the AI systems</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
-      <div class="form-actions"><button class="btn btn-primary" onclick="savePrefs()">Save Preferences</button></div>
-    </section>
-    <section class="card">
-      <h3 class="mb-3">Appearance</h3>
-      <div class="form-group"><label>Accent Color</label>
-        <select class="form-control" id="stAccent">
-          <option value="blue">Blue (default)</option>
-          <option value="teal">Teal</option>
-          <option value="purple">Purple</option>
-          <option value="green">Green</option>
-          <option value="rose">Rose</option>
-        </select></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Compact density</div><div class="text-sm" style="color:#6B7280">Tighter spacing on tables and cards</div></div><label class="toggle"><input type="checkbox" id="stCompact"><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Date format</div><div class="text-sm" style="color:#6B7280">Ethiopian standard</div></div><select class="form-control" style="width:150px"><option selected>DD/MM/YYYY</option><option>DD/MM/YYYY (Ethiopian)</option></select></div>
-      <div class="form-actions"><button class="btn btn-primary" onclick="saveAppearance()">Save Appearance</button></div>
+    <section class="card" style="padding:0">
+      <div class="table-toolbar"><h3 style="font-size:16px">My Attendance History</h3></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Shift</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Source</th></tr></thead><tbody id="myHistBody"></tbody></table></div>
     </section>
   </div>
 </div>
+
+
+<section class="card mt-5">
+  <div class="flex-between wrap" style="gap:10px"><h3 style="font-size:16px">Department Attendance — Today</h3>
+    <button class="btn btn-secondary" id="mExport"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg> Export CSV</button></div>
+  <div class="table-wrap mt-3"><table class="data-table"><thead><tr><th>Staff</th><th>Shift</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Source</th><th style="text-align:right">Action</th></tr></thead><tbody id="deptAtBody"></tbody></table></div>
+</section>
+<section class="card mt-5" style="padding:0">
+  <div class="table-toolbar"><h3 style="font-size:16px">Department Roster</h3></div>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Staff</th><th>Date</th><th>Shift</th><th>Start</th><th>End</th></tr></thead><tbody id="mgrRosterBody"></tbody></table></div>
+</section>
 
 </section>
 </main>
@@ -187,57 +161,174 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 "barcode": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14\"/></svg>",
 "fingerprint": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4\"/><path d=\"M14 13.12c0 2.38 0 6.38-1 8.88\"/><path d=\"M17.29 21.02c.12-.6.43-2.3.5-3.02\"/><path d=\"M2 12a10 10 0 0 1 18-6\"/><path d=\"M2 16h.01\"/><path d=\"M21.8 16c.2-2 .131-5.354 0-6\"/><path d=\"M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2\"/><path d=\"M8.65 22c.21-.66.45-1.32.57-2\"/><path d=\"M9 6.8a6 6 0 0 1 9 5.2v2\"/></svg>"};
 
-const ROLE = "doctor";
-const ROLE_LABELS = { admin:"Administrator", manager:"General Manager", doctor:"Doctor", nurse:"Nurse", pharmacist:"Pharmacist", laboratory:"Laboratory", reception:"Receptionist", patient:"Patient" };
+const ROLE = "manager";
+const STAFF_NAME = getUserName() || "Test User";
+let SHIFTS = [], ROSTER = [], ATT = [], DEVICES = [];
+const TODAY = todayStr();
+const STATUS_BADGE = { present: ["success", "Present"], late: ["warning", "Late"], absent: ["danger", "Absent"], leave: ["neutral", "On Leave"] };
+const SOURCE_ICON = { fingerprint: "fingerprint", manual: "edit", badge: "card" };
+
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess(ROLE); initLayout(); loadPageData();
 });
+
 function loadPageData() {
-  const s = getSession();
-  document.getElementById("stRole").value = ROLE_LABELS[ROLE] || ROLE;
-  if (s) {
-    document.getElementById("stName").value = s.name || "";
-    document.getElementById("stEmail").value = (ROLE + "@mediq.pro");
-    document.querySelectorAll("[data-user-initials]").forEach(el => el.textContent = initialsOf(s.name));
+  Promise.all([
+    apiFetch(CONFIG.ENDPOINTS.SHIFTS),
+    apiFetch(CONFIG.ENDPOINTS.ROSTER),
+    apiFetch(CONFIG.ENDPOINTS.ATTENDANCE),
+    apiFetch(CONFIG.ENDPOINTS.FINGERPRINT_DEVICES)
+  ]).then(([sh, ro, at, dv]) => {
+    if (sh.ok) SHIFTS = sh.data.items;
+    if (ro.ok) ROSTER = ro.data.items;
+    if (at.ok) ATT = at.data.items;
+    if (dv.ok) DEVICES = dv.data.items;
+    renderMyPanel();
+    renderMyStats();
+    renderMyHistory();
+    window.__renderMgmt && window.__renderMgmt();
+  });
+}
+
+function myToday() {
+  return ATT.find(a => a.staff === STAFF_NAME && a.date === TODAY) ||
+    { staff: STAFF_NAME, date: TODAY, shift: "Morning", check_in: "06:58", check_out: null, status: "present", source: "fingerprint", device: "FP-01" };
+}
+
+// ---------- Fingerprint scanner ----------
+function renderMyPanel() {
+  const t = myToday();
+  const scanner = document.getElementById("fpScanner");
+  const main = document.getElementById("fpMain");
+  const sub = document.getElementById("fpSub");
+  scanner.classList.remove("ok");
+  if (t.status === "absent") {
+    main.textContent = "Not checked in";
+    sub.textContent = "Place your finger — device will capture automatically";
+    scanner.title = "Touch to check in";
+  } else if (t.check_out) {
+    scanner.classList.add("ok");
+    main.textContent = "Checked out · " + t.check_out;
+    sub.textContent = "Shift complete — auto-captured by fingerprint device";
+    scanner.title = "Day complete";
+  } else {
+    scanner.classList.add("ok");
+    main.textContent = "Present · " + t.check_in;
+    sub.textContent = "Auto-captured by " + (t.device || "FP-01") + " at " + t.check_in;
+    scanner.title = "Touch to check out";
   }
-  const saved = getSetting("accent") || "blue";
-  applyAccent(saved);
-  document.getElementById("stAccent").value = saved;
-  if (getSetting("compact")) document.getElementById("stCompact").checked = true;
 }
-function getSetting(k) { try { return JSON.parse(localStorage.getItem("mediq_pro_settings") || "{}")[k]; } catch (e) { return null; } }
-function setSetting(k, v) { try { const o = JSON.parse(localStorage.getItem("mediq_pro_settings") || "{}"); o[k] = v; localStorage.setItem("mediq_pro_settings", JSON.stringify(o)); } catch (e) {} }
-function applyAccent(name) {
-  const map = { blue: "#1A56DB", teal: "#0F766E", purple: "#7C3AED", green: "#047857", rose: "#BE123C" };
-  const c = map[name] || map.blue;
-  document.documentElement.style.setProperty("--primary", c);
-  document.documentElement.style.setProperty("--primary-dark", c);
+function fpScan() {
+  const scanner = document.getElementById("fpScanner");
+  if (scanner.classList.contains("scanning")) return;
+  const t = myToday();
+  if (t.status === "absent" || (t.status === "present" && t.check_out)) return;
+  scanner.classList.add("scanning");
+  const now = new Date().toTimeString().slice(0, 5);
+  setTimeout(() => {
+    scanner.classList.remove("scanning");
+    scanner.classList.add("ok");
+    if (t.status === "absent") {
+      t.status = "present"; t.check_in = now; t.source = "fingerprint"; t.device = "FP-01";
+      document.getElementById("fpMain").textContent = "Present · " + now;
+      document.getElementById("fpSub").textContent = "Fingerprint verified — checked in at " + now;
+      showToast("✓ Fingerprint matched — checked in at " + now, "success");
+    } else if (!t.check_out) {
+      t.check_out = now;
+      document.getElementById("fpMain").textContent = "Checked out · " + now;
+      document.getElementById("fpSub").textContent = "Checked out at " + now + " — see you tomorrow";
+      showToast("✓ Checked out at " + now, "success");
+    }
+    renderMyStats();
+  }, 1200);
 }
-function saveProfile() {
-  const name = document.getElementById("stName").value.trim();
-  if (!name) { showToast("Name is required", "error"); return; }
-  const s = getSession();
-  if (s) { s.name = name; saveSession(s); }
-  showToast("Profile updated successfully", "success");
+document.addEventListener("click", (e) => { if (e.target.closest("#fpScanner")) fpScan(); });
+
+// ---------- My stats ----------
+function renderMyStats() {
+  const mine = ATT.filter(a => a.staff === STAFF_NAME);
+  const cnt = (s) => mine.filter(a => a.status === s).length;
+  document.getElementById("myStatCards").innerHTML =
+    `<div class="stat-card color-success"><div class="stat-icon" style="width:40px;height:40px">${ICONS.check}</div><div><div class="stat-value" style="font-size:18px">${cnt("present")}</div><div class="stat-label">On Time</div></div></div>` +
+    `<div class="stat-card color-warning"><div class="stat-icon" style="width:40px;height:40px">${ICONS.clock}</div><div><div class="stat-value" style="font-size:18px">${cnt("late")}</div><div class="stat-label">Late</div></div></div>` +
+    `<div class="stat-card color-danger"><div class="stat-icon" style="width:40px;height:40px">${ICONS.x}</div><div><div class="stat-value" style="font-size:18px">${cnt("absent")}</div><div class="stat-label">Absent</div></div></div>` +
+    `<div class="stat-card color-info"><div class="stat-icon" style="width:40px;height:40px">${ICONS.briefcase}</div><div><div class="stat-value" style="font-size:18px">${cnt("leave")}</div><div class="stat-label">On Leave</div></div></div>`;
+  const sparkEl = document.getElementById("mySpark");
+  if (sparkEl) {
+    const byDay = {};
+    mine.forEach(a => { byDay[a.date] = a.status === "present" || a.status === "late" ? 1 : 0; });
+    const days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - (6 - i));
+      const k = d.toISOString().slice(0, 10);
+      return { label: d.getDate() + "/" + (d.getMonth() + 1), value: byDay[k] ? 1 : 0 };
+    });
+    sparkEl.innerHTML = lineChart(days, { height: 120, color: "#10B981", showPoints: true }) +
+      '<div class="chart-legend"><span class="lg-item"><span class="lg-swatch" style="background:#10B981"></span> Present (last 7 days)</span></div>';
+  }
 }
-function saveSecurity() {
-  const cur = document.getElementById("stCur").value;
-  const n1 = document.getElementById("stNew1").value;
-  const n2 = document.getElementById("stNew2").value;
-  if (!cur) { showToast("Enter your current password", "error"); return; }
-  if (n1.length < 8) { showToast("New password must be at least 8 characters", "error"); return; }
-  if (n1 !== n2) { showToast("Passwords do not match", "error"); return; }
-  ["stCur", "stNew1", "stNew2"].forEach(i => document.getElementById(i).value = "");
-  showToast("Password updated successfully", "success");
+function renderMyHistory() {
+  const body = document.getElementById("myHistBody");
+  const mine = ATT.filter(a => a.staff === STAFF_NAME).slice(0, 12);
+  body.innerHTML = mine.length ? mine.map(a => {
+    const sb = STATUS_BADGE[a.status] || ["neutral", a.status];
+    return `<tr>
+      <td>${formatDate(a.date)}</td>
+      <td><span class="shift-chip shift-${(a.shift || "morning").toLowerCase().replace(/[^a-z]/g, "") || "custom"}"><span class="sc-dot"></span>${esc(a.shift)}</span></td>
+      <td>${a.check_in || "—"}</td><td>${a.check_out || "—"}</td>
+      <td><span class="badge badge-${sb[0]}">${sb[1]}</span></td>
+      <td class="text-sm text-gray" style="color:#6B7280">${a.source === "fingerprint" ? '<span style="display:inline-flex;align-items:center;gap:4px">' + ICONS.fingerprint + " Fingerprint</span>" : "Manual"}</td></tr>`;
+  }).join("") : emptyRow(6);
 }
-function savePrefs() { showToast("Notification preferences saved", "success"); }
-function saveAppearance() {
-  const a = document.getElementById("stAccent").value;
-  setSetting("accent", a);
-  applyAccent(a);
-  setSetting("compact", document.getElementById("stCompact").checked ? 1 : 0);
-  document.body.classList.toggle("compact", !!document.getElementById("stCompact").checked);
-  showToast("Appearance saved", "success");
+
+window.__renderMgmt = function () { renderDeptAtt(); renderMgrRoster(); };
+function renderDeptAtt() {
+  const body = document.getElementById("deptAtBody");
+  const depts = ["Internal Medicine", "Pediatrics", "Cardiology", "Pharmacy", "Laboratory", "Front Desk"];
+  const today = ATT.filter(a => a.date === TODAY && depts.includes(a.dept));
+  const list = today.length ? today : ATT.filter(a => a.date === TODAY).slice(0, 6);
+  body.innerHTML = list.map(a => {
+    const sb = STATUS_BADGE[a.status] || ["neutral", a.status];
+    return `<tr><td><strong>${esc(a.staff)}</strong></td>
+      <td><span class="shift-chip shift-${(a.shift || "morning").toLowerCase().replace(/[^a-z]/g, "") || "custom"}"><span class="sc-dot"></span>${esc(a.shift)}</span></td>
+      <td>${a.check_in || "—"}</td><td>${a.check_out || "—"}</td>
+      <td><span class="badge badge-${sb[0]}">${sb[1]}</span></td>
+      <td class="text-sm text-gray" style="color:#6B7280">${a.source === "fingerprint" ? "Fingerprint" : "Manual"}</td>
+      <td style="text-align:right">${a.status === "absent" ? `<button class="btn btn-secondary btn-sm" onclick="overrideAbsent('${a.staff}')">Manual override</button>` : ""}</td></tr>`;
+  }).join("") || emptyRow(7);
+  document.getElementById("mExport").onclick = () => {
+    exportCSV("dept-attendance.csv", ["Staff", "Department", "Date", "Shift", "Check-in", "Check-out", "Status", "Source"],
+      list.map(a => [a.staff, a.dept, a.date, a.shift, a.check_in, a.check_out, a.status, a.source]));
+    showToast("Department attendance exported", "success");
+  };
+}
+function overrideAbsent(staff) {
+  openModal({
+    title: "Manual Override — " + staff,
+    body: `<div class="alert alert-info mb-4"><span>${ICONS.info}</span><div class="alert-body">The fingerprint device shows no entry for ${esc(staff)} today. Confirm the reason or mark them present manually.</div></div>
+      <div class="form-group"><label>Mark as</label><select class="form-control" id="ovStatus"><option>present</option><option>late</option><option>leave</option></select></div>
+      <div class="form-group"><label>Reason</label><input class="form-control" id="ovReason" placeholder="e.g. Device malfunction, doctor on call…"></div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="ovSave">Save Override</button>`
+  }, {
+    onMount: (ov) => {
+      ov.querySelector("[data-c]").onclick = () => ov.remove();
+      ov.querySelector("#ovSave").onclick = () => {
+        const rec = ATT.find(a => a.staff === staff && a.date === TODAY);
+        const st = ov.querySelector("#ovStatus").value;
+        if (rec) { rec.status = st; rec.source = "manual"; if (st !== "absent" && !rec.check_in) rec.check_in = "09:30"; }
+        else ATT.push({ id: uid("AT"), staff, dept: "Department", date: TODAY, shift: "Morning", check_in: st === "absent" ? "—" : "09:30", check_out: null, status: st, source: "manual" });
+        renderDeptAtt(); ov.remove();
+        showToast("Attendance updated for " + staff, "success");
+      };
+    }
+  });
+}
+function renderMgrRoster() {
+  const depts = ["Internal Medicine", "Pediatrics", "Cardiology", "Pharmacy", "Laboratory", "Front Desk"];
+  const rows = ROSTER.filter(r => depts.includes(r.dept)).slice(0, 8);
+  document.getElementById("mgrRosterBody").innerHTML = (rows.length ? rows : ROSTER.slice(0, 8)).map(r => `
+    <tr><td><strong>${esc(r.staff)}</strong></td><td>${formatDate(r.date)}</td>
+    <td><span class="shift-chip shift-${(r.shift || "morning").toLowerCase().replace(/[^a-z]/g, "") || "custom"}"><span class="sc-dot"></span>${esc(r.shift)}</span></td>
+    <td>${r.start}</td><td>${r.end}</td></tr>`).join("") || emptyRow(5);
 }
 
 </script>

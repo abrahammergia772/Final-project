@@ -312,6 +312,60 @@ const MOCK = {
     { id: "CMP-105", reporter: "Selam Tadesse", reporter_role: "patient", category: "Treatment / Care", subject: "Dizziness with new medication", description: "Since starting the new blood pressure medication I have been feeling dizzy in the morning. Should I continue taking it?", priority: "urgent", date: "2026-08-06T16:00:00", status: "resolved", solution: "Reviewed with Dr. Meron Assefa: the dizziness is a known side effect. Your dose has been reduced to half a tablet and we recommend follow-up in 3 days. If dizziness persists or worsens, come to the emergency department.", resolved_by: "Hanna Bekele", resolved_date: "2026-08-07T09:00:00" }
   ],
 
+  shifts: [
+    { id: "SH-1", name: "Morning", start: "07:00", end: "15:00", color: "#1A56DB", css: "morning", workers: 34 },
+    { id: "SH-2", name: "Evening", start: "15:00", end: "23:00", color: "#D97706", css: "evening", workers: 22 },
+    { id: "SH-3", name: "Night", start: "23:00", end: "07:00", color: "#7C3AED", css: "night", workers: 15 },
+    { id: "SH-4", name: "Day (OPD)", start: "08:00", end: "17:00", color: "#047857", css: "day", workers: 18 },
+    { id: "SH-5", name: "Half-day", start: "08:00", end: "13:00", color: "#0891B2", css: "half", workers: 6 }
+  ],
+
+  roster: [
+    { id: "RO-1", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-2", staff: "Dr. Fikru Debebe", dept: "Pediatrics", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-3", staff: "Dr. Meron Assefa", dept: "Cardiology", date: "2026-08-11", shift: "Evening", start: "15:00", end: "23:00" },
+    { id: "RO-4", staff: "Marta Tesfaye", dept: "Internal Medicine", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-5", staff: "Bethelehem Girma", dept: "Pediatrics", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-6", staff: "Yonas Girma", dept: "Pharmacy", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-7", staff: "Sara Worku", dept: "Laboratory", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-8", staff: "Liya Hailu", dept: "Front Desk", date: "2026-08-11", shift: "Morning", start: "07:00", end: "15:00" },
+    { id: "RO-9", staff: "Kaleb Teshome", dept: "Pharmacy", date: "2026-08-11", shift: "Evening", start: "15:00", end: "23:00" },
+    { id: "RO-10", staff: "Hanna Bekele", dept: "Management", date: "2026-08-11", shift: "Day (OPD)", start: "08:00", end: "17:00" }
+  ],
+
+  attendance: [
+    { id: "AT-1", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-11", shift: "Morning", check_in: "06:52", check_out: null, status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-2", staff: "Dr. Fikru Debebe", dept: "Pediatrics", date: "2026-08-11", shift: "Morning", check_in: "06:58", check_out: null, status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-3", staff: "Dr. Meron Assefa", dept: "Cardiology", date: "2026-08-11", shift: "Evening", check_in: "14:52", check_out: null, status: "present", source: "fingerprint", device: "FP-02" },
+    { id: "AT-4", staff: "Marta Tesfaye", dept: "Internal Medicine", date: "2026-08-11", shift: "Morning", check_in: "07:05", check_out: null, status: "late", source: "fingerprint", device: "FP-01" },
+    { id: "AT-5", staff: "Bethelehem Girma", dept: "Pediatrics", date: "2026-08-11", shift: "Morning", check_in: null, check_out: null, status: "absent", source: "fingerprint", device: "FP-01" },
+    { id: "AT-6", staff: "Yonas Girma", dept: "Pharmacy", date: "2026-08-11", shift: "Morning", check_in: "07:12", check_out: null, status: "late", source: "fingerprint", device: "FP-04" },
+    { id: "AT-7", staff: "Sara Worku", dept: "Laboratory", date: "2026-08-11", shift: "Morning", check_in: "06:48", check_out: null, status: "present", source: "fingerprint", device: "FP-05" },
+    { id: "AT-8", staff: "Liya Hailu", dept: "Front Desk", date: "2026-08-11", shift: "Morning", check_in: "06:45", check_out: null, status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-9", staff: "Kaleb Teshome", dept: "Pharmacy", date: "2026-08-11", shift: "Evening", check_in: "15:02", check_out: null, status: "present", source: "fingerprint", device: "FP-04" },
+    { id: "AT-10", staff: "Hanna Bekele", dept: "Management", date: "2026-08-11", shift: "Day (OPD)", check_in: "08:10", check_out: null, status: "late", source: "fingerprint", device: "FP-01" },
+    { id: "AT-11", staff: "Solomon Tadesse", dept: "Administration", date: "2026-08-11", shift: "Day (OPD)", check_in: "07:55", check_out: null, status: "present", source: "fingerprint", device: "FP-01" },
+    // history (past days)
+    { id: "AT-21", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-10", shift: "Morning", check_in: "06:55", check_out: "15:05", status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-22", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-09", shift: "Morning", check_in: "07:10", check_out: "15:00", status: "late", source: "fingerprint", device: "FP-01" },
+    { id: "AT-23", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-08", shift: "Evening", check_in: "14:58", check_out: "23:05", status: "present", source: "fingerprint", device: "FP-02" },
+    { id: "AT-24", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-07", shift: "Morning", check_in: "06:50", check_out: "15:02", status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-25", staff: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-06", shift: "Morning", check_in: null, check_out: null, status: "leave", source: "manual", device: null },
+    { id: "AT-26", staff: "Marta Tesfaye", dept: "Internal Medicine", date: "2026-08-10", shift: "Morning", check_in: "07:02", check_out: "15:06", status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-27", staff: "Yonas Girma", dept: "Pharmacy", date: "2026-08-10", shift: "Morning", check_in: "07:18", check_out: "15:10", status: "late", source: "fingerprint", device: "FP-04" },
+    { id: "AT-28", staff: "Sara Worku", dept: "Laboratory", date: "2026-08-10", shift: "Morning", check_in: "06:44", check_out: "15:00", status: "present", source: "fingerprint", device: "FP-05" },
+    { id: "AT-29", staff: "Liya Hailu", dept: "Front Desk", date: "2026-08-10", shift: "Morning", check_in: "06:50", check_out: "15:04", status: "present", source: "fingerprint", device: "FP-01" },
+    { id: "AT-30", staff: "Bethelehem Girma", dept: "Pediatrics", date: "2026-08-10", shift: "Morning", check_in: "07:00", check_out: "15:00", status: "present", source: "fingerprint", device: "FP-01" }
+  ],
+
+  devices: [
+    { id: "FP-01", name: "Main Entrance", model: "ZKTeco MB20", location: "Hospital Main Gate", status: "online", enrolled: 96, last_sync: "2026-08-11T08:05:00", auto: true },
+    { id: "FP-02", name: "Staff Wing — Ground", model: "ZKTeco UA760", location: "Staff Block A", status: "online", enrolled: 48, last_sync: "2026-08-11T08:02:00", auto: true },
+    { id: "FP-03", name: "Ward 2 Access", model: "ZKTeco F18", location: "Nursing Station Ward 2", status: "online", enrolled: 61, last_sync: "2026-08-11T07:58:00", auto: true },
+    { id: "FP-04", name: "Pharmacy Gate", model: "ZKTeco MB20", location: "Pharmacy", status: "warning", enrolled: 12, last_sync: "2026-08-11T07:30:00", auto: true },
+    { id: "FP-05", name: "Laboratory Entry", model: "ZKTeco UA760", location: "Lab Block", status: "online", enrolled: 9, last_sync: "2026-08-11T08:00:00", auto: true }
+  ],
+
   vitals_history: {
     "P-1004": [
       { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
@@ -417,6 +471,18 @@ function mockResponse(endpoint, method, body) {
       break;
     case CONFIG.ENDPOINTS.COMPLAINTS.replace(/^\//, ""):
       data = list(MOCK.complaints);
+      break;
+    case CONFIG.ENDPOINTS.SHIFTS.replace(/^\//, ""):
+      data = list(MOCK.shifts);
+      break;
+    case CONFIG.ENDPOINTS.ROSTER.replace(/^\//, ""):
+      data = list(MOCK.roster);
+      break;
+    case CONFIG.ENDPOINTS.ATTENDANCE.replace(/^\//, ""):
+      data = list(MOCK.attendance);
+      break;
+    case CONFIG.ENDPOINTS.FINGERPRINT_DEVICES.replace(/^\//, ""):
+      data = list(MOCK.devices);
       break;
 
     // ---------- Auth ----------
