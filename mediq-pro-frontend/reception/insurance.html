@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Front Desk Dashboard — MedIQ Pro</title>
+<title>Insurance & Claims — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -16,23 +16,37 @@
 <div class="sidebar-logo"><img src="../assets/images/logo.png" alt="MedIQ Pro logo"><div class="logo-text"><div class="brand">MedIQ Pro</div><div class="tag">Hospital Management</div></div></div>
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
-<a class="nav-link active" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
+<a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
 <a class="nav-link" href="registration.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Registration</span></a>
 <a class="nav-link" href="appointments.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
-<a class="nav-link" href="insurance.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-label">Insurance</span></a>
+<a class="nav-link active" href="insurance.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-label">Insurance</span></a>
 <a class="nav-link" href="queue.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="nav-label">Queue</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Front Desk Dashboard</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Insurance & Claims</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
-<div class="panel-grid">
-  <div>
-    <section class="panel"><div class="panel-header"><div><h3>Today's Appointments</h3></div><a class="btn btn-secondary btn-sm" href="appointments.html">Manage</a></div><div class="panel-body"><div class="table-wrap" style="max-height:460px;overflow-y:auto"><table class="data-table"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead><tbody id="recApptsBody"></tbody></table></div></div></section>
+<div class="stat-grid">
+  {s1}{s2}{s3}{s4}
+</div>
+<div class="card" style="padding:0">
+  <div class="table-toolbar">
+    <div class="search-box"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="insSearch" placeholder="Search patient…"></div>
+    <div class="filters">
+      <select class="form-control" id="insProv" style="width:180px"><option value="">All providers</option><option>EHBPA</option><option>Nyala Insurance</option><option>GIB (Global Insurance)</option><option>Awash Insurance</option><option>Private (self-pay)</option></select>
+      <select class="form-control" id="insStatus" style="width:160px"><option value="">All status</option><option>verified</option><option>pending</option><option>expired</option></select>
+      <button class="btn btn-primary" id="btnVerify"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verify Coverage</button>
+    </div>
   </div>
-  <div><section class="panel"><div class="panel-header"><div><h3>Walk-in Queue</h3></div><a class="btn btn-secondary btn-sm" href="queue.html">Queue Board</a></div><div class="panel-body"><div id="recQueueList"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Doctor Availability</h3><div class="sub">Real-time status</div></div></div><div class="panel-body"><div id="docAvail"></div></div></section></div>
+  <div class="table-wrap">
+    <table class="data-table" id="insTable">
+      <thead><tr><th class="sortable">Patient</th><th class="sortable">Provider</th><th class="sortable">Policy No.</th><th class="sortable">Coverage</th><th class="sortable">Valid Until</th><th class="sortable">Status</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="insBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="insPager"></div>
 </div>
 
 </section>
@@ -122,26 +136,80 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("reception"); initLayout(); loadPageData();
 });
+let INS = [];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
-    if (!r.ok) return;
-    document.getElementById("recApptsBody").innerHTML = r.data.items.filter(a => a.status !== "cancelled").map(a => `<tr>
-      <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td>
-      <td>${a.status === "checked-in" ? badge("Checked in","info") : badge(a.status,"success")}</td></tr>`).join("") || emptyRow(4);
+  apiFetch(CONFIG.ENDPOINTS.INSURANCE).then(r => {
+    if (!r.ok) return; INS = r.data.items; renderIns();
+    attachDataTable(document.getElementById("insTable"), {
+      searchInput: document.getElementById("insSearch"), pagerEl: document.getElementById("insPager"), pageSize: 8,
+      filterFn: row => {
+        const p = document.getElementById("insProv").value, s = document.getElementById("insStatus").value;
+        if (p && !row.cells[1].textContent.includes(p)) return false;
+        if (s && !row.cells[5].textContent.includes(s)) return false;
+        return true;
+      }
+    });
+    const n = INS.length;
+    document.querySelector(".stat-grid").innerHTML =
+      statCard2(INS.filter(x => x.status === "verified").length, "Verified Today", "check", "color-success") +
+      statCard2(INS.filter(x => x.status === "pending").length, "Pending Verification", "clock", "color-warning") +
+      statCard2(7, "Claims Filed", "file-text", "color-info") +
+      statCard2(Math.round(INS.reduce((s, x) => s + x.coverage, 0) / Math.max(n, 1)) + "%", "Avg Coverage", "percent", "");
   });
-  apiFetch(CONFIG.ENDPOINTS.QUEUE).then(r => {
-    if (!r.ok) return;
-    const q = r.data.items;
-    document.getElementById("recQueueList").innerHTML = q.slice(0, 5).map(x => `
-      <div class="feed-item"><div class="feed-icon" style="background:${x.status === "in-service" ? "#ECFDF5" : "#EFF6FF"};color:${x.status === "in-service" ? "#065F46" : "#1A56DB"}">${ICONS.users}</div>
-      <div class="feed-text"><strong>${esc(x.name)}</strong> · ${esc(x.dept)}<div class="feed-time">Arrived ${x.arrived} · ${x.status}</div></div>
-      <span class="badge badge-${x.status === "in-service" ? "success" : "neutral"}">${x.status === "in-service" ? "Now" : "Wait"}</span></div>`).join("");
+  document.getElementById("btnVerify").addEventListener("click", verifyModal);
+}
+function statCard2(v, l, ic, color) {
+  return `<div class="stat-card ${color}"><div class="stat-icon">${ICONS[ic]}</div><div><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div></div>`;
+}
+function renderIns() {
+  document.getElementById("insBody").innerHTML = INS.length ? INS.map(i => `<tr>
+    <td><strong>${esc(i.patient)}</strong></td><td>${esc(i.provider)}</td>
+    <td style="font-family:monospace;font-size:12px">${esc(i.policy)}</td>
+    <td><div class="ai-confidence"><div class="progress" style="min-width:70px"><div class="progress-bar ${i.coverage >= 70 ? "high" : i.coverage >= 40 ? "mid" : "low"}" style="width:${i.coverage}%"></div></div><span class="pct" style="min-width:38px">${i.coverage}%</span></div></td>
+    <td>${formatDate(i.valid_until)}</td>
+    <td>${i.status === "verified" ? badge("Verified","success") : i.status === "expired" ? badge("Expired","danger") : badge("Pending","warning")}</td>
+    <td><div class="actions">
+      <button class="btn-icon primary" title="View" onclick="viewIns('${i.id}')">${ICONS.eye}</button>
+      ${i.status !== "verified" ? `<button class="btn btn-success btn-sm" onclick="verifyIns('${i.id}')">${ICONS.check} Verify</button>` : ""}
+    </div></td></tr>`).join("") : emptyRow(7);
+}
+function verifyModal() {
+  openModal({
+    title: "Verify Coverage",
+    body: `<div class="form-group"><label>Patient</label><input class="form-control" id="vPat" list="vPats"><datalist id="vPats">${["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Ruth Gebre","Yohannes Mamo"].map(n => `<option value="${n}">`).join("")}</datalist></div>
+      <div class="form-row">
+        <div class="form-group"><label>Provider</label><select class="form-control" id="vProv"><option>EHBPA</option><option>Nyala Insurance</option><option>GIB (Global Insurance)</option><option>Awash Insurance</option></select></div>
+        <div class="form-group"><label>Policy No.</label><input class="form-control" id="vPol" placeholder="EHB-2026-…"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Coverage (%)</label><input class="form-control" type="number" id="vCov" value="80"></div>
+        <div class="form-group"><label>Valid Until</label><input class="form-control" type="date" id="vUntil" value="2027-01-01"></div>
+      </div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveV">Verify</button>`
+  }, { onMount: ov => {
+    ov.querySelector("[data-c]").onclick = () => ov.remove();
+    ov.querySelector("#saveV").onclick = () => {
+      const pat = ov.querySelector("#vPat").value.trim();
+      if (!pat) { showToast("Patient is required","error"); return; }
+      INS.unshift({ id: uid("IN"), patient: pat, provider: ov.querySelector("#vProv").value, policy: ov.querySelector("#vPol").value || "—", coverage: +ov.querySelector("#vCov").value || 0, valid_until: ov.querySelector("#vUntil").value, status: "verified" });
+      renderIns(); ov.remove(); showToast("Coverage verified for " + pat, "success");
+    };
+  }});
+}
+function verifyIns(id) { const i = INS.find(x => x.id === id); i.status = "verified"; renderIns(); showToast("Coverage verified — " + i.patient, "success"); }
+function viewIns(id) {
+  const i = INS.find(x => x.id === id);
+  openModal({
+    title: "Coverage Detail",
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Patient</span><span class="v">${esc(i.patient)}</span></div>
+      <div class="detail-item"><span class="k">Provider</span><span class="v">${esc(i.provider)}</span></div>
+      <div class="detail-item"><span class="k">Policy No.</span><span class="v">${esc(i.policy)}</span></div>
+      <div class="detail-item"><span class="k">Coverage</span><span class="v">${i.coverage}%</span></div>
+      <div class="detail-item"><span class="k">Valid Until</span><span class="v">${formatDate(i.valid_until)}</span></div>
+      <div class="detail-item"><span class="k">Status</span><span class="v">${esc(i.status)}</span></div></div>
+      <div class="disclaimer mt-4"><span>${ICONS.shield}</span><div>Verify the policy with the provider before major procedures. Claims are filed automatically after billing.</div></div>`
   });
-  const docs = [["Dr. Daniel Alemu","Internal Medicine","available"],["Dr. Fikru Debebe","Pediatrics","busy"],["Dr. Meron Assefa","Cardiology","busy"],["Dr. Tsehay Mengistu","Maternity","off"],["Dr. Natnael Fekadu","Emergency","available"]];
-  document.getElementById("docAvail").innerHTML = docs.map(d => `
-    <div class="avail-item"><span class="health-dot ${d[2] === "available" ? "ok" : d[2] === "busy" ? "warn" : "bad"}"></span>
-    <div style="flex:1"><strong>${d[0]}</strong><div class="text-sm text-gray" style="color:#6B7280">${d[1]}</div></div>
-    <span class="badge badge-${d[2] === "available" ? "success" : d[2] === "busy" ? "warning" : "neutral"}">${d[2]}</span></div>`).join("");
 }
 
 </script>

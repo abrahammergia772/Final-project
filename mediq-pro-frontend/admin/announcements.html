@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Front Desk Dashboard — MedIQ Pro</title>
+<title>Announcements — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -16,23 +16,37 @@
 <div class="sidebar-logo"><img src="../assets/images/logo.png" alt="MedIQ Pro logo"><div class="logo-text"><div class="brand">MedIQ Pro</div><div class="tag">Hospital Management</div></div></div>
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
-<a class="nav-link active" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="registration.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Registration</span></a>
-<a class="nav-link" href="appointments.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
-<a class="nav-link" href="insurance.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-label">Insurance</span></a>
-<a class="nav-link" href="queue.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="nav-label">Queue</span></a>
+<a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
+<a class="nav-link" href="users.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Users</span></a>
+<a class="nav-link" href="roles.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-label">Roles & Permissions</span></a>
+<a class="nav-link active" href="announcements.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg><span class="nav-label">Announcements</span></a>
+<a class="nav-link" href="audit-logs.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="nav-label">Audit Logs</span></a>
+<a class="nav-link" href="settings.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+<div class="nav-section-label">SYSTEM & AI</div>
+<a class="nav-link" href="ai-config.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span class="nav-label">AI Configuration</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Front Desk Dashboard</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Announcements</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
-<div class="panel-grid">
-  <div>
-    <section class="panel"><div class="panel-header"><div><h3>Today's Appointments</h3></div><a class="btn btn-secondary btn-sm" href="appointments.html">Manage</a></div><div class="panel-body"><div class="table-wrap" style="max-height:460px;overflow-y:auto"><table class="data-table"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead><tbody id="recApptsBody"></tbody></table></div></div></section>
+<div class="card" style="padding:0">
+  <div class="table-toolbar">
+    <div class="search-box"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="anSearch" placeholder="Search announcements…"></div>
+    <div class="filters">
+      <select class="form-control" id="anAudience" style="width:170px"><option value="">All audiences</option><option>All staff</option><option>Doctors</option><option>Nurses</option><option>Pharmacists</option><option>Laboratory</option><option>Reception</option><option>Patients</option></select>
+      <select class="form-control" id="anStatus" style="width:140px"><option value="">All status</option><option>published</option><option>scheduled</option><option>draft</option></select>
+      <button class="btn btn-primary" id="btnNewAn"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> New Announcement</button>
+    </div>
   </div>
-  <div><section class="panel"><div class="panel-header"><div><h3>Walk-in Queue</h3></div><a class="btn btn-secondary btn-sm" href="queue.html">Queue Board</a></div><div class="panel-body"><div id="recQueueList"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Doctor Availability</h3><div class="sub">Real-time status</div></div></div><div class="panel-body"><div id="docAvail"></div></div></section></div>
+  <div class="table-wrap">
+    <table class="data-table" id="anTable">
+      <thead><tr><th class="sortable">Title</th><th class="sortable">Audience</th><th class="sortable">Author</th><th class="sortable">Publish Date</th><th class="sortable">Priority</th><th class="sortable">Status</th><th class="sortable">Views</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="anBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="anPager"></div>
 </div>
 
 </section>
@@ -120,28 +134,94 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 "barcode": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14\"/></svg>"};
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkSession(); checkRoleAccess("reception"); initLayout(); loadPageData();
+  checkSession(); checkRoleAccess("admin"); initLayout(); loadPageData();
 });
+let ANN = [];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
-    if (!r.ok) return;
-    document.getElementById("recApptsBody").innerHTML = r.data.items.filter(a => a.status !== "cancelled").map(a => `<tr>
-      <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td>
-      <td>${a.status === "checked-in" ? badge("Checked in","info") : badge(a.status,"success")}</td></tr>`).join("") || emptyRow(4);
+  apiFetch(CONFIG.ENDPOINTS.ANNOUNCEMENTS).then(r => {
+    if (!r.ok) return; ANN = r.data.items; renderAnn();
+    attachDataTable(document.getElementById("anTable"), {
+      searchInput: document.getElementById("anSearch"), pagerEl: document.getElementById("anPager"), pageSize: 8,
+      filterFn: row => {
+        const a = document.getElementById("anAudience").value, s = document.getElementById("anStatus").value;
+        if (a && !row.cells[1].textContent.includes(a)) return false;
+        if (s && !row.cells[5].textContent.includes(s)) return false;
+        return true;
+      }
+    });
   });
-  apiFetch(CONFIG.ENDPOINTS.QUEUE).then(r => {
-    if (!r.ok) return;
-    const q = r.data.items;
-    document.getElementById("recQueueList").innerHTML = q.slice(0, 5).map(x => `
-      <div class="feed-item"><div class="feed-icon" style="background:${x.status === "in-service" ? "#ECFDF5" : "#EFF6FF"};color:${x.status === "in-service" ? "#065F46" : "#1A56DB"}">${ICONS.users}</div>
-      <div class="feed-text"><strong>${esc(x.name)}</strong> · ${esc(x.dept)}<div class="feed-time">Arrived ${x.arrived} · ${x.status}</div></div>
-      <span class="badge badge-${x.status === "in-service" ? "success" : "neutral"}">${x.status === "in-service" ? "Now" : "Wait"}</span></div>`).join("");
+  document.getElementById("btnNewAn").addEventListener("click", () => annModal(null));
+}
+function renderAnn() {
+  document.getElementById("anBody").innerHTML = ANN.length ? ANN.map(a => `<tr>
+    <td><strong>${esc(a.title)}</strong>${a.priority === "urgent" ? ' <span class="badge badge-danger">Urgent</span>' : ""}</td>
+    <td><span class="badge badge-primary">${esc(a.audience)}</span></td><td>${esc(a.author)}</td>
+    <td>${formatDateTime(a.publish_date)}</td>
+    <td>${a.priority === "urgent" ? badge("Urgent","danger") : a.priority === "important" ? badge("Important","warning") : badge("Normal","neutral")}</td>
+    <td>${a.status === "published" ? badge("Published","success") : a.status === "scheduled" ? badge("Scheduled","info") : badge("Draft","neutral")}</td>
+    <td>${a.views}</td>
+    <td><div class="actions">
+      <button class="btn-icon primary" title="View" onclick="viewAnn('${a.id}')">${ICONS.eye}</button>
+      <button class="btn-icon" title="Edit" onclick="annModal('${a.id}')">${ICONS.edit}</button>
+      <button class="btn-icon danger" title="Delete" onclick="delAnn('${a.id}')">${ICONS.trash}</button>
+    </div></td></tr>`).join("") : emptyRow(8);
+}
+function annModal(id) {
+  const a = id ? ANN.find(x => x.id === id) : null;
+  const audiences = ["All staff","Doctors","Nurses","Pharmacists","Laboratory","Reception","Managers","Patients"];
+  openModal({
+    title: a ? "Edit Announcement" : "New Announcement",
+    body: `<div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="aTitle" value="${a ? esc(a.title) : ""}" placeholder="e.g. Maintenance on Saturday"></div>
+      <div class="form-group"><label>Message <span class="req">*</span></label><textarea class="form-control" id="aMsg" rows="4" placeholder="Write the announcement…">${a ? esc(a.message) : ""}</textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Audience</label><select class="form-control" id="aAud">${audiences.map(x => `<option ${a && a.audience === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+        <div class="form-group"><label>Priority</label><select class="form-control" id="aPri"><option ${!a || a.priority === "normal" ? "selected" : ""}>normal</option><option ${a && a.priority === "important" ? "selected" : ""}>important</option><option ${a && a.priority === "urgent" ? "selected" : ""}>urgent</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Publish</label><select class="form-control" id="aPub"><option value="now">Publish now</option><option value="schedule">Schedule…</option><option value="draft">Save as draft</option></select></div>
+        <div class="form-group" id="aDateWrap"><label>Publish Date</label><input class="form-control" type="datetime-local" id="aDate"></div>
+      </div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveAnn">${a ? "Save Changes" : "Publish"}</button>`
+  }, { onMount: ov => {
+    ov.querySelector("[data-c]").onclick = () => ov.remove();
+    ov.querySelector("#aPub").addEventListener("change", e => {
+      ov.querySelector("#aDateWrap").style.display = e.target.value === "schedule" ? "block" : "none";
+    });
+    if (a && a.status === "scheduled") ov.querySelector("#aDateWrap").style.display = "block";
+    ov.querySelector("#saveAnn").onclick = () => {
+      const title = ov.querySelector("#aTitle").value.trim(), msg = ov.querySelector("#aMsg").value.trim();
+      if (!title || !msg) { showToast("Title and message are required","error"); return; }
+      const pub = ov.querySelector("#aPub").value;
+      const status = pub === "draft" ? "draft" : pub === "schedule" ? "scheduled" : "published";
+      const publish_date = pub === "schedule" ? (ov.querySelector("#aDate").value || todayStr() + "T09:00") : (a && a.publish_date) || todayStr() + "T08:00";
+      if (a) {
+        a.title = title; a.message = msg; a.audience = ov.querySelector("#aAud").value; a.priority = ov.querySelector("#aPri").value; a.status = status; a.publish_date = publish_date;
+        showToast("Announcement updated","success");
+      } else {
+        ANN.unshift({ id: uid("AN"), title, message: msg, audience: ov.querySelector("#aAud").value, author: getUserName(), publish_date, priority: ov.querySelector("#aPri").value, status, views: 0 });
+        showToast(status === "published" ? "Announcement published to " + ov.querySelector("#aAud").value : "Announcement saved (" + status + ")", "success");
+      }
+      renderAnn(); ov.remove();
+    };
+  }});
+}
+function viewAnn(id) {
+  const a = ANN.find(x => x.id === id);
+  openModal({
+    title: a.title,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Audience</span><span class="v">${esc(a.audience)}</span></div>
+      <div class="detail-item"><span class="k">Author</span><span class="v">${esc(a.author)}</span></div>
+      <div class="detail-item"><span class="k">Published</span><span class="v">${formatDateTime(a.publish_date)}</span></div>
+      <div class="detail-item"><span class="k">Views</span><span class="v">${a.views}</span></div></div>
+      <div class="alert alert-info mt-4 mb-0"><span>${ICONS.megaphone}</span><div class="alert-body">${esc(a.message)}</div></div>`,
+    size: "lg"
   });
-  const docs = [["Dr. Daniel Alemu","Internal Medicine","available"],["Dr. Fikru Debebe","Pediatrics","busy"],["Dr. Meron Assefa","Cardiology","busy"],["Dr. Tsehay Mengistu","Maternity","off"],["Dr. Natnael Fekadu","Emergency","available"]];
-  document.getElementById("docAvail").innerHTML = docs.map(d => `
-    <div class="avail-item"><span class="health-dot ${d[2] === "available" ? "ok" : d[2] === "busy" ? "warn" : "bad"}"></span>
-    <div style="flex:1"><strong>${d[0]}</strong><div class="text-sm text-gray" style="color:#6B7280">${d[1]}</div></div>
-    <span class="badge badge-${d[2] === "available" ? "success" : d[2] === "busy" ? "warning" : "neutral"}">${d[2]}</span></div>`).join("");
+}
+async function delAnn(id) {
+  const ok = await confirmDialog("Delete this announcement? Users who already saw it will keep it in their history.");
+  if (!ok) return;
+  ANN = ANN.filter(a => a.id !== id); renderAnn(); showToast("Announcement deleted","success");
 }
 
 </script>

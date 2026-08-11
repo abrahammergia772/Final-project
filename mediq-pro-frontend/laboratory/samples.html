@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Front Desk Dashboard — MedIQ Pro</title>
+<title>Sample Tracking — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -16,23 +16,37 @@
 <div class="sidebar-logo"><img src="../assets/images/logo.png" alt="MedIQ Pro logo"><div class="logo-text"><div class="brand">MedIQ Pro</div><div class="tag">Hospital Management</div></div></div>
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
-<a class="nav-link active" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="registration.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Registration</span></a>
-<a class="nav-link" href="appointments.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
-<a class="nav-link" href="insurance.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-label">Insurance</span></a>
-<a class="nav-link" href="queue.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="nav-label">Queue</span></a>
+<a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
+<a class="nav-link" href="test-requests.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg><span class="nav-label">Test Requests</span></a>
+<a class="nav-link active" href="samples.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></svg><span class="nav-label">Sample Tracking</span></a>
+<a class="nav-link" href="results.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Results</span></a>
+<div class="nav-section-label">AI TOOLS</div>
+<a class="nav-link" href="ai-analyzer.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg><span class="nav-label">AI Analyzer</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Front Desk Dashboard</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Sample Tracking</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
-<div class="panel-grid">
-  <div>
-    <section class="panel"><div class="panel-header"><div><h3>Today's Appointments</h3></div><a class="btn btn-secondary btn-sm" href="appointments.html">Manage</a></div><div class="panel-body"><div class="table-wrap" style="max-height:460px;overflow-y:auto"><table class="data-table"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead><tbody id="recApptsBody"></tbody></table></div></div></section>
+<div class="stat-grid">
+  {s1}{s2}{s3}{s4}
+</div>
+<div class="alert alert-info mb-4"><span><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
+  <div class="alert-body"><span class="alert-title">Pipeline:</span> Collected → Received → Processing → Result Ready → Completed &nbsp;·&nbsp; average turnaround <strong>3.4 h</strong></div></div>
+<div class="flex-between mb-4"><div class="filters" style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="search-box"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="smpSearch" placeholder="Search sample ID or patient…"></div>
+    <select class="form-control" id="smpStage" style="width:180px"><option value="">All stages</option><option>collected</option><option>received</option><option>processing</option><option>result-ready</option><option>completed</option></select>
   </div>
-  <div><section class="panel"><div class="panel-header"><div><h3>Walk-in Queue</h3></div><a class="btn btn-secondary btn-sm" href="queue.html">Queue Board</a></div><div class="panel-body"><div id="recQueueList"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Doctor Availability</h3><div class="sub">Real-time status</div></div></div><div class="panel-body"><div id="docAvail"></div></div></section></div>
+  <button class="btn btn-primary" id="btnRegSmp"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></svg> Register Sample</button></div>
+<div class="card" style="padding:0">
+  <div class="table-wrap">
+    <table class="data-table" id="smpTable">
+      <thead><tr><th class="sortable">Sample ID</th><th class="sortable">Patient</th><th class="sortable">Test</th><th class="sortable">Type</th><th class="sortable">Collected</th><th class="sortable">Stage</th><th class="sortable">TAT</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="smpBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="smpPager"></div>
 </div>
 
 </section>
@@ -120,28 +134,94 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 "barcode": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14\"/></svg>"};
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkSession(); checkRoleAccess("reception"); initLayout(); loadPageData();
+  checkSession(); checkRoleAccess("laboratory"); initLayout(); loadPageData();
 });
+let SMPS = [];
+const STAGES = ["collected", "received", "processing", "result-ready", "completed"];
+const STAGE_BADGE = { collected:["neutral","Collected"], received:["info","Received"], processing:["warning","Processing"], "result-ready":["primary","Result Ready"], completed:["success","Completed"] };
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
-    if (!r.ok) return;
-    document.getElementById("recApptsBody").innerHTML = r.data.items.filter(a => a.status !== "cancelled").map(a => `<tr>
-      <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td>
-      <td>${a.status === "checked-in" ? badge("Checked in","info") : badge(a.status,"success")}</td></tr>`).join("") || emptyRow(4);
+  apiFetch(CONFIG.ENDPOINTS.SAMPLES).then(r => {
+    if (!r.ok) return; SMPS = r.data.items; renderSmps();
+    attachDataTable(document.getElementById("smpTable"), {
+      searchInput: document.getElementById("smpSearch"), pagerEl: document.getElementById("smpPager"), pageSize: 8,
+      filterFn: row => { const s = document.getElementById("smpStage").value; return !s || row.cells[5].textContent.includes(s); }
+    });
+    const n = SMPS.length;
+    document.querySelector(".stat-grid").innerHTML =
+      statCard2(n, "Samples Today", "flask", "") +
+      statCard2(SMPS.filter(x => x.stage === "processing" || x.stage === "received").length, "In Processing", "clock", "color-warning") +
+      statCard2(SMPS.filter(x => x.stage === "result-ready").length, "Awaiting Result", "file-text", "color-info") +
+      statCard2(SMPS.filter(x => x.stage === "completed").length, "Completed", "check", "color-success");
   });
-  apiFetch(CONFIG.ENDPOINTS.QUEUE).then(r => {
-    if (!r.ok) return;
-    const q = r.data.items;
-    document.getElementById("recQueueList").innerHTML = q.slice(0, 5).map(x => `
-      <div class="feed-item"><div class="feed-icon" style="background:${x.status === "in-service" ? "#ECFDF5" : "#EFF6FF"};color:${x.status === "in-service" ? "#065F46" : "#1A56DB"}">${ICONS.users}</div>
-      <div class="feed-text"><strong>${esc(x.name)}</strong> · ${esc(x.dept)}<div class="feed-time">Arrived ${x.arrived} · ${x.status}</div></div>
-      <span class="badge badge-${x.status === "in-service" ? "success" : "neutral"}">${x.status === "in-service" ? "Now" : "Wait"}</span></div>`).join("");
+  document.getElementById("btnRegSmp").addEventListener("click", regModal);
+}
+function statCard2(v, l, ic, color) {
+  return `<div class="stat-card ${color}"><div class="stat-icon">${ICONS[ic]}</div><div><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div></div>`;
+}
+function renderSmps() {
+  document.getElementById("smpBody").innerHTML = SMPS.length ? SMPS.map(s => `<tr>
+    <td><span class="badge badge-neutral" style="font-family:monospace">${esc(s.id)}</span></td>
+    <td><strong>${esc(s.patient)}</strong></td><td>${esc(s.test)}</td><td>${esc(s.type)}</td>
+    <td><span class="time-pill">${s.collected}</span></td>
+    <td><div class="flex" style="gap:6px"><span class="badge badge-${STAGE_BADGE[s.stage][0]}">${STAGE_BADGE[s.stage][1]}</span>
+      ${s.stage !== "completed" ? `<span class="text-sm text-gray" style="color:#6B7280">→ ${STAGE_BADGE[STAGES[STAGES.indexOf(s.stage) + 1]][1]}</span>` : ""}</div></td>
+    <td class="text-sm text-gray" style="color:#6B7280">${s.tat}</td>
+    <td><div class="actions">
+      <button class="btn-icon primary" title="Details" onclick="viewSmp('${s.id}')">${ICONS.eye}</button>
+      ${s.stage !== "completed" ? `<button class="btn btn-secondary btn-sm" onclick="advance('${s.id}')">${ICONS["chevron-right"]} Advance</button>` : ""}
+    </div></td></tr>`).join("") : emptyRow(8);
+}
+function advance(id) {
+  const s = SMPS.find(x => x.id === id);
+  const i = STAGES.indexOf(s.stage);
+  if (i < STAGES.length - 1) {
+    s.stage = STAGES[i + 1];
+    if (s.stage === "completed") s.tat = "3.2 h";
+    renderSmps();
+    showToast("Sample " + s.id + " moved to " + STAGE_BADGE[s.stage][1], "success");
+  }
+}
+function regModal() {
+  openModal({
+    title: "Register Sample",
+    body: `<div class="form-group"><label>Patient</label><input class="form-control" id="smPat" list="smPats"><datalist id="smPats">${["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Ruth Gebre","Yohannes Mamo","Mahlet Shiferaw"].map(n => `<option value="${n}">`).join("")}</datalist></div>
+      <div class="form-row">
+        <div class="form-group"><label>Test</label><select class="form-control" id="smTest"><option>Complete Blood Count</option><option>Fasting Blood Sugar</option><option>Lipid Profile</option><option>Kidney Function</option><option>Liver Function</option><option>Thyroid Panel</option><option>Malaria Test</option><option>Urinalysis</option></select></div>
+        <div class="form-group"><label>Sample Type</label><select class="form-control" id="smType"><option>Whole blood</option><option>Serum</option><option>Plasma</option><option>Urine</option><option>Swab</option><option>Sputum</option></select></div>
+      </div>
+      <div class="form-group"><label>Collected At</label><input class="form-control" type="time" id="smTime" value="09:00"></div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveSmp">Register</button>`
+  }, { onMount: ov => {
+    ov.querySelector("[data-c]").onclick = () => ov.remove();
+    ov.querySelector("#saveSmp").onclick = () => {
+      const pat = ov.querySelector("#smPat").value.trim();
+      if (!pat) { showToast("Patient is required","error"); return; }
+      const id = "S-" + (800 + Math.floor(Math.random() * 900));
+      SMPS.unshift({ id, patient: pat, test: ov.querySelector("#smTest").value, type: ov.querySelector("#smType").value, collected: ov.querySelector("#smTime").value, stage: "collected", tat: "—" });
+      renderSmps(); ov.remove();
+      showToast("Sample " + id + " registered — barcode printed", "success");
+    };
+  }});
+}
+function viewSmp(id) {
+  const s = SMPS.find(x => x.id === id);
+  const i = STAGES.indexOf(s.stage);
+  const steps = STAGES.map((st, j) => `<div class="flex-col" style="align-items:center;gap:4px;flex:1">
+      <span class="health-dot ${j <= i ? "ok" : ""}" style="${j > i ? "background:#D1D5DB;box-shadow:none" : ""}"></span>
+      <span class="text-sm ${j <= i ? "text-bold" : "text-gray"}" style="${j > i ? "color:#9CA3AF" : ""}">${STAGE_BADGE[st][1]}</span></div>`).join("");
+  openModal({
+    title: "Sample " + s.id,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Patient</span><span class="v">${esc(s.patient)}</span></div>
+      <div class="detail-item"><span class="k">Test</span><span class="v">${esc(s.test)}</span></div>
+      <div class="detail-item"><span class="k">Sample Type</span><span class="v">${esc(s.type)}</span></div>
+      <div class="detail-item"><span class="k">Collected</span><span class="v">${s.collected}</span></div>
+      <div class="detail-item"><span class="k">Current Stage</span><span class="v">${STAGE_BADGE[s.stage][1]}</span></div>
+      <div class="detail-item"><span class="k">Turnaround</span><span class="v">${s.tat}</span></div></div>
+      <div class="flex mt-4" style="gap:0">${steps}</div>
+      <div class="disclaimer mt-4"><span>${ICONS.barcode}</span><div>Scan the sample barcode to update its stage from the mobile app.</div></div>`,
+    size: "lg"
   });
-  const docs = [["Dr. Daniel Alemu","Internal Medicine","available"],["Dr. Fikru Debebe","Pediatrics","busy"],["Dr. Meron Assefa","Cardiology","busy"],["Dr. Tsehay Mengistu","Maternity","off"],["Dr. Natnael Fekadu","Emergency","available"]];
-  document.getElementById("docAvail").innerHTML = docs.map(d => `
-    <div class="avail-item"><span class="health-dot ${d[2] === "available" ? "ok" : d[2] === "busy" ? "warn" : "bad"}"></span>
-    <div style="flex:1"><strong>${d[0]}</strong><div class="text-sm text-gray" style="color:#6B7280">${d[1]}</div></div>
-    <span class="badge badge-${d[2] === "available" ? "success" : d[2] === "busy" ? "warning" : "neutral"}">${d[2]}</span></div>`).join("");
 }
 
 </script>

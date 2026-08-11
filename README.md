@@ -21,21 +21,36 @@ Final-project/
 │   │   ├── css/            ← global, sidebar, components, dashboard
 │   │   ├── js/             ← config, auth, api, utils
 │   │   └── images/logo.png
-│   ├── admin/              ← 6 pages
-│   ├── manager/            ← 5 pages
-│   ├── doctor/             ← 6 pages (incl. AI Diagnosis)
-│   ├── nurse/              ← 4 pages (incl. Vitals AI)
-│   ├── pharmacist/         ← 5 pages (incl. AI Interaction & Forecast)
-│   ├── laboratory/         ← 4 pages (incl. AI Analyzer)
-│   ├── reception/          ← 4 pages (incl. Appointment AI)
-│   └── patient/            ← 6 pages (incl. AI Chatbot)
+│   ├── admin/              ← 7 pages (incl. Announcements)
+│   ├── manager/            ← 6 pages (incl. Finance)
+│   ├── doctor/             ← 7 pages (incl. AI Diagnosis, Referrals)
+│   ├── nurse/              ← 5 pages (incl. Vitals AI, Observations)
+│   ├── pharmacist/         ← 6 pages (incl. AI modules, Suppliers & POs)
+│   ├── laboratory/         ← 5 pages (incl. AI Analyzer, Sample Tracking)
+│   ├── reception/          ← 5 pages (incl. Appointment AI, Insurance)
+│   └── patient/            ← 7 pages (incl. AI Chatbot, Messages)
 │
 ├── models/                 ← (coming) your trained .pkl models
 ├── backend/                ← (coming) FastAPI app serving the models
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**41 pages · 4 CSS · 4 JS · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**49 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+
+### Professional features (added per role)
+
+| Role | Feature page | What it does |
+|------|--------------|--------------|
+| Admin | `announcements.html` | Broadcast announcements to all staff or a role — publish now / schedule / draft, urgent flag, view counts |
+| Manager | `finance.html` | Financial analytics — revenue vs expenses (12 months), budget vs actual, revenue by department, top revenue services, CSV export |
+| Doctor | `referrals.html` | Refer patients to specialists/hospitals with priority (routine/urgent/emergency) and full status tracking |
+| Nurse | `observations.html` | Nursing observations — pain score (0–10), fluid intake/output, fluid-balance chart, observation log |
+| Pharmacist | `suppliers.html` | Supplier management + purchase orders, "receive PO" workflow, restock suggestions from the AI forecast |
+| Laboratory | `samples.html` | Sample tracking pipeline (Collected → Received → Processing → Result → Completed) with TAT per sample |
+| Reception | `insurance.html` | Insurance coverage verification (EHBPA, Nyala, GIB…), policy validity, coverage % |
+| Patient | `messages.html` | Secure messaging with Front Desk / Doctor / Pharmacy — conversations, auto-replies |
+
+Plus: the **topbar bell now shows live notifications** (low-stock items, AI-flagged abnormal lab results, today's appointments) and the **doctor consultation page can schedule follow-ups**.
 
 ---
 

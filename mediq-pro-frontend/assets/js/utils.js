@@ -400,6 +400,53 @@ function initLayout() {
   });
 
   initAuthUI();
+  initNotifications();
+}
+
+// ---------- Live notifications (topbar bell) ----------
+// Fills the notifications dropdown with real data: low stock, abnormal
+// results, today's appointments — instead of static placeholders.
+function initNotifications() {
+  const menu = document.getElementById("notifMenu");
+  if (!menu) return;
+  const items = [];
+  Promise.all([
+    apiFetch(CONFIG.ENDPOINTS.INVENTORY),
+    apiFetch(CONFIG.ENDPOINTS.LAB_RESULTS),
+    apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS)
+  ]).then(([inv, lab, appt]) => {
+    if (inv.ok) {
+      inv.data.items.filter(i => i.status === "low-stock" || i.status === "out-of-stock")
+        .slice(0, 2).forEach(i => items.push({
+          icon: "package", tint: "#FFFBEB", color: "#D97706",
+          title: i.name + " — " + i.status.replace("-", " "),
+          sub: i.stock + " " + i.unit + " remaining · reorder advised"
+        }));
+    }
+    if (lab.ok) {
+      lab.data.items.filter(r => r.ai_flag === "abnormal").slice(0, 1).forEach(r => items.push({
+        icon: "alert", tint: "#FEF2F2", color: "#DC2626",
+        title: "Abnormal result: " + r.test,
+        sub: r.patient + " · " + formatDate(r.date) + " · AI flagged"
+      }));
+    }
+    if (appt.ok) {
+      const today = appt.data.items.filter(a => a.date === todayStr() && a.status === "confirmed").length;
+      if (today) items.push({
+        icon: "calendar", tint: "#EFF6FF", color: "#1A56DB",
+        title: today + " confirmed appointment" + (today > 1 ? "s" : "") + " today",
+        sub: "Check the appointments page for details"
+      });
+    }
+    renderNotifItems(menu, items);
+  });
+}
+function renderNotifItems(menu, items) {
+  menu.innerHTML = '<div class="dd-header">Notifications</div>' +
+    (items.length
+      ? items.map(i => `<div class="dd-item"><div class="feed-icon" style="background:${i.tint};color:${i.color}">${ICONS[i.icon]}</div><div class="feed-text"><div class="dd-title">${esc(i.title)}</div><div class="dd-sub">${esc(i.sub)}</div></div></div>`).join("")
+      : '<div class="empty-state" style="padding:22px;color:#6B7280">You\'re all caught up ✅</div>') +
+    '<div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast(\'All notifications shown\',\'info\')">View all</a></div>';
 }
 
 // Auto-close alerts

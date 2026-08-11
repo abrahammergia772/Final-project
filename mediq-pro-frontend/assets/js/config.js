@@ -60,7 +60,18 @@ const CONFIG = {
     CARE_PLANS:     "/care-plans",
     BILLS:          "/bills",
     AUDIT_LOGS:     "/audit-logs",
-    QUEUE:          "/queue"
+    QUEUE:          "/queue",
+
+    // Professional feature modules
+    ANNOUNCEMENTS:  "/announcements",
+    FINANCE:        "/finance",
+    REFERRALS:      "/referrals",
+    OBSERVATIONS:   "/observations",
+    SUPPLIERS:      "/suppliers",
+    PURCHASE_ORDERS:"/purchase-orders",
+    SAMPLES:        "/samples",
+    INSURANCE:      "/insurance",
+    MESSAGES:       "/messages"
   }
 };
 

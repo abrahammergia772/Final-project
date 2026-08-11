@@ -232,6 +232,80 @@ const MOCK = {
     { id: "Q-6", name: "Yohannes Mamo", dept: "Internal Medicine", arrived: "08:47", status: "waiting" }
   ],
 
+  announcements: [
+    { id: "AN-1", title: "Emergency: Generator maintenance Friday 22:00", message: "Hospital generator will be serviced on Friday from 22:00 to 23:30. Critical care units will remain on UPS power. Please conserve where possible.", audience: "All staff", author: "Solomon Tadesse", publish_date: "2026-08-11T08:00:00", priority: "urgent", status: "published", views: 132 },
+    { id: "AN-2", title: "New blood pressure monitors delivered", message: "10 new digital BP monitors are now available on Ward 2. Sign-out sheet is on the nurses' station.", audience: "Nurses", author: "Marta Tesfaye", publish_date: "2026-08-10T14:30:00", priority: "normal", status: "published", views: 87 },
+    { id: "AN-3", title: "Pharmacy stock update: Amoxicillin restocked", message: "Amoxicillin 250mg is back in stock as of this morning. Prescriptions can be filled normally.", audience: "All staff", author: "Yonas Girma", publish_date: "2026-08-10T09:15:00", priority: "important", status: "published", views: 214 },
+    { id: "AN-4", title: "Staff training: AI diagnosis tools", message: "Mandatory 1-hour training session on the new AI diagnosis module. Two sessions available: Tuesday 10:00 and Thursday 14:00 in the conference room.", audience: "Doctors", author: "Solomon Tadesse", publish_date: "2026-08-13T10:00:00", priority: "important", status: "scheduled", views: 0 },
+    { id: "AN-5", title: "Draft: Q3 staff performance reviews", message: "Q3 performance review cycle starts next month. Please update your self-assessments.", audience: "Managers", author: "Hanna Bekele", publish_date: "2026-08-20T09:00:00", priority: "normal", status: "draft", views: 0 },
+    { id: "AN-6", title: "Outpatient clinic closed Sunday", message: "The OPD will be closed this Sunday for fumigation. Emergency department remains open 24/7.", audience: "Patients", author: "Liya Hailu", publish_date: "2026-08-15T08:00:00", priority: "normal", status: "scheduled", views: 0 }
+  ],
+
+  referrals: [
+    { id: "RF-401", patient: "Selam Tadesse", to: "Dr. Meron Assefa", specialty: "Cardiology", reason: "Recurrent chest pain with abnormal ECG — needs stress test.", priority: "urgent", date: "2026-08-11", status: "pending" },
+    { id: "RF-402", patient: "Ruth Gebre", to: "Dr. Girma Tola", specialty: "Nephrology", reason: "Creatinine rising — CKD stage 3, requires specialist review.", priority: "urgent", date: "2026-08-11", status: "accepted" },
+    { id: "RF-403", patient: "Dawit Kebede", to: "Dr. Fikru Debebe", specialty: "Pulmonology", reason: "Persistent wheezing despite inhaler therapy.", priority: "routine", date: "2026-08-10", status: "completed" },
+    { id: "RF-404", patient: "Tewodros Haile", to: "Dr. Meron Assefa", specialty: "Endocrinology", reason: "Thyroid panel abnormal — suspected subclinical hypothyroidism.", priority: "routine", date: "2026-08-09", status: "pending" },
+    { id: "RF-405", patient: "Biruk Ayele", to: "St. Mary's Hospital", specialty: "Pediatric ICU", reason: "Oxygen saturation dropping — transfer for ICU-level care.", priority: "emergency", date: "2026-08-08", status: "completed" },
+    { id: "RF-406", patient: "Hana Wolde", to: "Dr. Girma Tola", specialty: "Ophthalmology", reason: "Blurred vision — possible diabetic retinopathy.", priority: "routine", date: "2026-08-07", status: "declined" }
+  ],
+
+  purchase_orders: [
+    { id: "PO-501", supplier: "PharmaLink Ethiopia", items: ["Paracetamol 500mg — 1000", "ORS Sachets — 500"], total: 18200, date: "2026-08-10", status: "ordered" },
+    { id: "PO-502", supplier: "Addis Medical Supply", items: ["Amoxicillin 250mg — 2000"], total: 24500, date: "2026-08-09", status: "ordered" },
+    { id: "PO-503", supplier: "United Pharma PLC", items: ["Insulin Glargine — 60", "Ceftriaxone 1g — 300"], total: 38900, date: "2026-08-05", status: "received" },
+    { id: "PO-504", supplier: "PharmaLink Ethiopia", items: ["Atorvastatin 20mg — 800"], total: 12400, date: "2026-08-02", status: "received" },
+    { id: "PO-505", supplier: "Geda Medical", items: ["IV Dextrose 5% — 200"], total: 9600, date: "2026-07-28", status: "cancelled" }
+  ],
+
+  suppliers: [
+    { id: "SP-1", name: "PharmaLink Ethiopia", contact: "Mr. Dawit Getachew", phone: "+251 911 000 101", categories: "Analgesics, ORS, Statins", lead_time: 4, rating: 4.6 },
+    { id: "SP-2", name: "Addis Medical Supply", contact: "Ms. Tigist Alemu", phone: "+251 911 000 102", categories: "Antibiotics", lead_time: 5, rating: 4.2 },
+    { id: "SP-3", name: "United Pharma PLC", contact: "Mr. Samuel Bekele", phone: "+251 911 000 103", categories: "Insulin, IV fluids", lead_time: 7, rating: 4.8 },
+    { id: "SP-4", name: "Geda Medical", contact: "Mr. Henok Tesfaye", phone: "+251 911 000 104", categories: "IV fluids, disposables", lead_time: 6, rating: 3.9 },
+    { id: "SP-5", name: "Nile Pharma", contact: "Ms. Rahel Abebe", phone: "+251 911 000 105", categories: "Cardiovascular", lead_time: 8, rating: 4.1 },
+    { id: "SP-6", name: "Hawassa Medical Center", contact: "Dr. Kalkidan Fikre", phone: "+251 911 000 106", categories: "Respiratory, steroids", lead_time: 5, rating: 4.4 }
+  ],
+
+  samples: [
+    { id: "S-801", patient: "Abel Mekonnen", test: "Complete Blood Count", type: "Whole blood", collected: "08:10", stage: "completed", tat: "2.8 h" },
+    { id: "S-802", patient: "Hana Wolde", test: "Fasting Blood Sugar", type: "Serum", collected: "08:25", stage: "result-ready", tat: "—" },
+    { id: "S-803", patient: "Selam Tadesse", test: "Lipid Profile", type: "Serum", collected: "08:40", stage: "processing", tat: "—" },
+    { id: "S-804", patient: "Ruth Gebre", test: "Kidney Function", type: "Serum", collected: "08:55", stage: "received", tat: "—" },
+    { id: "S-805", patient: "Biruk Ayele", test: "Malaria Test", type: "Whole blood", collected: "09:05", stage: "collected", tat: "—" },
+    { id: "S-806", patient: "Yohannes Mamo", test: "HbA1c", type: "Whole blood", collected: "09:15", stage: "processing", tat: "—" },
+    { id: "S-807", patient: "Mahlet Shiferaw", test: "Urinalysis", type: "Urine", collected: "09:30", stage: "collected", tat: "—" },
+    { id: "S-808", patient: "Tewodros Haile", test: "Thyroid Panel", type: "Serum", collected: "09:45", stage: "result-ready", tat: "—" },
+    { id: "S-809", patient: "Kidist Assefa", test: "Complete Blood Count", type: "Whole blood", collected: "10:00", stage: "completed", tat: "3.5 h" },
+    { id: "S-810", patient: "Dawit Kebede", test: "Liver Function", type: "Serum", collected: "10:15", stage: "received", tat: "—" }
+  ],
+
+  insurance: [
+    { id: "IN-1", patient: "Abel Mekonnen", provider: "EHBPA", policy: "EHB-2026-4412", coverage: 80, valid_until: "2027-03-15", status: "verified" },
+    { id: "IN-2", patient: "Hana Wolde", provider: "Nyala Insurance", policy: "NYL-8821", coverage: 75, valid_until: "2026-12-01", status: "verified" },
+    { id: "IN-3", patient: "Selam Tadesse", provider: "GIB (Global Insurance)", policy: "GIB-5520", coverage: 90, valid_until: "2027-06-20", status: "pending" },
+    { id: "IN-4", patient: "Ruth Gebre", provider: "Awash Insurance", policy: "AWS-1124", coverage: 70, valid_until: "2026-09-30", status: "expired" },
+    { id: "IN-5", patient: "Yohannes Mamo", provider: "EHBPA", policy: "EHB-2025-7731", coverage: 80, valid_until: "2026-10-12", status: "pending" },
+    { id: "IN-6", patient: "Dawit Kebede", provider: "Private (self-pay)", policy: "—", coverage: 0, valid_until: "—", status: "verified" }
+  ],
+
+  messages: [
+    { id: "C-1", with: "Front Desk (Reception)", dept: "Front Desk", unread: 2, last_message: "Your appointment on Thursday is confirmed.", messages: [
+      { from: "them", text: "Hello Abel! How can we help you today?", time: "08:00" },
+      { from: "me", text: "Hi, I wanted to confirm my appointment on Thursday.", time: "08:05" },
+      { from: "them", text: "Your appointment on Thursday is confirmed.", time: "08:12" },
+      { from: "them", text: "Please arrive 15 minutes early with your ID card.", time: "08:13" }
+    ]},
+    { id: "C-2", with: "Dr. Daniel Alemu (Internal Medicine)", dept: "Doctor", unread: 0, last_message: "BP is looking better. Continue the medication.", messages: [
+      { from: "them", text: "Your recent BP readings look much better.", time: "Yesterday" },
+      { from: "me", text: "Thank you doctor. Any changes to my medication?", time: "Yesterday" },
+      { from: "them", text: "BP is looking better. Continue the medication.", time: "Yesterday" }
+    ]},
+    { id: "C-3", with: "Pharmacy", dept: "Pharmacy", unread: 1, last_message: "Your Amlodipine refill is ready for pickup.", messages: [
+      { from: "them", text: "Your Amlodipine refill is ready for pickup.", time: "09:20" }
+    ]}
+  ],
+
   vitals_history: {
     "P-1004": [
       { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
@@ -301,6 +375,33 @@ function mockResponse(endpoint, method, body) {
       break;
     case CONFIG.ENDPOINTS.QUEUE.replace(/^\//, ""):
       data = list(MOCK.queue);
+      break;
+    case CONFIG.ENDPOINTS.ANNOUNCEMENTS.replace(/^\//, ""):
+      data = list(MOCK.announcements);
+      break;
+    case CONFIG.ENDPOINTS.FINANCE.replace(/^\//, ""):
+      data = { ok: true, data: { months: ["Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"], revenue: [640,688,701,745,720,768,790,812,798,826,831,842], expenses: [420,431,448,462,455,470,481,490,486,500,505,513] } };
+      break;
+    case CONFIG.ENDPOINTS.REFERRALS.replace(/^\//, ""):
+      data = list(MOCK.referrals);
+      break;
+    case CONFIG.ENDPOINTS.OBSERVATIONS.replace(/^\//, ""):
+      data = list(MOCK.vitals_history ? [{ id: "O-1", time: "06:00", patient: "Selam Tadesse", pain: 3, intake: 300, output: 220, temp: 36.8 }] : []);
+      break;
+    case CONFIG.ENDPOINTS.SUPPLIERS.replace(/^\//, ""):
+      data = list(MOCK.suppliers);
+      break;
+    case CONFIG.ENDPOINTS.PURCHASE_ORDERS.replace(/^\//, ""):
+      data = list(MOCK.purchase_orders);
+      break;
+    case CONFIG.ENDPOINTS.SAMPLES.replace(/^\//, ""):
+      data = list(MOCK.samples);
+      break;
+    case CONFIG.ENDPOINTS.INSURANCE.replace(/^\//, ""):
+      data = list(MOCK.insurance);
+      break;
+    case CONFIG.ENDPOINTS.MESSAGES.replace(/^\//, ""):
+      data = list(MOCK.messages);
       break;
 
     // ---------- Auth ----------

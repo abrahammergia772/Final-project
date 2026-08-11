@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Front Desk Dashboard — MedIQ Pro</title>
+<title>Referrals — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -16,23 +16,41 @@
 <div class="sidebar-logo"><img src="../assets/images/logo.png" alt="MedIQ Pro logo"><div class="logo-text"><div class="brand">MedIQ Pro</div><div class="tag">Hospital Management</div></div></div>
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
-<a class="nav-link active" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="registration.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Registration</span></a>
+<a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
+<a class="nav-link" href="patients.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
+<a class="nav-link" href="consultation.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg><span class="nav-label">Consultation</span></a>
+<a class="nav-link" href="prescriptions.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Prescriptions</span></a>
 <a class="nav-link" href="appointments.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
-<a class="nav-link" href="insurance.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="nav-label">Insurance</span></a>
-<a class="nav-link" href="queue.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="nav-label">Queue</span></a>
+<a class="nav-link active" href="referrals.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></svg><span class="nav-label">Referrals</span></a>
+<div class="nav-section-label">AI TOOLS</div>
+<a class="nav-link" href="ai-diagnosis.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg><span class="nav-label">AI Diagnosis</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Front Desk Dashboard</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Referrals</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
-<div class="panel-grid">
-  <div>
-    <section class="panel"><div class="panel-header"><div><h3>Today's Appointments</h3></div><a class="btn btn-secondary btn-sm" href="appointments.html">Manage</a></div><div class="panel-body"><div class="table-wrap" style="max-height:460px;overflow-y:auto"><table class="data-table"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead><tbody id="recApptsBody"></tbody></table></div></div></section>
+<div class="stat-grid">
+  {s1}{s2}{s3}{s4}
+</div>
+<div class="flex-between mb-4"><p class="page-intro" style="margin:0">Refer patients to specialists or partner hospitals and track every step.</p>
+  <button class="btn btn-primary" id="btnNewRef"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></svg> New Referral</button></div>
+<div class="card" style="padding:0">
+  <div class="table-toolbar">
+    <div class="search-box"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="refSearch" placeholder="Search patient…"></div>
+    <div class="filters">
+      <select class="form-control" id="refStatus" style="width:150px"><option value="">All status</option><option>pending</option><option>accepted</option><option>completed</option><option>declined</option></select>
+      <select class="form-control" id="refPri" style="width:150px"><option value="">All priority</option><option>routine</option><option>urgent</option><option>emergency</option></select>
+    </div>
   </div>
-  <div><section class="panel"><div class="panel-header"><div><h3>Walk-in Queue</h3></div><a class="btn btn-secondary btn-sm" href="queue.html">Queue Board</a></div><div class="panel-body"><div id="recQueueList"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Doctor Availability</h3><div class="sub">Real-time status</div></div></div><div class="panel-body"><div id="docAvail"></div></div></section></div>
+  <div class="table-wrap">
+    <table class="data-table" id="refTable">
+      <thead><tr><th class="sortable">Patient</th><th class="sortable">Referred To</th><th class="sortable">Specialty</th><th class="sortable">Reason</th><th class="sortable">Priority</th><th class="sortable">Date</th><th class="sortable">Status</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="refBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="refPager"></div>
 </div>
 
 </section>
@@ -120,28 +138,89 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 "barcode": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14\"/></svg>"};
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkSession(); checkRoleAccess("reception"); initLayout(); loadPageData();
+  checkSession(); checkRoleAccess("doctor"); initLayout(); loadPageData();
 });
+let REFS = [];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
-    if (!r.ok) return;
-    document.getElementById("recApptsBody").innerHTML = r.data.items.filter(a => a.status !== "cancelled").map(a => `<tr>
-      <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td>
-      <td>${a.status === "checked-in" ? badge("Checked in","info") : badge(a.status,"success")}</td></tr>`).join("") || emptyRow(4);
+  apiFetch(CONFIG.ENDPOINTS.REFERRALS).then(r => {
+    if (!r.ok) return; REFS = r.data.items; renderRefs();
+    attachDataTable(document.getElementById("refTable"), {
+      searchInput: document.getElementById("refSearch"), pagerEl: document.getElementById("refPager"), pageSize: 8,
+      filterFn: row => {
+        const s = document.getElementById("refStatus").value, p = document.getElementById("refPri").value;
+        if (s && !row.cells[6].textContent.includes(s)) return false;
+        if (p && !row.cells[4].textContent.includes(p)) return false;
+        return true;
+      }
+    });
+    const n = r.data.items;
+    document.querySelector(".stat-grid").innerHTML =
+      statCard2(n.length, "Total Referrals", "share", "") +
+      statCard2(n.filter(x => x.status === "pending").length, "Pending", "clock", "color-warning") +
+      statCard2(n.filter(x => x.status === "completed").length, "Completed", "check", "color-success") +
+      statCard2(n.filter(x => x.priority === "emergency").length, "Emergency", "alert", "color-danger");
   });
-  apiFetch(CONFIG.ENDPOINTS.QUEUE).then(r => {
-    if (!r.ok) return;
-    const q = r.data.items;
-    document.getElementById("recQueueList").innerHTML = q.slice(0, 5).map(x => `
-      <div class="feed-item"><div class="feed-icon" style="background:${x.status === "in-service" ? "#ECFDF5" : "#EFF6FF"};color:${x.status === "in-service" ? "#065F46" : "#1A56DB"}">${ICONS.users}</div>
-      <div class="feed-text"><strong>${esc(x.name)}</strong> · ${esc(x.dept)}<div class="feed-time">Arrived ${x.arrived} · ${x.status}</div></div>
-      <span class="badge badge-${x.status === "in-service" ? "success" : "neutral"}">${x.status === "in-service" ? "Now" : "Wait"}</span></div>`).join("");
+  document.getElementById("btnNewRef").addEventListener("click", refModal);
+}
+function statCard2(v, l, ic, color) {
+  return `<div class="stat-card ${color}"><div class="stat-icon">${ICONS[ic]}</div><div><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div></div>`;
+}
+function renderRefs() {
+  document.getElementById("refBody").innerHTML = REFS.length ? REFS.map(r => `<tr>
+    <td><strong>${esc(r.patient)}</strong><div class="text-sm text-gray" style="color:#6B7280">${esc(r.id)}</div></td>
+    <td>${esc(r.to)}</td><td><span class="badge badge-primary">${esc(r.specialty)}</span></td>
+    <td class="text-sm" style="max-width:220px">${esc(r.reason)}</td>
+    <td>${r.priority === "emergency" ? badge("Emergency","danger") : r.priority === "urgent" ? badge("Urgent","warning") : badge("Routine","neutral")}</td>
+    <td>${formatDate(r.date)}</td>
+    <td>${r.status === "completed" ? badge("Completed","success") : r.status === "accepted" ? badge("Accepted","info") : r.status === "declined" ? badge("Declined","danger") : badge("Pending","warning")}</td>
+    <td><div class="actions">
+      <button class="btn-icon primary" title="View" onclick="viewRef('${r.id}')">${ICONS.eye}</button>
+      ${r.status === "pending" ? `<button class="btn-icon success" title="Mark accepted" onclick="setRef('${r.id}','accepted')">${ICONS.check}</button>
+      <button class="btn-icon danger" title="Decline" onclick="setRef('${r.id}','declined')">${ICONS.x}</button>` : ""}
+      ${r.status === "accepted" ? `<button class="btn btn-success btn-sm" onclick="setRef('${r.id}','completed')">Complete</button>` : ""}
+    </div></td></tr>`).join("") : emptyRow(8);
+}
+function refModal() {
+  openModal({
+    title: "New Referral",
+    body: `<div class="form-group"><label>Patient <span class="req">*</span></label><input class="form-control" id="rPat" list="rPats"><datalist id="rPats">${["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Biruk Ayele","Ruth Gebre","Tewodros Haile","Mahlet Shiferaw","Yohannes Mamo","Kidist Assefa"].map(n => `<option value="${n}">`).join("")}</datalist></div>
+      <div class="form-row">
+        <div class="form-group"><label>Refer To</label><input class="form-control" id="rTo" placeholder="Dr. name / hospital"></div>
+        <div class="form-group"><label>Specialty</label><select class="form-control" id="rSpec"><option>Cardiology</option><option>Neurology</option><option>Orthopedics</option><option>ENT</option><option>Ophthalmology</option><option>Dermatology</option><option>Psychiatry</option><option>Oncology</option><option>Internal Medicine</option></select></div>
+      </div>
+      <div class="form-group"><label>Reason <span class="req">*</span></label><textarea class="form-control" rows="3" id="rReason" placeholder="Clinical summary and reason for referral…"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Priority</label><select class="form-control" id="rPri"><option>routine</option><option>urgent</option><option>emergency</option></select></div>
+        <div class="form-group"><label>Attachments</label><input class="form-control" type="file" multiple></div>
+      </div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveRef">Send Referral</button>`
+  }, { onMount: ov => {
+    ov.querySelector("[data-c]").onclick = () => ov.remove();
+    ov.querySelector("#saveRef").onclick = () => {
+      const pat = ov.querySelector("#rPat").value.trim(), reason = ov.querySelector("#rReason").value.trim();
+      if (!pat || !reason) { showToast("Patient and reason are required","error"); return; }
+      REFS.unshift({ id: uid("RF"), patient: pat, to: ov.querySelector("#rTo").value || "Specialist", specialty: ov.querySelector("#rSpec").value, reason, priority: ov.querySelector("#rPri").value, date: todayStr(), status: "pending" });
+      renderRefs(); ov.remove();
+      showToast("Referral sent to " + ov.querySelector("#rSpec").value, "success");
+    };
+  }});
+}
+function setRef(id, s) { const r = REFS.find(x => x.id === id); r.status = s; renderRefs(); showToast("Referral " + s, "success"); }
+function viewRef(id) {
+  const r = REFS.find(x => x.id === id);
+  openModal({
+    title: "Referral " + r.id,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Patient</span><span class="v">${esc(r.patient)}</span></div>
+      <div class="detail-item"><span class="k">Referred To</span><span class="v">${esc(r.to)}</span></div>
+      <div class="detail-item"><span class="k">Specialty</span><span class="v">${esc(r.specialty)}</span></div>
+      <div class="detail-item"><span class="k">Priority</span><span class="v">${esc(r.priority)}</span></div>
+      <div class="detail-item"><span class="k">Date</span><span class="v">${formatDate(r.date)}</span></div>
+      <div class="detail-item"><span class="k">Status</span><span class="v">${esc(r.status)}</span></div></div>
+      <h3 class="mt-4 mb-2" style="font-size:15px">Reason</h3>
+      <p style="color:#374151">${esc(r.reason)}</p>`,
+    size: "lg"
   });
-  const docs = [["Dr. Daniel Alemu","Internal Medicine","available"],["Dr. Fikru Debebe","Pediatrics","busy"],["Dr. Meron Assefa","Cardiology","busy"],["Dr. Tsehay Mengistu","Maternity","off"],["Dr. Natnael Fekadu","Emergency","available"]];
-  document.getElementById("docAvail").innerHTML = docs.map(d => `
-    <div class="avail-item"><span class="health-dot ${d[2] === "available" ? "ok" : d[2] === "busy" ? "warn" : "bad"}"></span>
-    <div style="flex:1"><strong>${d[0]}</strong><div class="text-sm text-gray" style="color:#6B7280">${d[1]}</div></div>
-    <span class="badge badge-${d[2] === "available" ? "success" : d[2] === "busy" ? "warning" : "neutral"}">${d[2]}</span></div>`).join("");
 }
 
 </script>
