@@ -35,7 +35,15 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**49 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**58 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+
+### Messaging, accounts & access control
+
+- **📬 Messages inbox for every role** — received-message list with unread badges; **single-click** a message to open it in a popup with full detail, **double-click** to minimize (collapse) it; compose/send with simulated replies; Sent tab.
+- **📝 Sign-up page** (`signup.html`) — full registration: account, personal info (DOB, gender, phone, blood type, region), emergency contact, role (patient or staff), insurance, terms consent. Patient accounts activate instantly; staff accounts await admin approval.
+- **🔑 Forgot password** (`forgot-password.html`) — email → 6-digit reset code → set new password (3-step flow).
+- **🔔 Notifications open full detail** — clicking any notification in the topbar bell opens a popup with category, time, status and full message, plus a link to the related page.
+- **🛡️ Permission-controlled tabs** — the admin can grant/revoke every tab per role on the **Roles & Permissions** page; changes apply **automatically** — a granted tab appears in that role's sidebar on their next load, a revoked one disappears.
 
 ### Professional features (added per role)
 

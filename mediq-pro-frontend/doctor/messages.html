@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI Lab Result Analyzer — MedIQ Pro</title>
+<title>Messages — MedIQ Pro</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M14%2046c6%204%2012%204%2018%200%206%204%2012%204%2018%200%22%20stroke%3D%22%23BFDBFE%22%20stroke-width%3D%223%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css" />
@@ -17,40 +17,40 @@
 <nav class="sidebar-nav">
 <div class="nav-section-label">MAIN</div>
 <a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="test-requests.html" data-perm="testrequests" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg><span class="nav-label">Test Requests</span></a>
-<a class="nav-link" href="samples.html" data-perm="samples" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></svg><span class="nav-label">Sample Tracking</span></a>
-<a class="nav-link" href="results.html" data-perm="results" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Results</span></a>
+<a class="nav-link" href="patients.html" data-perm="patients" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
+<a class="nav-link" href="consultation.html" data-perm="consultation" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg><span class="nav-label">Consultation</span></a>
+<a class="nav-link" href="prescriptions.html" data-perm="prescriptions" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Prescriptions</span></a>
+<a class="nav-link" href="appointments.html" data-perm="appointments" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Appointments</span></a>
+<a class="nav-link" href="referrals.html" data-perm="referrals" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></svg><span class="nav-label">Referrals</span></a>
 <div class="nav-section-label">AI TOOLS</div>
-<a class="nav-link active" href="ai-analyzer.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg><span class="nav-label">AI Analyzer</span></a>
+<a class="nav-link" href="ai-diagnosis.html" data-perm="ai" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg><span class="nav-label">AI Diagnosis</span></a>
 <div class="nav-section-label">MESSAGES</div>
-<a class="nav-link" href="messages.html" data-perm="messages" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="nav-label">Messages</span></a>
+<a class="nav-link active" href="messages.html" data-perm="messages" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="nav-label">Messages</span></a>
 </nav>
 <div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">AI Lab Result Analyzer</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="page-title">Messages</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FFFBEB;color:#D97706"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#ECFDF5;color:#065F46"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
 <section class="page-body">
 
-<div class="alert alert-info mb-4"><span><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
-  <div class="alert-body"><span class="alert-title">Module 3 — Lab Analyzer</span> — enter patient values and the AI compares them to reference ranges, flags abnormalities and suggests conditions.</div></div>
-<div class="panel-grid cols-2">
-  <section class="card">
-    <h3 class="mb-3">1. Select Test Type</h3>
-    <div class="chip-group" id="testTypes">
-      <span class="chip selected" data-type="blood">Blood Count</span>
-      <span class="chip" data-type="liver">Liver Function</span>
-      <span class="chip" data-type="kidney">Kidney Function</span>
-      <span class="chip" data-type="thyroid">Thyroid</span>
-      <span class="chip" data-type="diabetes">Diabetes</span>
-    </div>
-    <div class="form-group mt-4"><label>Patient</label><select class="form-control" id="anPatient"><option>Abel Mekonnen (P-1001)</option><option>Hana Wolde (P-1002)</option><option>Selam Tadesse (P-1004)</option><option>Ruth Gebre (P-1006)</option><option>Yohannes Mamo (P-1009)</option></select></div>
-    <h3 class="mb-3">2. Enter Values</h3>
-    <div id="labForm"></div>
-    <button class="btn btn-primary btn-lg btn-block" id="btnAnalyze"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg> Analyze Results</button>
-  </section>
-  <div>
-    <div id="labResult"></div>
+<div class="flex-between mb-4 wrap" style="gap:12px">
+  <div class="chip-group" id="msgsTabs">
+    <span class="chip selected" data-tab="inbox">Inbox <strong>(<span id="unreadCount">0</span>)</strong></span>
+    <span class="chip" data-tab="sent">Sent</span>
   </div>
+  <button class="btn btn-primary" id="btnCompose"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Compose Message</button>
+</div>
+<div class="alert alert-info mb-4"><span><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
+  <div class="alert-body"><strong>Tip:</strong> single-click a received message to open it in a popup · <strong>double-click</strong> to minimize it (click again to restore).</div></div>
+<div id="inboxView" class="card" style="padding:0">
+  <div class="table-toolbar"><h3 style="font-size:16px">Received Messages</h3>
+    <span class="badge badge-info" id="inboxCount">0 messages</span></div>
+  <div id="inboxList"></div>
+</div>
+<div id="sentView" class="card hidden" style="padding:0">
+  <div class="table-toolbar"><h3 style="font-size:16px">Sent Messages</h3>
+    <span class="badge badge-info" id="sentCount">0 messages</span></div>
+  <div id="sentList"></div>
 </div>
 
 </section>
@@ -137,62 +137,142 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 "share": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><path d=\"m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98\"/></svg>",
 "barcode": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14\"/></svg>"};
 
+const ROLE = (window.location.pathname.split("/").filter(Boolean)[0]) || "patient";
+const RECIPIENTS = {
+  patient: ["Front Desk (Reception)", "Dr. Daniel Alemu (Internal Medicine)", "Pharmacy", "Laboratory"],
+  doctor: ["Front Desk (Reception)", "Pharmacy", "Laboratory", "Dr. Fikru Debebe (Pediatrics)", "All Patients"],
+  nurse: ["Front Desk (Reception)", "Pharmacy", "Dr. Daniel Alemu (Internal Medicine)", "All Patients"],
+  pharmacist: ["Front Desk (Reception)", "Dr. Daniel Alemu (Internal Medicine)", "All Patients", "Suppliers"],
+  laboratory: ["Front Desk (Reception)", "Dr. Daniel Alemu (Internal Medicine)", "All Patients"],
+  reception: ["All Patients", "All Doctors", "Pharmacy", "Laboratory"],
+  manager: ["All Staff", "All Doctors", "Front Desk (Reception)"],
+  admin: ["All Staff", "All Doctors", "All Nurses", "All Pharmacists", "All Patients"]
+}[ROLE] || ["Front Desk (Reception)", "All Staff"];
+
+let INBOX = [], SENT = [];
 document.addEventListener("DOMContentLoaded", () => {
-  checkSession(); checkRoleAccess("laboratory"); initLayout(); loadPageData();
-});
-const FIELDS = {
-  blood: [["hemoglobin","Hemoglobin (g/dL)","14.2"],["wbc","WBC (×10³/µL)","6.8"],["rbc","RBC (×10⁶/µL)","4.6"],["platelets","Platelets (×10³/µL)","240"]],
-  liver: [["alt","ALT (U/L)","45"],["ast","AST (U/L)","38"]],
-  kidney: [["creatinine","Creatinine (mg/dL)","1.1"]],
-  thyroid: [["tsh","TSH (mIU/L)","3.2"]],
-  diabetes: [["glucose","Glucose Fasting (mg/dL)","95"]]
-};
-let currentType = "blood";
-function loadPageData() {
-  document.querySelectorAll("#testTypes .chip").forEach(c => c.addEventListener("click", () => {
-    document.querySelectorAll("#testTypes .chip").forEach(x => x.classList.remove("selected"));
-    c.classList.add("selected"); currentType = c.dataset.type; renderLabForm();
+  checkSession(); checkRoleAccess(ROLE); initLayout(); loadPageData();
+  document.querySelectorAll("[data-tab]").forEach(c => c.addEventListener("click", () => {
+    document.querySelectorAll("[data-tab]").forEach(x => x.classList.remove("selected"));
+    c.classList.add("selected");
+    document.getElementById("inboxView").classList.toggle("hidden", c.dataset.tab === "sent");
+    document.getElementById("sentView").classList.toggle("hidden", c.dataset.tab !== "sent");
   }));
-  document.getElementById("btnAnalyze").addEventListener("click", analyze);
-  renderLabForm();
+  document.getElementById("btnCompose").addEventListener("click", () => composeModal(null, ""));
+});
+
+function loadPageData() {
+  apiFetch(CONFIG.ENDPOINTS.MESSAGES).then(r => { if (r.ok) { INBOX = r.data.items; renderInbox(); } });
+  apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(r => { if (r.ok) { SENT = r.data.items; renderSent(); } });
 }
-function renderLabForm() {
-  document.getElementById("labForm").innerHTML = `<div class="form-row-3">${FIELDS[currentType].map(f =>
-    `<div class="form-group"><label class="text-sm">${f[1]}</label><input class="form-control" data-key="${f[0]}" value="${f[2]}"></div>`).join("")}</div>`;
+
+function renderInbox() {
+  const list = document.getElementById("inboxList");
+  const unread = INBOX.filter(m => !m.read).length;
+  document.getElementById("unreadCount").textContent = unread;
+  document.getElementById("inboxCount").textContent = INBOX.length + " messages";
+  list.innerHTML = INBOX.length ? INBOX.map(m => `
+    <div class="msg-card ${m.read ? "" : "unread"} ${m.min ? "minimized" : ""}" data-id="${m.id}">
+      <div class="mc-avatar">${initialsOf(m.from)}</div>
+      <div class="mc-main">
+        <div class="mc-head">
+          <strong>${esc(m.from)}</strong>
+          <span class="badge badge-primary">${esc(m.from_role)}</span>
+          <span class="mc-min-label">Minimized — double-click to restore</span>
+          ${m.priority === "high" ? '<span class="badge badge-danger">High</span>' : ""}
+          <span class="mc-time">${formatDateTime(m.date)}</span>
+        </div>
+        <div class="mc-subject">${esc(m.subject)}</div>
+        <div class="mc-snippet">${esc(m.snippet || m.body)}</div>
+      </div>
+    </div>`).join("") : '<div class="empty-state">Inbox is empty.</div>';
+  document.querySelectorAll(".msg-card").forEach(card => {
+    card.addEventListener("click", () => {
+      clearTimeout(card._t);
+      card._t = setTimeout(() => openMessage(card.dataset.id), 280);
+    });
+    card.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      clearTimeout(card._t);
+      toggleMin(card.dataset.id);
+    });
+  });
 }
-function analyze() {
-  const values = {};
-  document.querySelectorAll("#labForm input").forEach(i => { values[i.dataset.key] = i.value; });
-  document.getElementById("labResult").innerHTML = `<section class="card"><div class="loading-area"><div class="spinner"></div><div>AI analyzing lab values…</div></div></section>`;
-  analyzeLabResult({ test_type: currentType, patient: document.getElementById("anPatient").value, values }, renderLabResult);
+
+function renderSent() {
+  const list = document.getElementById("sentList");
+  document.getElementById("sentCount").textContent = SENT.length + " messages";
+  list.innerHTML = SENT.length ? SENT.map(m => `
+    <div class="msg-card"><div class="mc-avatar" style="background:#ECFDF5;color:#065F46">${initialsOf(m.to)}</div>
+      <div class="mc-main">
+        <div class="mc-head"><strong>To: ${esc(m.to)}</strong><span class="mc-time">${formatDateTime(m.date)}</span></div>
+        <div class="mc-subject">${esc(m.subject)}</div>
+        <div class="mc-snippet">${esc(m.body)}</div>
+      </div>
+    </div>`).join("") : '<div class="empty-state">No sent messages yet.</div>';
 }
-function renderLabResult(res) {
-  const overall = res.overall === "abnormal";
-  document.getElementById("labResult").innerHTML = `<section class="card">
-    <div class="flex-between wrap" style="gap:10px"><h3>Analysis Result</h3>
-      ${overall ? badge("Overall: Abnormal","danger") : badge("Overall: Normal","success")}</div>
-    <table class="data-table mt-4"><thead><tr><th>Parameter</th><th>Normal Range</th><th>Patient Value</th><th>Status</th><th>Deviation</th></tr></thead><tbody>
-    ${res.rows.map(r => `<tr><td>${esc(r.name)}</td><td class="text-sm text-gray" style="color:#6B7280">${esc(r.range)}</td>
-      <td><strong>${esc(r.value)}</strong></td>
-      <td>${r.status === "normal" ? badge("Normal","success") : r.status === "high" ? badge("High","danger") : badge("Low","warning")}</td>
-      <td class="text-sm">${esc(r.deviation)}</td></tr>`).join("")}</tbody></table>
-    <h3 class="mt-4 mb-2" style="font-size:15px">Suspected Conditions</h3>
-    <div class="feed">${res.conditions.map(c => `<div class="feed-item"><div class="feed-icon" style="background:${overall ? "#FEF2F2" : "#ECFDF5"};color:${overall ? "#DC2626" : "#065F46"}">${overall ? ICONS.alert : ICONS.check}</div>
-      <div class="feed-text">${esc(c)}</div></div>`).join("")}</div>
-    <div class="disclaimer"><span>${ICONS.info}</span><div>AI suggestions only — model ${esc(res.model || "v2.0")}. Final interpretation by the laboratory technician or doctor.</div></div>
-    <div class="form-actions mt-4"><button class="btn btn-primary" onclick="generateReport()">${ICONS["file-text"]} Generate Report</button></div>
-  </section>`;
+
+function toggleMin(id) {
+  const m = INBOX.find(x => x.id === id);
+  if (m) { m.min = !m.min; renderInbox(); }
 }
-function generateReport() {
-  const w = window.open("", "_blank");
-  w.document.write(`<html><head><title>AI Lab Report</title><style>body{font-family:monospace;padding:40px}.h{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px}</style></head><body>
-    <div class="h"><h2>Wolaita Sodo University Hospital</h2><p>AI-Assisted Laboratory Report</p></div>
-    <p><strong>Patient:</strong> ${document.getElementById("anPatient").value}</p>
-    <p><strong>Date:</strong> ${formatDateTime(new Date().toISOString())}</p>
-    <p><strong>Generated by:</strong> MedIQ Pro AI Analyzer (Module 3)</p>
-    <p style="margin-top:16px">This report was auto-generated. Please verify with clinical judgment.</p></body></html>`);
-  w.document.close(); w.print();
-  showToast("Report generated","success");
+
+function openMessage(id) {
+  const m = INBOX.find(x => x.id === id);
+  if (!m) return;
+  m.read = true; m.min = false;
+  renderInbox();
+  openModal({
+    title: m.subject,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">From</span><span class="v">${esc(m.from)} (${esc(m.from_role)})</span></div>
+      <div class="detail-item"><span class="k">Date</span><span class="v">${formatDateTime(m.date)}</span></div>
+      <div class="detail-item"><span class="k">Priority</span><span class="v">${m.priority === "high" ? '<span class="badge badge-danger">High</span>' : '<span class="badge badge-neutral">Normal</span>'}</span></div>
+    </div>
+    <h3 class="mt-4 mb-2" style="font-size:15px">Message</h3>
+    <div class="alert alert-info mb-0"><span>${ICONS.mail}</span><div class="alert-body" style="font-size:14px">${esc(m.body)}</div></div>`,
+    footer: `<button class="btn btn-secondary" data-close>Close</button><button class="btn btn-primary" data-reply>${ICONS.send} Reply</button>`,
+    size: "lg",
+    onMount: (ov) => {
+      ov.querySelector("[data-close]").onclick = () => ov.remove();
+      ov.querySelector("[data-reply]").onclick = () => { ov.remove(); composeModal(m.from, "Re: " + m.subject); };
+    }
+  });
+}
+
+function composeModal(replyTo, replySubj) {
+  openModal({
+    title: "Compose Message",
+    body: `<div class="form-group"><label>To <span class="req">*</span></label>
+      <select class="form-control" id="cTo">${RECIPIENTS.map(r => `<option ${r === replyTo ? "selected" : ""}>${esc(r)}</option>`).join("")}</select></div>
+      <div class="form-group"><label>Subject</label><input class="form-control" id="cSubj" value="${replySubj ? esc(replySubj) : ""}" placeholder="Message subject"></div>
+      <div class="form-group"><label>Message <span class="req">*</span></label><textarea class="form-control" rows="4" id="cBody" placeholder="Write your message…"></textarea></div>
+      <div class="form-group"><label>Priority</label><select class="form-control" id="cPri"><option>normal</option><option>high</option></select></div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="cSend">${ICONS.send} Send Message</button>`,
+    onMount: (ov) => {
+      ov.querySelector("[data-c]").onclick = () => ov.remove();
+      ov.querySelector("#cSend").onclick = () => {
+        const to = ov.querySelector("#cTo").value.trim();
+        const body = ov.querySelector("#cBody").value.trim();
+        const subject = ov.querySelector("#cSubj").value.trim() || "Message from " + getUserName();
+        if (!body) { showToast("Message body is required", "error"); return; }
+        SENT.unshift({ id: uid("SENT"), to, subject, body, date: new Date().toISOString() });
+        renderSent();
+        ov.remove();
+        showToast("Message sent to " + to, "success");
+        // simulate a reply arriving a little later (demo)
+        setTimeout(() => {
+          INBOX.unshift({
+            id: uid("MSG"), from: to, from_role: "Staff", subject: "Re: " + subject,
+            body: "Thank you for your message. A team member will review it and get back to you shortly. — MedIQ Pro messaging",
+            date: new Date().toISOString(), read: false, priority: "normal"
+          });
+          renderInbox();
+          showToast("New reply received from " + to, "info");
+        }, 2500);
+      };
+    }
+  });
 }
 
 </script>

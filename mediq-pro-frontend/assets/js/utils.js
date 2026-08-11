@@ -401,15 +401,30 @@ function initLayout() {
 
   initAuthUI();
   initNotifications();
+  applyPermissions();
+}
+
+// ---------- Permission-based tabs ----------
+// Nav links tagged data-perm are hidden unless the current role has that
+// permission (granted/revoked by the admin from Roles & Permissions).
+function applyPermissions() {
+  const role = getUserRole();
+  if (!role) return;
+  seedPermissions();
+  document.querySelectorAll(".nav-link[data-perm]").forEach(a => {
+    if (!canAccess(role, a.dataset.perm)) a.classList.add("hidden");
+  });
 }
 
 // ---------- Live notifications (topbar bell) ----------
 // Fills the notifications dropdown with real data: low stock, abnormal
 // results, today's appointments — instead of static placeholders.
+// Clicking a notification opens a full-detail popup.
 function initNotifications() {
   const menu = document.getElementById("notifMenu");
   if (!menu) return;
   const items = [];
+  const now = new Date().toTimeString().slice(0, 5);
   Promise.all([
     apiFetch(CONFIG.ENDPOINTS.INVENTORY),
     apiFetch(CONFIG.ENDPOINTS.LAB_RESULTS),
@@ -419,23 +434,32 @@ function initNotifications() {
       inv.data.items.filter(i => i.status === "low-stock" || i.status === "out-of-stock")
         .slice(0, 2).forEach(i => items.push({
           icon: "package", tint: "#FFFBEB", color: "#D97706",
+          category: "Inventory", time: now,
           title: i.name + " — " + i.status.replace("-", " "),
-          sub: i.stock + " " + i.unit + " remaining · reorder advised"
+          sub: i.stock + " " + i.unit + " remaining",
+          detail: i.name + " has only " + i.stock + " " + i.unit + " left (" + i.status.replace("-", " ") + "). Recommended action: create a purchase order for at least " + (i.stock * 3) + " " + i.unit + " to cover the next 30 days.",
+          link: "pharmacist/inventory.html"
         }));
     }
     if (lab.ok) {
       lab.data.items.filter(r => r.ai_flag === "abnormal").slice(0, 1).forEach(r => items.push({
         icon: "alert", tint: "#FEF2F2", color: "#DC2626",
+        category: "Laboratory", time: formatDateTime(r.date),
         title: "Abnormal result: " + r.test,
-        sub: r.patient + " · " + formatDate(r.date) + " · AI flagged"
+        sub: r.patient + " · AI flagged",
+        detail: "The AI analyzer flagged the " + r.test + " result for " + r.patient + " as abnormal. Please review the values and confirm the interpretation before releasing.",
+        link: "laboratory/results.html"
       }));
     }
     if (appt.ok) {
       const today = appt.data.items.filter(a => a.date === todayStr() && a.status === "confirmed").length;
       if (today) items.push({
         icon: "calendar", tint: "#EFF6FF", color: "#1A56DB",
+        category: "Appointments", time: todayStr(),
         title: today + " confirmed appointment" + (today > 1 ? "s" : "") + " today",
-        sub: "Check the appointments page for details"
+        sub: "Review today's schedule",
+        detail: "There " + (today > 1 ? "are" : "is") + " " + today + " confirmed appointment" + (today > 1 ? "s" : "") + " scheduled for today. Ensure patients are checked in on time and doctors are aware of their queue.",
+        link: getUserRole() === "patient" ? "patient/appointments.html" : "reception/appointments.html"
       });
     }
     renderNotifItems(menu, items);
@@ -444,9 +468,34 @@ function initNotifications() {
 function renderNotifItems(menu, items) {
   menu.innerHTML = '<div class="dd-header">Notifications</div>' +
     (items.length
-      ? items.map(i => `<div class="dd-item"><div class="feed-icon" style="background:${i.tint};color:${i.color}">${ICONS[i.icon]}</div><div class="feed-text"><div class="dd-title">${esc(i.title)}</div><div class="dd-sub">${esc(i.sub)}</div></div></div>`).join("")
+      ? items.map((i, idx) => `<div class="dd-item" data-notif="${idx}"><div class="feed-icon" style="background:${i.tint};color:${i.color}">${ICONS[i.icon]}</div><div class="feed-text"><div class="dd-title">${esc(i.title)}</div><div class="dd-sub">${esc(i.sub)}</div></div></div>`).join("")
       : '<div class="empty-state" style="padding:22px;color:#6B7280">You\'re all caught up ✅</div>') +
     '<div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast(\'All notifications shown\',\'info\')">View all</a></div>';
+  menu.querySelectorAll("[data-notif]").forEach(el => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openNotificationDetail(items[+el.dataset.notif]);
+      const dot = document.querySelector(".notif-dot");
+      if (dot) dot.style.display = "none";
+    });
+  });
+}
+
+// ---------- Notification detail popup ----------
+function openNotificationDetail(n) {
+  openModal({
+    title: n.title,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Category</span><span class="v">${esc(n.category || "System")}</span></div>
+      <div class="detail-item"><span class="k">Time</span><span class="v">${esc(n.time || "Just now")}</span></div>
+      <div class="detail-item"><span class="k">Status</span><span class="v"><span class="badge badge-warning">Active</span></span></div>
+    </div>
+    <div class="alert alert-info mt-4 mb-0"><span>${ICONS[n.icon]}</span>
+      <div class="alert-body"><strong>${esc(n.title)}</strong><div class="mt-2" style="font-size:13px;color:#374151">${esc(n.detail || n.sub || "")}</div></div>
+    </div>
+    ${n.link ? `<div class="form-actions mt-4"><a class="btn btn-primary" href="${esc(n.link)}">${ICONS.eye} Open related page</a></div>` : ""}`,
+    size: "lg"
+  });
 }
 
 // Auto-close alerts

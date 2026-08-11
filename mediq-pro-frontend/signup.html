@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Account — MedIQ Pro</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%231A56DB%22/%3E%3Cpath%20d%3D%22M26%2014h12v12h12v12H38v12H26V38H14V26h12z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/css/global.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body>
+<div class="login-body">
+  <div class="login-card" style="max-width:560px;padding:32px 36px;max-height:92vh;overflow-y:auto">
+    <div class="login-logo" style="margin-bottom:20px">
+      <img src="assets/images/logo.png" alt="MedIQ Pro logo" />
+      <h1 style="font-size:22px">Create Your Account</h1>
+      <div class="sub">Join MedIQ Pro — AI-Powered Hospital Management System</div>
+    </div>
+
+    <div class="login-error" id="signupError">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span id="signupErrorText">Please fix the highlighted fields.</span>
+    </div>
+
+    <form id="signupForm" novalidate>
+      <h3 style="font-size:15px;margin-bottom:14px">👤 Account Information</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suName">Full Name <span class="req">*</span></label>
+          <input class="form-control" id="suName" placeholder="e.g. Abel Mekonnen" required />
+        </div>
+        <div class="form-group">
+          <label for="suEmail">Email Address <span class="req">*</span></label>
+          <input class="form-control" type="email" id="suEmail" placeholder="you@mail.com" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suPass">Password <span class="req">*</span></label>
+          <input class="form-control" type="password" id="suPass" placeholder="Min 8 characters" minlength="8" required />
+        </div>
+        <div class="form-group">
+          <label for="suPass2">Confirm Password <span class="req">*</span></label>
+          <input class="form-control" type="password" id="suPass2" placeholder="Repeat password" required />
+        </div>
+      </div>
+
+      <h3 style="font-size:15px;margin:20px 0 14px">🪪 Personal Information</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suDob">Date of Birth <span class="req">*</span></label>
+          <input class="form-control" type="date" id="suDob" required />
+        </div>
+        <div class="form-group">
+          <label for="suGender">Gender</label>
+          <select class="form-control" id="suGender"><option>Male</option><option>Female</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suPhone">Phone Number <span class="req">*</span></label>
+          <input class="form-control" id="suPhone" placeholder="+251 9xx xxx xxx" required />
+        </div>
+        <div class="form-group">
+          <label for="suBlood">Blood Type</label>
+          <select class="form-control" id="suBlood"><option>Unknown</option><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="suAddr">Address</label>
+        <input class="form-control" id="suAddr" placeholder="Street / Kebele / House no." />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suCity">City / Town</label>
+          <input class="form-control" id="suCity" placeholder="e.g. Sodo" />
+        </div>
+        <div class="form-group">
+          <label for="suRegion">Region</label>
+          <select class="form-control" id="suRegion">
+            <option>Addis Ababa</option><option>Afar</option><option>Amhara</option><option>Benishangul-Gumuz</option>
+            <option>Dire Dawa</option><option>Gambela</option><option>Harari</option><option>Oromia</option>
+            <option>Sidama</option><option>SNNPR</option><option>Somali</option><option>South West</option>
+            <option>Tigray</option><option>Wolaita</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:15px;margin:20px 0 14px">🏥 Account Type &amp; Emergency</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suRole">I am registering as</label>
+          <select class="form-control" id="suRole">
+            <option value="patient" selected>Patient</option>
+            <option value="doctor">Doctor (staff)</option>
+            <option value="nurse">Nurse (staff)</option>
+            <option value="pharmacist">Pharmacist (staff)</option>
+            <option value="laboratory">Laboratory (staff)</option>
+            <option value="reception">Receptionist (staff)</option>
+            <option value="manager">Manager (staff)</option>
+          </select>
+          <div class="hint" id="suRoleHint">Patient accounts are activated immediately. Staff accounts are reviewed and approved by the administrator.</div>
+        </div>
+        <div class="form-group">
+          <label for="suEc">Emergency Contact (name &amp; phone) <span class="req">*</span></label>
+          <input class="form-control" id="suEc" placeholder="e.g. Hana Mekonnen — +251 9xx xxx xxx" required />
+        </div>
+      </div>
+
+      <h3 style="font-size:15px;margin:20px 0 14px">💳 Insurance (optional)</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="suIns">Insurance Provider</label>
+          <select class="form-control" id="suIns">
+            <option value="">None / Self-pay</option><option>EHBPA</option><option>Nyala Insurance</option>
+            <option>GIB (Global Insurance)</option><option>Awash Insurance</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="suPol">Policy / Member No.</label>
+          <input class="form-control" id="suPol" placeholder="Policy number (if insured)" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="flex" style="gap:8px;font-weight:500;font-size:13px;align-items:flex-start">
+          <input type="checkbox" id="suTerms" style="width:16px;height:16px;margin-top:2px" required />
+          I agree to the <a href="#" onclick="event.preventDefault();showToast('Terms of Service — demo','info')">Terms of Service</a> and <a href="#" onclick="event.preventDefault();showToast('Privacy Policy — demo','info')">Privacy Policy</a>, and I consent to my medical information being stored securely.
+        </label>
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-block" type="submit" id="suBtn">Create Account</button>
+    </form>
+
+    <p class="text-center mt-4" style="font-size:13px;color:#6B7280">
+      Already have an account? <a href="index.html">Sign in</a>
+    </p>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("signupForm");
+  const errBox = document.getElementById("signupError");
+  const errText = document.getElementById("signupErrorText");
+
+  function showErr(msg) { errText.textContent = msg; errBox.classList.add("show"); }
+  function ok() { errBox.classList.remove("show"); }
+
+  document.getElementById("suRole").addEventListener("change", e => {
+    const staff = e.target.value !== "patient";
+    document.getElementById("suRoleHint").textContent = staff
+      ? "Staff accounts require administrator approval before you can sign in."
+      : "Patient accounts are activated immediately. Staff accounts are reviewed and approved by the administrator.";
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("suName").value.trim();
+    const email = document.getElementById("suEmail").value.trim();
+    const pass = document.getElementById("suPass").value;
+    const pass2 = document.getElementById("suPass2").value;
+    const dob = document.getElementById("suDob").value;
+    const phone = document.getElementById("suPhone").value.trim();
+    const ec = document.getElementById("suEc").value.trim();
+    const terms = document.getElementById("suTerms").checked;
+
+    if (!name || name.split(" ").length < 2) return showErr("Please enter your full name (first and last).");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showErr("Please enter a valid email address.");
+    if (pass.length < 8) return showErr("Password must be at least 8 characters.");
+    if (pass !== pass2) return showErr("Passwords do not match.");
+    if (!dob) return showErr("Please select your date of birth.");
+    const age = Math.floor((Date.now() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
+    if (age < 0 || age > 120) return showErr("Please enter a valid date of birth.");
+    if (!/^\+?[0-9 ]{9,15}$/.test(phone)) return showErr("Please enter a valid phone number.");
+    if (!ec || ec.split("—").length < 2 && ec.split("-").length < 2 && ec.split(",").length < 2) return showErr("Emergency contact should include a name and phone.");
+    if (!terms) return showErr("You must accept the Terms of Service and Privacy Policy.");
+    ok();
+
+    // Save the signup (demo) — in production this calls POST /auth/signup
+    const record = {
+      id: "U-" + (900 + Math.floor(Math.random() * 900)),
+      name, email, password: pass, dob, gender: document.getElementById("suGender").value,
+      phone, blood: document.getElementById("suBlood").value, address: document.getElementById("suAddr").value.trim(),
+      city: document.getElementById("suCity").value.trim(), region: document.getElementById("suRegion").value,
+      role: document.getElementById("suRole").value, emergency_contact: ec,
+      insurance: document.getElementById("suIns").value, policy: document.getElementById("suPol").value.trim(),
+      status: document.getElementById("suRole").value === "patient" ? "active" : "pending",
+      created: new Date().toISOString()
+    };
+    try {
+      const all = JSON.parse(localStorage.getItem("mediq_pro_signups") || "[]");
+      all.push(record);
+      localStorage.setItem("mediq_pro_signups", JSON.stringify(all));
+    } catch (err) {}
+
+    // Success modal
+    openModal({
+      title: "Account Created 🎉",
+      body: `<div class="text-center" style="padding:8px 0">
+        <div style="font-size:44px">✅</div>
+        <h3 style="margin:10px 0 4px">Welcome, ${esc(name.split(" ")[0])}!</h3>
+        <p style="color:#6B7280;font-size:14px">
+          ${record.status === "active"
+            ? "Your patient account is ready. You can sign in with your email and password."
+            : "Your staff account has been submitted for administrator approval. You will be notified by email once approved."}
+        </p>
+        <div class="detail-list" style="text-align:left;max-width:340px;margin:16px auto">
+          <div class="detail-item"><span class="k">Email</span><span class="v">${esc(email)}</span></div>
+          <div class="detail-item"><span class="k">Account Type</span><span class="v">${esc(record.role)}</span></div>
+          <div class="detail-item"><span class="k">Status</span><span class="v">${esc(record.status)}</span></div>
+        </div>
+      </div>`,
+      footer: `<a class="btn btn-primary" href="index.html">Go to Sign In</a>`
+    });
+    form.reset();
+  });
+});
+</script>
+</body>
+</html>

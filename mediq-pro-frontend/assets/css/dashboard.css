@@ -202,6 +202,27 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
 .receipt .r-row { display: flex; justify-content: space-between; padding: 4px 0; }
 .receipt .r-total { border-top: 1px solid var(--dark); margin-top: 8px; padding-top: 8px; font-weight: 700; }
 
+/* ---------- Messages inbox ---------- */
+.msg-card { display: flex; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); cursor: pointer; align-items: flex-start; transition: background 0.15s ease; }
+.msg-card:last-child { border-bottom: none; }
+.msg-card:hover { background: var(--primary-light); }
+.msg-card.unread { background: #F0F6FF; }
+.msg-card.unread .mc-subject { font-weight: 700; }
+.msg-card.unread::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-top: 6px; flex-shrink: 0; }
+.mc-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.mc-main { flex: 1; min-width: 0; }
+.mc-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mc-time { font-size: 12px; color: var(--gray); margin-left: auto; white-space: nowrap; }
+.mc-subject { font-weight: 600; margin-top: 2px; }
+.mc-snippet { font-size: 13px; color: var(--gray); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-min-label { display: none; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--warning); background: var(--warning-bg); border: 1px solid #FDE68A; padding: 1px 8px; border-radius: 999px; }
+/* minimized (collapsed) state */
+.msg-card.minimized { padding: 9px 18px; background: var(--light-gray); }
+.msg-card.minimized .mc-snippet, .msg-card.minimized .mc-time { display: none; }
+.msg-card.minimized .mc-min-label { display: inline-block; }
+.msg-card.minimized .mc-avatar { width: 30px; height: 30px; font-size: 11px; }
+.msg-card.minimized .mc-subject { font-weight: 500; font-size: 13px; }
+
 /* ---------- Messaging layout (patient portal) ---------- */
 .msg-layout { display: flex; flex: 1; min-height: 0; }
 .msg-conv { width: 250px; border-right: 1px solid var(--border); overflow-y: auto; background: var(--light-gray); flex-shrink: 0; }

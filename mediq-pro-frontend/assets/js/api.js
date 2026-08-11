@@ -290,20 +290,18 @@ const MOCK = {
   ],
 
   messages: [
-    { id: "C-1", with: "Front Desk (Reception)", dept: "Front Desk", unread: 2, last_message: "Your appointment on Thursday is confirmed.", messages: [
-      { from: "them", text: "Hello Abel! How can we help you today?", time: "08:00" },
-      { from: "me", text: "Hi, I wanted to confirm my appointment on Thursday.", time: "08:05" },
-      { from: "them", text: "Your appointment on Thursday is confirmed.", time: "08:12" },
-      { from: "them", text: "Please arrive 15 minutes early with your ID card.", time: "08:13" }
-    ]},
-    { id: "C-2", with: "Dr. Daniel Alemu (Internal Medicine)", dept: "Doctor", unread: 0, last_message: "BP is looking better. Continue the medication.", messages: [
-      { from: "them", text: "Your recent BP readings look much better.", time: "Yesterday" },
-      { from: "me", text: "Thank you doctor. Any changes to my medication?", time: "Yesterday" },
-      { from: "them", text: "BP is looking better. Continue the medication.", time: "Yesterday" }
-    ]},
-    { id: "C-3", with: "Pharmacy", dept: "Pharmacy", unread: 1, last_message: "Your Amlodipine refill is ready for pickup.", messages: [
-      { from: "them", text: "Your Amlodipine refill is ready for pickup.", time: "09:20" }
-    ]}
+    { id: "MSG-1001", from: "Dr. Daniel Alemu", from_role: "Doctor", subject: "Lab result follow-up", body: "Dear colleague, the HbA1c result for patient Yohannes Mamo (P-1009) came back at 8.2%. Please ensure a dietary review is scheduled and his insulin dose is re-evaluated at the next visit.", date: "2026-08-11T08:40:00", read: false, priority: "high" },
+    { id: "MSG-1002", from: "Front Desk (Reception)", from_role: "Reception", subject: "Appointment reminder", body: "Reminder: 3 patients are checked in and waiting in the Internal Medicine queue. Please review the queue board when you are free.", date: "2026-08-11T08:15:00", read: false, priority: "normal" },
+    { id: "MSG-1003", from: "Yonas Girma", from_role: "Pharmacist", subject: "Prescription ready for pickup", body: "Prescription RX-2201 (Amlodipine 5mg × 30 tablets) is ready for pickup at the pharmacy window. The patient has been notified via SMS.", date: "2026-08-11T07:50:00", read: true, priority: "normal" },
+    { id: "MSG-1004", from: "Sara Worku", from_role: "Laboratory", subject: "Sample results pending", body: "Two kidney-function samples are still processing. Expected completion within 1 hour. We will notify you as soon as they are released.", date: "2026-08-11T07:30:00", read: false, priority: "normal" },
+    { id: "MSG-1005", from: "System Administrator", from_role: "System", subject: "Maintenance notice", body: "The hospital system will undergo scheduled maintenance on Saturday from 23:00 to 23:30. Please log out before maintenance begins to avoid losing unsaved work.", date: "2026-08-10T16:00:00", read: true, priority: "high" },
+    { id: "MSG-1006", from: "Hanna Bekele", from_role: "Manager", subject: "Quarterly report request", body: "Kindly submit your departmental activity summary for Q3 by Friday. The finance and AI insights teams need this data for the executive report.", date: "2026-08-10T11:20:00", read: false, priority: "normal" }
+  ],
+
+  sent: [
+    { id: "SENT-501", to: "Dr. Daniel Alemu", subject: "Re: Lab result follow-up", body: "Noted — the dietary review is scheduled for the next visit and the insulin dose will be re-evaluated.", date: "2026-08-11T09:05:00" },
+    { id: "SENT-502", to: "Front Desk (Reception)", subject: "Queue confirmation", body: "Received, we will start with the patients in the Internal Medicine queue shortly.", date: "2026-08-11T08:20:00" },
+    { id: "SENT-503", to: "Pharmacy", subject: "Refill confirmation", body: "Thank you for confirming the refill. The patient has been notified.", date: "2026-08-11T07:55:00" }
   ],
 
   vitals_history: {
@@ -402,6 +400,12 @@ function mockResponse(endpoint, method, body) {
       break;
     case CONFIG.ENDPOINTS.MESSAGES.replace(/^\//, ""):
       data = list(MOCK.messages);
+      break;
+    case CONFIG.ENDPOINTS.SENT_MESSAGES.replace(/^\//, ""):
+      data = list(MOCK.sent);
+      break;
+    case CONFIG.ENDPOINTS.NOTIFICATIONS.replace(/^\//, ""):
+      data = list(MOCK.messages.slice(0, 4));
       break;
 
     // ---------- Auth ----------

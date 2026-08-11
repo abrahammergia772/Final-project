@@ -71,7 +71,27 @@ const CONFIG = {
     PURCHASE_ORDERS:"/purchase-orders",
     SAMPLES:        "/samples",
     INSURANCE:      "/insurance",
-    MESSAGES:       "/messages"
+    MESSAGES:       "/messages",
+    SENT_MESSAGES:  "/messages/sent",
+    NOTIFICATIONS:  "/notifications",
+
+    // Auth
+    SIGNUP:         "/auth/signup",
+    RESET_PASSWORD: "/auth/reset-password"
+  },
+
+  // Role → tab permissions. The admin can grant/revoke these from the
+  // Roles & Permissions page; changes apply automatically — the granted tab
+  // appears (or disappears) in that role's sidebar on their next load.
+  PERMISSIONS: {
+    admin:      { users: 1, roles: 1, announcements: 1, audit: 1, settings: 1, ai: 1, messages: 1 },
+    manager:    { departments: 1, staff: 1, reports: 1, finance: 1, ai: 1, messages: 1 },
+    doctor:     { patients: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, ai: 1, messages: 1 },
+    nurse:      { vitals: 1, observations: 1, medications: 1, careplans: 1, messages: 1 },
+    pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, ai: 1, messages: 1 },
+    laboratory: { testrequests: 1, samples: 1, results: 1, ai: 1, messages: 1 },
+    reception:  { registration: 1, appointments: 1, insurance: 1, queue: 1, messages: 1 },
+    patient:    { appointments: 1, records: 1, results: 1, bills: 1, messages: 1, ai: 1 }
   }
 };
 

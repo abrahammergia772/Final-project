@@ -150,6 +150,33 @@ function logout() {
   setTimeout(() => { window.location.href = basePath() + "index.html"; }, 400);
 }
 
+// ---------- Permissions (tab access per role) ----------
+// Admin grants/revokes from Roles & Permissions; changes are stored here and
+// each role page applies them when the sidebar renders — so a granted tab
+// appears automatically, a revoked one disappears.
+function seedPermissions() {
+  if (Store.get("mediq_pro_permissions")) return;
+  Store.set("mediq_pro_permissions", JSON.stringify(CONFIG.PERMISSIONS));
+}
+
+function loadPermissions() {
+  try { return JSON.parse(Store.get("mediq_pro_permissions")) || {}; }
+  catch (e) { return {}; }
+}
+
+// canAccess(role, permKey) — true when the tab should be visible
+function canAccess(role, permKey) {
+  if (!permKey || !role) return true;
+  const map = loadPermissions()[role] || CONFIG.PERMISSIONS[role] || {};
+  return map[permKey] === 1;
+}
+
+function savePermissions(role, map) {
+  const all = loadPermissions();
+  all[role] = map;
+  Store.set("mediq_pro_permissions", JSON.stringify(all));
+}
+
 // ---------- Wire up UI bits ----------
 function initAuthUI() {
   // Logout buttons anywhere (data-action="logout")
