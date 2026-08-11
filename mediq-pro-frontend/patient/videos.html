@@ -164,16 +164,17 @@ function thumb(v) {
 }
 function videoCard(v) {
   const t = thumb(v);
-  const canPlay = !!v.video_id && v.embeddable !== false;
+  // Every video with a real YouTube id plays INLINE. (All curated videos are
+  // verified embeddable; live results are fetched with videoEmbeddable=true.)
+  const canPlay = !!v.video_id;
   return `<div class="doc-card">
-    <div style="position:relative;aspect-ratio:16/9;background:#111827;cursor:pointer" onclick="${canPlay ? `openVideo('${v.id}')` : `openYouTube('${v.id}')`}" title="${canPlay ? "Click to play" : "Opens on YouTube"}">
+    <div style="position:relative;aspect-ratio:16/9;background:#111827;cursor:pointer" onclick="openVideo('${v.id}')" title="Click to play here">
       ${t
         ? `<img src="${t}" alt="${esc(v.title)}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
         : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#fff;flex-direction:column;gap:8px">${ICONS.play}<span class="text-sm">Watch here</span></div>`}
       <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-        <span style="width:52px;height:52px;border-radius:50%;background:${canPlay ? "rgba(26,86,219,.92)" : "rgba(17,24,39,.75)"};display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)">${ICONS.play}</span>
+        <span style="width:52px;height:52px;border-radius:50%;background:rgba(26,86,219,.92);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)">${ICONS.play}</span>
       </span>
-      ${!canPlay ? '<span style="position:absolute;top:8px;right:8px;background:rgba(17,24,39,.8);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px">Plays on YouTube</span>' : ""}
     </div>
     <div class="doc-body">
       <div class="doc-title" style="font-weight:700;font-size:14px;line-height:1.3">${esc(v.title)}</div>
@@ -182,31 +183,22 @@ function videoCard(v) {
       <div class="mt-2"><span class="badge badge-primary">${esc(v.category)}</span></div>
     </div>
     <div class="doc-foot">
-      ${canPlay
-        ? `<button class="btn btn-primary btn-sm" onclick="openVideo('${v.id}')">${ICONS.play} Play here</button>
-           <button class="btn btn-secondary btn-sm" onclick="openYouTube('${v.id}')">${ICONS.share} Open YouTube</button>`
-        : `<button class="btn btn-primary btn-sm" onclick="openYouTube('${v.id}')">${ICONS.share} Watch on YouTube</button>`}
+      <button class="btn btn-primary btn-sm" onclick="openVideo('${v.id}')">${ICONS.play} Play here</button>
+      <button class="btn btn-secondary btn-sm" onclick="openYouTube('${v.id}')">${ICONS.share} Open YouTube</button>
     </div>
   </div>`;
 }
 
-// Open a video on YouTube — moves directly to YouTube and starts playing.
-// 1) Opens in a new tab. 2) If popups are blocked, navigates the current tab
-// to YouTube. 3) Only if that is also blocked, shows a copyable link.
+// Open a video on YouTube (explicit user choice only — never auto-redirect).
+// New tab → same-tab navigation → copyable link as last resort.
 function openYouTube(id) {
   const v = VIDS.find(x => x.id === id);
   if (!v) return;
   const url = watchUrl(v);
-  // 1) new tab
   let win = null;
   try { win = window.open(url, "_blank"); } catch (e) { win = null; }
   if (win) { showToast("Playing on YouTube…", "info"); return; }
-  // 2) same-tab navigation (still in the user's click gesture)
-  try {
-    window.location.href = url;
-    return;
-  } catch (e) { /* fall through */ }
-  // 3) copyable link
+  try { window.location.href = url; return; } catch (e) {}
   openCopyLinkModal(url);
 }
 function openCopyLinkModal(url) {
@@ -236,24 +228,29 @@ function openCopyLinkModal(url) {
   });
 }
 
-// Inline playback — plays inside the system, no redirect to YouTube.
-// If the embed can't load (network blocked, e.g. in a preview iframe),
-// a fallback banner appears with a working "Watch on YouTube" button.
+// Inline playback — plays INSIDE the system, never redirects to YouTube.
+// Videos without a direct id get an in-site panel with a button (no auto-leave).
 function openVideo(id) {
   const v = VIDS.find(x => x.id === id);
   if (!v) return;
-  if (!v.video_id || v.embeddable === false) { openYouTube(id); return; }
-  const embed = `<div style="aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
-        <iframe id="ytPlayer" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${v.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="${esc(v.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  const embed = v.video_id
+    ? `<div style="aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
+        <iframe id="ytPlayer" width="100%" height="100%" src="https://www.youtube.com/embed/${v.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1&color=white" title="${esc(v.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>`
+    : `<div style="aspect-ratio:16/9;background:linear-gradient(135deg,#1E3A8A,#1A56DB);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:12px;text-align:center;padding:20px">
+        <span style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center">${ICONS.play}</span>
+        <div class="text-sm">This is a suggestion — watch it on YouTube using the button below.</div>
+        <button class="btn" style="background:#fff;color:#1A56DB" onclick="openYouTube('${v.id}')" type="button">${ICONS.share} Watch on YouTube</button>
       </div>`;
-  const fallback = `<div class="yt-fallback" style="display:none;margin-top:12px">
-      <div class="alert alert-warning mb-0"><span>${ICONS.info}</span>
-        <div class="alert-body"><strong>Video not playing?</strong> Your browser may be blocking embedded videos.
-        <button class="btn btn-secondary btn-sm mt-2" onclick="openYouTube('${v.id}')" type="button">${ICONS.share} Watch on YouTube</button></div>
-      </div></div>`;
   openModal({
     title: v.title,
-    body: embed + fallback + `
+    body: embed + `
+      <div class="yt-fallback" style="display:none;margin-top:12px">
+        <div class="alert alert-warning mb-0"><span>${ICONS.info}</span>
+          <div class="alert-body"><strong>Video not loading?</strong> If the player stays black, your network may block embedded videos.
+          <button class="btn btn-secondary btn-sm mt-2" onclick="openYouTube('${v.id}')" type="button">${ICONS.share} Open on YouTube</button></div>
+        </div>
+      </div>
       <div class="mt-4 detail-list">
         <div class="detail-item"><span class="k">Channel</span><span class="v">${esc(v.channel)}</span></div>
         <div class="detail-item"><span class="k">Category</span><span class="v">${esc(v.category)}</span></div>
@@ -265,7 +262,8 @@ function openVideo(id) {
     size: "lg",
     onMount: (ov) => {
       ov.querySelector("[data-close]").onclick = () => ov.remove();
-      // If the embed never finishes loading (network/sandbox blocked), show the fallback
+      // Only if the embed genuinely can't load (e.g. network blocks YouTube)
+      // do we reveal a small in-modal notice — never auto-navigate away.
       const f = ov.querySelector("#ytPlayer");
       if (f) {
         let loaded = false;
@@ -275,7 +273,7 @@ function openVideo(id) {
             const fb = ov.querySelector(".yt-fallback");
             if (fb) fb.style.display = "block";
           }
-        }, 5000);
+        }, 8000);
       }
     }
   });
