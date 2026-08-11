@@ -1,0 +1,145 @@
+/* ============================================================
+   MedIQ Pro — global.css
+   Shared styles, CSS variables, typography, utilities & reset
+   ============================================================ */
+
+/* ---------- 1. Design tokens ---------- */
+:root {
+  /* Colors */
+  --primary: #1A56DB;
+  --primary-dark: #1E40AF;
+  --primary-deep: #1E3A8A;      /* sidebar background */
+  --primary-light: #EFF6FF;
+  --success: #065F46;
+  --success-bg: #ECFDF5;
+  --warning: #D97706;
+  --warning-bg: #FFFBEB;
+  --danger: #DC2626;
+  --danger-bg: #FEF2F2;
+  --info: #0369A1;
+  --info-bg: #F0F9FF;
+  --dark: #111827;
+  --gray: #6B7280;
+  --light-gray: #F3F4F6;
+  --white: #FFFFFF;
+  --border: #E5E7EB;
+  --table-stripe: #F9FAFB;
+
+  /* Typography */
+  --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+
+  /* Spacing */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
+  --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.08);
+  --shadow-lg: 0 10px 30px rgba(17, 24, 39, 0.14);
+
+  /* Sidebar */
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 72px;
+  --topbar-h: 68px;
+}
+
+/* ---------- 2. Reset ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-main);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--dark);
+  background: var(--light-gray);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { list-style: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+h1, h2, h3, h4 { font-weight: 700; color: var(--dark); }
+h1 { font-size: 28px; }
+h2 { font-size: 22px; font-weight: 600; }
+h3 { font-size: 18px; font-weight: 600; }
+
+/* ---------- 3. Utilities ---------- */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.text-danger { color: var(--danger); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-gray { color: var(--gray); }
+.text-primary { color: var(--primary); }
+.text-bold { font-weight: 700; }
+.text-semibold { font-weight: 600; }
+.text-sm { font-size: 12px; }
+.text-md { font-size: 14px; }
+.text-lg { font-size: 16px; }
+
+.mt-1 { margin-top: var(--sp-1); }
+.mt-2 { margin-top: var(--sp-2); }
+.mt-3 { margin-top: var(--sp-3); }
+.mt-4 { margin-top: var(--sp-4); }
+.mt-5 { margin-top: var(--sp-5); }
+.mb-1 { margin-bottom: var(--sp-1); }
+.mb-2 { margin-bottom: var(--sp-2); }
+.mb-3 { margin-bottom: var(--sp-3); }
+.mb-4 { margin-bottom: var(--sp-4); }
+.mb-5 { margin-bottom: var(--sp-5); }
+.ml-2 { margin-left: var(--sp-2); }
+.mr-2 { margin-right: var(--sp-2); }
+.p-4 { padding: var(--sp-4); }
+.p-5 { padding: var(--sp-5); }
+
+.flex { display: flex; align-items: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-2 { gap: var(--sp-2); }
+.gap-3 { gap: var(--sp-3); }
+.gap-4 { gap: var(--sp-4); }
+.wrap { flex-wrap: wrap; }
+
+.hidden { display: none !important; }
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* ---------- 4. Responsive helpers ---------- */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 220px; }
+  h1 { font-size: 24px; }
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: 20px; }
+  h2 { font-size: 18px; }
+  .hide-sm { display: none !important; }
+}

@@ -1,0 +1,537 @@
+/* ============================================================
+   MedIQ Pro — api.js
+   Fetch wrapper + AI module functions + demo mock data
+   All calls to FastAPI go through apiFetch(). When CONFIG.DEMO_MODE
+   is true, requests are answered with realistic mock data so every
+   page is testable before the backend/.pkl models are ready.
+   ============================================================ */
+
+// ---------- Core fetch wrapper ----------
+async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
+  const headers = { "Content-Type": "application/json" };
+  const session = getSession();
+  if (!opts.skipAuth && session && session.token) {
+    headers["Authorization"] = "Bearer " + session.token;
+  }
+
+  // DEMO MODE — answer from mock data (no network needed)
+  if (CONFIG.DEMO_MODE && !opts.skipDemo) {
+    return mockResponse(endpoint, method, body);
+  }
+
+  try {
+    const res = await fetch(CONFIG.API_BASE_URL + endpoint, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (res.status === 401) {
+      showToast("Your session has expired. Please log in again.", "warning");
+      clearSession();
+      setTimeout(() => { window.location.href = basePath() + "index.html"; }, 1200);
+      return { ok: false, status: 401, error: "Unauthorized" };
+    }
+    if (res.status === 500) {
+      showToast("Server error. Please try again.", "error");
+      return { ok: false, status: 500, error: "Server error" };
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, status: res.status, error: data.detail || "Request failed" };
+    return { ok: true, data };
+  } catch (err) {
+    showToast("Network error — cannot reach the server.", "error");
+    return { ok: false, error: "Network error" };
+  }
+}
+
+// Standard AI call pattern with loading state
+async function callAI(endpoint, payload, onSuccess) {
+  showLoading();
+  try {
+    await delay(700); // slight delay so the loading state is visible
+    const result = await apiFetch(endpoint, "POST", payload);
+    if (result.ok) onSuccess(result.data);
+    else showToast(result.error || "AI service unavailable. Please try again.", "error");
+  } catch (err) {
+    showToast("AI service unavailable. Please try again.", "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+// ---------- Named AI module functions ----------
+const predictDisease     = (payload, cb) => callAI(CONFIG.ENDPOINTS.PREDICT_DISEASE, payload, cb);
+const checkDrugInteraction = (payload, cb) => callAI(CONFIG.ENDPOINTS.CHECK_INTERACTION, payload, cb);
+const analyzeLabResult   = (payload, cb) => callAI(CONFIG.ENDPOINTS.ANALYZE_LAB, payload, cb);
+const checkVitals        = (payload, cb) => callAI(CONFIG.ENDPOINTS.CHECK_VITALS, payload, cb);
+const forecastInventory  = (payload, cb) => callAI(CONFIG.ENDPOINTS.FORECAST_INVENTORY, payload, cb);
+const predictAppointment = (payload, cb) => callAI(CONFIG.ENDPOINTS.PREDICT_APPOINTMENT, payload, cb);
+const symptomChat        = (payload, cb) => callAI(CONFIG.ENDPOINTS.SYMPTOM_CHAT, payload, cb);
+
+// ---------- Helpers ----------
+const delay = (ms) => new Promise(r => setTimeout(r, ms));
+let mockSeq = 0;
+const uid = (p) => (p || "ID") + "-" + (1000 + (mockSeq++ % 9000));
+
+function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+// ============================================================
+// DEMO MOCK DATA
+// ============================================================
+const MOCK = {
+  users: [
+    { id: "U-001", name: "Solomon Tadesse", email: "admin@mediq.pro", role: "admin", department: "Administration", status: "active", last_login: "2026-08-11T08:12:00" },
+    { id: "U-002", name: "Hanna Bekele", email: "manager@mediq.pro", role: "manager", department: "Management", status: "active", last_login: "2026-08-11T07:55:00" },
+    { id: "U-003", name: "Dr. Daniel Alemu", email: "doctor@mediq.pro", role: "doctor", department: "Internal Medicine", status: "active", last_login: "2026-08-11T07:40:00" },
+    { id: "U-004", name: "Marta Tesfaye", email: "nurse@mediq.pro", role: "nurse", department: "General Ward", status: "active", last_login: "2026-08-11T06:58:00" },
+    { id: "U-005", name: "Yonas Girma", email: "pharmacist@mediq.pro", role: "pharmacist", department: "Pharmacy", status: "active", last_login: "2026-08-11T07:20:00" },
+    { id: "U-006", name: "Sara Worku", email: "lab@mediq.pro", role: "laboratory", department: "Laboratory", status: "active", last_login: "2026-08-11T07:10:00" },
+    { id: "U-007", name: "Liya Hailu", email: "reception@mediq.pro", role: "reception", department: "Front Desk", status: "active", last_login: "2026-08-11T06:45:00" },
+    { id: "U-008", name: "Abel Mekonnen", email: "patient@mediq.pro", role: "patient", department: "—", status: "active", last_login: "2026-08-10T18:30:00" },
+    { id: "U-009", name: "Dr. Fikru Debebe", email: "fikru.d@mediq.pro", role: "doctor", department: "Pediatrics", status: "active", last_login: "2026-08-10T16:12:00" },
+    { id: "U-010", name: "Bethelehem Girma", email: "beti.g@mediq.pro", role: "nurse", department: "Pediatrics", status: "inactive", last_login: "2026-08-04T13:02:00" },
+    { id: "U-011", name: "Dr. Meron Assefa", email: "meron.a@mediq.pro", role: "doctor", department: "Cardiology", status: "active", last_login: "2026-08-10T15:44:00" },
+    { id: "U-012", name: "Kaleb Teshome", email: "kaleb.t@mediq.pro", role: "pharmacist", department: "Pharmacy", status: "active", last_login: "2026-08-10T17:20:00" }
+  ],
+
+  patients: [
+    { id: "P-1001", first_name: "Abel", last_name: "Mekonnen", age: 34, gender: "Male", phone: "+251 911 223 344", email: "abel.m@mail.com", blood: "O+", address: "Sodo, Wolaita", emergency: "+251 911 223 355", condition: "Hypertension", last_visit: "2026-08-05", status: "active" },
+    { id: "P-1002", first_name: "Hana", last_name: "Wolde", age: 28, gender: "Female", phone: "+251 912 334 455", email: "hana.w@mail.com", blood: "A+", address: "Sodo, Wolaita", emergency: "+251 912 334 466", condition: "Diabetes Type 2", last_visit: "2026-08-02", status: "active" },
+    { id: "P-1003", first_name: "Dawit", last_name: "Kebede", age: 45, gender: "Male", phone: "+251 913 445 566", email: "dawit.k@mail.com", blood: "B+", address: "Boditi", emergency: "+251 913 445 577", condition: "Asthma", last_visit: "2026-07-28", status: "active" },
+    { id: "P-1004", first_name: "Selam", last_name: "Tadesse", age: 62, gender: "Female", phone: "+251 914 556 677", email: "selam.t@mail.com", blood: "AB+", address: "Areka", emergency: "+251 914 556 688", condition: "Heart Disease", last_visit: "2026-08-09", status: "active" },
+    { id: "P-1005", first_name: "Biruk", last_name: "Ayele", age: 8, gender: "Male", phone: "+251 915 667 788", email: "—", blood: "O-", address: "Sodo, Wolaita", emergency: "+251 915 667 799", condition: "Pneumonia (recovering)", last_visit: "2026-08-07", status: "active" },
+    { id: "P-1006", first_name: "Ruth", last_name: "Gebre", age: 51, gender: "Female", phone: "+251 916 778 899", email: "ruth.g@mail.com", blood: "A-", address: "Humbo", emergency: "+251 916 778 800", condition: "Chronic Kidney Disease", last_visit: "2026-08-08", status: "active" },
+    { id: "P-1007", first_name: "Tewodros", last_name: "Haile", age: 39, gender: "Male", phone: "+251 917 889 900", email: "tewodros.h@mail.com", blood: "B-", address: "Sodo, Wolaita", emergency: "+251 917 889 911", condition: "Thyroid Disorder", last_visit: "2026-08-01", status: "active" },
+    { id: "P-1008", first_name: "Mahlet", last_name: "Shiferaw", age: 22, gender: "Female", phone: "+251 918 990 011", email: "mahlet.s@mail.com", blood: "O+", address: "Sodo, Wolaita", emergency: "+251 918 990 022", condition: "—", last_visit: "2026-07-30", status: "active" },
+    { id: "P-1009", first_name: "Yohannes", last_name: "Mamo", age: 58, gender: "Male", phone: "+251 919 001 122", email: "yohannes.m@mail.com", blood: "A+", address: "Bilate", emergency: "+251 919 001 133", condition: "Diabetes + Hypertension", last_visit: "2026-08-10", status: "active" },
+    { id: "P-1010", first_name: "Kidist", last_name: "Assefa", age: 30, gender: "Female", phone: "+251 910 112 233", email: "kidist.a@mail.com", blood: "B+", address: "Sodo, Wolaita", emergency: "+251 910 112 244", condition: "Malaria (treated)", last_visit: "2026-08-06", status: "active" }
+  ],
+
+  departments: [
+    { id: "D-01", name: "Internal Medicine", head: "Dr. Daniel Alemu", staff: 18, beds: 42, occupied: 35, status: "active" },
+    { id: "D-02", name: "Pediatrics", head: "Dr. Fikru Debebe", staff: 14, beds: 30, occupied: 21, status: "active" },
+    { id: "D-03", name: "Cardiology", head: "Dr. Meron Assefa", staff: 10, beds: 20, occupied: 17, status: "active" },
+    { id: "D-04", name: "Maternity", head: "Dr. Tsehay Mengistu", staff: 22, beds: 26, occupied: 24, status: "active" },
+    { id: "D-05", name: "Emergency", head: "Dr. Natnael Fekadu", staff: 16, beds: 14, occupied: 12, status: "active" },
+    { id: "D-06", name: "Surgery", head: "Dr. Amanuel Bekele", staff: 12, beds: 24, occupied: 13, status: "active" },
+    { id: "D-07", name: "Orthopedics", head: "Dr. Girma Tola", staff: 8, beds: 16, occupied: 6, status: "active" },
+    { id: "D-08", name: "Outpatient (OPD)", head: "Dr. Daniel Alemu", staff: 20, beds: 0, occupied: 0, status: "active" }
+  ],
+
+  staff: [
+    { id: "S-001", name: "Dr. Daniel Alemu", role: "Doctor", dept: "Internal Medicine", shift: "Morning", status: "present", contact: "+251 911 100 001" },
+    { id: "S-002", name: "Dr. Fikru Debebe", role: "Doctor", dept: "Pediatrics", shift: "Morning", status: "present", contact: "+251 911 100 002" },
+    { id: "S-003", name: "Dr. Meron Assefa", role: "Doctor", dept: "Cardiology", shift: "Evening", status: "present", contact: "+251 911 100 003" },
+    { id: "S-004", name: "Marta Tesfaye", role: "Nurse", dept: "General Ward", shift: "Morning", status: "present", contact: "+251 911 100 004" },
+    { id: "S-005", name: "Bethelehem Girma", role: "Nurse", dept: "Pediatrics", shift: "Morning", status: "absent", contact: "+251 911 100 005" },
+    { id: "S-006", name: "Yonas Girma", role: "Pharmacist", dept: "Pharmacy", shift: "Morning", status: "present", contact: "+251 911 100 006" },
+    { id: "S-007", name: "Sara Worku", role: "Lab Technician", dept: "Laboratory", shift: "Morning", status: "present", contact: "+251 911 100 007" },
+    { id: "S-008", name: "Liya Hailu", role: "Receptionist", dept: "Front Desk", shift: "Morning", status: "present", contact: "+251 911 100 008" },
+    { id: "S-009", name: "Dr. Tsehay Mengistu", role: "Doctor", dept: "Maternity", shift: "Night", status: "on-leave", contact: "+251 911 100 009" },
+    { id: "S-010", name: "Kaleb Teshome", role: "Pharmacist", dept: "Pharmacy", shift: "Evening", status: "present", contact: "+251 911 100 010" }
+  ],
+
+  appointments: [
+    { id: "A-501", patient: "Abel Mekonnen", patient_id: "P-1001", doctor: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-11", time: "09:00", type: "Follow-up", status: "confirmed", no_show: 12 },
+    { id: "A-502", patient: "Hana Wolde", patient_id: "P-1002", doctor: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-11", time: "09:30", type: "Consultation", status: "confirmed", no_show: 22 },
+    { id: "A-503", patient: "Dawit Kebede", patient_id: "P-1003", doctor: "Dr. Fikru Debebe", dept: "Pediatrics", date: "2026-08-11", time: "10:00", type: "Consultation", status: "checked-in", no_show: 8 },
+    { id: "A-504", patient: "Selam Tadesse", patient_id: "P-1004", doctor: "Dr. Meron Assefa", dept: "Cardiology", date: "2026-08-11", time: "10:30", type: "Follow-up", status: "confirmed", no_show: 18 },
+    { id: "A-505", patient: "Biruk Ayele", patient_id: "P-1005", doctor: "Dr. Fikru Debebe", dept: "Pediatrics", date: "2026-08-11", time: "11:00", type: "Consultation", status: "completed", no_show: 5 },
+    { id: "A-506", patient: "Ruth Gebre", patient_id: "P-1006", doctor: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-11", time: "11:30", type: "Follow-up", status: "confirmed", no_show: 31 },
+    { id: "A-507", patient: "Tewodros Haile", patient_id: "P-1007", doctor: "Dr. Meron Assefa", dept: "Cardiology", date: "2026-08-11", time: "14:00", type: "New patient", status: "confirmed", no_show: 15 },
+    { id: "A-508", patient: "Yohannes Mamo", patient_id: "P-1009", doctor: "Dr. Daniel Alemu", dept: "Internal Medicine", date: "2026-08-11", time: "14:30", type: "Follow-up", status: "confirmed", no_show: 9 },
+    { id: "A-509", patient: "Mahlet Shiferaw", patient_id: "P-1008", doctor: "Dr. Fikru Debebe", dept: "Pediatrics", date: "2026-08-11", time: "15:00", type: "Consultation", status: "cancelled", no_show: 40 },
+    { id: "A-510", patient: "Kidist Assefa", patient_id: "P-1010", doctor: "Dr. Meron Assefa", dept: "Cardiology", date: "2026-08-11", time: "15:30", type: "Consultation", status: "confirmed", no_show: 6 }
+  ],
+
+  prescriptions: [
+    { id: "RX-2201", patient: "Abel Mekonnen", doctor: "Dr. Daniel Alemu", date: "2026-08-11", drugs: [{ name: "Amlodipine 5mg", dose: "1 tablet", freq: "Once daily", duration: "30 days" }, { name: "Aspirin 81mg", dose: "1 tablet", freq: "Once daily", duration: "30 days" }], status: "active" },
+    { id: "RX-2202", patient: "Hana Wolde", doctor: "Dr. Daniel Alemu", date: "2026-08-11", drugs: [{ name: "Metformin 500mg", dose: "1 tablet", freq: "Twice daily", duration: "60 days" }], status: "active" },
+    { id: "RX-2203", patient: "Dawit Kebede", doctor: "Dr. Fikru Debebe", date: "2026-08-10", drugs: [{ name: "Salbutamol Inhaler", dose: "2 puffs", freq: "As needed", duration: "30 days" }], status: "active" },
+    { id: "RX-2204", patient: "Selam Tadesse", doctor: "Dr. Meron Assefa", date: "2026-08-09", drugs: [{ name: "Atorvastatin 20mg", dose: "1 tablet", freq: "Once daily at night", duration: "90 days" }, { name: "Bisoprolol 2.5mg", dose: "1 tablet", freq: "Once daily", duration: "90 days" }], status: "active" },
+    { id: "RX-2205", patient: "Yohannes Mamo", doctor: "Dr. Daniel Alemu", date: "2026-08-10", drugs: [{ name: "Insulin Glargine", dose: "20 units", freq: "Once daily", duration: "30 days" }, { name: "Enalapril 10mg", dose: "1 tablet", freq: "Once daily", duration: "30 days" }], status: "active" }
+  ],
+
+  inventory: [
+    { id: "I-001", name: "Paracetamol 500mg", category: "Analgesic", stock: 850, unit: "tablets", expiry: "2027-02-15", status: "in-stock" },
+    { id: "I-002", name: "Amlodipine 5mg", category: "Cardiovascular", stock: 210, unit: "tablets", expiry: "2026-11-20", status: "in-stock" },
+    { id: "I-003", name: "Metformin 500mg", category: "Antidiabetic", stock: 74, unit: "tablets", expiry: "2026-12-01", status: "low-stock" },
+    { id: "I-004", name: "Insulin Glargine", category: "Antidiabetic", stock: 22, unit: "vials", expiry: "2026-09-30", status: "low-stock" },
+    { id: "I-005", name: "Amoxicillin 250mg", category: "Antibiotic", stock: 0, unit: "capsules", expiry: "2026-10-10", status: "out-of-stock" },
+    { id: "I-006", name: "Salbutamol Inhaler", category: "Respiratory", stock: 48, unit: "units", expiry: "2026-12-18", status: "in-stock" },
+    { id: "I-007", name: "ORS Sachets", category: "Gastro", stock: 430, unit: "sachets", expiry: "2027-01-25", status: "in-stock" },
+    { id: "I-008", name: "Atorvastatin 20mg", category: "Cardiovascular", stock: 63, unit: "tablets", expiry: "2026-08-25", status: "expiring-soon" },
+    { id: "I-009", name: "Artemether/Lumefantrine", category: "Antimalarial", stock: 150, unit: "blisters", expiry: "2027-03-05", status: "in-stock" },
+    { id: "I-010", name: "Ceftriaxone 1g", category: "Antibiotic", stock: 38, unit: "vials", expiry: "2026-09-14", status: "low-stock" },
+    { id: "I-011", name: "IV Dextrose 5%", category: "IV Fluids", stock: 120, unit: "bottles", expiry: "2027-04-10", status: "in-stock" },
+    { id: "I-012", name: "Hydrocortisone 100mg", category: "Steroid", stock: 29, unit: "vials", expiry: "2026-08-19", status: "expiring-soon" }
+  ],
+
+  lab_requests: [
+    { id: "LR-331", patient: "Abel Mekonnen", test: "Complete Blood Count", doctor: "Dr. Daniel Alemu", date: "2026-08-11", priority: "Routine", status: "pending" },
+    { id: "LR-332", patient: "Hana Wolde", test: "Fasting Blood Sugar", doctor: "Dr. Daniel Alemu", date: "2026-08-11", priority: "Urgent", status: "pending" },
+    { id: "LR-333", patient: "Selam Tadesse", test: "Lipid Profile", doctor: "Dr. Meron Assefa", date: "2026-08-11", priority: "Routine", status: "in-progress" },
+    { id: "LR-334", patient: "Ruth Gebre", test: "Kidney Function", doctor: "Dr. Daniel Alemu", date: "2026-08-11", priority: "Urgent", status: "pending" },
+    { id: "LR-335", patient: "Biruk Ayele", test: "Malaria Test", doctor: "Dr. Fikru Debebe", date: "2026-08-10", priority: "Routine", status: "completed" },
+    { id: "LR-336", patient: "Yohannes Mamo", test: "HbA1c", doctor: "Dr. Daniel Alemu", date: "2026-08-10", priority: "Routine", status: "completed" }
+  ],
+
+  lab_results: [
+    { id: "R-901", patient: "Biruk Ayele", test: "Malaria Test", date: "2026-08-10", status: "normal", ai_flag: "normal", values: [{ name: "Malaria Antigen", range: "Negative", value: "Negative", status: "normal" }] },
+    { id: "R-902", patient: "Yohannes Mamo", test: "HbA1c", date: "2026-08-10", status: "abnormal", ai_flag: "abnormal", values: [{ name: "HbA1c", range: "4.0 – 5.6 %", value: "8.2 %", status: "abnormal" }] },
+    { id: "R-903", patient: "Selam Tadesse", test: "Lipid Profile", date: "2026-08-09", status: "abnormal", ai_flag: "abnormal", values: [{ name: "Total Cholesterol", range: "< 200 mg/dL", value: "248 mg/dL", status: "abnormal" }, { name: "LDL", range: "< 100 mg/dL", value: "168 mg/dL", status: "abnormal" }, { name: "HDL", range: "> 40 mg/dL", value: "38 mg/dL", status: "abnormal" }] },
+    { id: "R-904", patient: "Mahlet Shiferaw", test: "Complete Blood Count", date: "2026-08-08", status: "normal", ai_flag: "normal", values: [{ name: "Hemoglobin", range: "13.5–17.5 g/dL", value: "14.2 g/dL", status: "normal" }, { name: "WBC", range: "4.0–11.0 ×10³/µL", value: "6.8 ×10³/µL", status: "normal" }] },
+    { id: "R-905", patient: "Kidist Assefa", test: "Malaria Test", date: "2026-08-06", status: "normal", ai_flag: "normal", values: [{ name: "Malaria Antigen", range: "Negative", value: "Negative", status: "normal" }] }
+  ],
+
+  medications: [
+    { id: "M-01", patient: "Selam Tadesse", drug: "Atorvastatin 20mg", dose: "1 tablet", due: "08:00", status: "administered", time: "07:58" },
+    { id: "M-02", patient: "Abel Mekonnen", drug: "Amlodipine 5mg", dose: "1 tablet", due: "08:00", status: "administered", time: "08:05" },
+    { id: "M-03", patient: "Yohannes Mamo", drug: "Insulin Glargine", dose: "20 units", due: "09:00", status: "pending", time: "" },
+    { id: "M-04", patient: "Hana Wolde", drug: "Metformin 500mg", dose: "1 tablet", due: "09:00", status: "pending", time: "" },
+    { id: "M-05", patient: "Dawit Kebede", drug: "Salbutamol Inhaler", dose: "2 puffs", due: "09:00", status: "missed", time: "" },
+    { id: "M-06", patient: "Ruth Gebre", drug: "Furosemide 40mg", dose: "1 tablet", due: "10:00", status: "pending", time: "" },
+    { id: "M-07", patient: "Biruk Ayele", drug: "Paracetamol Syrup", dose: "5 ml", due: "10:00", status: "pending", time: "" }
+  ],
+
+  care_plans: [
+    { id: "CP-1", patient: "Selam Tadesse", plan: "Post-MI cardiac rehab", created: "2026-08-02", updated: "2026-08-10", status: "in-progress", steps: ["Daily ECG monitoring", "Physiotherapy: 30 min/day", "Diet: low-sodium", "Medication adherence"] },
+    { id: "CP-2", patient: "Yohannes Mamo", plan: "Diabetes management", created: "2026-07-20", updated: "2026-08-10", status: "in-progress", steps: ["Blood glucose monitoring ×4/day", "Dietitian consult weekly", "Foot examination"] },
+    { id: "CP-3", patient: "Ruth Gebre", plan: "CKD stage 3 care", created: "2026-07-15", updated: "2026-08-08", status: "in-progress", steps: ["Fluid intake monitoring", "Monthly creatinine", "Low-protein diet"] },
+    { id: "CP-4", patient: "Biruk Ayele", plan: "Pneumonia recovery", created: "2026-08-07", updated: "2026-08-09", status: "completed", steps: ["IV antibiotics 7 days", "Chest physio", "Follow-up X-ray"] }
+  ],
+
+  bills: [
+    { id: "B-701", date: "2026-08-05", description: "Consultation — Internal Medicine", amount: 350, status: "paid" },
+    { id: "B-702", date: "2026-08-05", description: "Complete Blood Count", amount: 250, status: "paid" },
+    { id: "B-703", date: "2026-08-06", description: "Amlodipine 5mg ×30 tablets", amount: 180, status: "pending" },
+    { id: "B-704", date: "2026-08-08", description: "ECG — Cardiology", amount: 500, status: "pending" },
+    { id: "B-705", date: "2026-08-09", description: "Inpatient ward — 2 nights (General)", amount: 1600, status: "overdue" },
+    { id: "B-706", date: "2026-08-10", description: "Physiotherapy session", amount: 300, status: "pending" }
+  ],
+
+  audit_logs: [
+    { id: "AL-1", ts: "2026-08-11T08:12:00", user: "Solomon Tadesse", role: "admin", action: "login", ip: "196.188.24.10", status: "success" },
+    { id: "AL-2", ts: "2026-08-11T08:05:00", user: "Dr. Daniel Alemu", role: "doctor", action: "create", ip: "196.188.24.45", status: "success", detail: "Created prescription RX-2201" },
+    { id: "AL-3", ts: "2026-08-11T07:58:00", user: "Marta Tesfaye", role: "nurse", action: "update", ip: "196.188.24.67", status: "success", detail: "Recorded vitals for P-1004" },
+    { id: "AL-4", ts: "2026-08-11T07:45:00", user: "Sara Worku", role: "laboratory", action: "create", ip: "196.188.24.88", status: "success", detail: "Uploaded lab result R-902" },
+    { id: "AL-5", ts: "2026-08-11T07:30:00", user: "unknown", role: "—", action: "login", ip: "41.223.88.12", status: "failed" },
+    { id: "AL-6", ts: "2026-08-11T07:20:00", user: "Yonas Girma", role: "pharmacist", action: "update", ip: "196.188.24.100", status: "success", detail: "Updated stock for I-003" },
+    { id: "AL-7", ts: "2026-08-11T07:05:00", user: "Liya Hailu", role: "reception", action: "create", ip: "196.188.24.23", status: "success", detail: "Registered patient P-1010" },
+    { id: "AL-8", ts: "2026-08-10T23:50:00", user: "system", role: "system", action: "backup", ip: "internal", status: "success", detail: "Daily database backup completed" },
+    { id: "AL-9", ts: "2026-08-10T21:15:00", user: "Solomon Tadesse", role: "admin", action: "delete", ip: "196.188.24.10", status: "success", detail: "Deleted inactive user U-014" },
+    { id: "AL-10", ts: "2026-08-10T18:40:00", user: "Abel Mekonnen", role: "patient", action: "login", ip: "196.188.30.5", status: "success" }
+  ],
+
+  queue: [
+    { id: "Q-1", name: "Mahlet Shiferaw", dept: "Internal Medicine", arrived: "08:10", status: "in-service" },
+    { id: "Q-2", name: "Kidist Assefa", dept: "Cardiology", arrived: "08:15", status: "waiting" },
+    { id: "Q-3", name: "Biruk Ayele", dept: "Pediatrics", arrived: "08:22", status: "waiting" },
+    { id: "Q-4", name: "Tewodros Haile", dept: "Cardiology", arrived: "08:30", status: "waiting" },
+    { id: "Q-5", name: "Ruth Gebre", dept: "Internal Medicine", arrived: "08:41", status: "waiting" },
+    { id: "Q-6", name: "Yohannes Mamo", dept: "Internal Medicine", arrived: "08:47", status: "waiting" }
+  ],
+
+  vitals_history: {
+    "P-1004": [
+      { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
+      { t: "08:00", hr: 92, sys: 152, dia: 94, temp: 36.9, spo2: 95, rr: 19 },
+      { t: "10:00", hr: 90, sys: 145, dia: 90, temp: 36.7, spo2: 96, rr: 18 },
+      { t: "12:00", hr: 95, sys: 158, dia: 98, temp: 37.0, spo2: 94, rr: 20 },
+      { t: "14:00", hr: 91, sys: 150, dia: 93, temp: 36.9, spo2: 95, rr: 18 },
+      { t: "16:00", hr: 89, sys: 146, dia: 91, temp: 36.8, spo2: 96, rr: 18 },
+      { t: "18:00", hr: 93, sys: 154, dia: 95, temp: 37.0, spo2: 95, rr: 19 },
+      { t: "20:00", hr: 90, sys: 149, dia: 92, temp: 36.9, spo2: 96, rr: 18 }
+    ]
+  }
+};
+
+// ============================================================
+// DEMO RESPONSE ROUTER
+// ============================================================
+function mockResponse(endpoint, method, body) {
+  const e = endpoint.replace(/^\//, "");
+  let data = null;
+  let status = "success";
+
+  const list = (arr) => ({ ok: true, data: { items: clone(arr), total: arr.length } });
+  const find = (arr, idKey, id) => arr.find(x => x[idKey] === id) || null;
+
+  switch (e) {
+
+    // ---------- Core lists ----------
+    case CONFIG.ENDPOINTS.USERS.replace(/^\//, ""):
+      data = list(MOCK.users);
+      break;
+    case CONFIG.ENDPOINTS.PATIENTS.replace(/^\//, ""):
+      data = list(MOCK.patients);
+      break;
+    case CONFIG.ENDPOINTS.DEPARTMENTS.replace(/^\//, ""):
+      data = list(MOCK.departments);
+      break;
+    case CONFIG.ENDPOINTS.STAFF.replace(/^\//, ""):
+      data = list(MOCK.staff);
+      break;
+    case CONFIG.ENDPOINTS.APPOINTMENTS.replace(/^\//, ""):
+      data = list(MOCK.appointments);
+      break;
+    case CONFIG.ENDPOINTS.PRESCRIPTIONS.replace(/^\//, ""):
+      data = list(MOCK.prescriptions);
+      break;
+    case CONFIG.ENDPOINTS.INVENTORY.replace(/^\//, ""):
+      data = list(MOCK.inventory);
+      break;
+    case CONFIG.ENDPOINTS.LAB_REQUESTS.replace(/^\//, ""):
+      data = list(MOCK.lab_requests);
+      break;
+    case CONFIG.ENDPOINTS.LAB_RESULTS.replace(/^\//, ""):
+      data = list(MOCK.lab_results);
+      break;
+    case CONFIG.ENDPOINTS.MEDICATIONS.replace(/^\//, ""):
+      data = list(MOCK.medications);
+      break;
+    case CONFIG.ENDPOINTS.CARE_PLANS.replace(/^\//, ""):
+      data = list(MOCK.care_plans);
+      break;
+    case CONFIG.ENDPOINTS.BILLS.replace(/^\//, ""):
+      data = list(MOCK.bills);
+      break;
+    case CONFIG.ENDPOINTS.AUDIT_LOGS.replace(/^\//, ""):
+      data = list(MOCK.audit_logs);
+      break;
+    case CONFIG.ENDPOINTS.QUEUE.replace(/^\//, ""):
+      data = list(MOCK.queue);
+      break;
+
+    // ---------- Auth ----------
+    case CONFIG.ENDPOINTS.LOGIN.replace(/^\//, ""):
+      if (method === "POST") {
+        const roleKey = String(body.email || "").toLowerCase().split("@")[0];
+        const acc = CONFIG.DEMO_ACCOUNTS[roleKey];
+        if (acc && acc.password === body.password) {
+          data = { token: "demo-token-" + roleKey, role: acc.role, user_id: roleKey + "-001", name: acc.name };
+        } else {
+          return { ok: false, error: "Invalid email or password." };
+        }
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 1 — Clinical Decision Support (disease prediction)
+    // ============================================================
+    case CONFIG.ENDPOINTS.PREDICT_DISEASE.replace(/^\//, ""):
+      if (method === "POST") {
+        const syms = String((body && body.symptoms) || "").toLowerCase();
+        const predictions = [
+          { disease: "Malaria", confidence: 82, description: "Common in the region — presents with fever, chills and headache. Confirm with blood film / RDT.", urgency: "See doctor" },
+          { disease: "Typhoid Fever", confidence: 61, description: "Prolonged fever with abdominal discomfort. Widal test and blood culture recommended.", urgency: "See doctor" },
+          { disease: "Upper Respiratory Infection", confidence: 47, description: "Cough, sore throat and mild fever. Usually viral and self-limiting.", urgency: "Self-care" }
+        ];
+        // Simple heuristic to shuffle ranking based on input text
+        if (syms.includes("cough") || syms.includes("throat")) {
+          predictions.unshift({ disease: "Upper Respiratory Infection", confidence: 74, description: "Cough, sore throat and mild fever. Usually viral and self-limiting.", urgency: "Self-care" });
+        }
+        if (syms.includes("chest") || syms.includes("breath")) {
+          predictions.unshift({ disease: "Pneumonia (suspected)", confidence: 79, description: "Fever with productive cough and breathing difficulty. Chest X-ray advised.", urgency: "See doctor" });
+        }
+        data = { predictions: predictions.slice(0, 3), model: "rf_clinical_v1.2", model_version: "1.2.0" };
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 2 — Drug Interaction Checker
+    // ============================================================
+    case CONFIG.ENDPOINTS.CHECK_INTERACTION.replace(/^\//, ""):
+      if (method === "POST") {
+        const a = String((body && body.drug_a) || "").toLowerCase();
+        const b = String((body && body.drug_b) || "").toLowerCase();
+        const both = a + "|" + b;
+        let result;
+        if (both.includes("warfarin") && both.includes("aspirin"))
+          result = { level: "severe", title: "Severe Interaction", mechanism: "Both drugs inhibit platelet aggregation and increase bleeding risk.", effect: "Significant risk of gastrointestinal bleeding and hemorrhage.", action: "Avoid combination. Use alternative analgesia or monitor INR closely." };
+        else if ((both.includes("metformin") && both.includes("contrast")) || (both.includes("metformin") && both.includes("furosemide")))
+          result = { level: "moderate", title: "Moderate Interaction", mechanism: "Additive effect on renal function and lactic acidosis risk.", effect: "Reduced renal clearance may increase metformin levels.", action: "Monitor renal function; adjust doses as needed." };
+        else if (both.includes("amlodipine") && both.includes("stat"))
+          result = { level: "moderate", title: "Moderate Interaction", mechanism: "CYP3A4 metabolism shared by both drugs.", effect: "Increased exposure to the statin — myopathy risk.", action: "Monitor for muscle pain; consider lower statin dose." };
+        else if (both.includes("digoxin") && both.includes("furosemide"))
+          result = { level: "severe", title: "Severe Interaction", mechanism: "Diuretic-induced hypokalemia potentiates digoxin toxicity.", effect: "Risk of cardiac arrhythmias.", action: "Monitor serum potassium; correct hypokalemia before dosing." };
+        else
+          result = { level: "safe", title: "No Significant Interaction", mechanism: "No known pharmacokinetic or pharmacodynamic interaction between these drugs.", effect: "No clinically significant effect expected.", action: "No action required. Standard monitoring applies." };
+        data = { ...result, drug_a: body.drug_a, drug_b: body.drug_b, model: "drug_int_v1.1", model_version: "1.1.0" };
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 3 — Lab Result Analyzer
+    // ============================================================
+    case CONFIG.ENDPOINTS.ANALYZE_LAB.replace(/^\//, ""):
+      if (method === "POST") {
+        const values = (body && body.values) || {};
+        const refRanges = {
+          hemoglobin: { name: "Hemoglobin", range: "13.5 – 17.5 g/dL", low: 13.5, high: 17.5, unit: "g/dL" },
+          wbc: { name: "WBC", range: "4.0 – 11.0 ×10³/µL", low: 4.0, high: 11.0, unit: "×10³/µL" },
+          rbc: { name: "RBC", range: "4.5 – 5.9 ×10⁶/µL", low: 4.5, high: 5.9, unit: "×10⁶/µL" },
+          platelets: { name: "Platelets", range: "150 – 450 ×10³/µL", low: 150, high: 450, unit: "×10³/µL" },
+          creatinine: { name: "Creatinine", range: "0.7 – 1.3 mg/dL", low: 0.7, high: 1.3, unit: "mg/dL" },
+          alt: { name: "ALT", range: "7 – 56 U/L", low: 7, high: 56, unit: "U/L" },
+          ast: { name: "AST", range: "10 – 40 U/L", low: 10, high: 40, unit: "U/L" },
+          tsh: { name: "TSH", range: "0.4 – 4.0 mIU/L", low: 0.4, high: 4.0, unit: "mIU/L" },
+          glucose: { name: "Glucose (Fasting)", range: "70 – 100 mg/dL", low: 70, high: 100, unit: "mg/dL" }
+        };
+        const rows = [];
+        Object.entries(values).forEach(([key, val]) => {
+          const ref = refRanges[key];
+          const num = parseFloat(val);
+          if (ref && !isNaN(num)) {
+            const status = num < ref.low ? "low" : num > ref.high ? "high" : "normal";
+            const deviation = status === "normal" ? "—" : ((num - (ref.high + ref.low) / 2) / ((ref.high - ref.low) / 2) * 100).toFixed(0) + "% from range";
+            rows.push({ name: ref.name, range: ref.range, value: val + " " + ref.unit, status, deviation });
+          }
+        });
+        if (!rows.length) {
+          rows.push({ name: "Hemoglobin", range: "13.5 – 17.5 g/dL", value: values.hemoglobin ? values.hemoglobin + " g/dL" : "—", status: "normal", deviation: "—" });
+        }
+        const abnormal = rows.filter(r => r.status !== "normal");
+        const conditions = abnormal.length
+          ? (abnormal.some(r => /creatinine/i.test(r.name)) ? ["Possible renal impairment — monitor eGFR"] : [])
+              .concat(abnormal.some(r => /glucose/i.test(r.name)) ? ["Impaired fasting glucose — consider diabetes screening"] : [])
+              .concat(abnormal.some(r => /alt|ast/i.test(r.name)) ? ["Hepatic enzyme elevation — evaluate liver function"] : [])
+              .concat(abnormal.some(r => /hemoglobin|rbc/i.test(r.name)) ? ["Possible anemia — further workup advised"] : [])
+          : [];
+        data = {
+          overall: abnormal.length ? "abnormal" : "normal",
+          rows,
+          conditions: conditions.length ? conditions : ["All measured values within reference ranges."],
+          model: "lab_analyzer_v2.0", model_version: "2.0.0"
+        };
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 4 — Vitals Alert System
+    // ============================================================
+    case CONFIG.ENDPOINTS.CHECK_VITALS.replace(/^\//, ""):
+      if (method === "POST") {
+        const v = body || {};
+        const hr = +v.hr, sys = +v.sys, dia = +v.dia, temp = +v.temp, spo2 = +v.spo2, rr = +v.rr;
+        const flags = [];
+        if (hr > 100 || hr < 60) flags.push({ vital: "Heart Rate", value: hr + " bpm", range: "60 – 100 bpm", severity: hr > 120 || hr < 45 ? "critical" : "warning", by: Math.abs(hr - ((100 + 60) / 2)) + " bpm off" });
+        if (sys > 140 || dia > 90 || sys < 90) flags.push({ vital: "Blood Pressure", value: sys + "/" + dia + " mmHg", range: "90–140 / 60–90 mmHg", severity: sys > 180 || dia > 120 ? "critical" : "warning", by: Math.abs(sys - 115) + " mmHg off" });
+        if (temp > 38.5) flags.push({ vital: "Temperature", value: temp + " °C", range: "36.1 – 37.8 °C", severity: temp > 40 ? "critical" : "warning", by: (temp - 37.8).toFixed(1) + " °C high" });
+        if (spo2 < 94) flags.push({ vital: "SpO2", value: spo2 + " %", range: "94 – 100 %", severity: spo2 < 90 ? "critical" : "warning", by: (94 - spo2) + "% low" });
+        if (rr > 22 || rr < 10) flags.push({ vital: "Respiratory Rate", value: rr + " /min", range: "12 – 20 /min", severity: rr > 28 || rr < 8 ? "critical" : "warning", by: Math.abs(rr - 16) + " breaths/min off" });
+
+        let level = "normal", actions = ["Continue routine monitoring."];
+        if (flags.some(f => f.severity === "critical")) {
+          level = "critical";
+          actions = ["Notify the attending doctor immediately.", "Move patient to a monitored bed if admitted.", "Prepare for emergency review — repeat vitals in 15 minutes."];
+        } else if (flags.length) {
+          level = "warning";
+          actions = ["Recheck vitals in 1 hour.", "Inform the nursing supervisor.", "Review medication schedule for possible causes."];
+        }
+        data = { level, flags, actions, model: "vitals_alert_v1.3", model_version: "1.3.0" };
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 5 — Inventory Forecasting
+    // ============================================================
+    case CONFIG.ENDPOINTS.FORECAST_INVENTORY.replace(/^\//, ""):
+      if (method === "POST") {
+        const drug = String((body && body.drug_name) || "Paracetamol 500mg");
+        const days = +(body && body.days) || 30;
+        const seed = drug.length;
+        const historical = [82, 90, 78, 95, 88, 102, 84, 97, 91, 108, 86, 99];
+        const dailyUse = 8 + (seed % 5); // avg daily units
+        const forecast = [];
+        let projected = 0;
+        for (let i = 1; i <= days; i++) {
+          const wave = Math.round(dailyUse * (1 + 0.18 * Math.sin(i / 6 + seed)));
+          projected += wave;
+          forecast.push({ day: "Day " + i, value: wave });
+        }
+        const currentStock = Math.max(60, (seed * 37) % 500);
+        const runsOut = projected >= currentStock;
+        const suggested = Math.max(0, projected - currentStock) + Math.round(days * dailyUse * 0.25);
+        data = {
+          drug_name: drug,
+          days,
+          current_stock: currentStock,
+          historical: historical.map((v, i) => ({ label: "D-" + (30 - historical.length + i + 1), value: v })),
+          forecast,
+          daily_use: dailyUse,
+          runs_out_in_days: runsOut ? Math.max(1, Math.floor(currentStock / dailyUse)) : null,
+          suggested_order_qty: suggested,
+          model: "inventory_forecast_v1.4", model_version: "1.4.0"
+        };
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 6 — Appointment / No-show Prediction
+    // ============================================================
+    case CONFIG.ENDPOINTS.PREDICT_APPOINTMENT.replace(/^\//, ""):
+      if (method === "POST") {
+        const appt = body || {};
+        const base = 8 + (String(appt.patient || "").length % 25);
+        const dayFactor = /saturday|sunday/.test(String(appt.day || "").toLowerCase()) ? 9 : 0;
+        const typeFactor = appt.type === "Follow-up" ? 14 : 5;
+        const no_show = Math.min(85, base + dayFactor + typeFactor + (appt.history_no_show || 0));
+        data = {
+          no_show_percent: Math.round(no_show),
+          load_prediction: appt.dept ? "Moderate" : "Moderate",
+          busy_hours: [8, 9, 10, 11, 14, 15],
+          confidence: 0.9 + ((no_show % 9) / 100),
+          model: "appointment_ai_v1.1", model_version: "1.1.0"
+        };
+      }
+      break;
+
+    // ============================================================
+    // AI MODULE 7 — Symptom Checker Chatbot
+    // ============================================================
+    case CONFIG.ENDPOINTS.SYMPTOM_CHAT.replace(/^\//, ""):
+      if (method === "POST") {
+        const msg = String((body && body.message) || "").toLowerCase();
+        let resp;
+        if (msg.includes("fever") && (msg.includes("chill") || msg.includes("headache")))
+          resp = { conditions: ["Malaria"], urgency: "orange", action: "See a doctor", follow_up: "Have you had any vomiting or difficulty urinating?" };
+        else if (msg.includes("chest") || msg.includes("chest pain"))
+          resp = { conditions: ["Angina", "Acid reflux"], urgency: "red", action: "Seek emergency care", follow_up: "Is the pain radiating to your arm or jaw?" };
+        else if (msg.includes("cough") || msg.includes("throat"))
+          resp = { conditions: ["Upper Respiratory Infection"], urgency: "green", action: "Self-care", follow_up: "Do you have a fever above 38°C or shortness of breath?" };
+        else if (msg.includes("headache"))
+          resp = { conditions: ["Tension Headache", "Migraine"], urgency: "green", action: "Self-care", follow_up: "How long have you had the headache?" };
+        else if (msg.includes("breath") || msg.includes("breathing"))
+          resp = { conditions: ["Possible Asthma exacerbation", "Pneumonia"], urgency: "orange", action: "See a doctor today", follow_up: "Do you have a wheeze when breathing out?" };
+        else if (msg.includes("stomach") || msg.includes("abdominal") || msg.includes("diarrhea"))
+          resp = { conditions: ["Gastroenteritis", "Food poisoning"], urgency: "orange", action: "See a doctor", follow_up: "Any blood in your stool or persistent vomiting?" };
+        else if (msg.includes("tired") || msg.includes("fatigue") || msg.includes("weak"))
+          resp = { conditions: ["Anemia", "Hypothyroidism"], urgency: "green", action: "Book a lab test", follow_up: "Do you feel dizzy or short of breath with exertion?" };
+        else
+          resp = { conditions: ["General health query"], urgency: "green", action: "Book a consultation", follow_up: "Can you describe when the symptoms started?" };
+        data = {
+          reply: "Based on the symptoms you described, I found some possible conditions. This is not a medical diagnosis — please consult a clinician.",
+          conditions: resp.conditions,
+          urgency: resp.urgency,
+          action: resp.action,
+          follow_up: resp.follow_up,
+          disclaimer: "AI suggestions only. Final diagnosis by doctor.",
+          model: "symptom_chat_v1.5", model_version: "1.5.0"
+        };
+      }
+      break;
+
+    // ---------- Fallback ----------
+    default:
+      data = { ok: true, data: { message: "Demo response for " + endpoint } };
+      break;
+  }
+
+  if (method === "GET" && Array.isArray(data && data.data && data.data.items)) {
+    return data;
+  }
+  if (data && data.data) return { ok: true, data: clone(data.data) };
+  if (data) return { ok: true, data: clone(data) };
+  return { ok: true, status, data: { items: [] } };
+}
