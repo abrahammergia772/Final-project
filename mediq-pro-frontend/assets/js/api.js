@@ -379,6 +379,30 @@ const MOCK = {
     { id: "FP-05", name: "Laboratory Entry", model: "ZKTeco UA760", location: "Lab Block", status: "online", enrolled: 9, last_sync: "2026-08-11T08:00:00", auto: true }
   ],
 
+  videos: [
+    // --- Verified YouTube video IDs (public health-education channels) ---
+    { id: "V-1", title: "Mayo Clinic Explains Hypertension", channel: "Mayo Clinic", video_id: "r5XTTeP039Q", search: "", conditions: ["hypertension", "heart disease", "ckd"], duration: "6:12", views: "1.4M", category: "Understanding the condition", description: "Dr. Leslie Thomas walks through what high blood pressure is, its risks, and how to manage it." },
+    { id: "V-2", title: "Type 2 Diabetes — Medical Animation", channel: "Medical Animations", video_id: "OImJMiFJ8Qo", search: "", conditions: ["diabetes", "diabetes type 2"], duration: "4:08", views: "980K", category: "Understanding the condition", description: "What happens in the body with type 2 diabetes, and why blood sugar control matters." },
+    { id: "V-3", title: "How to Measure Your Blood Sugar", channel: "Mayo Clinic", video_id: "nxIJeHWlhF4", search: "", conditions: ["diabetes", "diabetes type 2"], duration: "2:55", views: "720K", category: "Self-care", description: "A certified diabetes educator demonstrates how to check your blood sugar correctly." },
+    { id: "V-4", title: "Malaria — Osmosis Study Video", channel: "Osmosis from Elsevier", video_id: "3_2TnCqBFcY", search: "", conditions: ["malaria", "fever"], duration: "9:12", views: "2.1M", category: "Understanding the condition", description: "How malaria spreads through mosquitoes, its symptoms, and prevention." },
+    { id: "V-5", title: "Coronary Artery Disease — Signs, Causes, Prevention", channel: "Cleveland Clinic", video_id: "xSx3F9sswyE", search: "", conditions: ["heart disease", "cad"], duration: "8:40", views: "1.1M", category: "Understanding the condition", description: "Learn about coronary artery disease, its risk factors, and how to prevent it." },
+    { id: "V-6", title: "Coronary Artery Disease: Symptoms, Causes, Treatments", channel: "Mass General Brigham", video_id: "5YZPM8F-A9A", search: "", conditions: ["heart disease", "cad", "chest pain"], duration: "5:30", views: "640K", category: "Understanding the condition", description: "Dr. Farouc Jaffer explains CAD symptoms, causes, and treatment options." },
+    { id: "V-7", title: "Tuberculosis (TB) Symptoms Animation", channel: "Health Animations", video_id: "VnF47GGAU8g", search: "", conditions: ["tb", "tuberculosis", "cough"], duration: "2:20", views: "810K", category: "Understanding the condition", description: "A visual guide to the common symptoms of TB and when to see a doctor." },
+    { id: "V-8", title: "How the Body Reacts to Tuberculosis", channel: "Health Animations", video_id: "hTscEEWD5Ho", search: "", conditions: ["tb", "tuberculosis"], duration: "3:05", views: "450K", category: "Understanding the condition", description: "How the TB bacterium spreads and how your body fights it." },
+
+    // --- Search-linked suggestions (open targeted YouTube search — always free, no key) ---
+    { id: "V-9", title: "What is Asthma? — Patient Education", channel: "YouTube Health Education", video_id: null, search: "what is asthma patient education video", conditions: ["asthma"], duration: "~4 min", views: "—", category: "Understanding the condition", description: "Understand asthma triggers, inhaler use, and when to seek urgent care." },
+    { id: "V-10", title: "Chronic Kidney Disease Explained", channel: "YouTube Health Education", video_id: null, search: "chronic kidney disease patient education video", conditions: ["ckd", "kidney disease"], duration: "~6 min", views: "—", category: "Understanding the condition", description: "How CKD develops, diet advice, and protecting your kidneys." },
+    { id: "V-11", title: "Understanding Hypothyroidism / Thyroid Disorders", channel: "YouTube Health Education", video_id: null, search: "hypothyroidism patient education video", conditions: ["thyroid", "thyroid disorder", "hypothyroidism"], duration: "~5 min", views: "—", category: "Understanding the condition", description: "Symptoms of an underactive thyroid and how treatment works." },
+    { id: "V-12", title: "Anemia — Symptoms and Diet", channel: "YouTube Health Education", video_id: null, search: "anemia symptoms iron rich diet patient education", conditions: ["anemia", "fatigue"], duration: "~4 min", views: "—", category: "Self-care", description: "Recognize anemia, iron-rich foods, and when to see a doctor." },
+    { id: "V-13", title: "Typhoid Fever — Prevention", channel: "YouTube Health Education", video_id: null, search: "typhoid fever prevention clean water patient education", conditions: ["typhoid", "fever"], duration: "~3 min", views: "—", category: "Prevention", description: "How typhoid spreads, safe water and food habits, and vaccination." },
+    { id: "V-14", title: "Eating Healthy with Diabetes", channel: "YouTube Health Education", video_id: null, search: "healthy eating diet for diabetes patient education", conditions: ["diabetes", "diabetes type 2", "healthy diet"], duration: "~6 min", views: "—", category: "Diet & lifestyle", description: "Practical food choices to keep blood sugar stable." },
+    { id: "V-15", title: "How to Use an Inhaler Correctly", channel: "YouTube Health Education", video_id: null, search: "how to use metered dose inhaler correctly", conditions: ["asthma"], duration: "~2 min", views: "—", category: "Self-care", description: "Step-by-step inhaler technique for better asthma control." },
+    { id: "V-16", title: "Medication Adherence — Why It Matters", channel: "YouTube Health Education", video_id: null, search: "why medication adherence matters patient education", conditions: ["hypertension", "diabetes", "thyroid", "heart disease"], duration: "~3 min", views: "—", category: "Self-care", description: "Simple routines to never miss your medicines." },
+    { id: "V-17", title: "Healthy Pregnancy & Nutrition", channel: "YouTube Health Education", video_id: null, search: "healthy pregnancy nutrition patient education", conditions: ["pregnancy", "maternity"], duration: "~7 min", views: "—", category: "Diet & lifestyle", description: "Nutrition and care advice for a healthy pregnancy." },
+    { id: "V-18", title: "Managing Stress & Mental Health", channel: "YouTube Health Education", video_id: null, search: "managing stress mental health self care", conditions: ["stress", "mental health", "anxiety"], duration: "~5 min", views: "—", category: "Wellness", description: "Simple daily habits to reduce stress and protect mental health." }
+  ],
+
   vitals_history: {
     "P-1004": [
       { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
@@ -499,6 +523,37 @@ function mockResponse(endpoint, method, body) {
       break;
     case CONFIG.ENDPOINTS.DOCUMENTS.replace(/^\//, ""):
       data = list(MOCK.documents);
+      break;
+
+    // ============================================================
+    // HEALTH VIDEOS — AI video suggestions (YouTube, free)
+    // Demo: filters the curated library. With CONFIG.YOUTUBE_API_KEY
+    // set (free Google key), the real backend would call the YouTube
+    // Data API v3 instead; this demo router returns curated results.
+    // ============================================================
+    case CONFIG.ENDPOINTS.VIDEOS.replace(/^\//, ""):
+      data = list(MOCK.videos);
+      break;
+    case CONFIG.ENDPOINTS.VIDEO_SEARCH.replace(/^\//, ""):
+      if (method === "POST") {
+        const q = String((body && body.query) || "").toLowerCase();
+        const conds = (body && body.conditions) || [];
+        let list = MOCK.videos.filter(v => {
+          const hay = (v.title + " " + v.channel + " " + v.description + " " + v.conditions.join(" ")).toLowerCase();
+          return !q || hay.includes(q);
+        });
+        if (conds.length) {
+          // rank: matches for the patient's own conditions first
+          const scored = list.map(v => {
+            let s = 0;
+            conds.forEach(c => { if (v.conditions.some(t => c.toLowerCase().includes(t) || t.includes(c.toLowerCase()))) s += 2; });
+            return { v, s };
+          });
+          scored.sort((a, b) => b.s - a.s);
+          list = scored.map(x => x.v);
+        }
+        data = { items: clone(list.slice(0, 12)), total: list.length, suggested_for: conds, source: CONFIG.YOUTUBE_API_KEY ? "youtube-api" : "curated" };
+      }
       break;
 
     // ---------- Auth ----------

@@ -7,6 +7,12 @@ const CONFIG = {
   APP_NAME: "MedIQ Pro",
   VERSION: "1.0.0",
 
+  // Optional free YouTube Data API v3 key (Google). If left empty, the Health
+  // Videos feature uses the built-in curated library + targeted YouTube search
+  // links (100% free, no key). Add a key to enable live AI video search:
+  //   https://console.cloud.google.com/apis/library/youtube.googleapis.com
+  YOUTUBE_API_KEY: "",
+
   // Backend (FastAPI) — replace with your Render URL before deploy
   API_BASE_URL: "https://your-backend.onrender.com",
 
@@ -80,6 +86,8 @@ const CONFIG = {
     ATTENDANCE:     "/attendance",
     FINGERPRINT_DEVICES: "/fingerprint-devices",
     DOCUMENTS:      "/documents",
+    VIDEOS:         "/videos",
+    VIDEO_SEARCH:   "/videos/search",
 
     // Auth
     SIGNUP:         "/auth/signup",
@@ -90,14 +98,14 @@ const CONFIG = {
   // Roles & Permissions page; changes apply automatically — the granted tab
   // appears (or disappears) in that role's sidebar on their next load.
   PERMISSIONS: {
-    admin:      { users: 1, roles: 1, announcements: 1, audit: 1, settings: 1, shifts: 1, ai: 1, messages: 1 },
-    manager:    { departments: 1, staff: 1, reports: 1, finance: 1, complaints: 1, shifts: 1, ai: 1, messages: 1, settings: 1 },
-    doctor:     { patients: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, shifts: 1, ai: 1, messages: 1, settings: 1 },
-    nurse:      { vitals: 1, observations: 1, medications: 1, careplans: 1, shifts: 1, messages: 1, settings: 1 },
-    pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, shifts: 1, ai: 1, messages: 1, settings: 1 },
-    laboratory: { testrequests: 1, samples: 1, results: 1, shifts: 1, ai: 1, messages: 1, settings: 1 },
-    reception:  { registration: 1, appointments: 1, insurance: 1, queue: 1, shifts: 1, messages: 1, settings: 1 },
-    patient:    { appointments: 1, records: 1, bills: 1, complaints: 1, messages: 1, ai: 1, settings: 1 }
+    admin:      { users: 1, roles: 1, announcements: 1, audit: 1, settings: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1 },
+    manager:    { departments: 1, staff: 1, reports: 1, finance: 1, complaints: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
+    doctor:     { patients: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, shifts: 1, documents: 1, videos: 1, ai: 1, messages: 1, settings: 1 },
+    nurse:      { vitals: 1, observations: 1, medications: 1, careplans: 1, shifts: 1, documents: 1, patients: 1, messages: 1, settings: 1 },
+    pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
+    laboratory: { testrequests: 1, samples: 1, results: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
+    reception:  { registration: 1, appointments: 1, insurance: 1, queue: 1, shifts: 1, documents: 1, patients: 1, messages: 1, settings: 1 },
+    patient:    { appointments: 1, records: 1, bills: 1, complaints: 1, documents: 1, healthcard: 1, videos: 1, messages: 1, ai: 1, settings: 1 }
   }
 };
 

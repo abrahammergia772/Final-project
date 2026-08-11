@@ -35,7 +35,7 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**88 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**90 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
 
 ### Messaging, accounts & access control
 
@@ -50,6 +50,7 @@ Final-project/
   - **Manager** additionally sees **department attendance** with **manual override** for absent staff and the department roster.
 - **📄 Documents** — a patient document library for every staff role (lab reports, prescriptions, consent forms, referral letters, insurance, ID copies…) with search, type/patient filters, upload, view, download and delete; patients see **their own** documents on their Documents tab.
 - **🪪 Patient Information & Card system** — staff roles get a **card-grid patient directory** (name, ID, blood type, condition, status) with a full **Patient Information** popup (emergency contact, insurance, chronic conditions…) and one-click **printable Patient ID card** with barcode. Patients get their own **Health Card** page (gradient hospital card with photo, blood type, emergency contact, barcode) that can be printed or emailed.
+- **🎬 Health Videos (free YouTube AI suggestions)** — patients get **video suggestions matched to their conditions** (e.g. hypertension → Mayo Clinic's "Explains Hypertension") with embedded players, thumbnails and "Open on YouTube" links; an AI search box finds educational videos for any topic. Doctors get a condition-driven video library to share with patients. **100% free, no API key**: verified videos are embedded/thumbnailed; everything else opens a targeted YouTube search. Optional: set `CONFIG.YOUTUBE_API_KEY` (Google's free tier ≈ 100 searches/day) to upgrade to live YouTube search. Every suggestion shows an "educational only — not medical advice" disclaimer.
 
 ### Professional features (added per role)
 
