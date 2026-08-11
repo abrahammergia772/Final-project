@@ -625,3 +625,70 @@ input[type="range"] {
 .heat-cell { height: 44px; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
 .heat-cell .hm-val { font-size: 12px; font-weight: 700; }
 .heat-cell .hm-label { font-size: 9px; opacity: 0.85; }
+
+/* ---------- Patient ID / Health card ---------- */
+.id-card {
+  width: 340px; max-width: 100%; background: #fff; border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-md); font-size: 13px;
+}
+.id-card .idc-top {
+  background: linear-gradient(120deg, var(--primary-deep), var(--primary));
+  color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+}
+.id-card .idc-top img { width: 32px; height: 32px; border-radius: 8px; }
+.id-card .idc-top .idc-hospital { font-weight: 700; font-size: 13px; line-height: 1.2; }
+.id-card .idc-top .idc-sys { font-size: 10px; opacity: .85; }
+.id-card .idc-body { display: flex; gap: 14px; padding: 14px 16px; align-items: center; }
+.id-card .idc-photo {
+  width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 22px; border: 2px solid #C7DBFE;
+}
+.id-card .idc-name { font-size: 16px; font-weight: 700; }
+.id-card .idc-id { font-size: 12px; color: var(--gray); font-family: var(--font-mono); margin: 1px 0 6px; }
+.id-card .idc-rows { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: #374151; }
+.id-card .idc-rows b { color: var(--dark); }
+.id-card .idc-emerg { background: var(--warning-bg); border-top: 1px dashed #FDE68A; padding: 8px 16px; font-size: 11px; color: #92400E; }
+.id-card .idc-barcode { padding: 10px 16px 2px; text-align: center; }
+.id-card .idc-barcode svg { width: 210px; height: 44px; }
+.id-card .idc-barcode .idc-num { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--gray); margin-top: 2px; }
+.id-card .idc-foot { display: flex; justify-content: space-between; padding: 8px 16px 12px; font-size: 10px; color: var(--gray); }
+
+/* Patient card (directory grid) */
+.patient-card {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); padding: var(--sp-4); display: flex; flex-direction: column; gap: 10px;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.patient-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.patient-card .pc-head { display: flex; gap: 12px; align-items: center; }
+.patient-card .pc-avatar {
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px;
+}
+.patient-card .pc-name { font-weight: 700; font-size: 15px; }
+.patient-card .pc-id { font-size: 11px; color: var(--gray); font-family: var(--font-mono); }
+.patient-card .pc-status { margin-left: auto; }
+.patient-card .pc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.patient-card .pc-foot { display: flex; gap: 8px; border-top: 1px dashed var(--border); padding-top: 10px; }
+.patient-card .pc-foot .btn { flex: 1; padding: 7px 10px; font-size: 12px; }
+
+/* Document cards */
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--sp-4); }
+.doc-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); overflow: hidden; }
+.doc-card .doc-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--light-gray); border-bottom: 1px solid var(--border); }
+.doc-card .doc-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.doc-card .doc-icon svg { width: 20px; height: 20px; }
+.doc-card .doc-title { font-weight: 600; font-size: 13px; line-height: 1.3; }
+.doc-card .doc-meta { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.doc-card .doc-body { padding: 12px 14px; }
+.doc-card .doc-summary { font-size: 12px; color: #374151; }
+.doc-card .doc-foot { display: flex; gap: 6px; padding: 10px 14px; border-top: 1px solid var(--border); }
+
+/* Patient info grid (key-value pairs on the info page) */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-4); }
+.info-box { background: var(--light-gray); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
+.info-box .ib-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+.info-box .ib-value { font-weight: 700; font-size: 14px; margin-top: 2px; }

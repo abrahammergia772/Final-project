@@ -35,7 +35,7 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**73 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**88 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
 
 ### Messaging, accounts & access control
 
@@ -48,6 +48,8 @@ Final-project/
 - **🕐 Shifts & Attendance (all hospital workers)** — every worker (admin, manager, doctor, nurse, pharmacist, laboratory, reception) has a **fingerprint check-in panel** with an animated scanner: attendance is captured **automatically by fingerprint devices** when staff enter the facility (demo-simulated; touch to scan/check out), plus their shift roster for the week and attendance history with a 7-day sparkline.
   - **Admin** additionally manages **shift templates** (create/edit/delete), the **shift roster** (assign staff), **all workers' attendance** (filterable, CSV export) and **fingerprint devices** (status, enrolled staff, sync).
   - **Manager** additionally sees **department attendance** with **manual override** for absent staff and the department roster.
+- **📄 Documents** — a patient document library for every staff role (lab reports, prescriptions, consent forms, referral letters, insurance, ID copies…) with search, type/patient filters, upload, view, download and delete; patients see **their own** documents on their Documents tab.
+- **🪪 Patient Information & Card system** — staff roles get a **card-grid patient directory** (name, ID, blood type, condition, status) with a full **Patient Information** popup (emergency contact, insurance, chronic conditions…) and one-click **printable Patient ID card** with barcode. Patients get their own **Health Card** page (gradient hospital card with photo, blood type, emergency contact, barcode) that can be printed or emailed.
 
 ### Professional features (added per role)
 

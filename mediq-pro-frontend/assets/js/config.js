@@ -79,6 +79,7 @@ const CONFIG = {
     ROSTER:         "/roster",
     ATTENDANCE:     "/attendance",
     FINGERPRINT_DEVICES: "/fingerprint-devices",
+    DOCUMENTS:      "/documents",
 
     // Auth
     SIGNUP:         "/auth/signup",

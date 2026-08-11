@@ -121,6 +121,8 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
   .table-toolbar .filters .form-control { max-width: 100%; }
   .panel-header { flex-wrap: wrap; }
   .stat-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .feed-item .feed-time { white-space: normal; }
+  .feed-item { flex-wrap: wrap; }
 }
 
 .page-intro { color: var(--gray); font-size: 14px; margin-bottom: var(--sp-5); }

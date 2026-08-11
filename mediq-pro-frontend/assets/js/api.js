@@ -304,6 +304,19 @@ const MOCK = {
     { id: "SENT-503", to: "Pharmacy", subject: "Refill confirmation", body: "Thank you for confirming the refill. The patient has been notified.", date: "2026-08-11T07:55:00" }
   ],
 
+  documents: [
+    { id: "DOC-1", patient: "Abel Mekonnen", patient_id: "P-1001", type: "Lab Report", title: "Complete Blood Count — 05/08", date: "2026-08-05", size: "214 KB", uploaded_by: "Sara Worku", summary: "All CBC parameters within normal limits." },
+    { id: "DOC-2", patient: "Abel Mekonnen", patient_id: "P-1001", type: "Prescription", title: "Prescription RX-2201 — Amlodipine", date: "2026-08-11", size: "86 KB", uploaded_by: "Dr. Daniel Alemu", summary: "Amlodipine 5mg once daily × 30 days." },
+    { id: "DOC-3", patient: "Abel Mekonnen", patient_id: "P-1001", type: "Consent Form", title: "Treatment Consent — 2026", date: "2026-01-12", size: "142 KB", uploaded_by: "Liya Hailu", summary: "Signed general treatment & information consent." },
+    { id: "DOC-4", patient: "Abel Mekonnen", patient_id: "P-1001", type: "Insurance", title: "EHBPA Policy — 2026", date: "2026-03-01", size: "310 KB", uploaded_by: "Liya Hailu", summary: "EHBPA insurance policy card & terms." },
+    { id: "DOC-5", patient: "Abel Mekonnen", patient_id: "P-1001", type: "Referral Letter", title: "Cardiology referral — Aug", date: "2026-08-09", size: "98 KB", uploaded_by: "Dr. Daniel Alemu", summary: "Referred for stress test evaluation." },
+    { id: "DOC-6", patient: "Hana Wolde", patient_id: "P-1002", type: "Lab Report", title: "Fasting Blood Sugar — 02/08", date: "2026-08-02", size: "198 KB", uploaded_by: "Sara Worku", summary: "FBS 168 mg/dL — above target." },
+    { id: "DOC-7", patient: "Hana Wolde", patient_id: "P-1002", type: "Prescription", title: "Prescription RX-2202 — Metformin", date: "2026-08-11", size: "92 KB", uploaded_by: "Dr. Daniel Alemu", summary: "Metformin 500mg twice daily × 60 days." },
+    { id: "DOC-8", patient: "Selam Tadesse", patient_id: "P-1004", type: "Lab Report", title: "Lipid Profile — 09/08", date: "2026-08-09", size: "224 KB", uploaded_by: "Sara Worku", summary: "Elevated total cholesterol and LDL." },
+    { id: "DOC-9", patient: "Selam Tadesse", patient_id: "P-1004", type: "Consent Form", title: "Procedure Consent — ECG", date: "2026-06-20", size: "138 KB", uploaded_by: "Liya Hailu", summary: "Signed consent for ECG procedure." },
+    { id: "DOC-10", patient: "Ruth Gebre", patient_id: "P-1006", type: "Lab Report", title: "Kidney Function — 08/08", date: "2026-08-08", size: "208 KB", uploaded_by: "Sara Worku", summary: "Creatinine 2.1 mg/dL — elevated, monitor." }
+  ],
+
   complaints: [
     { id: "CMP-101", reporter: "Abel Mekonnen", reporter_role: "patient", category: "Billing", subject: "Incorrect charge on my invoice", description: "I was charged 500 ETB for an ECG that was not performed during my last visit on 05/08. The cashier said to contact the manager, so here I am.", priority: "high", date: "2026-08-10T09:30:00", status: "resolved", solution: "We reviewed your account and found the ECG charge was added by mistake. The 500 ETB has been refunded and will appear as a credit on your next bill. Apologies for the inconvenience.", resolved_by: "Hanna Bekele", resolved_date: "2026-08-11T08:00:00" },
     { id: "CMP-102", reporter: "Abel Mekonnen", reporter_role: "patient", category: "Service Quality", subject: "Long waiting time at OPD", description: "I waited over 2 hours at the OPD despite having a confirmed 09:00 appointment. This is the second time this month.", priority: "normal", date: "2026-08-09T14:00:00", status: "in-review", solution: "" },
@@ -483,6 +496,9 @@ function mockResponse(endpoint, method, body) {
       break;
     case CONFIG.ENDPOINTS.FINGERPRINT_DEVICES.replace(/^\//, ""):
       data = list(MOCK.devices);
+      break;
+    case CONFIG.ENDPOINTS.DOCUMENTS.replace(/^\//, ""):
+      data = list(MOCK.documents);
       break;
 
     // ---------- Auth ----------
