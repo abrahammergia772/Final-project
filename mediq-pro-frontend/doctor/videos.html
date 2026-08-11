@@ -154,9 +154,8 @@ function thumb(v) {
 function videoCard(v) {
   const t = thumb(v);
   const canPlay = !!v.video_id && v.embeddable !== false;
-  const action = canPlay ? `openVideo('${v.id}')` : `window.open('${watchUrl(v)}','_blank')`;
   return `<div class="doc-card">
-    <div style="position:relative;aspect-ratio:16/9;background:#111827;cursor:pointer" onclick="${action}" title="${canPlay ? "Click to play" : "Opens on YouTube"}">
+    <div style="position:relative;aspect-ratio:16/9;background:#111827;cursor:pointer" onclick="${canPlay ? `openVideo('${v.id}')` : `openYouTube('${v.id}')`}" title="${canPlay ? "Click to play" : "Opens on YouTube"}">
       ${t
         ? `<img src="${t}" alt="${esc(v.title)}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
         : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#fff;flex-direction:column;gap:8px">${ICONS.play}<span class="text-sm">Watch here</span></div>`}
@@ -174,26 +173,65 @@ function videoCard(v) {
     <div class="doc-foot">
       ${canPlay
         ? `<button class="btn btn-primary btn-sm" onclick="openVideo('${v.id}')">${ICONS.play} Play here</button>
-           <a class="btn btn-secondary btn-sm" href="${watchUrl(v)}" target="_blank" rel="noopener" title="Open on YouTube in a new tab">${ICONS.share} YouTube</a>`
-        : `<a class="btn btn-primary btn-sm" href="${watchUrl(v)}" target="_blank" rel="noopener">${ICONS.share} Watch on YouTube</a>`}
+           <button class="btn btn-secondary btn-sm" onclick="openYouTube('${v.id}')">${ICONS.share} Open YouTube</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="openYouTube('${v.id}')">${ICONS.share} Watch on YouTube</button>`}
     </div>
   </div>`;
 }
-// Inline playback — plays inside the system, no redirect to YouTube
+
+// Open a video on YouTube — always works. If the browser blocks the new tab
+// (e.g. inside a sandboxed preview), it shows a copyable link instead.
+function openYouTube(id) {
+  const v = VIDS.find(x => x.id === id);
+  if (!v) return;
+  const url = watchUrl(v);
+  let win = null;
+  try { win = window.open(url, "_blank"); } catch (e) { win = null; }
+  if (win) { showToast("Opening on YouTube…", "info"); return; }
+  openModal({
+    title: "Open on YouTube",
+    body: `<p style="color:#6B7280;font-size:14px">Your browser blocked opening a new tab. Copy the link and paste it in your browser:</p>
+      <div class="flex" style="gap:8px;margin-top:12px;flex-wrap:wrap">
+        <input class="form-control" id="ytUrl" value="${esc(url)}" readonly style="flex:1;min-width:200px">
+        <button class="btn btn-secondary" id="ytCopy" type="button">${ICONS.download} Copy Link</button>
+      </div>`,
+    footer: `<button class="btn btn-primary" data-close>Done</button>`
+  }, {
+    onMount: (ov) => {
+      ov.querySelector("[data-close]").onclick = () => ov.remove();
+      ov.querySelector("#ytCopy").onclick = () => {
+        const inp = ov.querySelector("#ytUrl");
+        inp.select(); inp.setSelectionRange(0, 99999);
+        let copied = false;
+        try { copied = document.execCommand("copy"); } catch (e) { copied = false; }
+        if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(() => showToast("Link copied — paste it in your browser", "success")).catch(() => showToast("Select and copy the link", "info"));
+          return;
+        }
+        showToast(copied ? "Link copied — paste it in your browser" : "Select and copy the link", copied ? "success" : "info");
+      };
+    }
+  });
+}
+
+// Inline playback — plays inside the system, no redirect to YouTube.
+// If the embed can't load (network blocked, e.g. in a preview iframe),
+// a fallback banner appears with a working "Watch on YouTube" button.
 function openVideo(id) {
   const v = VIDS.find(x => x.id === id);
   if (!v) return;
-  if (!v.video_id || v.embeddable === false) {
-    window.open(watchUrl(v), "_blank");
-    showToast("This video plays on YouTube — opening it now", "info");
-    return;
-  }
+  if (!v.video_id || v.embeddable === false) { openYouTube(id); return; }
   const embed = `<div style="aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden">
-        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${v.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="${esc(v.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="ytPlayer" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${v.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="${esc(v.title)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>`;
+  const fallback = `<div class="yt-fallback" style="display:none;margin-top:12px">
+      <div class="alert alert-warning mb-0"><span>${ICONS.info}</span>
+        <div class="alert-body"><strong>Video not playing?</strong> Your browser may be blocking embedded videos.
+        <button class="btn btn-secondary btn-sm mt-2" onclick="openYouTube('${v.id}')" type="button">${ICONS.share} Watch on YouTube</button></div>
+      </div></div>`;
   openModal({
     title: v.title,
-    body: embed + `
+    body: embed + fallback + `
       <div class="mt-4 detail-list">
         <div class="detail-item"><span class="k">Channel</span><span class="v">${esc(v.channel)}</span></div>
         <div class="detail-item"><span class="k">Category</span><span class="v">${esc(v.category)}</span></div>
@@ -201,9 +239,23 @@ function openVideo(id) {
       </div>
       <p class="mt-3" style="color:#374151;font-size:13px">${esc(v.description)}</p>
       <div class="disclaimer"><span>${ICONS.info}</span><div>Educational content only — not medical advice. Always follow your clinician's guidance.</div></div>`,
-    footer: `<button class="btn btn-primary" data-close>Close player</button><a class="btn btn-secondary" href="${watchUrl(v)}" target="_blank" rel="noopener">${ICONS.share} Open on YouTube</a>`,
+    footer: `<button class="btn btn-secondary" onclick="openYouTube('${v.id}')">${ICONS.share} Open on YouTube</button><button class="btn btn-primary" data-close>Close player</button>`,
     size: "lg",
-    onMount: (ov) => { ov.querySelector("[data-close]").onclick = () => ov.remove(); }
+    onMount: (ov) => {
+      ov.querySelector("[data-close]").onclick = () => ov.remove();
+      // If the embed never finishes loading (network/sandbox blocked), show the fallback
+      const f = ov.querySelector("#ytPlayer");
+      if (f) {
+        let loaded = false;
+        f.addEventListener("load", () => { loaded = true; });
+        setTimeout(() => {
+          if (!loaded && ov.isConnected) {
+            const fb = ov.querySelector(".yt-fallback");
+            if (fb) fb.style.display = "block";
+          }
+        }, 5000);
+      }
+    }
   });
 }
 function renderGrid(el, list, emptyMsg) {
