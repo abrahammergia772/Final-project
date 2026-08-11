@@ -121,6 +121,8 @@ function checkSession() {
   const isLoginPage = window.location.pathname.endsWith("index.html") ||
                       window.location.pathname === "/" ||
                       window.location.pathname.endsWith("/");
+  // SPA mode: the shell guarantees a session; never redirect (URL stays at root)
+  if (window.SPA && window.SPA.mode) return !!s;
   if (!s && !isLoginPage) {
     window.location.href = basePath() + "index.html";
     return false;
@@ -135,10 +137,18 @@ function checkSession() {
 // Redirect if the current user's role does not match the required role
 function checkRoleAccess(requiredRole) {
   const role = getUserRole();
-  if (!role) { window.location.href = basePath() + "index.html"; return false; }
+  if (!role) {
+    if (window.SPA && window.SPA.mode) { window.SPA.showLogin(); return false; }
+    window.location.href = basePath() + "index.html";
+    return false;
+  }
   if (role !== requiredRole) {
     showToast("Access denied — redirecting to your dashboard", "error");
-    setTimeout(() => { window.location.href = getRoleRedirect(role); }, 900);
+    if (window.SPA && window.SPA.mode) {
+      setTimeout(() => window.SPA.gotoDashboard(), 900);
+    } else {
+      setTimeout(() => { window.location.href = getRoleRedirect(role); }, 900);
+    }
     return false;
   }
   return true;
@@ -147,7 +157,11 @@ function checkRoleAccess(requiredRole) {
 function logout() {
   clearSession();
   showToast("Logged out successfully", "info");
-  setTimeout(() => { window.location.href = basePath() + "index.html"; }, 400);
+  if (window.SPA && window.SPA.mode) {
+    setTimeout(() => window.SPA.showLogin(), 400);
+  } else {
+    setTimeout(() => { window.location.href = basePath() + "index.html"; }, 400);
+  }
 }
 
 // ---------- Permissions (tab access per role) ----------

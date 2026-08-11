@@ -387,6 +387,26 @@ function attachDataTable(table, opts = {}) {
 // Sidebar / layout behaviour (used by every role page)
 // ============================================================
 function initLayout() {
+  // SPA mode: shell owns sidebar/topbar; wire user/notifications/permissions once
+  if (window.SPA && window.SPA.mode) {
+    if (!window.__spaLayoutDone) {
+      window.__spaLayoutDone = true;
+      initAuthUI();
+      initNotifications();
+      applyPermissions();
+      // sidebar collapse + mobile menu on the shell's chrome
+      const toggle = document.getElementById("sidebarToggle");
+      const hamburger = document.getElementById("hamburger");
+      const overlay = document.getElementById("mobileOverlay");
+      if (toggle) toggle.addEventListener("click", () => document.body.classList.toggle("sidebar-collapsed"));
+      if (hamburger) hamburger.addEventListener("click", () => document.body.classList.add("mobile-menu-open"));
+      if (overlay) overlay.addEventListener("click", () => document.body.classList.remove("mobile-menu-open"));
+      document.querySelectorAll("[data-close-menu]").forEach(el => {
+        el.addEventListener("click", () => document.body.classList.remove("mobile-menu-open"));
+      });
+    }
+    return;
+  }
   const sidebar = document.getElementById("sidebar");
   const toggle = document.getElementById("sidebarToggle");
   const hamburger = document.getElementById("hamburger");

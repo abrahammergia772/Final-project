@@ -35,7 +35,11 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**95 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**96 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+
+### Single-page shell (clean URL) + separate Admin login
+- The app runs as a **single-page application from the root URL** — after login the browser URL stays at just the domain (no `page.html` shown), because pages are swapped in place by `assets/js/app.js`. Every static page still works if opened directly (deep links).
+- **Administrators have their own login page** (`admin-login.html`) with its own link (`🔐 Administrator sign in` on the main login). It only accepts admin credentials — other roles are rejected — and then opens the admin dashboard.
 
 ### Messaging, accounts & access control
 

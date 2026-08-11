@@ -28,7 +28,11 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
     if (res.status === 401) {
       showToast("Your session has expired. Please log in again.", "warning");
       clearSession();
-      setTimeout(() => { window.location.href = basePath() + "index.html"; }, 1200);
+      if (window.SPA && window.SPA.mode) {
+        setTimeout(() => window.SPA.showLogin(), 1200);
+      } else {
+        setTimeout(() => { window.location.href = basePath() + "index.html"; }, 1200);
+      }
       return { ok: false, status: 401, error: "Unauthorized" };
     }
     if (res.status === 500) {
