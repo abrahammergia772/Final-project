@@ -1,0 +1,19 @@
+# Render Blueprint — one-click deploy of the MedIQ Pro backend
+# Connect your repo to Render, use "Blueprint" import, and it creates
+# the web service with these settings automatically.
+services:
+  - type: web
+    name: mediq-pro-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
