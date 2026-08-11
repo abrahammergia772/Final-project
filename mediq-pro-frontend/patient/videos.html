@@ -154,8 +154,9 @@ function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) { VIDS = r.data.items; afterVideos(); } });
 }
 function watchUrl(v) {
-  return v.video_id ? "https://www.youtube.com/watch?v=" + v.video_id
-                    : "https://www.youtube.com/results?search_query=" + encodeURIComponent(v.search);
+  // Direct video link with autoplay so it starts playing right away on YouTube
+  if (v.video_id) return "https://www.youtube.com/watch?v=" + v.video_id + "&autoplay=1&playsinline=1";
+  return "https://www.youtube.com/results?search_query=" + encodeURIComponent(v.search);
 }
 function thumb(v) {
   if (v.thumb) return v.thumb;
@@ -190,18 +191,29 @@ function videoCard(v) {
   </div>`;
 }
 
-// Open a video on YouTube — always works. If the browser blocks the new tab
-// (e.g. inside a sandboxed preview), it shows a copyable link instead.
+// Open a video on YouTube — moves directly to YouTube and starts playing.
+// 1) Opens in a new tab. 2) If popups are blocked, navigates the current tab
+// to YouTube. 3) Only if that is also blocked, shows a copyable link.
 function openYouTube(id) {
   const v = VIDS.find(x => x.id === id);
   if (!v) return;
   const url = watchUrl(v);
+  // 1) new tab
   let win = null;
   try { win = window.open(url, "_blank"); } catch (e) { win = null; }
-  if (win) { showToast("Opening on YouTube…", "info"); return; }
+  if (win) { showToast("Playing on YouTube…", "info"); return; }
+  // 2) same-tab navigation (still in the user's click gesture)
+  try {
+    window.location.href = url;
+    return;
+  } catch (e) { /* fall through */ }
+  // 3) copyable link
+  openCopyLinkModal(url);
+}
+function openCopyLinkModal(url) {
   openModal({
     title: "Open on YouTube",
-    body: `<p style="color:#6B7280;font-size:14px">Your browser blocked opening a new tab. Copy the link and paste it in your browser:</p>
+    body: `<p style="color:#6B7280;font-size:14px">Your browser blocked opening YouTube. Copy the link and paste it in your browser — it will start playing automatically:</p>
       <div class="flex" style="gap:8px;margin-top:12px;flex-wrap:wrap">
         <input class="form-control" id="ytUrl" value="${esc(url)}" readonly style="flex:1;min-width:200px">
         <button class="btn btn-secondary" id="ytCopy" type="button">${ICONS.download} Copy Link</button>

@@ -258,15 +258,20 @@ function playChatVideo(id) {
     }
   });
 }
-// Open on YouTube — always works; falls back to a copyable link if popups are blocked
+// Open on YouTube — moves directly to YouTube and plays. New tab → same-tab
+// navigation → copyable link (only if both are blocked).
 function openChatYouTube(v) {
-  const url = (typeof v === "string") ? "https://www.youtube.com/watch?v=" + v : ("https://www.youtube.com/watch?v=" + (v.video_id || "") || "https://www.youtube.com/results?search_query=" + encodeURIComponent((v && v.title) || ""));
+  const vid = typeof v === "string" ? v : (v && v.video_id) || "";
+  const url = vid
+    ? "https://www.youtube.com/watch?v=" + vid + "&autoplay=1&playsinline=1"
+    : "https://www.youtube.com/results?search_query=" + encodeURIComponent((v && v.title) || "health video");
   let win = null;
   try { win = window.open(url, "_blank"); } catch (e) { win = null; }
-  if (win) { showToast("Opening on YouTube…", "info"); return; }
+  if (win) { showToast("Playing on YouTube…", "info"); return; }
+  try { window.location.href = url; return; } catch (e) {}
   openModal({
     title: "Open on YouTube",
-    body: `<p style="color:#6B7280;font-size:14px">Your browser blocked opening a new tab. Copy the link and paste it in your browser:</p>
+    body: `<p style="color:#6B7280;font-size:14px">Your browser blocked opening YouTube. Copy the link and paste it in your browser — it will start playing automatically:</p>
       <div class="flex" style="gap:8px;margin-top:12px;flex-wrap:wrap">
         <input class="form-control" id="ytUrl" value="${esc(url)}" readonly style="flex:1;min-width:200px">
         <button class="btn btn-secondary" id="ytCopy" type="button">${ICONS.download} Copy Link</button>
