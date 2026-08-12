@@ -1,0 +1,95 @@
+{
+  "project": "MedIQ Pro",
+  "module": "Module 7 — Symptom Checker Chatbot AI",
+  "author": "Ab — Wolaita Sodo University",
+  "version": "1.0.0",
+  "ensemble": {
+    "method": "weighted_soft_voting",
+    "rf_weight": 0.5175,
+    "xgb_weight": 0.4825
+  },
+  "performance": {
+    "rf": {
+      "top1": 0.9788,
+      "top3": 1.0,
+      "top5": 1.0
+    },
+    "xgb": {
+      "top1": 0.9125,
+      "top3": 0.9761,
+      "top5": 0.9894
+    },
+    "ensemble": {
+      "top1": 0.9655,
+      "top3": 0.9973,
+      "top5": 1.0
+    }
+  },
+  "tfidf_params": {
+    "ngram_range": [
+      1,
+      2
+    ],
+    "max_features": 8000,
+    "min_df": 2,
+    "max_df": 0.95,
+    "sublinear_tf": true
+  },
+  "training_data": {
+    "total_samples": 1884,
+    "total_classes": 43,
+    "train_samples": 1507,
+    "test_samples": 377,
+    "datasets": [
+      "niyarrbarman/symptom2disease",
+      "itachi9604/disease-symptom-description-dataset",
+      "thedevastator/medical-question-answer-data",
+      "kaushil268/disease-prediction-using-machine-learning"
+    ]
+  },
+  "classes": [
+    "(Vertigo) Paroymsal  Positional Vertigo",
+    "Acne",
+    "Aids",
+    "Alcoholic Hepatitis",
+    "Allergy",
+    "Arthritis",
+    "Bronchial Asthma",
+    "Cervical Spondylosis",
+    "Chicken Pox",
+    "Chronic Cholestasis",
+    "Common Cold",
+    "Dengue",
+    "Diabetes",
+    "Dimorphic Hemmorhoids(Piles)",
+    "Dimorphic Hemorrhoids",
+    "Drug Reaction",
+    "Fungal Infection",
+    "Gastroenteritis",
+    "Gastroesophageal Reflux Disease",
+    "Heart Attack",
+    "Hepatitis A",
+    "Hepatitis B",
+    "Hepatitis C",
+    "Hepatitis D",
+    "Hepatitis E",
+    "Hypertension",
+    "Hyperthyroidism",
+    "Hypoglycemia",
+    "Hypothyroidism",
+    "Impetigo",
+    "Jaundice",
+    "Malaria",
+    "Migraine",
+    "Osteoarthristis",
+    "Paralysis (Brain Hemorrhage)",
+    "Peptic Ulcer Diseae",
+    "Peptic Ulcer Disease",
+    "Pneumonia",
+    "Psoriasis",
+    "Tuberculosis",
+    "Typhoid",
+    "Urinary Tract Infection",
+    "Varicose Veins"
+  ]
+}

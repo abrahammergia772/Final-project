@@ -1,0 +1,158 @@
+{
+  "Common Cold": {
+    "advice": "Rest, stay hydrated, and use over-the-counter cold remedies. Honey-lemon tea can soothe throat irritation. Avoid contact with others to prevent spreading.",
+    "follow_up": "How long have you had these symptoms, and do you also have a sore throat or body aches?",
+    "action": "Stay home and rest. Drink warm fluids. See a doctor if symptoms worsen after 7 days or you develop high fever.",
+    "urgency_default": "Self-Care"
+  },
+  "Influenza": {
+    "advice": "Influenza (flu) requires rest, plenty of fluids, and fever reducers like paracetamol. Antiviral medications may be prescribed if caught early.",
+    "follow_up": "Do you have body aches, chills, or sudden onset of severe fatigue along with your fever?",
+    "action": "Rest at home. Take fever reducers. See a doctor if fever exceeds 39.5°C or breathing becomes difficult.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Typhoid": {
+    "advice": "Typhoid is a serious bacterial infection requiring antibiotics. Maintain strict hygiene, drink only boiled or bottled water, and avoid raw foods.",
+    "follow_up": "Do you have sustained high fever (above 39°C), abdominal pain, or have you recently travelled or consumed unsafe water?",
+    "action": "See a doctor immediately for blood test and antibiotic prescription. Hospitalization may be needed.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Dengue": {
+    "advice": "Dengue fever requires rest and hydration. Take paracetamol for fever — AVOID aspirin or ibuprofen as they increase bleeding risk. Monitor platelet count.",
+    "follow_up": "Do you have a severe headache behind your eyes, skin rash, or joint/muscle pain? Have you been in a mosquito-prone area?",
+    "action": "Go to a clinic for a dengue test immediately. Rest, hydrate, and monitor for warning signs like bleeding gums or severe abdominal pain.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Malaria": {
+    "advice": "Malaria is a medical emergency requiring prompt treatment with antimalarial drugs. Untreated malaria can become life-threatening within hours.",
+    "follow_up": "Do you have cyclical chills and sweating, and have you been in a malaria-endemic area like a tropical region recently?",
+    "action": "See a doctor URGENTLY for a blood smear test. Do not delay — malaria progresses rapidly without treatment.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Chicken Pox": {
+    "advice": "Chickenpox is highly contagious. Use calamine lotion for itching, avoid scratching to prevent scars. Keep fingernails short. Isolate from unvaccinated individuals.",
+    "follow_up": "Are you seeing fluid-filled blisters on your body, and is the rash starting from your trunk/back and spreading outward?",
+    "action": "Stay at home and avoid contact with others. See a doctor if you develop high fever, difficulty breathing, or signs of bacterial infection.",
+    "urgency_default": "Self-Care"
+  },
+  "Impetigo": {
+    "advice": "Impetigo is a bacterial skin infection. Keep affected areas clean with antiseptic soap. Topical antibiotic ointment is the first-line treatment.",
+    "follow_up": "Are the sores oozing honey-colored liquid and forming a crust? Are they spreading to other areas of your skin?",
+    "action": "See a doctor for antibiotic prescription. Keep the area clean and covered. Avoid touching your face after touching the sores.",
+    "urgency_default": "Self-Care"
+  },
+  "Diabetes": {
+    "advice": "Diabetes requires long-term management including blood sugar monitoring, dietary changes (low-carb, low-sugar), regular exercise, and medication compliance.",
+    "follow_up": "How long have you experienced increased thirst and frequent urination? Do you have a family history of diabetes?",
+    "action": "See your doctor for a fasting blood glucose test and HbA1c measurement. Do not delay diabetes diagnosis.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Hypertension": {
+    "advice": "Hypertension (high blood pressure) requires lifestyle changes: reduce salt intake, exercise regularly, avoid smoking and alcohol, manage stress, and take prescribed medications.",
+    "follow_up": "Do you know your current blood pressure readings? Do you experience headaches at the back of your head, especially in the morning?",
+    "action": "Check your blood pressure at a pharmacy or clinic. If readings are consistently above 140/90 mmHg, see a doctor for treatment.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Migraine": {
+    "advice": "Migraines can be managed with rest in a dark, quiet room. OTC pain relievers (ibuprofen/paracetamol) may help if taken early. Keep a trigger journal.",
+    "follow_up": "Is the headache one-sided, throbbing, and accompanied by nausea or sensitivity to light and sound? How long does each episode last?",
+    "action": "Rest in a dark, quiet room. Apply a cold compress. If migraines are frequent or severe, see a neurologist for prescription medication.",
+    "urgency_default": "Self-Care"
+  },
+  "Arthritis": {
+    "advice": "Arthritis involves joint inflammation. Stay active with low-impact exercises (swimming, walking). Apply warm/cold compresses. Anti-inflammatory medications may help.",
+    "follow_up": "Which joints are most affected, and is the stiffness worse in the morning? Is the pain constant or does it come and go?",
+    "action": "See a rheumatologist for proper diagnosis (OA vs. RA). X-rays and blood tests may be needed for accurate classification.",
+    "urgency_default": "Self-Care"
+  },
+  "Pneumonia": {
+    "advice": "Pneumonia is a serious lung infection requiring antibiotics (bacterial) or antivirals. Rest, hydration, and sometimes hospitalization are needed.",
+    "follow_up": "Do you have a productive cough with colored phlegm (yellow/green), high fever above 38.5°C, and chest pain when breathing deeply?",
+    "action": "See a doctor URGENTLY. Chest X-ray and blood tests are needed. Hospitalization may be required for elderly or severe cases.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Bronchial Asthma": {
+    "advice": "Asthma requires avoiding triggers (dust, smoke, allergens) and using inhalers as prescribed. Know the difference between rescue and maintenance inhalers.",
+    "follow_up": "Do you hear a whistling sound (wheezing) when breathing? Do symptoms worsen at night or early morning or during exercise?",
+    "action": "Use your rescue inhaler if available. Sit upright and try to breathe calmly. If symptoms don't improve in 15 min, seek emergency care.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Gastroesophageal Reflux Disease": {
+    "advice": "GERD is managed by avoiding trigger foods (spicy, fatty, acidic), eating smaller meals, not lying down after eating, and elevating your bed head.",
+    "follow_up": "Do you feel a burning sensation in your chest or throat after meals, especially when lying down? How often does this happen?",
+    "action": "Try OTC antacids for immediate relief. See a doctor if symptoms persist more than 2 weeks — long-term GERD can damage the esophagus.",
+    "urgency_default": "Self-Care"
+  },
+  "Peptic Ulcer Disease": {
+    "advice": "Peptic ulcers are often caused by H. pylori bacteria or NSAID use. Avoid spicy foods, alcohol, and smoking. Antacids and proton pump inhibitors are standard treatment.",
+    "follow_up": "Is the stomach pain burning or gnawing in nature, and does it improve or worsen when you eat? Do you take pain relievers (NSAIDs) regularly?",
+    "action": "See a doctor for diagnosis and H. pylori testing. Avoid NSAIDs. If you vomit blood or pass black tarry stools, go to emergency immediately.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Jaundice": {
+    "advice": "Jaundice (yellowing of skin and eyes) is a symptom, not a disease itself. It indicates liver or bile duct problems and requires prompt medical evaluation.",
+    "follow_up": "Are your eyes and skin turning yellow? Do you have dark urine, pale stools, and abdominal pain?",
+    "action": "See a doctor URGENTLY for liver function tests and ultrasound. Avoid alcohol completely. Jaundice can indicate serious liver disease.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Psoriasis": {
+    "advice": "Psoriasis is a chronic skin condition. Keep skin moisturized, avoid triggers (stress, alcohol, smoking). Topical corticosteroids are often prescribed.",
+    "follow_up": "Are you seeing thick, silvery-white scales on red patches? Are the affected areas on your elbows, knees, or scalp?",
+    "action": "See a dermatologist for proper diagnosis and prescription treatment. UV phototherapy may be recommended for severe cases.",
+    "urgency_default": "Self-Care"
+  },
+  "Acne": {
+    "advice": "Manage acne with a gentle cleanser twice daily, non-comedogenic moisturizer, and avoid popping pimples. OTC benzoyl peroxide or salicylic acid can help.",
+    "follow_up": "Are the breakouts mostly blackheads/whiteheads, or are there painful cysts? How long have you had this condition?",
+    "action": "Use gentle skincare products. If OTC treatments don't help after 3 months, or if you have severe cystic acne, see a dermatologist.",
+    "urgency_default": "Self-Care"
+  },
+  "Fungal Infection": {
+    "advice": "Fungal infections thrive in warm, moist areas. Keep affected skin clean and dry. OTC antifungal creams (clotrimazole) are usually effective.",
+    "follow_up": "Where exactly is the rash or infection? Is the skin red, scaly, or itchy with a ring-like appearance (ringworm)?",
+    "action": "Apply OTC antifungal cream twice daily. Keep the area dry. If it doesn't improve in 2 weeks or spreads, see a doctor.",
+    "urgency_default": "Self-Care"
+  },
+  "Allergy": {
+    "advice": "Allergies are managed by identifying and avoiding triggers. Antihistamines (cetirizine, loratadine) can relieve symptoms. Keep an allergy diary.",
+    "follow_up": "What symptoms are you experiencing — sneezing, itchy eyes, skin rash, or breathing difficulty? Have you been exposed to a new food, pet, or environment?",
+    "action": "Take OTC antihistamines for mild symptoms. If you have swelling of throat or difficulty breathing, seek emergency care immediately (anaphylaxis).",
+    "urgency_default": "Self-Care"
+  },
+  "Drug Reaction": {
+    "advice": "Drug reactions range from mild (rash, itching) to severe (anaphylaxis, liver failure). Stop the suspected medication and seek medical advice immediately.",
+    "follow_up": "What medication did you recently start taking, and when exactly did the reaction begin? Are you experiencing difficulty breathing or facial swelling?",
+    "action": "Stop the suspected medication immediately. Contact your doctor or pharmacist. If you have breathing difficulty or severe rash, go to emergency.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Varicose Veins": {
+    "advice": "Varicose veins can be managed by elevating legs, wearing compression stockings, exercising regularly, and avoiding prolonged standing or sitting.",
+    "follow_up": "Are you seeing twisted, bulging, blue or purple veins on your legs? Do you experience leg pain, swelling, or heaviness after standing?",
+    "action": "See a vascular specialist for evaluation. Lifestyle changes may be sufficient for mild cases; medical procedures are available for severe varicosities.",
+    "urgency_default": "Self-Care"
+  },
+  "Urinary Tract Infection": {
+    "advice": "UTIs require antibiotics and increased water intake. Urinate frequently, wipe front-to-back, and avoid holding urine. Cranberry juice may help prevention.",
+    "follow_up": "Do you have a burning sensation when urinating, frequent urge to urinate, or notice cloudy/foul-smelling urine?",
+    "action": "See a doctor for urine culture and antibiotic prescription. Drink plenty of water. If you have back pain or fever, it may indicate kidney infection.",
+    "urgency_default": "See Doctor Soon"
+  },
+  "Cervical Spondylosis": {
+    "advice": "Cervical spondylosis (neck arthritis) is managed with physiotherapy, neck exercises, heat therapy, and posture correction. Avoid prolonged screen time.",
+    "follow_up": "Is the neck pain radiating to your shoulders or arms? Do you experience numbness or tingling in your hands? How long have you had this?",
+    "action": "See a physiotherapist or orthopedic specialist. Pain relievers and muscle relaxants may be prescribed. In severe cases, imaging is needed.",
+    "urgency_default": "Self-Care"
+  },
+  "Dimorphic Hemorrhoids": {
+    "advice": "Hemorrhoids (piles) are managed with high-fiber diet, adequate hydration, sitz baths, and OTC hemorrhoid creams. Avoid straining during bowel movements.",
+    "follow_up": "Are you experiencing rectal bleeding (bright red blood), itching around the anus, or pain during bowel movements?",
+    "action": "Increase fiber intake and fluid consumption. Use OTC creams or suppositories. See a doctor if bleeding is heavy or persists more than a week.",
+    "urgency_default": "Self-Care"
+  },
+  "_default": {
+    "advice": "Based on your symptoms, a medical evaluation is recommended to confirm the diagnosis and determine the best treatment approach.",
+    "follow_up": "How long have you been experiencing these symptoms, and have they been getting better, worse, or staying the same?",
+    "action": "Consult a healthcare provider for proper examination. Note down all your symptoms, their severity, and when they started before your appointment.",
+    "urgency_default": "Self-Care"
+  }
+}
