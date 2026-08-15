@@ -1,0 +1,542 @@
+{
+  "module": "Inventory Forecasting AI",
+  "project": "MedIQ Pro",
+  "university": "Wolaita Sodo University",
+  "version": "1.0.0",
+  "feature_cols": [
+    "drug_encoded",
+    "year",
+    "month",
+    "day",
+    "dayofweek",
+    "weekofyear",
+    "quarter",
+    "is_weekend",
+    "is_monthend",
+    "is_monthstart",
+    "season",
+    "is_holiday",
+    "lag_1",
+    "lag_7",
+    "lag_14",
+    "lag_30",
+    "roll_mean_7",
+    "roll_mean_14",
+    "roll_mean_30",
+    "roll_std_7",
+    "roll_std_14",
+    "roll_std_30",
+    "roll_max_7",
+    "roll_max_14",
+    "roll_max_30",
+    "expanding_mean",
+    "demand_velocity"
+  ],
+  "drug_catalogue": [
+    "Amoxicillin",
+    "Paracetamol",
+    "Ibuprofen",
+    "Metformin",
+    "Atorvastatin",
+    "Omeprazole",
+    "Lisinopril",
+    "Amlodipine",
+    "Azithromycin",
+    "Ciprofloxacin",
+    "Doxycycline",
+    "Metronidazole",
+    "Diclofenac",
+    "Salbutamol",
+    "Furosemide",
+    "Hydrochlorothiazide",
+    "Glibenclamide",
+    "Insulin Glargine",
+    "Morphine",
+    "Tramadol",
+    "Cotrimoxazole",
+    "Artemether",
+    "Quinine",
+    "ORS Sachets",
+    "Vitamin C",
+    "Folic Acid",
+    "Ferrous Sulfate",
+    "Calcium Carbonate",
+    "Ranitidine",
+    "Prednisolone"
+  ],
+  "prophet_model_files": {
+    "Amoxicillin": "prophet_amoxicillin.json",
+    "Paracetamol": "prophet_paracetamol.json",
+    "Ibuprofen": "prophet_ibuprofen.json",
+    "Metformin": "prophet_metformin.json",
+    "Atorvastatin": "prophet_atorvastatin.json",
+    "Omeprazole": "prophet_omeprazole.json",
+    "Lisinopril": "prophet_lisinopril.json",
+    "Amlodipine": "prophet_amlodipine.json",
+    "Azithromycin": "prophet_azithromycin.json",
+    "Ciprofloxacin": "prophet_ciprofloxacin.json",
+    "Doxycycline": "prophet_doxycycline.json",
+    "Metronidazole": "prophet_metronidazole.json"
+  },
+  "ensemble_weights": {
+    "Amoxicillin": {
+      "prophet": 0.5583,
+      "xgb": 0.4417
+    },
+    "Paracetamol": {
+      "prophet": 0.6142,
+      "xgb": 0.3858
+    },
+    "Ibuprofen": {
+      "prophet": 0.3817,
+      "xgb": 0.6183
+    },
+    "Metformin": {
+      "prophet": 0.3972,
+      "xgb": 0.6028
+    },
+    "Atorvastatin": {
+      "prophet": 0.4541,
+      "xgb": 0.5459
+    },
+    "Omeprazole": {
+      "prophet": 0.4256,
+      "xgb": 0.5744
+    },
+    "Lisinopril": {
+      "prophet": 0.4992,
+      "xgb": 0.5008
+    },
+    "Amlodipine": {
+      "prophet": 0.577,
+      "xgb": 0.423
+    },
+    "Azithromycin": {
+      "prophet": 0.4042,
+      "xgb": 0.5958
+    },
+    "Ciprofloxacin": {
+      "prophet": 0.5911,
+      "xgb": 0.4089
+    },
+    "Doxycycline": {
+      "prophet": 0.3848,
+      "xgb": 0.6152
+    },
+    "Metronidazole": {
+      "prophet": 0.3956,
+      "xgb": 0.6044
+    },
+    "Diclofenac": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Salbutamol": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Furosemide": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Hydrochlorothiazide": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Glibenclamide": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Insulin Glargine": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Morphine": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Tramadol": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Cotrimoxazole": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Artemether": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Quinine": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "ORS Sachets": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Vitamin C": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Folic Acid": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Ferrous Sulfate": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Calcium Carbonate": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Ranitidine": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    },
+    "Prednisolone": {
+      "prophet": 0.0,
+      "xgb": 1.0
+    }
+  },
+  "default_weights": {
+    "prophet": 0.0,
+    "xgb": 1.0
+  },
+  "drug_stats": {
+    "Amlodipine": {
+      "mean_demand": 169.27,
+      "std_demand": 60.11,
+      "max_demand": 409,
+      "min_demand": 56,
+      "reorder_point": 1447.32,
+      "safety_stock": 262.4,
+      "eoq": 105.1,
+      "suggested_order_qty": 5340.62
+    },
+    "Amoxicillin": {
+      "mean_demand": 163.28,
+      "std_demand": 59.3,
+      "max_demand": 401,
+      "min_demand": 49,
+      "reorder_point": 1401.82,
+      "safety_stock": 258.86,
+      "eoq": 103.23,
+      "suggested_order_qty": 5157.27
+    },
+    "Artemether": {
+      "mean_demand": 165.89,
+      "std_demand": 60.6,
+      "max_demand": 392,
+      "min_demand": 49,
+      "reorder_point": 1425.73,
+      "safety_stock": 264.53,
+      "eoq": 104.05,
+      "suggested_order_qty": 5241.11
+    },
+    "Atorvastatin": {
+      "mean_demand": 234.85,
+      "std_demand": 83.32,
+      "max_demand": 545,
+      "min_demand": 79,
+      "reorder_point": 2007.64,
+      "safety_stock": 363.72,
+      "eoq": 123.8,
+      "suggested_order_qty": 7409.09
+    },
+    "Azithromycin": {
+      "mean_demand": 372.99,
+      "std_demand": 130.96,
+      "max_demand": 882,
+      "min_demand": 138,
+      "reorder_point": 3182.62,
+      "safety_stock": 571.69,
+      "eoq": 156.02,
+      "suggested_order_qty": 11761.39
+    },
+    "Calcium Carbonate": {
+      "mean_demand": 48.02,
+      "std_demand": 17.09,
+      "max_demand": 111,
+      "min_demand": 17,
+      "reorder_point": 410.76,
+      "safety_stock": 74.61,
+      "eoq": 55.98,
+      "suggested_order_qty": 1515.24
+    },
+    "Ciprofloxacin": {
+      "mean_demand": 171.03,
+      "std_demand": 61.17,
+      "max_demand": 380,
+      "min_demand": 63,
+      "reorder_point": 1464.26,
+      "safety_stock": 267.03,
+      "eoq": 105.65,
+      "suggested_order_qty": 5398.01
+    },
+    "Cotrimoxazole": {
+      "mean_demand": 123.2,
+      "std_demand": 43.71,
+      "max_demand": 294,
+      "min_demand": 45,
+      "reorder_point": 1053.21,
+      "safety_stock": 190.8,
+      "eoq": 89.67,
+      "suggested_order_qty": 3886.83
+    },
+    "Diclofenac": {
+      "mean_demand": 176.88,
+      "std_demand": 62.96,
+      "max_demand": 428,
+      "min_demand": 55,
+      "reorder_point": 1513.03,
+      "safety_stock": 274.84,
+      "eoq": 107.44,
+      "suggested_order_qty": 5581.36
+    },
+    "Doxycycline": {
+      "mean_demand": 346.19,
+      "std_demand": 120.38,
+      "max_demand": 830,
+      "min_demand": 118,
+      "reorder_point": 2948.81,
+      "safety_stock": 525.5,
+      "eoq": 150.31,
+      "suggested_order_qty": 10911.09
+    },
+    "Ferrous Sulfate": {
+      "mean_demand": 364.93,
+      "std_demand": 130.76,
+      "max_demand": 830,
+      "min_demand": 128,
+      "reorder_point": 3125.3,
+      "safety_stock": 570.82,
+      "eoq": 154.32,
+      "suggested_order_qty": 11518.6
+    },
+    "Folic Acid": {
+      "mean_demand": 355.8,
+      "std_demand": 127.86,
+      "max_demand": 886,
+      "min_demand": 119,
+      "reorder_point": 3048.76,
+      "safety_stock": 558.19,
+      "eoq": 152.38,
+      "suggested_order_qty": 11232.08
+    },
+    "Furosemide": {
+      "mean_demand": 143.54,
+      "std_demand": 50.2,
+      "max_demand": 363,
+      "min_demand": 48,
+      "reorder_point": 1223.92,
+      "safety_stock": 219.16,
+      "eoq": 96.79,
+      "suggested_order_qty": 4525.25
+    },
+    "Glibenclamide": {
+      "mean_demand": 68.86,
+      "std_demand": 24.35,
+      "max_demand": 172,
+      "min_demand": 23,
+      "reorder_point": 588.33,
+      "safety_stock": 106.28,
+      "eoq": 67.04,
+      "suggested_order_qty": 2172.2
+    },
+    "Hydrochlorothiazide": {
+      "mean_demand": 207.48,
+      "std_demand": 72.97,
+      "max_demand": 496,
+      "min_demand": 75,
+      "reorder_point": 1770.91,
+      "safety_stock": 318.57,
+      "eoq": 116.36,
+      "suggested_order_qty": 6542.9
+    },
+    "Ibuprofen": {
+      "mean_demand": 361.68,
+      "std_demand": 127.82,
+      "max_demand": 808,
+      "min_demand": 125,
+      "reorder_point": 3089.77,
+      "safety_stock": 558.0,
+      "eoq": 153.64,
+      "suggested_order_qty": 11408.46
+    },
+    "Insulin Glargine": {
+      "mean_demand": 137.11,
+      "std_demand": 48.8,
+      "max_demand": 338,
+      "min_demand": 47,
+      "reorder_point": 1172.84,
+      "safety_stock": 213.05,
+      "eoq": 94.59,
+      "suggested_order_qty": 4326.42
+    },
+    "Lisinopril": {
+      "mean_demand": 267.11,
+      "std_demand": 94.78,
+      "max_demand": 604,
+      "min_demand": 80,
+      "reorder_point": 2283.56,
+      "safety_stock": 413.76,
+      "eoq": 132.03,
+      "suggested_order_qty": 8427.18
+    },
+    "Metformin": {
+      "mean_demand": 321.75,
+      "std_demand": 113.07,
+      "max_demand": 747,
+      "min_demand": 119,
+      "reorder_point": 2745.83,
+      "safety_stock": 493.61,
+      "eoq": 144.91,
+      "suggested_order_qty": 10146.02
+    },
+    "Metronidazole": {
+      "mean_demand": 319.38,
+      "std_demand": 116.36,
+      "max_demand": 805,
+      "min_demand": 100,
+      "reorder_point": 2743.66,
+      "safety_stock": 507.98,
+      "eoq": 144.37,
+      "suggested_order_qty": 10089.48
+    },
+    "Morphine": {
+      "mean_demand": 269.21,
+      "std_demand": 95.08,
+      "max_demand": 650,
+      "min_demand": 94,
+      "reorder_point": 2299.53,
+      "safety_stock": 415.09,
+      "eoq": 132.55,
+      "suggested_order_qty": 8491.28
+    },
+    "ORS Sachets": {
+      "mean_demand": 223.98,
+      "std_demand": 80.18,
+      "max_demand": 560,
+      "min_demand": 66,
+      "reorder_point": 1917.89,
+      "safety_stock": 350.05,
+      "eoq": 120.9,
+      "suggested_order_qty": 7069.36
+    },
+    "Omeprazole": {
+      "mean_demand": 283.17,
+      "std_demand": 102.15,
+      "max_demand": 646,
+      "min_demand": 94,
+      "reorder_point": 2428.1,
+      "safety_stock": 445.94,
+      "eoq": 135.94,
+      "suggested_order_qty": 8940.9
+    },
+    "Paracetamol": {
+      "mean_demand": 195.91,
+      "std_demand": 69.57,
+      "max_demand": 468,
+      "min_demand": 65,
+      "reorder_point": 1675.09,
+      "safety_stock": 303.7,
+      "eoq": 113.07,
+      "suggested_order_qty": 6181.07
+    },
+    "Prednisolone": {
+      "mean_demand": 137.33,
+      "std_demand": 49.35,
+      "max_demand": 319,
+      "min_demand": 42,
+      "reorder_point": 1176.75,
+      "safety_stock": 215.42,
+      "eoq": 94.67,
+      "suggested_order_qty": 4335.42
+    },
+    "Quinine": {
+      "mean_demand": 306.67,
+      "std_demand": 108.48,
+      "max_demand": 694,
+      "min_demand": 98,
+      "reorder_point": 2620.24,
+      "safety_stock": 473.58,
+      "eoq": 141.47,
+      "suggested_order_qty": 9673.55
+    },
+    "Ranitidine": {
+      "mean_demand": 311.91,
+      "std_demand": 112.35,
+      "max_demand": 771,
+      "min_demand": 97,
+      "reorder_point": 2673.85,
+      "safety_stock": 490.45,
+      "eoq": 142.67,
+      "suggested_order_qty": 9847.88
+    },
+    "Salbutamol": {
+      "mean_demand": 177.59,
+      "std_demand": 61.49,
+      "max_demand": 391,
+      "min_demand": 65,
+      "reorder_point": 1511.55,
+      "safety_stock": 268.41,
+      "eoq": 107.66,
+      "suggested_order_qty": 5596.14
+    },
+    "Tramadol": {
+      "mean_demand": 222.49,
+      "std_demand": 79.45,
+      "max_demand": 507,
+      "min_demand": 76,
+      "reorder_point": 1904.26,
+      "safety_stock": 346.85,
+      "eoq": 120.5,
+      "suggested_order_qty": 7021.46
+    },
+    "Vitamin C": {
+      "mean_demand": 217.85,
+      "std_demand": 77.01,
+      "max_demand": 498,
+      "min_demand": 69,
+      "reorder_point": 1861.16,
+      "safety_stock": 336.19,
+      "eoq": 119.24,
+      "suggested_order_qty": 6871.76
+    }
+  },
+  "lead_time_days": 7,
+  "safety_stock_z": 1.65,
+  "seasonal_factors": {
+    "1": 1.15,
+    "2": 1.1,
+    "3": 1.05,
+    "4": 0.95,
+    "5": 0.9,
+    "6": 0.88,
+    "7": 1.2,
+    "8": 1.25,
+    "9": 1.05,
+    "10": 0.98,
+    "11": 1.02,
+    "12": 1.1
+  },
+  "eth_holidays": {
+    "01-07": "Ethiopian Christmas",
+    "01-19": "Timkat",
+    "03-02": "Adwa Victory Day",
+    "04-06": "Good Friday (approx)",
+    "05-01": "Labour Day",
+    "05-05": "Patriots Day",
+    "09-11": "Ethiopian New Year",
+    "09-27": "Meskel",
+    "10-16": "Eid al-Adha (approx)",
+    "11-11": "Eid al-Mawlid (approx)"
+  },
+  "metrics": {
+    "xgb_mae": 26.19,
+    "xgb_rmse": 35.64,
+    "xgb_mape": 11.07
+  }
+}
