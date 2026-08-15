@@ -1,0 +1,46 @@
+{
+  "module": "drug_interaction_checker",
+  "version": "1.0.0",
+  "description": "MedIQ Pro \u2014 Module 2: Drug Interaction Checker AI",
+  "models": {
+    "random_forest": "drug_interaction_rf.pkl",
+    "xgboost": "drug_interaction_xgb.pkl",
+    "tfidf": "drug_interaction_tfidf.pkl",
+    "label_encoder": "drug_interaction_label_encoder.pkl"
+  },
+  "classes": [
+    "Moderate",
+    "Safe",
+    "Severe"
+  ],
+  "class_mapping": {
+    "0": "Moderate",
+    "1": "Safe",
+    "2": "Severe"
+  },
+  "ensemble_weights": {
+    "random_forest": 0.5028248587570622,
+    "xgboost": 0.4971751412429378
+  },
+  "performance": {
+    "random_forest_accuracy": 1.0,
+    "xgboost_accuracy": 0.9888,
+    "ensemble_accuracy": 1.0
+  },
+  "feature_config": {
+    "tfidf_max_features": 200,
+    "tfidf_ngram_range": [
+      1,
+      2
+    ],
+    "drug_name_hash_length": 20
+  },
+  "input": {
+    "drug_a": "string",
+    "drug_b": "string"
+  },
+  "output": {
+    "severity": "Safe | Moderate | Severe",
+    "confidence": "float [0,1]"
+  }
+}
