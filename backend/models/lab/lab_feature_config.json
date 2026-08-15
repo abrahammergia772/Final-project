@@ -1,0 +1,273 @@
+{
+  "model_version": "1.0.0",
+  "module": "Lab Result Analyzer",
+  "project": "MedIQ Pro",
+  "university": "Wolaita Sodo University",
+  "features": [
+    "hemoglobin",
+    "mcv",
+    "mch",
+    "mchc",
+    "wbc",
+    "rbc",
+    "total_bilirubin",
+    "direct_bilirubin",
+    "alamine_aminotransferase",
+    "aspartate_aminotransferase",
+    "total_proteins",
+    "albumin",
+    "creatinine",
+    "blood_urea",
+    "sodium",
+    "potassium",
+    "haematocrit",
+    "glucose",
+    "age",
+    "hemoglobin_flag",
+    "hemoglobin_deviation",
+    "mcv_flag",
+    "mcv_deviation",
+    "mch_flag",
+    "mch_deviation",
+    "mchc_flag",
+    "mchc_deviation",
+    "wbc_flag",
+    "wbc_deviation",
+    "platelets_flag",
+    "platelets_deviation",
+    "rbc_flag",
+    "rbc_deviation",
+    "total_bilirubin_flag",
+    "total_bilirubin_deviation",
+    "direct_bilirubin_flag",
+    "direct_bilirubin_deviation",
+    "alkaline_phosphatase_flag",
+    "alkaline_phosphatase_deviation",
+    "alamine_aminotransferase_flag",
+    "alamine_aminotransferase_deviation",
+    "aspartate_aminotransferase_flag",
+    "aspartate_aminotransferase_deviation",
+    "total_proteins_flag",
+    "total_proteins_deviation",
+    "albumin_flag",
+    "albumin_deviation",
+    "albumin_globulin_ratio_flag",
+    "albumin_globulin_ratio_deviation",
+    "creatinine_flag",
+    "creatinine_deviation",
+    "blood_urea_flag",
+    "blood_urea_deviation",
+    "sodium_flag",
+    "sodium_deviation",
+    "potassium_flag",
+    "potassium_deviation",
+    "haematocrit_flag",
+    "haematocrit_deviation",
+    "tsh_flag",
+    "tsh_deviation",
+    "t3_flag",
+    "t3_deviation",
+    "t4_flag",
+    "t4_deviation",
+    "tt4_flag",
+    "tt4_deviation",
+    "glucose_flag",
+    "glucose_deviation",
+    "insulin_flag",
+    "insulin_deviation",
+    "bmi_flag",
+    "bmi_deviation",
+    "age_flag",
+    "age_deviation",
+    "total_abnormal_flags",
+    "total_low_flags",
+    "total_high_flags"
+  ],
+  "base_features": [
+    "hemoglobin",
+    "mcv",
+    "mch",
+    "mchc",
+    "wbc",
+    "platelets",
+    "rbc",
+    "total_bilirubin",
+    "direct_bilirubin",
+    "alkaline_phosphatase",
+    "alamine_aminotransferase",
+    "aspartate_aminotransferase",
+    "total_proteins",
+    "albumin",
+    "albumin_globulin_ratio",
+    "creatinine",
+    "blood_urea",
+    "sodium",
+    "potassium",
+    "haematocrit",
+    "tsh",
+    "t3",
+    "t4",
+    "tt4",
+    "glucose",
+    "insulin",
+    "bmi",
+    "age"
+  ],
+  "conditions": [
+    "Anemia",
+    "Chronic Kidney Disease",
+    "Liver Disease",
+    "Normal"
+  ],
+  "reference_ranges": {
+    "hemoglobin": {
+      "low": 12.0,
+      "high": 17.5,
+      "unit": "g/dL"
+    },
+    "mcv": {
+      "low": 80.0,
+      "high": 100.0,
+      "unit": "fL"
+    },
+    "mch": {
+      "low": 27.0,
+      "high": 33.0,
+      "unit": "pg"
+    },
+    "mchc": {
+      "low": 32.0,
+      "high": 36.0,
+      "unit": "g/dL"
+    },
+    "wbc": {
+      "low": 4.5,
+      "high": 11.0,
+      "unit": "10\u00b3/\u03bcL"
+    },
+    "platelets": {
+      "low": 150.0,
+      "high": 400.0,
+      "unit": "10\u00b3/\u03bcL"
+    },
+    "rbc": {
+      "low": 4.2,
+      "high": 5.9,
+      "unit": "10\u2076/\u03bcL"
+    },
+    "total_bilirubin": {
+      "low": 0.2,
+      "high": 1.2,
+      "unit": "mg/dL"
+    },
+    "direct_bilirubin": {
+      "low": 0.0,
+      "high": 0.3,
+      "unit": "mg/dL"
+    },
+    "alkaline_phosphatase": {
+      "low": 44.0,
+      "high": 147.0,
+      "unit": "U/L"
+    },
+    "alamine_aminotransferase": {
+      "low": 7.0,
+      "high": 56.0,
+      "unit": "U/L"
+    },
+    "aspartate_aminotransferase": {
+      "low": 10.0,
+      "high": 40.0,
+      "unit": "U/L"
+    },
+    "total_proteins": {
+      "low": 6.0,
+      "high": 8.3,
+      "unit": "g/dL"
+    },
+    "albumin": {
+      "low": 3.5,
+      "high": 5.5,
+      "unit": "g/dL"
+    },
+    "albumin_globulin_ratio": {
+      "low": 1.0,
+      "high": 2.5,
+      "unit": "ratio"
+    },
+    "creatinine": {
+      "low": 0.6,
+      "high": 1.2,
+      "unit": "mg/dL"
+    },
+    "blood_urea": {
+      "low": 7.0,
+      "high": 20.0,
+      "unit": "mg/dL"
+    },
+    "sodium": {
+      "low": 136.0,
+      "high": 145.0,
+      "unit": "mEq/L"
+    },
+    "potassium": {
+      "low": 3.5,
+      "high": 5.0,
+      "unit": "mEq/L"
+    },
+    "haematocrit": {
+      "low": 36.0,
+      "high": 50.0,
+      "unit": "%"
+    },
+    "tsh": {
+      "low": 0.4,
+      "high": 4.0,
+      "unit": "mU/L"
+    },
+    "t3": {
+      "low": 0.9,
+      "high": 2.5,
+      "unit": "nmol/L"
+    },
+    "t4": {
+      "low": 0.8,
+      "high": 1.8,
+      "unit": "ng/dL"
+    },
+    "tt4": {
+      "low": 66.0,
+      "high": 181.0,
+      "unit": "nmol/L"
+    },
+    "glucose": {
+      "low": 70.0,
+      "high": 99.0,
+      "unit": "mg/dL"
+    },
+    "insulin": {
+      "low": 2.0,
+      "high": 25.0,
+      "unit": "\u03bcU/mL"
+    },
+    "bmi": {
+      "low": 18.5,
+      "high": 24.9,
+      "unit": "kg/m\u00b2"
+    },
+    "age": {
+      "low": 0.0,
+      "high": 120.0,
+      "unit": "years"
+    }
+  },
+  "weights": {
+    "rf": 0.4982,
+    "xgb": 0.5018
+  },
+  "metrics": {
+    "rf_accuracy": 0.9508,
+    "xgb_accuracy": 0.9575,
+    "ensemble_accuracy": 0.9587
+  }
+}
