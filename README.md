@@ -31,11 +31,19 @@ Final-project/
 │   └── patient/            ← 7 pages (incl. AI Chatbot, Messages)
 │
 ├── models/                 ← (coming) your trained .pkl models
-├── backend/                ← (coming) FastAPI app serving the models
+├── backend/                ← FastAPI app serving the 7 AI models + Supabase (deploy on Render)
+│   ├── models/             ← your trained .pkl models (per module)
+│   ├── main.py, config.py, db.py, model_loader.py, download_models.py
+│   ├── routers/            ← auth + 7 AI modules + data CRUD
+│   └── supabase_schema.sql ← run in Supabase SQL editor
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
 **96 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+
+## Backend (deploy on Render + Supabase)
+
+The **FastAPI backend** (`backend/`) serves all 7 AI modules from your **trained models** (`backend/models/`) and uses **Supabase (PostgreSQL)** as the database. See `backend/README.md` for the full deploy guide. Includes an automatic downloader for the >25 MB appointment model (GitHub's file limit) via `MODEL_DOWNLOAD_URLS`.
 
 ### Single-page shell (clean URL) + separate Admin login
 - The app runs as a **single-page application from the root URL** — after login the browser URL stays at just the domain (no `page.html` shown), because pages are swapped in place by `assets/js/app.js`. Every static page still works if opened directly (deep links).
