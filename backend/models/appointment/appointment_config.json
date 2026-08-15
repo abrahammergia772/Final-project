@@ -1,0 +1,125 @@
+{
+  "project": "MedIQ Pro",
+  "module": "Module 6 Appointment Predictor AI",
+  "version": "1.0.0",
+  "author": "Ab Wolaita Sodo University Ethiopia",
+  "models": {
+    "rf": "rf_appointment.pkl",
+    "xgb": "xgb_appointment.pkl",
+    "weights": {
+      "rf": 0.4939,
+      "xgb": 0.5061
+    }
+  },
+  "threshold": 0.38,
+  "metrics": {
+    "random_forest": {
+      "accuracy": 0.6742,
+      "auc": 0.7392,
+      "f1": 0.4126,
+      "precision": 0.3021,
+      "recall": 0.6508,
+      "oob": 0.7381
+    },
+    "xgboost": {
+      "accuracy": 0.7301,
+      "auc": 0.7573,
+      "f1": 0.4135,
+      "precision": 0.3346,
+      "recall": 0.541
+    },
+    "ensemble": {
+      "accuracy": 0.6203,
+      "auc": 0.752,
+      "f1": 0.4281,
+      "precision": 0.2912,
+      "recall": 0.8082
+    }
+  },
+  "feature_cols": [
+    "patient_age",
+    "age_group",
+    "is_child",
+    "is_elderly",
+    "is_young",
+    "gender_enc",
+    "insurance_enc",
+    "reminder_enc",
+    "has_reminder",
+    "dept_enc",
+    "appt_type_enc",
+    "doctor_enc",
+    "appointment_hour",
+    "appointment_dow",
+    "appointment_month",
+    "season",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos",
+    "is_monday",
+    "is_friday",
+    "is_weekend",
+    "is_morning",
+    "is_afternoon",
+    "is_peak_hour",
+    "wait_days",
+    "wait_bucket",
+    "wait_long",
+    "log_wait",
+    "prev_no_shows",
+    "prev_visits",
+    "is_new_patient",
+    "has_prev_no_shows",
+    "repeat_offender",
+    "ns_rate_history",
+    "log_prev_visits",
+    "distance_km",
+    "far_away",
+    "log_distance"
+  ],
+  "slot_stats": {
+    "1_10": {
+      "mean_count": 606.8,
+      "ns_rate": 0.0,
+      "load_label": "Light"
+    }
+  },
+  "baseline_noshow_rate": 0.1759,
+  "overbooking_policy": {
+    "description": "Book N extra slots per 10 scheduled to compensate predicted no-shows",
+    "low_risk": 1,
+    "medium_risk": 2,
+    "high_risk": 3
+  },
+  "reminder_timing": {
+    "very_high_risk": "72 hours before + day-of reminder",
+    "high_risk": "48 hours before",
+    "medium_risk": "24 hours before",
+    "low_risk": "2 hours before"
+  },
+  "input": {
+    "patient_age": "int",
+    "appointment_date": "YYYY-MM-DD",
+    "appointment_time": "HH:MM (24h)",
+    "department": "string",
+    "doctor_id": "string",
+    "appointment_type": "Scheduled|Walk-in|Emergency|Follow-up|Teleconsult",
+    "gender": "Male|Female",
+    "insurance_type": "string",
+    "reminder_channel": "SMS|Phone|Email|None",
+    "prev_no_shows": "int",
+    "prev_visits": "int",
+    "distance_km": "float"
+  },
+  "output": {
+    "no_show_probability": "float 0-100%",
+    "show_prediction": "Will Show | Will Not Show",
+    "predicted_patient_load": "Busy | Moderate | Light",
+    "recommended_overbooking_slots": "int",
+    "best_reminder_timing": "string",
+    "risk_level": "Low | Medium | High | Very High"
+  }
+}
