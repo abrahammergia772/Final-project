@@ -1,17 +1,13 @@
-# Render Blueprint — MedIQ Pro backend (memory-safe for free tier)
-# Import this file (Render → New → Blueprint) or configure a Web Service with:
-#   Root Directory : backend
-#   Build Command  : pip install -r requirements.txt
-#   Start Command  : uvicorn main:app --host 0.0.0.0 --port 10000 --workers 1 --limit-concurrency 20
-#
-# Free-tier (~512 MB) memory notes:
-#   * LAZY_LOAD=1  — modules are loaded on first request (not all at startup).
-#   * SKIP_RF_MODELS=1 — large RandomForest pickles are skipped; the API uses
-#     XGBoost models which are small and nearly as accurate.
-#   * --workers 1 — only one uvicorn worker (prevents duplicating all models
-#     across processes and tripling memory).
-# Override these on a paid plan: LAZY_LOAD=0 SKIP_RF_MODELS=0
+# Render Blueprint — MedIQ Pro (full stack)
+# Deploys two services:
+#   1. FastAPI backend (web service, free tier, memory-safe)
+#   2. Static frontend (static site, free)
+# Import this file (Render → New → Blueprint, connect repo).
 services:
+
+  # ============================================================
+  # Backend — FastAPI on Render free tier
+  # ============================================================
   - type: web
     name: mediq-pro-backend
     runtime: python
@@ -22,10 +18,7 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
-      # --- Memory-safe defaults for free tier ---
       - key: PYTHONUNBUFFERED
-        value: "1"
-      - key: PYTHONGC
         value: "1"
       - key: WEB_CONCURRENCY
         value: "1"
@@ -33,19 +26,40 @@ services:
         value: "1"
       - key: SKIP_RF_MODELS
         value: "1"
-      # --- Supabase (create a project, copy URL + anon key) ---
+      - key: CORS_ALLOW_ALL
+        value: "1"
+      # Backend URL — automatically set by Render; used here so the
+      # frontend can discover it at build time if needed.
+      - key: SECRET_KEY
+        generateValue: true
+      # Optional — set in Render dashboard once you create them:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
-      # --- CORS: allow your Netlify / Render frontend origin ---
       - key: CORS_ORIGINS
         sync: false
-      - key: SECRET_KEY
-        generateValue: true
-      # --- Optional: fetch >25 MB RF model (only useful on a paid plan
-      #     with SKIP_RF_MODELS=0, since the free tier can't load it anyway) ---
-      # - key: MODEL_DOWNLOAD_URLS
-      #   value: "appointment_rf=https://github.com/abrahammergia772/Final-project/releases/download/v1-models/rf_appointment.pkl"
+
+  # ============================================================
+  # Frontend — static site (HTML/CSS/JS) on Render free tier
+  # ============================================================
+  - type: web
+    name: mediq-pro-frontend
+    runtime: static
+    rootDir: mediq-pro-frontend
+    plan: free
+    buildCommand: ""     # pure static — no build step
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
+    headers:
+      # No special headers needed — this is a static HTML/JS site
+      # that talks to the FastAPI backend over CORS.
+    envVars:
+      # This static site talks to the backend above.
+      # The API URL is baked into assets/js/config.js (defaults to
+      # the deployed backend URL), but you can override at runtime
+      # by visiting /?api=https://your-custom-url
+      - key: VITE_API_BASE_URL
+        value: "https://final-project-bo4l.onrender.com"
