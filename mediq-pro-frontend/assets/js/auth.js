@@ -192,37 +192,52 @@ function savePermissions(role, map) {
 }
 
 // ---------- Wire up UI bits ----------
+// Uses event delegation so dropdowns/hamburger/logout work even when elements
+// are added dynamically (e.g. by the SPA shell after login, or after page
+// swaps). Safe to call multiple times — the global delegated listeners are
+// only attached once.
+let _authUI_bound = false;
 function initAuthUI() {
-  // Logout buttons anywhere (data-action="logout")
-  document.querySelectorAll("[data-logout]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      logout();
-    });
-  });
-
-  // Sidebar profile
+  // --- Populate user name / role / initials everywhere currently in DOM ---
   const nameEl = document.querySelector("[data-user-name]");
   const roleEl = document.querySelector("[data-user-role]");
-  const initialsEl = document.querySelectorAll("[data-user-initials]");
   const role = getUserRole();
-
   if (nameEl) nameEl.textContent = getUserName();
   if (roleEl && role) roleEl.textContent = getRoleLabel(role);
-  initialsEl.forEach(el => { el.textContent = getUserInitials(); });
-
-  // Topbar dropdowns (profile / notifications)
-  document.querySelectorAll("[data-dropdown-toggle]").forEach(toggle => {
-    toggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const menu = document.querySelector(toggle.dataset.dropdownToggle);
-      if (!menu) return;
-      const wasOpen = menu.classList.contains("show");
-      document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
-      if (!wasOpen) menu.classList.add("show");
-    });
+  document.querySelectorAll("[data-user-initials]").forEach((el) => {
+    el.textContent = getUserInitials();
   });
-  document.addEventListener("click", () => {
-    document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
+
+  // --- One-time global delegated handlers ---
+  if (_authUI_bound) return;
+  _authUI_bound = true;
+
+  // Dropdown toggles (profile, notifications, etc.) — works for dynamically
+  // inserted buttons because we listen on document.
+  document.addEventListener("click", (e) => {
+    const toggle = e.target.closest("[data-dropdown-toggle]");
+    if (toggle) {
+      e.stopPropagation();
+      const sel = toggle.getAttribute("data-dropdown-toggle");
+      const menu = sel ? document.querySelector(sel) : null;
+      if (!menu) return;
+      const isOpen = menu.classList.contains("show");
+      // close all other dropdowns
+      document.querySelectorAll(".dropdown-menu.show").forEach((m) => {
+        if (m !== menu) m.classList.remove("show");
+      });
+      menu.classList.toggle("show", !isOpen);
+      return;
+    }
+    // Click outside any dropdown → close all
+    if (!e.target.closest(".dropdown")) {
+      document.querySelectorAll(".dropdown-menu.show").forEach((m) => m.classList.remove("show"));
+    }
+    // Logout buttons (anywhere, even in dynamically-rendered shell)
+    const logoutBtn = e.target.closest("[data-logout]");
+    if (logoutBtn) {
+      e.preventDefault();
+      logout();
+    }
   });
 }

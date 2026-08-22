@@ -140,6 +140,11 @@ window.SPA = { mode: true, current: "" };
     $("#loginView").classList.add("hidden");
     $("#appView").classList.remove("hidden");
     buildShell(role);
+    // Wire up hamburger / profile dropdown / notifications / permissions
+    // for the freshly-built shell (delegated handlers in initAuthUI ensure
+    // the listeners survive future DOM rebuilds too).
+    window.__spaLayoutDone = false; // force re-wire for the new shell
+    initLayout();
     load(getRoleRedirect(role));
   }
   function showLogin() {
@@ -148,6 +153,9 @@ window.SPA = { mode: true, current: "" };
     $("#loginView").classList.remove("hidden");
     $("#spaBody").innerHTML = "";
     document.title = "Login — MedIQ Pro";
+    // Reset one-shot flags so a future login re-initialises notifs/layout.
+    window.__notifsBound = false;
+    window.__spaLayoutDone = false;
   }
   SPA.load = load;
   SPA.gotoDashboard = () => load(getRoleRedirect(getUserRole()));

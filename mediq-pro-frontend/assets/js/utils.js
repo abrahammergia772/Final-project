@@ -386,42 +386,79 @@ function attachDataTable(table, opts = {}) {
 // ============================================================
 // Sidebar / layout behaviour (used by every role page)
 // ============================================================
-function initLayout() {
-  // SPA mode: shell owns sidebar/topbar; wire user/notifications/permissions once
-  if (window.SPA && window.SPA.mode) {
-    if (!window.__spaLayoutDone) {
-      window.__spaLayoutDone = true;
-      initAuthUI();
-      initNotifications();
-      applyPermissions();
-      // sidebar collapse + mobile menu on the shell's chrome
-      const toggle = document.getElementById("sidebarToggle");
-      const hamburger = document.getElementById("hamburger");
-      const overlay = document.getElementById("mobileOverlay");
-      if (toggle) toggle.addEventListener("click", () => document.body.classList.toggle("sidebar-collapsed"));
-      if (hamburger) hamburger.addEventListener("click", () => document.body.classList.add("mobile-menu-open"));
-      if (overlay) overlay.addEventListener("click", () => document.body.classList.remove("mobile-menu-open"));
-      document.querySelectorAll("[data-close-menu]").forEach(el => {
-        el.addEventListener("click", () => document.body.classList.remove("mobile-menu-open"));
-      });
-    }
-    return;
-  }
-  const sidebar = document.getElementById("sidebar");
-  const toggle = document.getElementById("sidebarToggle");
-  const hamburger = document.getElementById("hamburger");
-  const overlay = document.getElementById("mobileOverlay");
+// Uses event delegation on document so the hamburger, sidebar-collapse
+// toggle, mobile-overlay close, and data-close-menu links all continue to
+// work after the SPA shell rebuilds the sidebar/topbar on login. Safe to
+// call multiple times — the global listeners attach only once per page load.
+let _layoutDelegationDone = false;
+function _bindLayoutDelegation() {
+  if (_layoutDelegationDone) return;
+  _layoutDelegationDone = true;
 
-  if (toggle) toggle.addEventListener("click", () => document.body.classList.toggle("sidebar-collapsed"));
-  if (hamburger) hamburger.addEventListener("click", () => document.body.classList.add("mobile-menu-open"));
-  if (overlay) overlay.addEventListener("click", () => document.body.classList.remove("mobile-menu-open"));
-  document.querySelectorAll("[data-close-menu]").forEach(el => {
-    el.addEventListener("click", () => document.body.classList.remove("mobile-menu-open"));
+  // Hamburger → open mobile menu
+  document.addEventListener("click", (e) => {
+    const ham = e.target.closest("#hamburger");
+    if (ham) {
+      e.stopPropagation();
+      document.body.classList.add("mobile-menu-open");
+      return;
+    }
+    // Collapse toggle (desktop sidebar)
+    const collapser = e.target.closest("#sidebarToggle");
+    if (collapser) {
+      e.stopPropagation();
+      document.body.classList.toggle("sidebar-collapsed");
+      return;
+    }
+    // Click on overlay → close mobile menu
+    if (e.target && e.target.id === "mobileOverlay") {
+      document.body.classList.remove("mobile-menu-open");
+      return;
+    }
+    // Any link marked [data-close-menu] (e.g. sidebar nav items) → close mobile menu
+    const closer = e.target.closest("[data-close-menu]");
+    if (closer) {
+      document.body.classList.remove("mobile-menu-open");
+    }
   });
 
+  // Swipe-left on sidebar to close it (mobile nicety)
+  try {
+    let touchStartX = 0;
+    document.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    document.addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (touchStartX > 40 && dx < -60) {
+        document.body.classList.remove("mobile-menu-open");
+      }
+    }, { passive: true });
+  } catch (e) { /* ignore on browsers without touch */ }
+
+  // Esc closes dropdowns + mobile menu
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
+      document.body.classList.remove("mobile-menu-open");
+    }
+  });
+}
+
+function initLayout() {
+  // Wire user name / initials / permission-hidden tabs for whatever DOM is
+  // present right now (whether SPA shell or standalone page).
   initAuthUI();
-  initNotifications();
   applyPermissions();
+  // Attach global delegated listeners once — they keep working across SPA
+  // page swaps and across login/logout shell rebuilds.
+  _bindLayoutDelegation();
+  // Live notifications bell (safe to call; only runs if #notifMenu exists).
+  // Guard so we don't refetch on every SPA page swap.
+  if (!window.__notifsBound) {
+    initNotifications();
+    window.__notifsBound = true;
+  }
 }
 
 // ---------- Permission-based tabs ----------
