@@ -174,6 +174,9 @@ def list_rows(endpoint: str, limit: int = 500) -> Dict[str, Any]:
         try:
             resp = client.table(table).select("*").limit(limit).execute()
             items = resp.data or []
+            if endpoint == "users":
+                for item in items:
+                    item.pop("password_hash", None)
             return {"items": items, "total": len(items), "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
             log.warning("supabase read %s failed: %s → demo", endpoint, exc)

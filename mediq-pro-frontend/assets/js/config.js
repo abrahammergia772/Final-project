@@ -13,7 +13,7 @@ const CONFIG = {
   //   https://console.cloud.google.com/apis/library/youtube.googleapis.com
   // NOTE: this key is client-side, so restrict it in Google Cloud Console to
   // your domain/referrer (API & Services → Credentials → key → HTTP referrers).
-  YOUTUBE_API_KEY: "AIzaSyDOzuPwsTrqLKzcMSaZiuO93tJiOUDATkU",
+  YOUTUBE_API_KEY: "", // Set via a restricted deployment secret; never commit API keys.
 
   // Backend (FastAPI) — replace with your Render URL before deploy
   API_BASE_URL: "https://your-backend.onrender.com",
@@ -55,19 +55,19 @@ const CONFIG = {
     // Core data
     USERS:          "/users",
     PATIENTS:       "/patients",
-    DOCTORS:        "/doctors",
+    DOCTORS:        "/staff",
     DEPARTMENTS:    "/departments",
     STAFF:          "/staff",
     APPOINTMENTS:   "/appointments",
     PRESCRIPTIONS:  "/prescriptions",
     INVENTORY:      "/inventory",
-    LAB_REQUESTS:   "/lab-requests",
-    LAB_RESULTS:    "/lab-results",
+    LAB_REQUESTS:   "/lab_requests",
+    LAB_RESULTS:    "/lab_results",
     VITALS:         "/vitals",
     MEDICATIONS:    "/medications",
-    CARE_PLANS:     "/care-plans",
+    CARE_PLANS:     "/care_plans",
     BILLS:          "/bills",
-    AUDIT_LOGS:     "/audit-logs",
+    AUDIT_LOGS:     "/audit_logs",
     QUEUE:          "/queue",
 
     // Professional feature modules
@@ -76,7 +76,7 @@ const CONFIG = {
     REFERRALS:      "/referrals",
     OBSERVATIONS:   "/observations",
     SUPPLIERS:      "/suppliers",
-    PURCHASE_ORDERS:"/purchase-orders",
+    PURCHASE_ORDERS:"/purchase_orders",
     SAMPLES:        "/samples",
     INSURANCE:      "/insurance",
     MESSAGES:       "/messages",
@@ -86,7 +86,7 @@ const CONFIG = {
     SHIFTS:         "/shifts",
     ROSTER:         "/roster",
     ATTENDANCE:     "/attendance",
-    FINGERPRINT_DEVICES: "/fingerprint-devices",
+    FINGERPRINT_DEVICES: "/fingerprint_devices",
     DOCUMENTS:      "/documents",
     VIDEOS:         "/videos",
     VIDEO_SEARCH:   "/videos/search",

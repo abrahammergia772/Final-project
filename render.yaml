@@ -25,6 +25,6 @@ services:
       #   value: "appointment_rf=https://github.com/abrahammergia772/Final-project/releases/download/v1-models/rf_appointment.pkl"
       # --- CORS: allow your Netlify / Render frontend origin ---
       - key: CORS_ORIGINS
-        value: "*"
+        sync: false
       - key: SECRET_KEY
         sync: false

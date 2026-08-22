@@ -154,16 +154,21 @@ create table if not exists public.purchase_orders (
 -- =============================================================================
 -- Row Level Security
 -- =============================================================================
-alter table public.users enable row level security;
-alter table public.patients enable row level security;
-alter table public.appointments enable row level security;
-
--- Allow anonymous read for demo simplicity; tighten in production:
-create policy "anon read users" on public.users for select using (true);
-create policy "anon read patients" on public.patients for select using (true);
-create policy "anon read appointments" on public.appointments for select using (true);
-
--- Allow authenticated/service writes (adjust per role in production):
-create policy "service full access users" on public.users for all using (true) with check (true);
-create policy "service full access patients" on public.patients for all using (true) with check (true);
-create policy "service full access appointments" on public.appointments for all using (true) with check (true);
+-- The API uses a signed application token and connects with the Supabase
+-- service-role key. Do not use the anon key for server-side CRUD. There are
+-- intentionally no anonymous policies: service_role bypasses RLS, while direct
+-- browser access is denied. Add narrowly scoped auth.uid() policies only if
+-- Supabase Auth is adopted later.
+DO $$
+DECLARE t text;
+BEGIN
+  FOREACH t IN ARRAY ARRAY[
+    'users','patients','appointments','prescriptions','inventory',
+    'lab_requests','lab_results','medications','care_plans','bills',
+    'complaints','messages','announcements','shifts','roster','attendance',
+    'documents','audit_logs','insurance','samples','queue','departments',
+    'staff','observations','referrals','suppliers','purchase_orders'
+  ] LOOP
+    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+  END LOOP;
+END $$;

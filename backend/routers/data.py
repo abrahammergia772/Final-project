@@ -7,10 +7,11 @@
 #   PUT    /<resource>/{id}      → update
 #   DELETE /<resource>/{id}      → delete
 # =============================================================================
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from pydantic import BaseModel
 
 from db import list_rows, insert_row, update_row, delete_row
+from security import current_user
 
 router = APIRouter(tags=["Data"])
 
@@ -19,8 +20,9 @@ RESOURCES = [
     "lab_requests", "lab_results", "medications", "care_plans", "bills",
     "audit_logs", "queue", "announcements", "departments", "staff",
     "insurance", "samples", "documents", "complaints", "messages",
-    "messages/sent", "notifications", "shifts", "roster", "attendance",
+    "notifications", "shifts", "roster", "attendance",
     "observations", "referrals", "suppliers", "purchase_orders",
+    "fingerprint_devices", "videos",
 ]
 
 
@@ -30,8 +32,33 @@ class GenericBody(BaseModel):
         extra = "allow"
 
 
+ROLE_RESOURCES = {
+    "admin": set(RESOURCES),
+    "manager": set(RESOURCES) - {"users", "audit_logs"},
+    "doctor": {"patients", "appointments", "prescriptions", "lab_requests", "lab_results", "documents", "messages", "referrals", "care_plans", "attendance", "roster", "shifts"},
+    "nurse": {"patients", "medications", "care_plans", "lab_results", "documents", "messages", "observations", "attendance", "roster", "shifts"},
+    "pharmacist": {"patients", "prescriptions", "inventory", "suppliers", "purchase_orders", "documents", "messages", "attendance", "roster", "shifts"},
+    "laboratory": {"patients", "lab_requests", "lab_results", "samples", "documents", "messages", "attendance", "roster", "shifts"},
+    "reception": {"patients", "appointments", "queue", "insurance", "documents", "messages", "attendance", "roster", "shifts"},
+    "patient": {"patients", "appointments", "prescriptions", "lab_results", "medications", "care_plans", "bills", "complaints", "messages", "documents", "videos"},
+}
+
+
+def _authorize(resource: str, user):
+    if resource not in RESOURCES or resource not in ROLE_RESOURCES.get(user["role"], set()):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="You do not have access to this resource")
+
+
+@router.get("/messages/sent")
+def sent_messages(user=Depends(current_user)):
+    _authorize("messages", user)
+    return list_rows("messages")
+
+
 @router.get("/{resource}")
-def read_all(resource: str, limit: int = 500):
+def read_all(resource: str, limit: int = 500, user=Depends(current_user)):
+    _authorize(resource, user)
     if resource not in RESOURCES:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Unknown resource")
@@ -39,26 +66,20 @@ def read_all(resource: str, limit: int = 500):
 
 
 @router.post("/{resource}")
-async def create(resource: str, request: Request):
-    from fastapi import HTTPException
-    if resource not in RESOURCES:
-        raise HTTPException(status_code=404, detail="Unknown resource")
+async def create(resource: str, request: Request, user=Depends(current_user)):
+    _authorize(resource, user)
     body = await request.json()
     return insert_row(resource, body)
 
 
 @router.put("/{resource}/{row_id}")
-async def update(resource: str, row_id: str, request: Request):
-    from fastapi import HTTPException
-    if resource not in RESOURCES:
-        raise HTTPException(status_code=404, detail="Unknown resource")
+async def update(resource: str, row_id: str, request: Request, user=Depends(current_user)):
+    _authorize(resource, user)
     body = await request.json()
     return update_row(resource, row_id, body)
 
 
 @router.delete("/{resource}/{row_id}")
-def delete(resource: str, row_id: str):
-    from fastapi import HTTPException
-    if resource not in RESOURCES:
-        raise HTTPException(status_code=404, detail="Unknown resource")
+def delete(resource: str, row_id: str, user=Depends(current_user)):
+    _authorize(resource, user)
     return delete_row(resource, row_id)
