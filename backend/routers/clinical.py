@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
 
-from model_loader import load_module, load_config, module_loaded
+from model_loader import load_module, load_config, module_loaded, blend
 
 router = APIRouter(tags=["AI · Clinical"])
 
@@ -59,18 +59,17 @@ def predict_disease(req: DiseaseRequest):
         try:
             text = req.symptoms or ""
             X = tfidf.transform([text]).toarray()
-            probs = np.zeros(len(le.classes_))
             rf_w = float(cfg.get("rf_weight", 0.6))
             xgb_w = float(cfg.get("xgb_weight", 0.4))
-            if rf is not None:
-                p = rf.predict_proba(X)[0]
-                probs[: len(p)] += rf_w * p
-            if xgb is not None:
-                p = xgb.predict_proba(X)[0]
-                probs[: len(p)] += xgb_w * p
+            p_rf = rf.predict_proba(X)[0] if rf is not None else None
+            p_xgb = xgb.predict_proba(X)[0] if xgb is not None else None
+            probs = blend(p_rf, p_xgb, rf_w, xgb_w)
             predictions = _top3_from_probas(probs, le)
+            used = []
+            if rf is not None: used.append("rf")
+            if xgb is not None: used.append("xgb")
             return {"predictions": predictions,
-                    "model": cfg.get("model_name", "clinical_ensemble"),
+                    "model": cfg.get("model_name", "clinical_" + "+".join(used)),
                     "model_version": cfg.get("version", "1.0.0"),
                     "source": "trained-model"}
         except Exception as exc:  # noqa: BLE001

@@ -11,7 +11,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from model_loader import load_module, load_config
+from model_loader import load_module, load_config, blend
 
 router = APIRouter(tags=["AI · Vitals"])
 log = logging.getLogger("mediq.vitals")
@@ -93,15 +93,19 @@ def check_vitals(req: VitalsRequest):
             X = build_features(req, cfg)
             if scaler is not None:
                 X = scaler.transform(X)
-            probs = np.zeros(3)
             w = cfg.get("ensemble_weights", {})
-            if rf is not None:
-                p = rf.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("rf", 0.6)) * p
-            if xgb is not None:
-                p = xgb.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("xgb", 0.4)) * p
-            pred_label = LABELS.get(int(np.argmax(probs)), "Normal")
+            p_rf = rf.predict_proba(X)[0] if rf is not None else None
+            p_xgb = xgb.predict_proba(X)[0] if xgb is not None else None
+            probs = blend(p_rf, p_xgb,
+                          float(w.get("rf", 0.6)),
+                          float(w.get("xgb", 0.4)))
+            if probs is not None:
+                out = np.zeros(3)
+                out[: len(probs)] = probs[:3]
+                s = out.sum()
+                if s > 0:
+                    out = out / s
+                pred_label = LABELS.get(int(np.argmax(out)), "Normal")
         except Exception as exc:  # noqa: BLE001
             log.warning("vitals inference failed: %s → rules", exc)
 

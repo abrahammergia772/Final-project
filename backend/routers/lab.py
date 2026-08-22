@@ -10,7 +10,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from model_loader import load_module, load_config
+from model_loader import load_module, load_config, blend
 
 router = APIRouter(tags=["AI · Lab Analyzer"])
 log = logging.getLogger("mediq.lab")
@@ -68,20 +68,28 @@ def analyze_lab(req: LabRequest):
     scaler = models.get("lab_scaler.pkl")
 
     pred_idx = None
+    used_models = []
     if (rf is not None or xgb is not None) and cfg.get("features"):
         try:
             X = build_features(req.values, cfg)
             if scaler is not None:
                 X = scaler.transform(X)
-            probs = np.zeros(4)
             w = cfg.get("weights", {})
-            if rf is not None:
-                p = rf.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("rf", 0.5)) * p
-            if xgb is not None:
-                p = xgb.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("xgb", 0.5)) * p
-            pred_idx = int(np.argmax(probs))
+            p_rf = rf.predict_proba(X)[0] if rf is not None else None
+            p_xgb = xgb.predict_proba(X)[0] if xgb is not None else None
+            probs = blend(p_rf, p_xgb,
+                          float(w.get("rf", 0.5)),
+                          float(w.get("xgb", 0.5)))
+            # Pad/truncate to the expected 4-class output shape
+            if probs is not None:
+                out = np.zeros(4)
+                out[: len(probs)] = probs[:4]
+                s = out.sum()
+                if s > 0:
+                    out = out / s
+                pred_idx = int(np.argmax(out))
+            if rf is not None: used_models.append("rf")
+            if xgb is not None: used_models.append("xgb")
         except Exception as exc:  # noqa: BLE001
             log.warning("lab inference failed: %s → rules", exc)
 

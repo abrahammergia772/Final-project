@@ -1,8 +1,16 @@
-# Render Blueprint — MedIQ Pro backend
+# Render Blueprint — MedIQ Pro backend (memory-safe for free tier)
 # Import this file (Render → New → Blueprint) or configure a Web Service with:
 #   Root Directory : backend
 #   Build Command  : pip install -r requirements.txt
-#   Start Command  : uvicorn main:app --host 0.0.0.0 --port 10000
+#   Start Command  : uvicorn main:app --host 0.0.0.0 --port 10000 --workers 1 --limit-concurrency 20
+#
+# Free-tier (~512 MB) memory notes:
+#   * LAZY_LOAD=1  — modules are loaded on first request (not all at startup).
+#   * SKIP_RF_MODELS=1 — large RandomForest pickles are skipped; the API uses
+#     XGBoost models which are small and nearly as accurate.
+#   * --workers 1 — only one uvicorn worker (prevents duplicating all models
+#     across processes and tripling memory).
+# Override these on a paid plan: LAZY_LOAD=0 SKIP_RF_MODELS=0
 services:
   - type: web
     name: mediq-pro-backend
@@ -10,9 +18,21 @@ services:
     rootDir: backend
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000 --workers 1 --limit-concurrency 20 --timeout-keep-alive 30"
     healthCheckPath: /health
+    autoDeploy: true
     envVars:
+      # --- Memory-safe defaults for free tier ---
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONGC
+        value: "1"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: LAZY_LOAD
+        value: "1"
+      - key: SKIP_RF_MODELS
+        value: "1"
       # --- Supabase (create a project, copy URL + anon key) ---
       - key: SUPABASE_URL
         sync: false
@@ -20,11 +40,12 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
-      # --- Optional: fetch the >25 MB appointment RF model from a GitHub Release ---
-      # - key: MODEL_DOWNLOAD_URLS
-      #   value: "appointment_rf=https://github.com/abrahammergia772/Final-project/releases/download/v1-models/rf_appointment.pkl"
       # --- CORS: allow your Netlify / Render frontend origin ---
       - key: CORS_ORIGINS
         sync: false
       - key: SECRET_KEY
-        sync: false
+        generateValue: true
+      # --- Optional: fetch >25 MB RF model (only useful on a paid plan
+      #     with SKIP_RF_MODELS=0, since the free tier can't load it anyway) ---
+      # - key: MODEL_DOWNLOAD_URLS
+      #   value: "appointment_rf=https://github.com/abrahammergia772/Final-project/releases/download/v1-models/rf_appointment.pkl"

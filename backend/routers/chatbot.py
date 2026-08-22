@@ -13,7 +13,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from model_loader import load_module, load_config, MODELS_DIR
+from model_loader import load_module, load_config, blend, MODELS_DIR
 
 router = APIRouter(tags=["AI · Chatbot"])
 log = logging.getLogger("mediq.chatbot")
@@ -58,16 +58,18 @@ def symptom_chat(req: ChatRequest):
     if tfidf is not None and (rf is not None or xgb is not None) and le is not None:
         try:
             X = tfidf.transform([req.message]).toarray()
-            probs = np.zeros(len(le.classes_))
             w = cfg.get("ensemble", {})
-            if rf is not None:
-                p = rf.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("rf_weight", 0.6)) * p
-            if xgb is not None:
-                p = xgb.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("xgb_weight", 0.4)) * p
-            top = np.argsort(-probs)[:3]
-            conditions = [str(le.inverse_transform([int(i)])[0]).title() for i in top if probs[i] > 0.02]
+            p_rf = rf.predict_proba(X)[0] if rf is not None else None
+            p_xgb = xgb.predict_proba(X)[0] if xgb is not None else None
+            probs = blend(p_rf, p_xgb,
+                          float(w.get("rf_weight", 0.6)),
+                          float(w.get("xgb_weight", 0.4)))
+            n = len(le.classes_)
+            full = np.zeros(n)
+            if probs is not None:
+                full[: len(probs)] = probs[:n]
+            top = np.argsort(-full)[:3]
+            conditions = [str(le.inverse_transform([int(i)])[0]).title() for i in top if full[i] > 0.02]
             source = "trained-model"
         except Exception as exc:  # noqa: BLE001
             log.warning("chatbot inference failed: %s → keywords", exc)

@@ -9,7 +9,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from model_loader import load_module, load_config
+from model_loader import load_module, load_config, blend
 
 router = APIRouter(tags=["AI · Drug Interaction"])
 log = logging.getLogger("mediq.interaction")
@@ -65,6 +65,7 @@ def check_interaction(req: InteractionRequest):
 
     label, confidence = "Safe", None
     source = "rules"
+    used_models = []
     if tfidf is not None and (rf is not None or xgb is not None):
         try:
             text = f"{req.drug_a} {req.drug_b}"
@@ -72,17 +73,17 @@ def check_interaction(req: InteractionRequest):
             target = getattr(rf, "n_features_in_", None) or getattr(xgb, "n_features_in_", None) or X.shape[1]
             if X.shape[1] < target:
                 X = np.pad(X, ((0, 0), (0, target - X.shape[1])))
-            probs = np.zeros(3)
             w = cfg.get("ensemble_weights", {})
-            if rf is not None:
-                p = rf.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("random_forest", 0.5)) * p
-            if xgb is not None:
-                p = xgb.predict_proba(X)[0]
-                probs[: len(p)] += float(w.get("xgboost", 0.5)) * p
+            p_rf = rf.predict_proba(X)[0] if rf is not None else None
+            p_xgb = xgb.predict_proba(X)[0] if xgb is not None else None
+            probs = blend(p_rf, p_xgb,
+                          float(w.get("random_forest", 0.5)),
+                          float(w.get("xgboost", 0.5)))
             idx = int(np.argmax(probs))
             label = CLASS_MAP.get(str(idx), "Safe")
             confidence = round(float(probs[idx]) * 100, 1)
+            if rf is not None: used_models.append("rf")
+            if xgb is not None: used_models.append("xgb")
             source = "trained-model"
         except Exception as exc:  # noqa: BLE001
             log.warning("drug interaction inference failed: %s → rules", exc)
