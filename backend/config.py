@@ -16,7 +16,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
 
 # --- CORS ------------------------------------------------------------------
-CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:8000").split(",") if o.strip()]
 
 # --- Model download (for .pkl files >25 MB that GitHub rejects) ------------
 # e.g. MODEL_DOWNLOAD_URLS = 'appointment_rf=https://github.com/you/repo/releases/download/v1/rf_appointment.pkl'

@@ -22,10 +22,10 @@ Render → **New → Blueprint** → select your repo. It reads `render.yaml`
 ```
 SUPABASE_URL=…          (from Supabase project settings → API)
 SUPABASE_KEY=…          (anon public key)
-SUPABASE_SERVICE_KEY=…  (service_role key — recommended for server writes)
+SUPABASE_SERVICE_KEY=…  (service_role key — required for server-side CRUD; never expose it)
 MODEL_DOWNLOAD_URLS=…   (only needed for the >25 MB appointment model — see below)
-SECRET_KEY=…
-CORS_ORIGINS=*          (or your frontend URL, e.g. https://wsh-cpug.netlify.app)
+SECRET_KEY=…            (long random value; required in production)
+CORS_ORIGINS=https://your-frontend.example (exact comma-separated origins; never use *)
 ```
 
 ## 🗄️ Set up Supabase (5 minutes)

@@ -10,11 +10,12 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS, MODEL_DOWNLOAD_URLS
 import model_loader
+from security import current_user
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -62,11 +63,14 @@ def health():
 
 # ---- routers ----
 app.include_router(auth.router)
-app.include_router(clinical.router)
-app.include_router(interaction.router)
-app.include_router(lab.router)
-app.include_router(vitals.router)
-app.include_router(inventory.router)
-app.include_router(appointment.router)
-app.include_router(chatbot.router)
+# All data and AI routes require a signed application token. Auth routes above
+# remain public so users can sign in or request registration/reset.
+protected = {"dependencies": [Depends(current_user)]}
+app.include_router(clinical.router, **protected)
+app.include_router(interaction.router, **protected)
+app.include_router(lab.router, **protected)
+app.include_router(vitals.router, **protected)
+app.include_router(inventory.router, **protected)
+app.include_router(appointment.router, **protected)
+app.include_router(chatbot.router, **protected)
 app.include_router(data.router)
