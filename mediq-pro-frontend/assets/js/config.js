@@ -16,16 +16,21 @@ const CONFIG = {
   YOUTUBE_API_KEY: "", // Set via a restricted deployment secret; never commit API keys.
 
   // Backend (FastAPI) — replace with your Render URL before deploy
-  API_BASE_URL: "https://your-backend.onrender.com",
+  API_BASE_URL: (function() {
+    // Allow override via ?api=... URL param or localStorage for local dev
+    var urlParams = new URLSearchParams(window.location.search);
+    var override = urlParams.get('api') || localStorage.getItem('mediq_api_base');
+    return override || "https://final-project-bo4l.onrender.com";
+  })(),
 
   // Supabase (PostgreSQL) — replace with your project values before deploy
-  SUPABASE_URL: "https://your-project.supabase.co",
-  SUPABASE_KEY: "your-anon-key-here",
+  SUPABASE_URL: "",
+  SUPABASE_KEY: "",
 
   // DEMO_MODE = true → the app runs with realistic mock data so the whole
   // frontend is fully testable BEFORE the FastAPI backend + .pkl models are ready.
   // Set to false once your backend is live.
-  DEMO_MODE: true,
+  DEMO_MODE: false,
 
   // Demo accounts used when DEMO_MODE is true (also reachable from the login page)
   DEMO_ACCOUNTS: {

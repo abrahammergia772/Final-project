@@ -21,7 +21,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import CORS_ORIGINS, MODEL_DOWNLOAD_URLS, LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY
+from config import CORS_ORIGINS, CORS_ALLOW_ALL, MODEL_DOWNLOAD_URLS, LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY
 import model_loader
 from security import current_user
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data
@@ -68,7 +68,7 @@ app = FastAPI(title="MedIQ Pro API", version="2.0.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=["*"] if CORS_ALLOW_ALL else CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -35,12 +35,12 @@ class GenericBody(BaseModel):
 ROLE_RESOURCES = {
     "admin": set(RESOURCES),
     "manager": set(RESOURCES) - {"users", "audit_logs"},
-    "doctor": {"patients", "appointments", "prescriptions", "lab_requests", "lab_results", "documents", "messages", "referrals", "care_plans", "attendance", "roster", "shifts"},
-    "nurse": {"patients", "medications", "care_plans", "lab_results", "documents", "messages", "observations", "attendance", "roster", "shifts"},
-    "pharmacist": {"patients", "prescriptions", "inventory", "suppliers", "purchase_orders", "documents", "messages", "attendance", "roster", "shifts"},
-    "laboratory": {"patients", "lab_requests", "lab_results", "samples", "documents", "messages", "attendance", "roster", "shifts"},
-    "reception": {"patients", "appointments", "queue", "insurance", "documents", "messages", "attendance", "roster", "shifts"},
-    "patient": {"patients", "appointments", "prescriptions", "lab_results", "medications", "care_plans", "bills", "complaints", "messages", "documents", "videos"},
+    "doctor": set(RESOURCES) - {"users", "audit_logs", "suppliers", "purchase_orders", "fingerprint_devices"},
+    "nurse": set(RESOURCES) - {"users", "audit_logs", "suppliers", "purchase_orders", "fingerprint_devices"},
+    "pharmacist": set(RESOURCES) - {"users", "audit_logs", "fingerprint_devices"},
+    "laboratory": set(RESOURCES) - {"users", "audit_logs", "suppliers", "purchase_orders", "inventory", "fingerprint_devices"},
+    "reception": set(RESOURCES) - {"users", "audit_logs", "suppliers", "purchase_orders", "fingerprint_devices"},
+    "patient": {"patients", "appointments", "prescriptions", "lab_results", "medications", "care_plans", "bills", "complaints", "messages", "documents", "videos", "announcements"},
 }
 
 

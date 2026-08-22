@@ -61,7 +61,16 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
 
 # --- CORS ------------------------------------------------------------------
-CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:8000").split(",") if o.strip()]
+# Default list covers: localhost dev, any Render static site (onrender.com),
+# Netlify, Vercel, GitHub Pages, and a custom comma-separated override via env.
+_default_cors = (
+    "http://localhost:8000,http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500,"
+    "http://127.0.0.1:8000,https://*.onrender.com,https://*.netlify.app,"
+    "https://*.vercel.app,https://*.github.io"
+)
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", _default_cors).split(",") if o.strip()]
+# Render free-tier / preview: allow wildcard origin in dev by inspecting env
+CORS_ALLOW_ALL = _env_bool("CORS_ALLOW_ALL", True)  # safe: auth uses bearer tokens, no cookies
 
 # --- Model download (for .pkl files >25 MB that GitHub rejects) ------------
 # e.g. MODEL_DOWNLOAD_URLS = 'appointment_rf=https://github.com/you/repo/releases/download/v1/rf_appointment.pkl'
