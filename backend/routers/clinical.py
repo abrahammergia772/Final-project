@@ -7,10 +7,10 @@ import logging
 
 import numpy as np
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional
 
-from model_loader import load_module, load_config, module_loaded
+from model_loader import load_module, load_config
 
 router = APIRouter(tags=["AI · Clinical"])
 
@@ -18,7 +18,7 @@ log = logging.getLogger("mediq.clinical")
 
 
 class DiseaseRequest(BaseModel):
-    symptoms: str = ""
+    symptoms: str = Field(default="", max_length=2000)
     vitals: Optional[Dict[str, Any]] = None
     history: Optional[List[str]] = None
 
@@ -47,6 +47,11 @@ def _top3_from_probas(probas: np.ndarray, label_encoder) -> List[dict]:
 
 @router.post("/ai/predict-disease")
 def predict_disease(req: DiseaseRequest):
+    symptoms = req.symptoms.strip()
+    if len(symptoms) < 3:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail="Describe at least one symptom")
+
     models = load_module("clinical")
     cfg = load_config("clinical", "model_config.json") or {}
 
@@ -57,8 +62,7 @@ def predict_disease(req: DiseaseRequest):
 
     if tfidf is not None and (rf is not None or xgb is not None) and le is not None:
         try:
-            text = req.symptoms or ""
-            X = tfidf.transform([text]).toarray()
+            X = tfidf.transform([symptoms]).toarray()
             probs = np.zeros(len(le.classes_))
             rf_w = float(cfg.get("rf_weight", 0.6))
             xgb_w = float(cfg.get("xgb_weight", 0.4))
@@ -72,12 +76,13 @@ def predict_disease(req: DiseaseRequest):
             return {"predictions": predictions,
                     "model": cfg.get("model_name", "clinical_ensemble"),
                     "model_version": cfg.get("version", "1.0.0"),
-                    "source": "trained-model"}
+                    "source": "trained-model",
+                    "disclaimer": "AI suggestions only; a qualified clinician must confirm the diagnosis."}
         except Exception as exc:  # noqa: BLE001
             log.warning("clinical model inference failed: %s → rules", exc)
 
     # ---- fallback rules (same shape the frontend expects) ----
-    syms = (req.symptoms or "").lower()
+    syms = symptoms.lower()
     preds = [
         {"disease": "Malaria", "confidence": 82, "description": "Common in the region — fever, chills and headache. Confirm with blood film / RDT.", "urgency": "See doctor"},
         {"disease": "Typhoid Fever", "confidence": 61, "description": "Prolonged fever with abdominal discomfort. Widal test and blood culture recommended.", "urgency": "See doctor"},
@@ -87,4 +92,5 @@ def predict_disease(req: DiseaseRequest):
         preds.insert(0, {"disease": "Upper Respiratory Infection", "confidence": 74, "description": "Cough, sore throat and mild fever. Usually viral and self-limiting.", "urgency": "Self-care"})
     if "chest" in syms or "breath" in syms:
         preds.insert(0, {"disease": "Pneumonia (suspected)", "confidence": 79, "description": "Fever with productive cough and breathing difficulty. Chest X-ray advised.", "urgency": "See doctor"})
-    return {"predictions": preds[:3], "model": "rule-based", "model_version": "1.0.0", "source": "rules"}
+    return {"predictions": preds[:3], "model": "rule-based", "model_version": "1.0.0", "source": "rules",
+            "disclaimer": "AI suggestions only; a qualified clinician must confirm the diagnosis."}

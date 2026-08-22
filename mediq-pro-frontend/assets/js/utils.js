@@ -40,8 +40,14 @@ function showToast(message, type = "info", duration = 4000) {
   if (!container) {
     container = document.createElement("div");
     container.id = "toastContainer";
+    container.setAttribute("role", "status");
+    container.setAttribute("aria-live", "polite");
+    container.setAttribute("aria-atomic", "true");
     document.body.appendChild(container);
   }
+  container.setAttribute("role", "status");
+  container.setAttribute("aria-live", "polite");
+  container.setAttribute("aria-atomic", "true");
   const icons = {
     success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>',
     error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
@@ -79,10 +85,12 @@ function hideLoading() {
 function confirmDialog(message, { title = "Confirm Action", confirmText = "Delete", danger = true } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
+    const titleId = "confirm-title-" + Math.random().toString(36).slice(2);
     overlay.className = "modal-overlay";
+    overlay.setAttribute("role", "presentation");
     overlay.innerHTML = `
-      <div class="modal sm">
-        <div class="modal-header"><h3>${escapeHtml(title)}</h3></div>
+      <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
+        <div class="modal-header"><h3 id="${titleId}">${escapeHtml(title)}</h3></div>
         <div class="modal-body"><p style="color:#374151">${escapeHtml(message)}</p></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-cancel>Cancel</button>
@@ -90,20 +98,25 @@ function confirmDialog(message, { title = "Confirm Action", confirmText = "Delet
         </div>
       </div>`;
     document.body.appendChild(overlay);
-    overlay.querySelector("[data-cancel]").onclick = () => { overlay.remove(); resolve(false); };
-    overlay.querySelector("[data-ok]").onclick = () => { overlay.remove(); resolve(true); };
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+    const dismiss = (value) => { overlay.remove(); document.removeEventListener("keydown", onKeyDown); resolve(value); };
+    const onKeyDown = (event) => { if (event.key === "Escape") dismiss(false); };
+    overlay.querySelector("[data-cancel]").onclick = () => dismiss(false);
+    overlay.querySelector("[data-ok]").onclick = () => dismiss(true);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) dismiss(false); });
+    document.addEventListener("keydown", onKeyDown);
   });
 }
 
 // ---------- Generic modal helper ----------
 function openModal(html, { size = "", onMount = null } = {}) {
   const overlay = document.createElement("div");
+  const titleId = "modal-title-" + Math.random().toString(36).slice(2);
   overlay.className = "modal-overlay";
+  overlay.setAttribute("role", "presentation");
   overlay.innerHTML = `
-    <div class="modal ${size}">
+    <div class="modal ${size}" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
       <div class="modal-header">
-        <h3></h3>
+        <h3 id="${titleId}"></h3>
         <button class="btn-icon" data-close title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
       <div class="modal-body">${html.body || ""}</div>
@@ -111,8 +124,11 @@ function openModal(html, { size = "", onMount = null } = {}) {
     </div>`;
   overlay.querySelector(".modal-header h3").textContent = html.title || "";
   document.body.appendChild(overlay);
-  overlay.querySelector("[data-close]").onclick = () => overlay.remove();
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+  const dismiss = () => { overlay.remove(); document.removeEventListener("keydown", onKeyDown); };
+  const onKeyDown = (event) => { if (event.key === "Escape") dismiss(); };
+  overlay.querySelector("[data-close]").onclick = dismiss;
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) dismiss(); });
+  document.addEventListener("keydown", onKeyDown);
   if (onMount) onMount(overlay);
   return overlay;
 }
@@ -138,7 +154,7 @@ function badge(text, kind = "neutral") {
 
 function emptyRow(colspan, msg) {
   return '<tr class="empty-row"><td colspan="' + colspan + '" style="text-align:center;color:#6B7280;padding:32px">' +
-         (msg || "No records found.") + "</td></tr>";
+         esc(msg || "No records found.") + "</td></tr>";
 }
 
 // ---------- Debounce ----------
@@ -204,7 +220,7 @@ function barChart(data, { height = 240, color = "#1A56DB", valueFmt = (v) => v }
     const y = padT + plotH - h;
     bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="5" fill="${Array.isArray(color) ? color[i % color.length] : color}" opacity="0.92"/>`;
     bars += `<text x="${x + barW / 2}" y="${y - 5}" font-size="10" fill="#374151" text-anchor="middle" font-weight="600">${valueFmt(d.value)}</text>`;
-    labels += `<text x="${x + barW / 2}" y="${innerH - 10}" font-size="10" fill="#6B7280" text-anchor="middle">${d.label}</text>`;
+    labels += `<text x="${x + barW / 2}" y="${innerH - 10}" font-size="10" fill="#6B7280" text-anchor="middle">${escapeHtml(d.label)}</text>`;
   });
   return chartSvg(innerW, innerH, grid + bars + labels);
 }
@@ -233,7 +249,7 @@ function lineChart(data, { height = 240, color = "#1A56DB", area = true, valueFm
   const dots = showPoints ? data.map((d, i) => `<circle cx="${X(i)}" cy="${Y(d.value)}" r="3.4" fill="#fff" stroke="${color}" stroke-width="2"/>`).join("") : "";
   const labels = data.map((d, i) => {
     if (data.length > 12 && i % Math.ceil(data.length / 8) !== 0) return "";
-    return `<text x="${X(i)}" y="${innerH - 10}" font-size="10" fill="#6B7280" text-anchor="middle">${d.label}</text>`;
+    return `<text x="${X(i)}" y="${innerH - 10}" font-size="10" fill="#6B7280" text-anchor="middle">${escapeHtml(d.label)}</text>`;
   }).join("");
   return chartSvg(innerW, innerH, grid + fill + poly + dots + labels);
 }
@@ -503,6 +519,7 @@ function renderNotifItems(menu, items) {
 
 // ---------- Notification detail popup ----------
 function openNotificationDetail(n) {
+  const relatedLink = n.link ? (inRoleFolder() ? "../" + n.link : n.link) : "";
   openModal({
     title: n.title,
     body: `<div class="detail-list">
@@ -513,7 +530,7 @@ function openNotificationDetail(n) {
     <div class="alert alert-info mt-4 mb-0"><span>${ICONS[n.icon]}</span>
       <div class="alert-body"><strong>${esc(n.title)}</strong><div class="mt-2" style="font-size:13px;color:#374151">${esc(n.detail || n.sub || "")}</div></div>
     </div>
-    ${n.link ? `<div class="form-actions mt-4"><a class="btn btn-primary" href="${esc(n.link)}">${ICONS.eye} Open related page</a></div>` : ""}`,
+    ${relatedLink ? `<div class="form-actions mt-4"><a class="btn btn-primary" href="${esc(relatedLink)}">${ICONS.eye} Open related page</a></div>` : ""}`,
     size: "lg"
   });
 }

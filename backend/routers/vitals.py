@@ -8,8 +8,9 @@ import logging
 from typing import Optional
 
 import numpy as np
+import pandas as pd
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from model_loader import load_module, load_config
 
@@ -18,13 +19,21 @@ log = logging.getLogger("mediq.vitals")
 
 
 class VitalsRequest(BaseModel):
-    hr: Optional[float] = None
-    sys: Optional[float] = None
-    dia: Optional[float] = None
-    temp: Optional[float] = None
-    spo2: Optional[float] = None
-    rr: Optional[float] = None
-    age: Optional[float] = 40
+    hr: Optional[float] = Field(default=None, ge=0, le=300)
+    sys: Optional[float] = Field(default=None, ge=0, le=350)
+    dia: Optional[float] = Field(default=None, ge=0, le=250)
+    temp: Optional[float] = Field(default=None, ge=20, le=50)
+    spo2: Optional[float] = Field(default=None, ge=0, le=100)
+    rr: Optional[float] = Field(default=None, ge=0, le=100)
+    age: Optional[float] = Field(default=40, ge=0, le=130)
+
+    @model_validator(mode="after")
+    def validate_blood_pressure_pair(self):
+        if (self.sys is None) != (self.dia is None):
+            raise ValueError("Systolic and diastolic blood pressure are required together")
+        if self.sys is not None and self.dia is not None and self.dia >= self.sys:
+            raise ValueError("Diastolic pressure must be lower than systolic pressure")
+        return self
 
 
 LABELS = {0: "Normal", 1: "Warning", 2: "Critical"}
@@ -57,13 +66,13 @@ def build_features(req: VitalsRequest, cfg: dict) -> np.ndarray:
         v = f[key]
         f[f"{key}_norm_dev"] = (v - (mn + mx) / 2) / max((mx - mn) / 2, 1e-9)
         f[f"{key}_out_of_range"] = 0 if mn <= v <= mx else 1
-    vals = [f["heart_rate"], f["bp_systolic"], f["bp_diastolic"], f["spo2"], f["temperature"], f["respiratory_rate"]]
     f["n_vitals_out_of_range"] = sum(f[f"{k}_out_of_range"] for k in
                                      ["heart_rate", "bp_systolic", "bp_diastolic", "spo2", "temperature", "respiratory_rate"])
     f["map"] = (sys + 2 * dia) / 3.0
     f["map_low"] = 1 if f["map"] < 70 else 0
     f["pulse_pressure"] = sys - dia
     f["shock_index"] = hr / max(sys, 1)
+    f["age_risk"] = 1 if age >= 65 else (0.5 if age < 5 else 0)
     # simple EWS approximation (0-6)
     ews = 0
     ews += 3 if hr > 110 or hr < 50 else (1 if hr > 100 else 0)
@@ -90,7 +99,7 @@ def check_vitals(req: VitalsRequest):
     pred_label = None
     if (rf is not None or xgb is not None) and cfg.get("feature_cols"):
         try:
-            X = build_features(req, cfg)
+            X = pd.DataFrame(build_features(req, cfg), columns=cfg["feature_cols"])
             if scaler is not None:
                 X = scaler.transform(X)
             probs = np.zeros(3)
@@ -115,7 +124,7 @@ def check_vitals(req: VitalsRequest):
         ("Respiratory Rate", req.rr, (12, 20), "/min", 28, 8),
     ]
     for name, val, rng, unit, crit_hi, crit_lo in checks:
-        if val is None:
+        if val is None or (name == "Blood Pressure" and (val[0] is None or val[1] is None)):
             continue
         if isinstance(rng, tuple) and isinstance(rng[0], tuple):  # BP special
             sys_v, dia_v = val
@@ -154,4 +163,5 @@ def check_vitals(req: VitalsRequest):
 
     return {"level": level, "flags": flags, "actions": actions,
             "model": "vitals_ensemble", "model_version": cfg.get("version", "1.0.0"),
-            "source": "trained-model" if pred_label else "rules"}
+            "source": "trained-model" if pred_label else "rules",
+            "disclaimer": "Follow local clinical escalation protocols; this alert is decision support only."}

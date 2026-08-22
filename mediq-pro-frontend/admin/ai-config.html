@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="/assets/css/sidebar.css" />
 <link rel="stylesheet" href="/assets/css/components.css" />
 <link rel="stylesheet" href="/assets/css/dashboard.css" />
+<link rel="stylesheet" href="/assets/css/accessibility.css" />
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
@@ -161,7 +162,7 @@ function renderModules() {
           <div class="flex" style="gap:10px"><input type="range" min="0" max="100" value="${m.conf}" data-conf="${m.id}">
           <span class="range-label" id="conf-${m.id}">${m.conf}%</span></div></div>
         <div class="form-group"><label>Model Version</label><input class="form-control" value="${m.model}" disabled style="background:#F9FAFB"></div>
-        ${m.hasKey ? '<div class="form-group"><label>Claude API Key</label><input class="form-control" type="password" value="sk-ant-••••••••••••••••" placeholder="sk-ant-…"></div>' : '<div class="form-group"><label>Usage</label><input class="form-control" value="~' + (120 + i*37) + ' calls / day" disabled style="background:#F9FAFB"></div>'}
+        ${m.hasKey ? '<div class="form-group"><label>Claude API Key</label><input class="form-control" type="password" value="••••••••••••••••" placeholder="Enter a provider key"></div>' : '<div class="form-group"><label>Usage</label><input class="form-control" value="~' + (120 + i*37) + ' calls / day" disabled style="background:#F9FAFB"></div>'}
         <div class="form-group"><button class="btn btn-outline" data-test="${m.id}">${ICONS.zap} Test Module</button></div>
       </div>
     </section>`).join("");

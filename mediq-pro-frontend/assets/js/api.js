@@ -8,7 +8,8 @@
 
 // ---------- Core fetch wrapper ----------
 async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
-  const headers = { "Content-Type": "application/json" };
+  const headers = { Accept: "application/json" };
+  if (body !== null && body !== undefined) headers["Content-Type"] = "application/json";
   const session = getSession();
   if (!opts.skipAuth && session && session.token) {
     headers["Authorization"] = "Bearer " + session.token;
@@ -19,11 +20,17 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
     return mockResponse(endpoint, method, body);
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), CONFIG.API_TIMEOUT_MS);
+  const signal = opts.signal && window.AbortSignal && AbortSignal.any
+    ? AbortSignal.any([controller.signal, opts.signal])
+    : controller.signal;
   try {
     const res = await fetch(CONFIG.API_BASE_URL + endpoint, {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined
+      body: body === null || body === undefined ? undefined : JSON.stringify(body),
+      signal
     });
     if (res.status === 401) {
       showToast("Your session has expired. Please log in again.", "warning");
@@ -35,31 +42,48 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
       }
       return { ok: false, status: 401, error: "Unauthorized" };
     }
-    if (res.status === 500) {
-      showToast("Server error. Please try again.", "error");
-      return { ok: false, status: 500, error: "Server error" };
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("json")
+      ? await res.json().catch(() => ({}))
+      : { detail: await res.text().catch(() => "") };
+    if (!res.ok) {
+      const detail = Array.isArray(data.detail)
+        ? data.detail.map(item => item.msg || "Invalid request").join("; ")
+        : data.detail;
+      const message = detail || data.message || `Request failed (${res.status})`;
+      if (res.status >= 500) showToast("Server error — please try again.", "error");
+      else if (res.status === 429) showToast("Too many requests — please wait a moment.", "warning");
+      return { ok: false, status: res.status, error: message };
     }
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) return { ok: false, status: res.status, error: data.detail || "Request failed" };
     return { ok: true, data };
   } catch (err) {
+    if (err && err.name === "AbortError") {
+      showToast("The server took too long to respond.", "warning");
+      return { ok: false, error: "Request timed out" };
+    }
     showToast("Network error — cannot reach the server.", "error");
     return { ok: false, error: "Network error" };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
-// Standard AI call pattern with loading state
+// Standard AI call pattern with a reference-counted loading state so parallel
+// requests cannot hide the overlay while another request is still running.
+let activeApiRequests = 0;
 async function callAI(endpoint, payload, onSuccess) {
+  activeApiRequests += 1;
   showLoading();
   try {
-    await delay(700); // slight delay so the loading state is visible
+    await delay(350); // keep the loading state visible without slowing the UI
     const result = await apiFetch(endpoint, "POST", payload);
     if (result.ok) onSuccess(result.data);
     else showToast(result.error || "AI service unavailable. Please try again.", "error");
   } catch (err) {
     showToast("AI service unavailable. Please try again.", "error");
   } finally {
-    hideLoading();
+    activeApiRequests = Math.max(0, activeApiRequests - 1);
+    if (!activeApiRequests) hideLoading();
   }
 }
 

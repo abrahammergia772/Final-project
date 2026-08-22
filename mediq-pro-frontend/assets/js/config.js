@@ -3,9 +3,21 @@
    API base URL, Supabase keys, app settings, demo mode
    ============================================================ */
 
+// Optional deployment-time override. A host may define
+// window.MEDIQ_RUNTIME_CONFIG before loading this file.
+const MEDIQ_RUNTIME_CONFIG = window.MEDIQ_RUNTIME_CONFIG || {};
+const runtimeBoolean = (value, fallback) => {
+  if (value === undefined || value === null || value === "") return fallback;
+  return value === true || value === 1 || String(value).toLowerCase() === "true";
+};
+const runtimeNumber = (value, fallback, min, max) => {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= min && number <= max ? number : fallback;
+};
+
 const CONFIG = {
   APP_NAME: "MedIQ Pro",
-  VERSION: "1.0.0",
+  VERSION: "2.1.0",
 
   // Optional free YouTube Data API v3 key (Google). If left empty, the Health
   // Videos feature uses the built-in curated library + targeted YouTube search
@@ -13,19 +25,16 @@ const CONFIG = {
   //   https://console.cloud.google.com/apis/library/youtube.googleapis.com
   // NOTE: this key is client-side, so restrict it in Google Cloud Console to
   // your domain/referrer (API & Services → Credentials → key → HTTP referrers).
-  YOUTUBE_API_KEY: "", // Set via a restricted deployment secret; never commit API keys.
+  YOUTUBE_API_KEY: String(MEDIQ_RUNTIME_CONFIG.YOUTUBE_API_KEY || ""), // Use a referrer-restricted key; never commit secrets.
 
-  // Backend (FastAPI) — replace with your Render URL before deploy
-  API_BASE_URL: "https://your-backend.onrender.com",
+  // Backend (FastAPI). Leave empty to use a same-origin /api gateway, or
+  // provide a full HTTPS URL through the runtime override before deployment.
+  API_BASE_URL: String(MEDIQ_RUNTIME_CONFIG.API_BASE_URL || "").replace(/\/+$/, ""),
+  API_TIMEOUT_MS: runtimeNumber(MEDIQ_RUNTIME_CONFIG.API_TIMEOUT_MS, 15000, 1000, 120000),
 
-  // Supabase (PostgreSQL) — replace with your project values before deploy
-  SUPABASE_URL: "https://your-project.supabase.co",
-  SUPABASE_KEY: "your-anon-key-here",
-
-  // DEMO_MODE = true → the app runs with realistic mock data so the whole
-  // frontend is fully testable BEFORE the FastAPI backend + .pkl models are ready.
-  // Set to false once your backend is live.
-  DEMO_MODE: true,
+  // DEMO_MODE = true → the app runs with realistic mock data. Set it to false
+  // only when the backend is reachable and has been configured.
+  DEMO_MODE: runtimeBoolean(MEDIQ_RUNTIME_CONFIG.DEMO_MODE, true),
 
   // Demo accounts used when DEMO_MODE is true (also reachable from the login page)
   DEMO_ACCOUNTS: {

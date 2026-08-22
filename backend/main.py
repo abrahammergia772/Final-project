@@ -1,76 +1,92 @@
-# =============================================================================
-# MedIQ Pro — backend/main.py
-# FastAPI application — all 7 AI modules + auth + Supabase-backed data CRUD.
-#
-# Run locally:   uvicorn main:app --reload --port 8000
-# Deploy:        Render  →  Root Directory: backend
-#                Build:   pip install -r requirements.txt
-#                Start:   uvicorn main:app --host 0.0.0.0 --port 10000
-# =============================================================================
+"""MedIQ Pro FastAPI application entry point."""
+from __future__ import annotations
+
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
-from config import CORS_ORIGINS, MODEL_DOWNLOAD_URLS
+from config import CORS_ORIGINS, MODEL_DOWNLOAD_URLS, public_config
 import model_loader
 from security import current_user
-from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data
+from routers import appointment, auth, chatbot, clinical, data, interaction, inventory, lab, vitals
+
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("mediq")
+MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "symptom"]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 1) try to fetch any missing >25 MB model files (appointment RF)
+    """Download optional model assets and load models once per worker."""
     if MODEL_DOWNLOAD_URLS:
         import download_models
+
         try:
             download_models.main()
         except Exception as exc:  # noqa: BLE001
-            log.warning("model download step skipped: %s", exc)
-    # 2) load all trained models (missing files → graceful fallback)
+            # A missing optional model must not take down the whole API.
+            log.warning("Optional model download skipped: %s", exc)
     model_loader.load_all()
-    log.info("MedIQ Pro API ready.")
+    log.info("MedIQ Pro API ready")
     yield
 
 
-app = FastAPI(title="MedIQ Pro API", version="2.0.0", lifespan=lifespan)
+app = FastAPI(
+    title="MedIQ Pro API",
+    version="2.1.0",
+    description="Authenticated AI-assisted hospital management services.",
+    lifespan=lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
-# ---- health ----
-@app.get("/")
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """Add browser hardening headers without affecting the JSON API contract."""
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "same-origin")
+    response.headers.setdefault("Cache-Control", "no-store")
+    return response
+
+
+def _model_status() -> dict[str, bool]:
+    return {module: model_loader.module_loaded(module) for module in MODULES}
+
+
+@app.get("/", tags=["System"])
 def root():
-    return {"status": "ok", "service": "MedIQ Pro API", "version": "2.0.0",
-            "models": {m: model_loader.module_loaded(m) for m in [
-                "clinical", "drug", "lab", "vitals", "inventory", "appointment", "symptom"]}}
+    return {"status": "ok", "service": "MedIQ Pro API", "version": app.version, "models": _model_status()}
 
 
-@app.get("/health")
+@app.get("/health", tags=["System"])
 def health():
-    return {"status": "ok", "models": {m: model_loader.module_loaded(m) for m in [
-        "clinical", "drug", "lab", "vitals", "inventory", "appointment", "symptom"]}}
+    """Render health check; returns diagnostics without exposing secrets."""
+    return {
+        "status": "ok",
+        "models": _model_status(),
+        "configuration": public_config(),
+    }
 
 
-# ---- routers ----
+# Auth remains public so users can sign in, register, and request a reset code.
 app.include_router(auth.router)
-# All data and AI routes require a signed application token. Auth routes above
-# remain public so users can sign in or request registration/reset.
+
+# Every AI route requires a signed application token.
 protected = {"dependencies": [Depends(current_user)]}
-app.include_router(clinical.router, **protected)
-app.include_router(interaction.router, **protected)
-app.include_router(lab.router, **protected)
-app.include_router(vitals.router, **protected)
-app.include_router(inventory.router, **protected)
-app.include_router(appointment.router, **protected)
-app.include_router(chatbot.router, **protected)
+for router in (clinical.router, interaction.router, lab.router, vitals.router,
+               inventory.router, appointment.router, chatbot.router):
+    app.include_router(router, **protected)
+
+# Data routes apply their own resource and operation authorization checks.
 app.include_router(data.router)

@@ -11,7 +11,7 @@ from typing import Optional
 
 import numpy as np
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from model_loader import load_module, load_config, MODELS_DIR
 
@@ -20,8 +20,8 @@ log = logging.getLogger("mediq.chatbot")
 
 
 class ChatRequest(BaseModel):
-    message: str
-    session_id: str = ""
+    message: str = Field(min_length=3, max_length=2000)
+    session_id: str = Field(default="", max_length=100)
 
 
 URGENCY_KEYWORDS = {
@@ -35,7 +35,8 @@ def _load_json(rel: str):
     p = Path(MODELS_DIR) / rel
     if p.is_file():
         try:
-            return json.load(open(p, encoding="utf-8"))
+            with open(p, encoding="utf-8") as handle:
+                return json.load(handle)
         except Exception:  # noqa: BLE001
             return None
     return None
@@ -43,6 +44,11 @@ def _load_json(rel: str):
 
 @router.post("/ai/symptom-chat")
 def symptom_chat(req: ChatRequest):
+    message = req.message.strip()
+    if len(message) < 3:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail="Describe your symptoms in a little more detail")
+
     models = load_module("symptom")
     cfg = load_config("symptom", "model_config.json") or {}
     urgency_kw = _load_json("symptom-checker/urgency_keywords.json") or URGENCY_KEYWORDS
@@ -57,7 +63,7 @@ def symptom_chat(req: ChatRequest):
     source = "rules"
     if tfidf is not None and (rf is not None or xgb is not None) and le is not None:
         try:
-            X = tfidf.transform([req.message]).toarray()
+            X = tfidf.transform([message]).toarray()
             probs = np.zeros(len(le.classes_))
             w = cfg.get("ensemble", {})
             if rf is not None:
@@ -72,7 +78,7 @@ def symptom_chat(req: ChatRequest):
         except Exception as exc:  # noqa: BLE001
             log.warning("chatbot inference failed: %s → keywords", exc)
 
-    msg = (req.message or "").lower()
+    msg = message.lower()
     if not conditions:
         if "fever" in msg and ("chill" in msg or "headache" in msg):
             conditions = ["Malaria"]

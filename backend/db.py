@@ -1,11 +1,13 @@
 # =============================================================================
 # MedIQ Pro — backend/db.py
 # Supabase (PostgreSQL) data layer. Every core-data endpoint reads/writes a
-# Supabase table. If Supabase env vars are not set (or a call fails), it falls
-# back to built-in demo data so the whole app still works end-to-end.
+# Supabase table when configured. Without Supabase, development uses a copy-safe
+# in-memory demo store; configured database failures are surfaced to the API.
 # =============================================================================
+import copy
 import logging
-from typing import Any, Dict, List, Optional
+import uuid
+from typing import Any, Dict
 
 from config import supabase_configured, SUPABASE_KEY, SUPABASE_SERVICE_KEY, SUPABASE_URL
 
@@ -14,13 +16,21 @@ log = logging.getLogger("mediq.db")
 _client = None
 
 
+class DataStoreError(RuntimeError):
+    """Raised when a configured primary data store cannot be reached."""
+
+
 def get_client():
-    """Lazy Supabase client (anon key; service key preferred when provided)."""
+    """Return a lazy Supabase client (service key preferred when provided)."""
     global _client
     if _client is None and supabase_configured():
-        from supabase import create_client
-        key = SUPABASE_SERVICE_KEY or SUPABASE_KEY
-        _client = create_client(SUPABASE_URL, key)
+        try:
+            from supabase import create_client
+            key = SUPABASE_SERVICE_KEY or SUPABASE_KEY
+            _client = create_client(SUPABASE_URL, key)
+        except Exception as exc:  # noqa: BLE001
+            log.exception("Could not initialize Supabase client")
+            raise DataStoreError("Could not initialize the data store") from exc
     return _client
 
 
@@ -74,9 +84,9 @@ DEMO = {
         {"id": "R-902", "patient": "Yohannes Mamo", "test": "HbA1c", "date": "2026-08-10", "status": "abnormal", "ai_flag": "abnormal", "values": [{"name": "HbA1c", "range": "4.0 – 5.6 %", "value": "8.2 %", "status": "abnormal"}]},
     ],
     "bills": [
-        {"id": "B-701", "date": "2026-08-05", "description": "Consultation — Internal Medicine", "amount": 350, "status": "paid"},
-        {"id": "B-702", "date": "2026-08-06", "description": "Amlodipine 5mg ×30 tablets", "amount": 180, "status": "pending"},
-        {"id": "B-703", "date": "2026-08-09", "description": "Inpatient ward — 2 nights (General)", "amount": 1600, "status": "overdue"},
+        {"id": "B-701", "patient": "Abel Mekonnen", "date": "2026-08-05", "description": "Consultation — Internal Medicine", "amount": 350, "status": "paid"},
+        {"id": "B-702", "patient": "Abel Mekonnen", "date": "2026-08-06", "description": "Amlodipine 5mg ×30 tablets", "amount": 180, "status": "pending"},
+        {"id": "B-703", "patient": "Abel Mekonnen", "date": "2026-08-09", "description": "Inpatient ward — 2 nights (General)", "amount": 1600, "status": "overdue"},
     ],
     "complaints": [
         {"id": "CMP-101", "reporter": "Abel Mekonnen", "reporter_role": "patient", "category": "Billing", "subject": "Incorrect charge on my invoice", "description": "Charged 500 ETB for an ECG not performed.", "priority": "high", "date": "2026-08-10T09:30:00", "status": "resolved", "solution": "Refunded.", "resolved_by": "Hanna Bekele", "resolved_date": "2026-08-11T08:00:00"},
@@ -156,76 +166,105 @@ TABLES = {
     "audit_logs": "audit_logs", "queue": "queue", "announcements": "announcements",
     "departments": "departments", "staff": "staff", "insurance": "insurance",
     "samples": "samples", "documents": "documents", "complaints": "complaints",
-    "messages": "messages", "shifts": "shifts", "roster": "roster",
+    "messages": "messages", "notifications": "notifications", "shifts": "shifts", "roster": "roster",
     "attendance": "attendance", "observations": "observations",
     "referrals": "referrals", "suppliers": "suppliers",
-    "purchase_orders": "purchase_orders",
+    "purchase_orders": "purchase_orders", "fingerprint_devices": "fingerprint_devices",
+    "videos": "videos", "finance": "finance",
 }
+
+# Optional demo collections that are not part of the original seed data.
+DEMO.setdefault("fingerprint_devices", [])
+DEMO.setdefault("finance", [])
 
 
 # ---------------------------------------------------------------------------
 # Generic helpers
 # ---------------------------------------------------------------------------
+def _public_row(endpoint: str, row: dict) -> dict:
+    """Remove server-only fields before a row reaches an API response."""
+    if endpoint == "users":
+        return {key: value for key, value in row.items() if key not in {"password_hash", "password"}}
+    return dict(row)
+
+
+def _configured_client():
+    """Return the primary client, or None for the intentional demo store."""
+    return get_client() if supabase_configured() else None
+
+
 def list_rows(endpoint: str, limit: int = 500) -> Dict[str, Any]:
-    """GET /<endpoint> → {items:[...], total:n} — Supabase table or demo."""
+    """Return rows from Supabase, or an isolated copy of demo rows locally."""
     table = TABLES.get(endpoint, endpoint)
-    client = get_client()
+    client = _configured_client()
     if client is not None:
         try:
-            resp = client.table(table).select("*").limit(limit).execute()
-            items = resp.data or []
-            if endpoint == "users":
-                for item in items:
-                    item.pop("password_hash", None)
+            response = client.table(table).select("*").limit(limit).execute()
+            items = [_public_row(endpoint, item) for item in (response.data or [])]
             return {"items": items, "total": len(items), "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase read %s failed: %s → demo", endpoint, exc)
-    items = DEMO.get(endpoint, [])
-    return {"items": items, "total": len(items), "source": "demo"}
+            log.exception("Supabase read failed for %s", endpoint)
+            raise DataStoreError("The data store is temporarily unavailable") from exc
+
+    items = [copy.deepcopy(item) for item in DEMO.get(endpoint, [])]
+    return {"items": [_public_row(endpoint, item) for item in items], "total": len(items), "source": "demo"}
 
 
 def insert_row(endpoint: str, data: dict) -> Dict[str, Any]:
     table = TABLES.get(endpoint, endpoint)
-    client = get_client()
+    client = _configured_client()
     if client is not None:
         try:
-            resp = client.table(table).insert(data).execute()
-            return {"ok": True, "row": (resp.data or [{}])[0], "source": "supabase"}
+            response = client.table(table).insert(data).execute()
+            saved = (response.data or [{}])[0]
+            return {"ok": True, "row": _public_row(endpoint, saved), "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase insert %s failed: %s → demo", endpoint, exc)
-    import uuid
-    row = dict(data)
+            log.exception("Supabase insert failed for %s", endpoint)
+            raise DataStoreError("The data store is temporarily unavailable") from exc
+
+    row = copy.deepcopy(data)
     row.setdefault("id", endpoint.upper() + "-" + str(uuid.uuid4())[:8])
     DEMO.setdefault(endpoint, []).insert(0, row)
-    return {"ok": True, "row": row, "source": "demo"}
+    return {"ok": True, "row": _public_row(endpoint, row), "source": "demo"}
 
 
 def update_row(endpoint: str, row_id: str, data: dict) -> Dict[str, Any]:
     table = TABLES.get(endpoint, endpoint)
-    client = get_client()
+    client = _configured_client()
     if client is not None:
         try:
-            resp = client.table(table).update(data).eq("id", row_id).execute()
-            return {"ok": True, "row": (resp.data or [{}])[0], "source": "supabase"}
+            response = client.table(table).update(data).eq("id", row_id).execute()
+            rows = response.data or []
+            if not rows:
+                return {"ok": False, "error": "not found"}
+            return {"ok": True, "row": _public_row(endpoint, rows[0]), "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase update %s failed: %s → demo", endpoint, exc)
-    rows = DEMO.setdefault(endpoint, [])
-    for r in rows:
-        if r.get("id") == row_id:
-            r.update(data)
-            return {"ok": True, "row": r, "source": "demo"}
+            log.exception("Supabase update failed for %s", endpoint)
+            raise DataStoreError("The data store is temporarily unavailable") from exc
+
+    for row in DEMO.setdefault(endpoint, []):
+        if row.get("id") == row_id:
+            row.update(copy.deepcopy(data))
+            return {"ok": True, "row": _public_row(endpoint, row), "source": "demo"}
     return {"ok": False, "error": "not found"}
 
 
 def delete_row(endpoint: str, row_id: str) -> Dict[str, Any]:
     table = TABLES.get(endpoint, endpoint)
-    client = get_client()
+    client = _configured_client()
     if client is not None:
         try:
-            client.table(table).delete().eq("id", row_id).execute()
+            response = client.table(table).delete().eq("id", row_id).execute()
+            if not response.data:
+                return {"ok": False, "error": "not found"}
             return {"ok": True, "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase delete %s failed: %s → demo", endpoint, exc)
+            log.exception("Supabase delete failed for %s", endpoint)
+            raise DataStoreError("The data store is temporarily unavailable") from exc
+
     rows = DEMO.setdefault(endpoint, [])
-    DEMO[endpoint] = [r for r in rows if r.get("id") != row_id]
+    remaining = [row for row in rows if row.get("id") != row_id]
+    if len(remaining) == len(rows):
+        return {"ok": False, "error": "not found"}
+    DEMO[endpoint] = remaining
     return {"ok": True, "source": "demo"}

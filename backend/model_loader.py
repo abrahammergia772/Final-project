@@ -102,7 +102,8 @@ def load_config(module: str, filename: str) -> Optional[dict]:
     p = MODELS_DIR / sub / filename
     if p.is_file():
         try:
-            return json.load(open(p, encoding="utf-8"))
+            with open(p, encoding="utf-8") as handle:
+                return json.load(handle)
         except Exception:  # noqa: BLE001
             return None
     return None

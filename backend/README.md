@@ -24,6 +24,7 @@ SUPABASE_URL=…          (from Supabase project settings → API)
 SUPABASE_KEY=…          (anon public key)
 SUPABASE_SERVICE_KEY=…  (service_role key — required for server-side CRUD; never expose it)
 MODEL_DOWNLOAD_URLS=…   (only needed for the >25 MB appointment model — see below)
+ENVIRONMENT=production  (Render should use production)
 SECRET_KEY=…            (long random value; required in production)
 CORS_ORIGINS=https://your-frontend.example (exact comma-separated origins; never use *)
 ```
@@ -35,17 +36,18 @@ CORS_ORIGINS=https://your-frontend.example (exact comma-separated origins; never
    This creates all tables (users, patients, appointments, prescriptions, inventory,
    lab, bills, complaints, messages, attendance, documents, …) with RLS policies.
 3. Copy the project **URL** and **anon key** into the Render env vars above.
-4. Optionally seed demo users:
-   ```sql
-   insert into users (email, password_hash, name, role) values
-   ('admin@mediq.pro','<sha256 of admin123>','Solomon Tadesse','admin'),
-   ('doctor@mediq.pro','<sha256 of doctor123>','Dr. Daniel Alemu','doctor');
+4. Optionally seed demo users. Generate hashes from `backend/` with:
+   ```bash
+   python -c "from security import hash_password; print(hash_password('admin123'))"
+   python -c "from security import hash_password; print(hash_password('doctor123'))"
    ```
-   (`password_hash` is `sha256(password)` — compute it with
-   `python -c "import hashlib; print(hashlib.sha256(b'admin123').hexdigest())"`)
+   Then insert those values into `password_hash` with the desired email, name, and role.
+   New accounts use salted PBKDF2 hashes; existing legacy `sha256(password)` rows remain
+   readable for migration.
 
-> **No Supabase configured?** The API automatically falls back to built-in demo
-> data — the whole system still works end-to-end while you set it up.
+> **No Supabase configured?** In development only, the API falls back to built-in
+> demo data. Once Supabase is configured, database failures return `503` rather
+> than silently serving or mutating demo data.
 
 ## 🤖 The 7 AI endpoints (all use your trained models)
 
@@ -61,6 +63,7 @@ CORS_ORIGINS=https://your-frontend.example (exact comma-separated origins; never
 
 Plus:
 - `POST /auth/login`, `/auth/signup`, `/auth/reset-password` (Supabase `users` table)
+- `/auth/reset-password` keeps codes short-lived and single-use, but this repository does not include an email/SMS provider. Configure delivery before enabling password recovery in production.
 - Generic CRUD for every data table: `GET/POST/PUT/DELETE /users`, `/patients`,
   `/appointments`, `/inventory`, `/complaints`, `/messages`, `/attendance`, …
 
@@ -100,9 +103,16 @@ set `MODEL_DOWNLOAD_URLS=appointment_rf=<public-bucket-url>`.
 
 ```bash
 cd backend
+python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 # docs: http://localhost:8000/docs
+```
+
+Run the regression tests from the repository root after installing the dependencies:
+
+```bash
+PYTHONPATH=backend python -m unittest discover -s backend/tests -v
 ```
 
 ## 🔌 Point the frontend at this backend

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="assets/css/global.css" />
 <link rel="stylesheet" href="assets/css/components.css" />
 <link rel="stylesheet" href="assets/css/dashboard.css" />
+<link rel="stylesheet" href="assets/css/accessibility.css" />
 </head>
 <body>
 <div class="login-body">
@@ -98,7 +99,6 @@
             <option value="pharmacist">Pharmacist (staff)</option>
             <option value="laboratory">Laboratory (staff)</option>
             <option value="reception">Receptionist (staff)</option>
-            <option value="manager">Manager (staff)</option>
           </select>
           <div class="hint" id="suRoleHint">Patient accounts are activated immediately. Staff accounts are reviewed and approved by the administrator.</div>
         </div>
@@ -148,72 +148,93 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("signupForm");
   const errBox = document.getElementById("signupError");
   const errText = document.getElementById("signupErrorText");
+  const button = document.getElementById("suBtn");
 
-  function showErr(msg) { errText.textContent = msg; errBox.classList.add("show"); }
-  function ok() { errBox.classList.remove("show"); }
+  function showErr(message) { errText.textContent = message; errBox.classList.add("show"); }
+  function clearErr() { errBox.classList.remove("show"); }
+  function setBusy(busy) {
+    button.disabled = busy;
+    button.innerHTML = busy ? '<span class="spinner sm white"></span> Creating account…' : "Create Account";
+  }
 
-  document.getElementById("suRole").addEventListener("change", e => {
-    const staff = e.target.value !== "patient";
+  document.getElementById("suRole").addEventListener("change", event => {
+    const staff = event.target.value !== "patient";
     document.getElementById("suRoleHint").textContent = staff
       ? "Staff accounts require administrator approval before you can sign in."
       : "Patient accounts are activated immediately. Staff accounts are reviewed and approved by the administrator.";
   });
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
     const name = document.getElementById("suName").value.trim();
-    const email = document.getElementById("suEmail").value.trim();
-    const pass = document.getElementById("suPass").value;
-    const pass2 = document.getElementById("suPass2").value;
+    const email = document.getElementById("suEmail").value.trim().toLowerCase();
+    const password = document.getElementById("suPass").value;
+    const confirmPassword = document.getElementById("suPass2").value;
     const dob = document.getElementById("suDob").value;
     const phone = document.getElementById("suPhone").value.trim();
-    const ec = document.getElementById("suEc").value.trim();
-    const terms = document.getElementById("suTerms").checked;
+    const emergency = document.getElementById("suEc").value.trim();
+    const role = document.getElementById("suRole").value;
 
-    if (!name || name.split(" ").length < 2) return showErr("Please enter your full name (first and last).");
+    if (!name || name.split(/\s+/).length < 2) return showErr("Please enter your full name (first and last).");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showErr("Please enter a valid email address.");
-    if (pass.length < 8) return showErr("Password must be at least 8 characters.");
-    if (pass !== pass2) return showErr("Passwords do not match.");
+    if (password.length < 8) return showErr("Password must be at least 8 characters.");
+    if (password !== confirmPassword) return showErr("Passwords do not match.");
     if (!dob) return showErr("Please select your date of birth.");
-    const age = Math.floor((Date.now() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
-    if (age < 0 || age > 120) return showErr("Please enter a valid date of birth.");
+    const birthDate = new Date(dob + "T00:00:00");
+    const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 3600 * 1000));
+    if (!Number.isFinite(age) || age < 0 || age > 120) return showErr("Please enter a valid date of birth.");
     if (!/^\+?[0-9 ]{9,15}$/.test(phone)) return showErr("Please enter a valid phone number.");
-    if (!ec || ec.split("—").length < 2 && ec.split("-").length < 2 && ec.split(",").length < 2) return showErr("Emergency contact should include a name and phone.");
-    if (!terms) return showErr("You must accept the Terms of Service and Privacy Policy.");
-    ok();
+    if (!emergency || (!emergency.includes("—") && !emergency.includes("-") && !emergency.includes(","))) return showErr("Emergency contact should include a name and phone.");
+    if (!document.getElementById("suTerms").checked) return showErr("You must accept the Terms of Service and Privacy Policy.");
+    clearErr();
+    setBusy(true);
 
-    // Save the signup (demo) — in production this calls POST /auth/signup
-    const record = {
-      id: "U-" + (900 + Math.floor(Math.random() * 900)),
-      name, email, password: pass, dob, gender: document.getElementById("suGender").value,
-      phone, blood: document.getElementById("suBlood").value, address: document.getElementById("suAddr").value.trim(),
-      city: document.getElementById("suCity").value.trim(), region: document.getElementById("suRegion").value,
-      role: document.getElementById("suRole").value, emergency_contact: ec,
-      insurance: document.getElementById("suIns").value, policy: document.getElementById("suPol").value.trim(),
-      status: document.getElementById("suRole").value === "patient" ? "active" : "pending",
-      created: new Date().toISOString()
+    const payload = {
+      name, email, password, role, dob,
+      gender: document.getElementById("suGender").value,
+      phone, blood: document.getElementById("suBlood").value,
+      emergency_contact: emergency
     };
-    try {
-      const all = JSON.parse(localStorage.getItem("mediq_pro_signups") || "[]");
-      all.push(record);
-      localStorage.setItem("mediq_pro_signups", JSON.stringify(all));
-    } catch (err) {}
+    let result;
+    if (CONFIG.DEMO_MODE) {
+      const password_hash = await hashDemoPassword(password);
+      result = { ok: true, user: { id: "U-" + (900 + Math.floor(Math.random() * 900)), name, email, role, password_hash, status: role === "patient" ? "active" : "pending" } };
+      try {
+        const all = JSON.parse(Store.get("mediq_pro_signups") || "[]");
+        if (all.some(record => String(record.email).toLowerCase() === email)) {
+          setBusy(false);
+          return showErr("An account with this email already exists.");
+        }
+        all.push({ ...result.user, created: new Date().toISOString() });
+        Store.set("mediq_pro_signups", JSON.stringify(all));
+      } catch (error) {
+        setBusy(false);
+        return showErr("Could not save the demo account in this browser.");
+      }
+    } else {
+      result = await apiFetch(CONFIG.ENDPOINTS.SIGNUP, "POST", payload, { skipAuth: true });
+    }
+    setBusy(false);
+    if (!result.ok) {
+      showErr(result.error || "Could not create your account. Please try again.");
+      return;
+    }
 
-    // Success modal
+    const account = result.user || result.data?.user || { name, email, role, status: role === "patient" ? "active" : "pending" };
     openModal({
       title: "Account Created 🎉",
       body: `<div class="text-center" style="padding:8px 0">
         <div style="font-size:44px">✅</div>
-        <h3 style="margin:10px 0 4px">Welcome, ${esc(name.split(" ")[0])}!</h3>
+        <h3 style="margin:10px 0 4px">Welcome, ${esc(name.split(/\s+/)[0])}!</h3>
         <p style="color:#6B7280;font-size:14px">
-          ${record.status === "active"
+          ${account.status === "active"
             ? "Your patient account is ready. You can sign in with your email and password."
-            : "Your staff account has been submitted for administrator approval. You will be notified by email once approved."}
+            : "Your staff account has been submitted for administrator approval. You will be notified once it is approved."}
         </p>
         <div class="detail-list" style="text-align:left;max-width:340px;margin:16px auto">
           <div class="detail-item"><span class="k">Email</span><span class="v">${esc(email)}</span></div>
-          <div class="detail-item"><span class="k">Account Type</span><span class="v">${esc(record.role)}</span></div>
-          <div class="detail-item"><span class="k">Status</span><span class="v">${esc(record.status)}</span></div>
+          <div class="detail-item"><span class="k">Account Type</span><span class="v">${esc(role)}</span></div>
+          <div class="detail-item"><span class="k">Status</span><span class="v">${esc(account.status)}</span></div>
         </div>
       </div>`,
       footer: `<a class="btn btn-primary" href="index.html">Go to Sign In</a>`

@@ -18,6 +18,11 @@ window.SPA = { mode: true, current: "" };
     const clean = href.split("?")[0].split("#")[0];
     if (!clean.endsWith(".html")) return null;
     if (clean.startsWith("/")) return clean.slice(1);
+    // Notification links and other generated links may already be rooted at
+    // an application role directory (for example pharmacist/inventory.html).
+    // Treat those as root-relative instead of nesting them under the current
+    // role directory.
+    if (/^(admin|manager|doctor|nurse|pharmacist|laboratory|reception|patient)\//.test(clean)) return clean;
     const cur = SPA.current || "";
     const dir = cur.includes("/") ? cur.slice(0, cur.lastIndexOf("/") + 1) : "";
     const segs = (dir + clean).split("/");

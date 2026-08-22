@@ -7,7 +7,7 @@ import logging
 
 import numpy as np
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from model_loader import load_module, load_config
 
@@ -16,8 +16,8 @@ log = logging.getLogger("mediq.interaction")
 
 
 class InteractionRequest(BaseModel):
-    drug_a: str
-    drug_b: str
+    drug_a: str = Field(min_length=1, max_length=120)
+    drug_b: str = Field(min_length=1, max_length=120)
 
 
 CLASS_MAP = {"0": "Moderate", "1": "Safe", "2": "Severe"}
@@ -56,6 +56,14 @@ def _severe_override(a: str, b: str) -> bool:
 
 @router.post("/ai/check-interaction")
 def check_interaction(req: InteractionRequest):
+    drug_a, drug_b = req.drug_a.strip(), req.drug_b.strip()
+    if not drug_a or not drug_b:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail="Enter two medicines to compare")
+    if drug_a.casefold() == drug_b.casefold():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail="Choose two different medicines")
+
     models = load_module("drug")
     cfg = load_config("drug", "drug_interaction_config.json") or {}
 
@@ -67,7 +75,7 @@ def check_interaction(req: InteractionRequest):
     source = "rules"
     if tfidf is not None and (rf is not None or xgb is not None):
         try:
-            text = f"{req.drug_a} {req.drug_b}"
+            text = f"{drug_a} {drug_b}"
             X = tfidf.transform([text]).toarray()
             target = getattr(rf, "n_features_in_", None) or getattr(xgb, "n_features_in_", None) or X.shape[1]
             if X.shape[1] < target:
@@ -88,7 +96,7 @@ def check_interaction(req: InteractionRequest):
             log.warning("drug interaction inference failed: %s → rules", exc)
 
     # ---- fallback rules ----
-    a, b = req.drug_a.lower(), req.drug_b.lower()
+    a, b = drug_a.lower(), drug_b.lower()
     both = a + "|" + b
     if source == "rules":
         if ("warfarin" in both and "aspirin" in both) or ("digoxin" in both and "furosemide" in both):
@@ -99,13 +107,14 @@ def check_interaction(req: InteractionRequest):
             label = "Safe"
 
     # ---- clinical safety guardrail ----
-    if _severe_override(req.drug_a, req.drug_b):
+    if _severe_override(drug_a, drug_b):
         label = "Severe"
         source = "trained-model+guardrail" if source == "trained-model" else "rules+guardrail"
 
     details = SEVERITY_DETAILS[label]
     return {"level": details["level"], "title": details["title"], "mechanism": details["mechanism"],
             "effect": details["effect"], "action": details["action"],
-            "drug_a": req.drug_a, "drug_b": req.drug_b,
+            "drug_a": drug_a, "drug_b": drug_b,
             "confidence": confidence, "model": "drug_interaction_ensemble",
-            "model_version": cfg.get("version", "1.0.0"), "source": source}
+            "model_version": cfg.get("version", "1.0.0"), "source": source,
+            "disclaimer": "Check current prescribing guidance and consult a pharmacist before acting."}

@@ -10,29 +10,48 @@ from datetime import datetime
 
 import numpy as np
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 
-from model_loader import load_module, load_config, module_loaded, list_missing
+from model_loader import load_module, load_config, list_missing
 
 router = APIRouter(tags=["AI · Appointment"])
 log = logging.getLogger("mediq.appointment")
 
 
 class AppointmentRequest(BaseModel):
-    patient: str = ""
-    patient_age: Optional[int] = 34
-    appointment_date: str = ""          # YYYY-MM-DD
-    appointment_time: str = "09:00"     # HH:MM
-    department: str = "Internal Medicine"
-    doctor_id: str = "Dr. Daniel Alemu"
-    appointment_type: str = "Scheduled"  # Scheduled|Walk-in|Emergency|Follow-up|Teleconsult
-    gender: str = "Male"
-    insurance_type: str = "EHBPA"
-    reminder_channel: str = "SMS"        # SMS|Phone|Email|None
-    prev_no_shows: int = 0
-    prev_visits: int = 1
-    distance_km: float = 10.0
+    patient: str = Field(default="", max_length=120)
+    patient_age: Optional[int] = Field(default=34, ge=0, le=130)
+    appointment_date: str = Field(default="", max_length=10)  # YYYY-MM-DD
+    appointment_time: str = Field(default="09:00", max_length=5)  # HH:MM
+    department: str = Field(default="Internal Medicine", max_length=100)
+    doctor_id: str = Field(default="Dr. Daniel Alemu", max_length=120)
+    appointment_type: str = Field(default="Scheduled", max_length=40)
+    gender: str = Field(default="Male", max_length=32)
+    insurance_type: str = Field(default="EHBPA", max_length=64)
+    reminder_channel: str = Field(default="SMS", max_length=20)
+    prev_no_shows: int = Field(default=0, ge=0, le=1000)
+    prev_visits: int = Field(default=1, ge=0, le=10000)
+    distance_km: float = Field(default=10.0, ge=0, le=10000)
+
+    @field_validator("appointment_date")
+    @classmethod
+    def valid_date(cls, value: str) -> str:
+        if value:
+            try:
+                datetime.strptime(value, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError("appointment_date must use YYYY-MM-DD") from None
+        return value
+
+    @field_validator("appointment_time")
+    @classmethod
+    def valid_time(cls, value: str) -> str:
+        try:
+            datetime.strptime(value, "%H:%M")
+        except ValueError:
+            raise ValueError("appointment_time must use HH:MM") from None
+        return value
 
 
 def _enc(le, value, default=0):
@@ -136,8 +155,12 @@ def predict_appointment(req: AppointmentRequest):
             log.warning("appointment inference failed: %s → rules", exc)
 
     if prob is None:
-        base = 8 + (len(req.patient) % 25)
-        day_factor = 9 if req.appointment_date and datetime.strptime(req.appointment_date, "%Y-%m-%d").weekday() >= 5 else 0
+        base = 8 + (len(req.patient.strip()) % 25)
+        try:
+            fallback_date = datetime.strptime(req.appointment_date, "%Y-%m-%d") if req.appointment_date else datetime.now()
+        except ValueError:
+            fallback_date = datetime.now()
+        day_factor = 9 if fallback_date.weekday() >= 5 else 0
         type_factor = 14 if req.appointment_type == "Follow-up" else 5
         prob = min(85, base + day_factor + type_factor + req.prev_no_shows) / 100.0
 
@@ -151,7 +174,16 @@ def predict_appointment(req: AppointmentRequest):
     else:
         risk, overbook, reminder = "Low", 0, "2 hours before"
 
-    load = "Busy" if (8 <= (req.patient_age or 30) % 5 + 8) else "Moderate"
+    try:
+        slot_hour = datetime.strptime(req.appointment_time, "%H:%M").hour
+    except ValueError:
+        slot_hour = 9
+    if slot_hour in {8, 9, 10, 11, 14, 15}:
+        load = "Busy"
+    elif 7 <= slot_hour <= 17:
+        load = "Moderate"
+    else:
+        load = "Light"
     return {
         "no_show_percent": pct,
         "show_prediction": "Will Not Show" if pct >= 40 else "Will Show",
@@ -164,5 +196,6 @@ def predict_appointment(req: AppointmentRequest):
         "model": "appointment_xgb" + ("+rf" if rf is not None else ""),
         "model_version": cfg.get("version", "1.0.0"),
         "source": "trained-model" if xgb is not None else "rules",
+        "disclaimer": "No-show predictions support scheduling decisions and are not a judgment about a patient.",
         "missing_models": list_missing("appointment"),
     }

@@ -8,7 +8,7 @@
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
   email text unique not null,
-  password_hash text not null,          -- sha256 hex (upgrade to bcrypt/argon2 in production)
+  password_hash text not null,          -- salted PBKDF2; legacy SHA-256 is supported for migration
   name text not null default '',
   role text not null default 'patient', -- admin|manager|doctor|nurse|pharmacist|laboratory|reception|patient
   phone text default '',
@@ -70,8 +70,10 @@ create table if not exists public.care_plans (
 
 -- Bills
 create table if not exists public.bills (
-  id text primary key, date text, description text, amount numeric, status text
+  id text primary key, patient text, date text, description text, amount numeric, status text
 );
+-- Safe migrations for databases created from an earlier version of this file.
+alter table public.bills add column if not exists patient text;
 
 -- Complaints (patient -> manager)
 create table if not exists public.complaints (
@@ -83,10 +85,12 @@ create table if not exists public.complaints (
 
 -- Messages
 create table if not exists public.messages (
-  id text primary key, "from" text, from_role text, subject text, body text,
-  date text, read boolean default false, priority text default 'normal',
-  replies jsonb default '[]'::jsonb
+  id text primary key, "from" text, from_role text, "to" text, to_role text,
+  subject text, body text, date text, read boolean default false,
+  priority text default 'normal', replies jsonb default '[]'::jsonb
 );
+alter table public.messages add column if not exists "to" text;
+alter table public.messages add column if not exists to_role text;
 
 -- Announcements
 create table if not exists public.announcements (
@@ -151,6 +155,23 @@ create table if not exists public.purchase_orders (
   total numeric, date text, status text
 );
 
+create table if not exists public.notifications (
+  id text primary key, user_id text, category text, title text,
+  body text, date text, read boolean default false, link text
+);
+create table if not exists public.fingerprint_devices (
+  id text primary key, name text, location text, status text,
+  last_sync text, enrolled_staff int default 0
+);
+create table if not exists public.videos (
+  id text primary key, title text, channel text, video_id text,
+  description text default '', category text, conditions jsonb default '[]'::jsonb
+);
+create table if not exists public.finance (
+  id text primary key, period text, department text, revenue numeric default 0,
+  expenses numeric default 0, status text default 'posted'
+);
+
 -- =============================================================================
 -- Row Level Security
 -- =============================================================================
@@ -167,7 +188,8 @@ BEGIN
     'lab_requests','lab_results','medications','care_plans','bills',
     'complaints','messages','announcements','shifts','roster','attendance',
     'documents','audit_logs','insurance','samples','queue','departments',
-    'staff','observations','referrals','suppliers','purchase_orders'
+    'staff','observations','referrals','suppliers','purchase_orders',
+    'notifications','fingerprint_devices','videos','finance'
   ] LOOP
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
   END LOOP;

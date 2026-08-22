@@ -55,6 +55,24 @@ function getUserInitials() {
   return getUserName().split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 }
 
+// Demo-only signups are stored with a digest rather than plaintext passwords.
+// A real deployment always sends the password to the backend over HTTPS.
+async function hashDemoPassword(value) {
+  if (!window.crypto || !window.crypto.subtle) return "";
+  const bytes = new TextEncoder().encode(value);
+  const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function getDemoSignup(email) {
+  try {
+    return JSON.parse(Store.get("mediq_pro_signups") || "[]")
+      .find(record => String(record.email || "").toLowerCase() === email.toLowerCase());
+  } catch (e) {
+    return null;
+  }
+}
+
 // ---------- Path helpers ----------
 // True when the current page lives inside a role subfolder (admin/, doctor/, …)
 function inRoleFolder() {
@@ -99,6 +117,17 @@ async function login(email, password) {
         role: account.role,
         user_id: roleKey + "-001",
         name: account.name
+      };
+      saveSession(session);
+      return { ok: true, session };
+    }
+    const signup = getDemoSignup((email || "").toLowerCase());
+    if (signup && signup.status === "active" && signup.password_hash === await hashDemoPassword(password)) {
+      const session = {
+        token: "demo-token-signup-" + signup.id,
+        role: signup.role,
+        user_id: signup.id,
+        name: signup.name
       };
       saveSession(session);
       return { ok: true, session };

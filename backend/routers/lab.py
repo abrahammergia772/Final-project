@@ -4,11 +4,13 @@
 # Uses the trained 78-feature RF/XGB ensemble (Anemia / CKD / Liver / Normal).
 # =============================================================================
 import logging
-from typing import Any, Dict, Optional
+import math
+from typing import Any, Dict
 
 import numpy as np
+import pandas as pd
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from model_loader import load_module, load_config
 
@@ -17,9 +19,9 @@ log = logging.getLogger("mediq.lab")
 
 
 class LabRequest(BaseModel):
-    test_type: str = "blood"
-    patient: str = ""
-    values: Dict[str, Any] = {}
+    test_type: str = Field(default="blood", max_length=64)
+    patient: str = Field(default="", max_length=120)
+    values: Dict[str, Any] = Field(default_factory=dict)
 
 
 CONDITIONS = ["Anemia", "Chronic Kidney Disease", "Liver Disease", "Normal"]
@@ -59,6 +61,21 @@ def build_features(values: dict, cfg: dict) -> np.ndarray:
 
 @router.post("/ai/analyze-lab")
 def analyze_lab(req: LabRequest):
+    if len(req.values) > 100:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail="Too many laboratory values")
+    clean_values: Dict[str, float] = {}
+    for name, value in req.values.items():
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=422, detail=f"Laboratory value '{name}' must be numeric") from None
+        if not math.isfinite(number):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=422, detail=f"Laboratory value '{name}' must be finite")
+        clean_values[str(name)[:80]] = number
+
     models = load_module("lab")
     cfg = load_config("lab", "lab_feature_config.json") or {}
     refs = cfg.get("reference_ranges", {})
@@ -66,11 +83,14 @@ def analyze_lab(req: LabRequest):
     rf = models.get("lab_rf_model.pkl")
     xgb = models.get("lab_xgb_model.pkl")
     scaler = models.get("lab_scaler.pkl")
+    imputer = models.get("lab_imputer.pkl")
 
     pred_idx = None
     if (rf is not None or xgb is not None) and cfg.get("features"):
         try:
-            X = build_features(req.values, cfg)
+            X = pd.DataFrame(build_features(clean_values, cfg), columns=cfg["features"])
+            if imputer is not None:
+                X = pd.DataFrame(imputer.transform(X), columns=cfg["features"])
             if scaler is not None:
                 X = scaler.transform(X)
             probs = np.zeros(4)
@@ -89,12 +109,9 @@ def analyze_lab(req: LabRequest):
     rows = []
     abnormal = []
     for name, ref in refs.items():
-        if name not in req.values:
+        if name not in clean_values:
             continue
-        try:
-            v = float(req.values[name])
-        except (TypeError, ValueError):
-            continue
+        v = clean_values[name]
         status = "low" if v < ref["low"] else ("high" if v > ref["high"] else "normal")
         if status != "normal":
             abnormal.append(name)
@@ -105,19 +122,21 @@ def analyze_lab(req: LabRequest):
         rows.append({"name": "Hemoglobin", "range": "12.0 – 17.5 g/dL", "value": "—", "status": "normal", "deviation": "—"})
 
     # ---- conditions ----
-    if pred_idx is not None and 0 <= pred_idx < len(CONDITIONS):
-        conditions = [CONDITIONS[pred_idx]] if pred_idx != 3 else ["All measured values within reference ranges."]
-    else:
-        conditions = []
-        if any(n in abnormal for n in ("hemoglobin", "mcv", "mch", "mchc", "rbc")):
-            conditions.append("Possible anemia — further workup advised")
-        if "creatinine" in abnormal or "blood_urea" in abnormal:
-            conditions.append("Possible renal impairment — monitor eGFR")
-        if any(n in abnormal for n in ("total_bilirubin", "direct_bilirubin", "alamine_aminotransferase", "aspartate_aminotransferase", "alkaline_phosphatase", "albumin")):
-            conditions.append("Hepatic enzyme elevation — evaluate liver function")
-        if not conditions:
-            conditions = ["All measured values within reference ranges."]
+    # Always retain rule-based findings for measured abnormalities. A model
+    # prediction must never make an explicitly out-of-range result disappear.
+    conditions = []
+    if pred_idx is not None and 0 <= pred_idx < len(CONDITIONS) and pred_idx != 3:
+        conditions.append(CONDITIONS[pred_idx])
+    if any(n in abnormal for n in ("hemoglobin", "mcv", "mch", "mchc", "rbc")):
+        conditions.append("Possible anemia — further workup advised")
+    if "creatinine" in abnormal or "blood_urea" in abnormal:
+        conditions.append("Possible renal impairment — monitor eGFR")
+    if any(n in abnormal for n in ("total_bilirubin", "direct_bilirubin", "alamine_aminotransferase", "aspartate_aminotransferase", "alkaline_phosphatase", "albumin")):
+        conditions.append("Hepatic enzyme elevation — evaluate liver function")
+    if not conditions:
+        conditions = ["All measured values within reference ranges."]
 
     return {"overall": "abnormal" if abnormal else "normal", "rows": rows, "conditions": conditions,
             "model": "lab_ensemble", "model_version": cfg.get("model_version", "1.0.0"),
-            "source": "trained-model" if pred_idx is not None else "rules"}
+            "source": "trained-model" if pred_idx is not None else "rules",
+            "disclaimer": "Reference ranges and AI suggestions do not replace clinician review."}
