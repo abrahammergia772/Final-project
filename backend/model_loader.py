@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — backend/model_loader.py
+# Wolaita Sodo Hospital — backend/model_loader.py
 # Loads trained .pkl models for all 7 AI modules from backend/models/.
 #
 # MEMORY-SAFE MODE (default on Render free tier, set LAZY_LOAD=1 or

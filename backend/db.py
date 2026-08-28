@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — backend/db.py
+# Wolaita Sodo Hospital — backend/db.py
 # Supabase (PostgreSQL) data layer. Every core-data endpoint reads/writes a
 # Supabase table. If Supabase env vars are not set (or a call fails), it falls
 # back to built-in demo data so the whole app still works end-to-end.
@@ -29,14 +29,14 @@ def get_client():
 # ---------------------------------------------------------------------------
 DEMO = {
     "users": [
-        {"id": "U-001", "name": "Solomon Tadesse", "email": "admin@mediq.pro", "role": "admin", "department": "Administration", "status": "active", "last_login": "2026-08-11T08:12:00"},
-        {"id": "U-002", "name": "Hanna Bekele", "email": "manager@mediq.pro", "role": "manager", "department": "Management", "status": "active", "last_login": "2026-08-11T07:55:00"},
-        {"id": "U-003", "name": "Dr. Daniel Alemu", "email": "doctor@mediq.pro", "role": "doctor", "department": "Internal Medicine", "status": "active", "last_login": "2026-08-11T07:40:00"},
-        {"id": "U-004", "name": "Marta Tesfaye", "email": "nurse@mediq.pro", "role": "nurse", "department": "General Ward", "status": "active", "last_login": "2026-08-11T06:58:00"},
-        {"id": "U-005", "name": "Yonas Girma", "email": "pharmacist@mediq.pro", "role": "pharmacist", "department": "Pharmacy", "status": "active", "last_login": "2026-08-11T07:20:00"},
-        {"id": "U-006", "name": "Sara Worku", "email": "lab@mediq.pro", "role": "laboratory", "department": "Laboratory", "status": "active", "last_login": "2026-08-11T07:10:00"},
-        {"id": "U-007", "name": "Liya Hailu", "email": "reception@mediq.pro", "role": "reception", "department": "Front Desk", "status": "active", "last_login": "2026-08-11T06:45:00"},
-        {"id": "U-008", "name": "Abel Mekonnen", "email": "patient@mediq.pro", "role": "patient", "department": "—", "status": "active", "last_login": "2026-08-10T18:30:00"},
+        {"id": "U-001", "name": "Solomon Tadesse", "email": "admin@wsh.et", "role": "admin", "department": "Administration", "status": "active", "last_login": "2026-08-11T08:12:00"},
+        {"id": "U-002", "name": "Hanna Bekele", "email": "manager@wsh.et", "role": "manager", "department": "Management", "status": "active", "last_login": "2026-08-11T07:55:00"},
+        {"id": "U-003", "name": "Dr. Daniel Alemu", "email": "doctor@wsh.et", "role": "doctor", "department": "Internal Medicine", "status": "active", "last_login": "2026-08-11T07:40:00"},
+        {"id": "U-004", "name": "Marta Tesfaye", "email": "nurse@wsh.et", "role": "nurse", "department": "General Ward", "status": "active", "last_login": "2026-08-11T06:58:00"},
+        {"id": "U-005", "name": "Yonas Girma", "email": "pharmacist@wsh.et", "role": "pharmacist", "department": "Pharmacy", "status": "active", "last_login": "2026-08-11T07:20:00"},
+        {"id": "U-006", "name": "Sara Worku", "email": "lab@wsh.et", "role": "laboratory", "department": "Laboratory", "status": "active", "last_login": "2026-08-11T07:10:00"},
+        {"id": "U-007", "name": "Liya Hailu", "email": "reception@wsh.et", "role": "reception", "department": "Front Desk", "status": "active", "last_login": "2026-08-11T06:45:00"},
+        {"id": "U-008", "name": "Abel Mekonnen", "email": "patient@wsh.et", "role": "patient", "department": "—", "status": "active", "last_login": "2026-08-10T18:30:00"},
     ],
     "patients": [
         {"id": "P-1001", "first_name": "Abel", "last_name": "Mekonnen", "age": 34, "gender": "Male", "phone": "+251 911 223 344", "email": "abel.m@mail.com", "blood": "O+", "address": "Sodo, Wolaita", "emergency": "+251 911 223 355", "condition": "Hypertension", "last_visit": "2026-08-05", "status": "active"},

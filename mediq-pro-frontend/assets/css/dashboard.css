@@ -1,5 +1,5 @@
 /* ============================================================
-   MedIQ Pro — dashboard.css
+   Wolaita Sodo Hospital — dashboard.css
    Main layout: topbar, page body, dashboard layout styles
    ============================================================ */
 
@@ -51,16 +51,39 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
   transition: background 0.15s ease, color 0.15s ease;
 }
 .icon-btn:hover { background: var(--light-gray); color: var(--dark); }
+.icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.35); }
+.icon-btn:active { transform: scale(0.94); }
 .icon-btn svg { width: 20px; height: 20px; }
+/* Highlight the trigger while its dropdown is open (e.g. the bell) */
+.dropdown:has(> .dropdown-menu.show) .icon-btn { background: var(--light-gray); color: var(--primary); }
+
 .icon-btn .notif-dot {
   position: absolute;
-  top: 7px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
+  top: 6px;
+  right: 7px;
+  width: 9px;
+  height: 9px;
   background: var(--danger);
   border-radius: 50%;
   border: 2px solid #fff;
+}
+/* Soft "ping" ring so critical alerts catch the eye without being annoying */
+.icon-btn .notif-dot::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: notifPing 2.4s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+@keyframes notifPing {
+  0%   { transform: scale(1); opacity: 0.55; }
+  70%  { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn .notif-dot::before { animation: none; opacity: 0; }
+  .icon-btn:active { transform: none; }
 }
 
 .topbar-avatar { display: flex; align-items: center; gap: 10px; padding: 4px 10px 4px 4px; border-radius: var(--radius-full); border: none; background: transparent; }

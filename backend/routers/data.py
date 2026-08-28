@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/data.py
+# Wolaita Sodo Hospital — routers/data.py
 # Generic CRUD for every core-data table the frontend uses. Reads/writes the
 # matching Supabase table when configured, otherwise the in-memory demo store.
 #   GET    /<resource>           → {items, total, source}

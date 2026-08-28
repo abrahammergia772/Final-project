@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/appointment.py  (Module 6: Appointment / No-show AI)
+# Wolaita Sodo Hospital — routers/appointment.py  (Module 6: Appointment / No-show AI)
 # POST /ai/predict-appointment
 # Uses the trained 42-feature XGB model (RF is the >25 MB file GitHub rejected —
 # the API automatically uses RF too if you make it available, e.g. via

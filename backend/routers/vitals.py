@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/vitals.py  (Module 4: Vitals Alert System)
+# Wolaita Sodo Hospital — routers/vitals.py  (Module 4: Vitals Alert System)
 # POST /ai/check-vitals
 # Uses the trained 26-feature RobustScaler + RF/XGB ensemble
 # (labels: 0 Normal, 1 Warning, 2 Critical).

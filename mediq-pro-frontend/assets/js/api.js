@@ -1,5 +1,5 @@
 /* ============================================================
-   MedIQ Pro — api.js
+   Wolaita Sodo Hospital — api.js
    Fetch wrapper + AI module functions + demo mock data
    All calls to FastAPI go through apiFetch(). When CONFIG.DEMO_MODE
    is true, requests are answered with realistic mock data so every
@@ -25,7 +25,9 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
       headers,
       body: body ? JSON.stringify(body) : undefined
     });
-    if (res.status === 401) {
+    // 401 on an auth request (login/signup/reset) = wrong credentials,
+    // not an expired session — let the form display the server's message.
+    if (res.status === 401 && !opts.skipAuth) {
       showToast("Your session has expired. Please log in again.", "warning");
       clearSession();
       if (window.SPA && window.SPA.mode) {
@@ -34,6 +36,10 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
         setTimeout(() => { window.location.href = basePath() + "index.html"; }, 1200);
       }
       return { ok: false, status: 401, error: "Unauthorized" };
+    }
+    if (res.status === 401 && opts.skipAuth) {
+      const d401 = await res.json().catch(() => ({}));
+      return { ok: false, status: 401, error: d401.detail || "Invalid email or password" };
     }
     if (res.status === 500) {
       showToast("Server error. Please try again.", "error");
@@ -126,18 +132,18 @@ function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 // ============================================================
 const MOCK = {
   users: [
-    { id: "U-001", name: "Solomon Tadesse", email: "admin@mediq.pro", role: "admin", department: "Administration", status: "active", last_login: "2026-08-11T08:12:00" },
-    { id: "U-002", name: "Hanna Bekele", email: "manager@mediq.pro", role: "manager", department: "Management", status: "active", last_login: "2026-08-11T07:55:00" },
-    { id: "U-003", name: "Dr. Daniel Alemu", email: "doctor@mediq.pro", role: "doctor", department: "Internal Medicine", status: "active", last_login: "2026-08-11T07:40:00" },
-    { id: "U-004", name: "Marta Tesfaye", email: "nurse@mediq.pro", role: "nurse", department: "General Ward", status: "active", last_login: "2026-08-11T06:58:00" },
-    { id: "U-005", name: "Yonas Girma", email: "pharmacist@mediq.pro", role: "pharmacist", department: "Pharmacy", status: "active", last_login: "2026-08-11T07:20:00" },
-    { id: "U-006", name: "Sara Worku", email: "lab@mediq.pro", role: "laboratory", department: "Laboratory", status: "active", last_login: "2026-08-11T07:10:00" },
-    { id: "U-007", name: "Liya Hailu", email: "reception@mediq.pro", role: "reception", department: "Front Desk", status: "active", last_login: "2026-08-11T06:45:00" },
-    { id: "U-008", name: "Abel Mekonnen", email: "patient@mediq.pro", role: "patient", department: "—", status: "active", last_login: "2026-08-10T18:30:00" },
-    { id: "U-009", name: "Dr. Fikru Debebe", email: "fikru.d@mediq.pro", role: "doctor", department: "Pediatrics", status: "active", last_login: "2026-08-10T16:12:00" },
-    { id: "U-010", name: "Bethelehem Girma", email: "beti.g@mediq.pro", role: "nurse", department: "Pediatrics", status: "inactive", last_login: "2026-08-04T13:02:00" },
-    { id: "U-011", name: "Dr. Meron Assefa", email: "meron.a@mediq.pro", role: "doctor", department: "Cardiology", status: "active", last_login: "2026-08-10T15:44:00" },
-    { id: "U-012", name: "Kaleb Teshome", email: "kaleb.t@mediq.pro", role: "pharmacist", department: "Pharmacy", status: "active", last_login: "2026-08-10T17:20:00" }
+    { id: "U-001", name: "Solomon Tadesse", email: "admin@wsh.et", role: "admin", department: "Administration", status: "active", last_login: "2026-08-11T08:12:00" },
+    { id: "U-002", name: "Hanna Bekele", email: "manager@wsh.et", role: "manager", department: "Management", status: "active", last_login: "2026-08-11T07:55:00" },
+    { id: "U-003", name: "Dr. Daniel Alemu", email: "doctor@wsh.et", role: "doctor", department: "Internal Medicine", status: "active", last_login: "2026-08-11T07:40:00" },
+    { id: "U-004", name: "Marta Tesfaye", email: "nurse@wsh.et", role: "nurse", department: "General Ward", status: "active", last_login: "2026-08-11T06:58:00" },
+    { id: "U-005", name: "Yonas Girma", email: "pharmacist@wsh.et", role: "pharmacist", department: "Pharmacy", status: "active", last_login: "2026-08-11T07:20:00" },
+    { id: "U-006", name: "Sara Worku", email: "lab@wsh.et", role: "laboratory", department: "Laboratory", status: "active", last_login: "2026-08-11T07:10:00" },
+    { id: "U-007", name: "Liya Hailu", email: "reception@wsh.et", role: "reception", department: "Front Desk", status: "active", last_login: "2026-08-11T06:45:00" },
+    { id: "U-008", name: "Abel Mekonnen", email: "patient@wsh.et", role: "patient", department: "—", status: "active", last_login: "2026-08-10T18:30:00" },
+    { id: "U-009", name: "Dr. Fikru Debebe", email: "fikru.d@wsh.et", role: "doctor", department: "Pediatrics", status: "active", last_login: "2026-08-10T16:12:00" },
+    { id: "U-010", name: "Bethelehem Girma", email: "beti.g@wsh.et", role: "nurse", department: "Pediatrics", status: "inactive", last_login: "2026-08-04T13:02:00" },
+    { id: "U-011", name: "Dr. Meron Assefa", email: "meron.a@wsh.et", role: "doctor", department: "Cardiology", status: "active", last_login: "2026-08-10T15:44:00" },
+    { id: "U-012", name: "Kaleb Teshome", email: "kaleb.t@wsh.et", role: "pharmacist", department: "Pharmacy", status: "active", last_login: "2026-08-10T17:20:00" }
   ],
 
   patients: [

@@ -1,5 +1,5 @@
 /* ============================================================
-   MedIQ Pro — auth.js
+   Wolaita Sodo Hospital — auth.js
    Login, logout, session check, role-based access control
    ============================================================ */
 
@@ -90,7 +90,7 @@ function getRoleLabel(role) {
 // ---------- Login ----------
 async function login(email, password) {
   if (CONFIG.DEMO_MODE) {
-    // Demo: accept demo accounts by email (e.g. admin@mediq.pro) or role name
+    // Demo: accept demo accounts by email (e.g. admin@wsh.et) or role name
     const roleKey = (email || "").toLowerCase().split("@")[0];
     const account = CONFIG.DEMO_ACCOUNTS[roleKey];
     if (account && account.password === password) {
@@ -103,7 +103,7 @@ async function login(email, password) {
       saveSession(session);
       return { ok: true, session };
     }
-    return { ok: false, error: "Invalid email or password. Try a demo account (e.g. admin@mediq.pro / admin123)." };
+    return { ok: false, error: "Invalid email or password. Try a demo account (e.g. admin@wsh.et / admin123)." };
   }
 
   // Production: call FastAPI

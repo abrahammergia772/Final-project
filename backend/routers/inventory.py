@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/inventory.py  (Module 5: Inventory Forecasting)
+# Wolaita Sodo Hospital — routers/inventory.py  (Module 5: Inventory Forecasting)
 # POST /ai/forecast-inventory
 # Uses the trained 27-feature XGBRegressor + per-drug Prophet seasonal JSONs.
 # =============================================================================

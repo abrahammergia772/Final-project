@@ -58,7 +58,7 @@ window.ICONS = {
   "receipt": "<path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\"/><path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\"/><path d=\"M12 17.5v-11\"/>",
   "card": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/>",
   "info": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 16v-4M12 8h.01\"/>",
-  "menu": "<path d=\"M4 6h16M4 12h16M4 18h16\"/>",
+  "menu": "<line x1=\"4\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"4\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"4\" y1=\"18\" x2=\"20\" y2=\"18\"/>",
   "chevron-left": "<path d=\"m15 18-6-6 6-6\"/>",
   "chevron-right": "<path d=\"m9 18 6-6-6-6\"/>",
   "chevron-down": "<path d=\"m6 9 6 6 6-6\"/>",
@@ -76,3 +76,22 @@ window.ICONS = {
   "fingerprint": "<path d=\"M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4\"/><path d=\"M14 13.12c0 2.38 0 6.38-1 8.88\"/><path d=\"M17.29 21.02c.12-.6.43-2.3.5-3.02\"/><path d=\"M2 12a10 10 0 0 1 18-6\"/><path d=\"M2 16h.01\"/><path d=\"M21.8 16c.2-2 .131-5.354 0-6\"/><path d=\"M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2\"/><path d=\"M8.65 22c.21-.66.45-1.32.57-2\"/><path d=\"M9 6.8a6 6 0 0 1 9 5.2v2\"/>",
   "play": "<polygon points=\"6 3 20 12 6 21 6 3\"/>"
 };
+
+// ---------------------------------------------------------------------
+// Wrap every icon fragment in a complete <svg> element.
+// Consumers (app.js SPA shell, utils.js modals, page inline scripts)
+// insert ICONS.* directly as HTML — without this wrapper the bare
+// <path>/<line>/… fragments render as nothing (icons invisible).
+// ---------------------------------------------------------------------
+(function () {
+  var wrap = function (inner) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+         + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + "</svg>";
+  };
+  for (var k in window.ICONS) {
+    if (Object.prototype.hasOwnProperty.call(window.ICONS, k)
+        && window.ICONS[k].indexOf("<svg") !== 0) {
+      window.ICONS[k] = wrap(window.ICONS[k]);
+    }
+  }
+})();

@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/lab.py  (Module 3: Lab Result Analyzer)
+# Wolaita Sodo Hospital — routers/lab.py  (Module 3: Lab Result Analyzer)
 # POST /ai/analyze-lab
 # Uses the trained 78-feature RF/XGB ensemble (Anemia / CKD / Liver / Normal).
 # =============================================================================

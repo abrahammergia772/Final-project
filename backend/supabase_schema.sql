@@ -1,5 +1,5 @@
 -- =============================================================================
--- MedIQ Pro — Supabase schema
+-- Wolaita Sodo Hospital — Supabase schema
 -- Run this in Supabase → SQL Editor (create a new project, paste, Run).
 -- Creates the core tables + row-level-security policies.
 -- =============================================================================

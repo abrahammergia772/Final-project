@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/chatbot.py  (Module 7: Symptom Checker Chatbot)
+# Wolaita Sodo Hospital — routers/chatbot.py  (Module 7: Symptom Checker Chatbot)
 # POST /ai/symptom-chat
 # Uses the trained TF-IDF + RF/XGB ensemble (43 disease classes) plus
 # urgency keywords and response templates from backend/models.

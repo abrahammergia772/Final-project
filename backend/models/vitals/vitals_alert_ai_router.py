@@ -1,7 +1,7 @@
 
 # =============================================================================
 # backend/routers/vitals_alert_ai.py
-# MedIQ Pro — Module 4: Vitals Alert System AI
+# Wolaita Sodo Hospital — Module 4: Vitals Alert System AI
 # =============================================================================
 
 from fastapi import APIRouter, HTTPException

@@ -1,5 +1,5 @@
 /* ============================================================
-   MedIQ Pro — utils.js
+   Wolaita Sodo Hospital — utils.js
    Shared helpers: dates, currency, toasts, modals, loading,
    tables, CSV export, SVG charts (no external libraries)
    ============================================================ */
@@ -390,6 +390,18 @@ function attachDataTable(table, opts = {}) {
 // toggle, mobile-overlay close, and data-close-menu links all continue to
 // work after the SPA shell rebuilds the sidebar/topbar on login. Safe to
 // call multiple times — the global listeners attach only once per page load.
+// Mobile menu open/close — keep body class + hamburger a11y state in sync
+function openMobileMenu() {
+  document.body.classList.add("mobile-menu-open");
+  const h = document.getElementById("hamburger");
+  if (h) { h.setAttribute("aria-label", "Close menu"); h.setAttribute("aria-expanded", "true"); }
+}
+function closeMobileMenu() {
+  document.body.classList.remove("mobile-menu-open");
+  const h = document.getElementById("hamburger");
+  if (h) { h.setAttribute("aria-label", "Open menu"); h.setAttribute("aria-expanded", "false"); }
+}
+
 let _layoutDelegationDone = false;
 function _bindLayoutDelegation() {
   if (_layoutDelegationDone) return;
@@ -400,7 +412,7 @@ function _bindLayoutDelegation() {
     const ham = e.target.closest("#hamburger");
     if (ham) {
       e.stopPropagation();
-      document.body.classList.add("mobile-menu-open");
+      openMobileMenu();
       return;
     }
     // Collapse toggle (desktop sidebar)
@@ -412,13 +424,13 @@ function _bindLayoutDelegation() {
     }
     // Click on overlay → close mobile menu
     if (e.target && e.target.id === "mobileOverlay") {
-      document.body.classList.remove("mobile-menu-open");
+      closeMobileMenu();
       return;
     }
     // Any link marked [data-close-menu] (e.g. sidebar nav items) → close mobile menu
     const closer = e.target.closest("[data-close-menu]");
     if (closer) {
-      document.body.classList.remove("mobile-menu-open");
+      closeMobileMenu();
     }
   });
 
@@ -431,7 +443,7 @@ function _bindLayoutDelegation() {
     document.addEventListener("touchend", (e) => {
       const dx = e.changedTouches[0].clientX - touchStartX;
       if (touchStartX > 40 && dx < -60) {
-        document.body.classList.remove("mobile-menu-open");
+        closeMobileMenu();
       }
     }, { passive: true });
   } catch (e) { /* ignore on browsers without touch */ }
@@ -440,7 +452,7 @@ function _bindLayoutDelegation() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       document.querySelectorAll(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
-      document.body.classList.remove("mobile-menu-open");
+      closeMobileMenu();
     }
   });
 }

@@ -1,4 +1,4 @@
-# MedIQ Pro — Backend (FastAPI + Supabase)
+# Wolaita Sodo Hospital — Backend (FastAPI + Supabase)
 
 All **7 AI modules** served from your **trained models** in `backend/models/`,
 plus **Supabase** as the database and a **Render**-ready config.
@@ -38,8 +38,8 @@ CORS_ORIGINS=https://your-frontend.example (exact comma-separated origins; never
 4. Optionally seed demo users:
    ```sql
    insert into users (email, password_hash, name, role) values
-   ('admin@mediq.pro','<sha256 of admin123>','Solomon Tadesse','admin'),
-   ('doctor@mediq.pro','<sha256 of doctor123>','Dr. Daniel Alemu','doctor');
+   ('admin@wsh.et','<sha256 of admin123>','Solomon Tadesse','admin'),
+   ('doctor@wsh.et','<sha256 of doctor123>','Dr. Daniel Alemu','doctor');
    ```
    (`password_hash` is `sha256(password)` — compute it with
    `python -c "import hashlib; print(hashlib.sha256(b'admin123').hexdigest())"`)

@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — backend/config.py
+# Wolaita Sodo Hospital — backend/config.py
 # Central configuration read from environment variables (set in Render).
 # =============================================================================
 import os

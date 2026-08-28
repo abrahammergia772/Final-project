@@ -1,5 +1,5 @@
 /* ============================================================
-   MedIQ Pro — sidebar.css
+   Wolaita Sodo Hospital — sidebar.css
    Sidebar navigation, collapse, mobile off-canvas, profile
    ============================================================ */
 
@@ -35,7 +35,7 @@
   object-fit: cover;
 }
 .sidebar-logo .logo-text { line-height: 1.15; min-width: 0; }
-.sidebar-logo .logo-text .brand { font-size: 17px; font-weight: 700; letter-spacing: 0.2px; white-space: nowrap; }
+.sidebar-logo .logo-text .brand { font-size: 15.5px; font-weight: 700; letter-spacing: 0; line-height: 1.15; }
 .sidebar-logo .logo-text .tag { font-size: 11px; color: rgba(255, 255, 255, 0.65); white-space: nowrap; }
 
 /* ---------- Nav ---------- */
@@ -217,6 +217,26 @@ body.mobile-menu-open .mobile-overlay { opacity: 1; pointer-events: auto; }
   box-shadow: var(--shadow-sm);
   align-items: center;
   justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.hamburger svg { width: 20px; height: 20px; }
+.hamburger svg line {
+  transition: transform 0.25s ease, opacity 0.15s ease;
+  transform-origin: center;
+}
+.hamburger:hover { background: var(--primary-light); color: var(--primary); }
+.hamburger:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.35); }
+.hamburger:active { transform: scale(0.94); }
+
+/* Open state: button inverts and the 3 lines morph into an X */
+body.mobile-menu-open .hamburger { background: var(--primary); color: var(--white); }
+body.mobile-menu-open .hamburger svg line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+body.mobile-menu-open .hamburger svg line:nth-child(2) { opacity: 0; }
+body.mobile-menu-open .hamburger svg line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hamburger svg line { transition: none; }
+  .hamburger:active { transform: none; }
 }
 
 @media (max-width: 768px) {

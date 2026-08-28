@@ -1,4 +1,4 @@
-# Render Blueprint — MedIQ Pro (full stack)
+# Render Blueprint — Wolaita Sodo Hospital (full stack)
 # Deploys two services:
 #   1. FastAPI backend (web service, free tier, memory-safe)
 #   2. Static frontend (static site, free)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # =============================================================================
-# MedIQ Pro — backend/download_models.py
+# Wolaita Sodo Hospital — backend/download_models.py
 # SOLUTION FOR GITHUB'S 25 MB FILE LIMIT
 # ---------------------------------------------------------------
 # GitHub rejects files larger than 25 MB when pushed normally. The trained

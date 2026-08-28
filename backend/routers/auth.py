@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/auth.py
+# Wolaita Sodo Hospital — routers/auth.py
 # POST /auth/login  ·  POST /auth/signup  ·  POST /auth/reset-password
 # Authenticates against the Supabase `users` table when configured; otherwise
 # falls back to built-in demo accounts so the whole system stays usable.
@@ -52,10 +52,10 @@ DEMO_USERS = {
 }
 # actual demo passwords (matching the frontend)
 DEMO_PASSWORDS = {
-    "admin@mediq.pro": "admin123", "manager@mediq.pro": "manager123",
-    "doctor@mediq.pro": "doctor123", "nurse@mediq.pro": "nurse123",
-    "pharmacist@mediq.pro": "pharmacist123", "lab@mediq.pro": "lab123",
-    "reception@mediq.pro": "reception123", "patient@mediq.pro": "patient123",
+    "admin@wsh.et": "admin123", "manager@wsh.et": "manager123",
+    "doctor@wsh.et": "doctor123", "nurse@wsh.et": "nurse123",
+    "pharmacist@wsh.et": "pharmacist123", "lab@wsh.et": "lab123",
+    "reception@wsh.et": "reception123", "patient@wsh.et": "patient123",
 }
 
 

@@ -1,7 +1,7 @@
 {
   "model_version": "1.0.0",
   "module": "Lab Result Analyzer",
-  "project": "MedIQ Pro",
+  "project": "Wolaita Sodo Hospital",
   "university": "Wolaita Sodo University",
   "features": [
     "hemoglobin",

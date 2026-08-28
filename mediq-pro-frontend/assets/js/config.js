@@ -1,10 +1,10 @@
 /* ============================================================
-   MedIQ Pro — config.js
+   Wolaita Sodo Hospital — config.js
    API base URL, Supabase keys, app settings, demo mode
    ============================================================ */
 
 const CONFIG = {
-  APP_NAME: "MedIQ Pro",
+  APP_NAME: "Wolaita Sodo Hospital",
   VERSION: "1.0.0",
 
   // Optional free YouTube Data API v3 key (Google). If left empty, the Health
@@ -29,8 +29,8 @@ const CONFIG = {
 
   // DEMO_MODE = true → the app runs with realistic mock data so the whole
   // frontend is fully testable BEFORE the FastAPI backend + .pkl models are ready.
-  // Set to false once your backend is live.
-  DEMO_MODE: false,
+  // Set to false once your backend is live AND redeployed with matching accounts.
+  DEMO_MODE: true,
 
   // Demo accounts used when DEMO_MODE is true (also reachable from the login page)
   DEMO_ACCOUNTS: {

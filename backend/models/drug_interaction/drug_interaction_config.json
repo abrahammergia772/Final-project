@@ -1,7 +1,7 @@
 {
   "module": "drug_interaction_checker",
   "version": "1.0.0",
-  "description": "MedIQ Pro \u2014 Module 2: Drug Interaction Checker AI",
+  "description": "Wolaita Sodo Hospital \u2014 Module 2: Drug Interaction Checker AI",
   "models": {
     "random_forest": "drug_interaction_rf.pkl",
     "xgboost": "drug_interaction_xgb.pkl",

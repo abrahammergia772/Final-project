@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/clinical.py  (Module 1: Clinical Decision Support)
+# Wolaita Sodo Hospital — routers/clinical.py  (Module 1: Clinical Decision Support)
 # POST /ai/predict-disease
 # Uses the trained TF-IDF + RandomForest/XGBoost ensemble from backend/models.
 # =============================================================================

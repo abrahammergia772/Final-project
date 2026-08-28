@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — backend/main.py
+# Wolaita Sodo Hospital — backend/main.py
 # FastAPI application — all 7 AI modules + auth + Supabase-backed data CRUD.
 #
 # Run locally:   uvicorn main:app --reload --port 8000
@@ -43,7 +43,7 @@ def _log_memory(tag: str = "") -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.info("MedIQ Pro starting (LAZY_LOAD=%s, SKIP_RF_MODELS=%s, LOW_MEMORY=%s)",
+    log.info("Wolaita Sodo Hospital starting (LAZY_LOAD=%s, SKIP_RF_MODELS=%s, LOW_MEMORY=%s)",
              LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY)
 
     # 1) In eager mode, try to fetch any missing >25 MB model files.
@@ -59,12 +59,12 @@ async def lifespan(app: FastAPI):
     model_loader.load_all()
     gc.collect()
     _log_memory("post-init")
-    log.info("MedIQ Pro API ready.")
+    log.info("Wolaita Sodo Hospital API ready.")
     yield
     _log_memory("shutdown")
 
 
-app = FastAPI(title="MedIQ Pro API", version="2.0.1", lifespan=lifespan)
+app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -80,7 +80,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "MedIQ Pro API", "version": "2.0.1",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.1",
             "low_memory": LOW_MEMORY,
             "lazy_load": LAZY_LOAD,
             "skip_rf_models": SKIP_RF_MODELS,

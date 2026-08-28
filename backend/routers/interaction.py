@@ -1,5 +1,5 @@
 # =============================================================================
-# MedIQ Pro — routers/interaction.py  (Module 2: Drug Interaction Checker)
+# Wolaita Sodo Hospital — routers/interaction.py  (Module 2: Drug Interaction Checker)
 # POST /ai/check-interaction
 # Uses the trained TF-IDF + RF/XGB ensemble (3 classes: Safe/Moderate/Severe).
 # =============================================================================

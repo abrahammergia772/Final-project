@@ -1,4 +1,4 @@
-# 🏥 MedIQ Pro — AI-Powered Hospital Management System
+# 🏥 Wolaita Sodo Hospital — AI-Powered Hospital Management System
 
 University thesis project — **Wolaita Sodo University, Ethiopia**
 Department of Electrical and Computer Engineering
@@ -90,14 +90,14 @@ runs on realistic mock data. Open `mediq-pro-frontend/index.html` in any browser
 
 | Role       | Email              | Password      |
 |------------|--------------------|---------------|
-| Admin      | `admin@mediq.pro`  | `admin123`    |
-| Manager    | `manager@mediq.pro`| `manager123`  |
-| Doctor     | `doctor@mediq.pro` | `doctor123`   |
-| Nurse      | `nurse@mediq.pro`  | `nurse123`    |
-| Pharmacist | `pharmacist@mediq.pro` | `pharmacist123` |
-| Laboratory | `lab@mediq.pro`    | `lab123`      |
-| Reception  | `reception@mediq.pro` | `reception123` |
-| Patient    | `patient@mediq.pro`| `patient123`  |
+| Admin      | `admin@wsh.et`  | `admin123`    |
+| Manager    | `manager@wsh.et`| `manager123`  |
+| Doctor     | `doctor@wsh.et` | `doctor123`   |
+| Nurse      | `nurse@wsh.et`  | `nurse123`    |
+| Pharmacist | `pharmacist@wsh.et` | `pharmacist123` |
+| Laboratory | `lab@wsh.et`    | `lab123`      |
+| Reception  | `reception@wsh.et` | `reception123` |
+| Patient    | `patient@wsh.et`| `patient123`  |
 
 The login page also has **one-click demo buttons** for every role.
 
