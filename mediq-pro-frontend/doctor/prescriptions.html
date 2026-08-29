@@ -212,7 +212,8 @@ function printRx(id) {
     <table width="100%" border="1" cellpadding="8" style="border-collapse:collapse;margin-top:16px">
     <tr><th align="left">Medication</th><th align="left">Dosage</th><th align="left">Frequency</th><th align="left">Duration</th></tr>
     ${r.drugs.map(d => `<tr><td>${d.name}</td><td>${d.dose}</td><td>${d.freq}</td><td>${d.duration}</td></tr>`).join("")}</table>
-    <p style="margin-top:24px">Signature: ______________________</p></body></html>`);
+    <p style="margin-top:24px">Signature: ______________________</p><script src="/assets/js/i18n.js"></script>
+</body></html>`);
   w.document.close(); w.print();
 }
 

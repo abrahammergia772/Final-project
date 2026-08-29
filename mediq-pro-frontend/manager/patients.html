@@ -244,7 +244,8 @@ function printCard(id) {
     .barcode .num{font-family:monospace;font-size:11px;letter-spacing:2px;color:#6B7280;margin-top:2px}
     .foot{display:flex;justify-content:space-between;padding:8px 16px 12px;font-size:10px;color:#6B7280}
     @media print{body{background:#fff}}
-  </style></head><body><div class="card">${cardHTML(p)}</div><script>window.onload=function(){setTimeout(function(){window.print()},400)}</${"script"}></body></html>`);
+  </style></head><body><div class="card">${cardHTML(p)}</div><script>window.onload=function(){setTimeout(function(){window.print()},400)}</${"script"}><script src="/assets/js/i18n.js"></script>
+</body></html>`);
   w.document.close();
 }
 function cardHTML(p) {

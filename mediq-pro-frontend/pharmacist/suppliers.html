@@ -205,5 +205,6 @@ function quickPo(drug) {
 function recvPo(id) { const p = POS.find(x => x.id === id); p.status = "received"; renderPos(); showToast("PO " + p.id + " marked as received — stock updated", "success"); }
 
 </script>
+<script src="/assets/js/i18n.js"></script>
 </body>
 </html>

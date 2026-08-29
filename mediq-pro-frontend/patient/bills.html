@@ -178,7 +178,8 @@ function printBill(id) {
     <div class="h"><h2>Wolaita Sodo University Hospital</h2><p>Official Receipt</p></div>
     <p><strong>Receipt No:</strong> ${b.id}</p><p><strong>Date:</strong> ${formatDate(b.date)}</p>
     <p><strong>Description:</strong> ${b.description}</p><p><strong>Amount Paid:</strong> ${formatCurrency(b.amount)}</p>
-    <p><strong>Status:</strong> PAID ✓</p><p style="margin-top:24px">Thank you! ______</p></body></html>`);
+    <p><strong>Status:</strong> PAID ✓</p><p style="margin-top:24px">Thank you! ______</p><script src="/assets/js/i18n.js"></script>
+</body></html>`);
   w.document.close(); w.print();
 }
 function printAll() { showToast("Select a paid bill to print its receipt","info"); }
