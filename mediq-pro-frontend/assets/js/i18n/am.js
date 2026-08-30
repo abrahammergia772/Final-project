@@ -16,6 +16,8 @@ window.I18N_AM = {
 "Management System": "አስተዳደር ስርዓት",
 "AI-Powered Hospital Management System": "በ AI የተጎለበተ የሆስፒታል አስተዳደር ስርዓት",
 "Wolaita Sodo University Hospital": "ወላይታ ሶዶ ዩኒቨርሲቲ ሆስፒታል",
+"Care | Compassion | Community": "እንክብካቤ | ርህራሄ | ማህበረሰብ",
+"Wolaita Sodo Hospital — Care | Compassion | Community": "ወላይታ ሶዶ ሆስፒታል — እንክብካቤ | ርህራሄ | ማህበረሰብ",
 "WSUH · Wolaita Sodo Hospital": "WSUH · ወላይታ ሶዶ ሆስፒታል",
 "Wolaita Sodo Hospital v1.0 · Demo mode active": "ወላይታ ሶዶ ሆስፒታል v1.0 · የሙከራ ሁነታ ንቁ",
 "Demo mode active": "የሙከራ ሁነታ ንቁ",

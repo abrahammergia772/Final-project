@@ -116,7 +116,7 @@ window.SPA = { mode: true, current: "" };
     const cfg = (window.NAV_ROLES || {})[role] || { label: role, nav: [] };
     // Sidebar
     let sb = '<button class="sidebar-toggle" id="sidebarToggle" title="Collapse menu">' + (window.ICONS ? window.ICONS["chevron-left"] : "") + '</button>';
-    sb += '<div class="sidebar-logo"><img src="assets/images/logo.png" alt="Wolaita Sodo Hospital logo"><div class="logo-text"><div class="brand">Wolaita Sodo Hospital</div><div class="tag">Management System</div></div></div>';
+    sb += '<div class="sidebar-logo"><img src="assets/images/logo-mark.png" alt="Wolaita Sodo Hospital"><div class="logo-text"><div class="brand">Wolaita Sodo Hospital</div><div class="tag">Management System</div></div></div>';
     sb += '<nav class="sidebar-nav">';
     const perm = (window.NAV_PERM_MAP || {})[role] || {};
     cfg.nav.forEach(([section, items]) => {
