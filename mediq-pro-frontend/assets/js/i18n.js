@@ -179,38 +179,65 @@
     }
   }
 
-  /* ---------------- language switcher ---------------- */
+  /* ---------------- language switcher (segmented EN | አማ) ---------------- */
   var btn = null;
 
-  function switchLabel() {
-    if (!btn) return;
-    btn.innerHTML = lang === "am"
-      ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
-      + ' <b>አማ</b> · English'
-      : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
-      + ' English · <b>አማርኛ</b>';
-    btn.setAttribute("title", lang === "am" ? "Switch to English" : "ወደ አማርኛ ቀይር");
-    btn.setAttribute("aria-label", lang === "am" ? "Switch language to English" : "ቋንቋውን ወደ አማርኛ ይቀይሩ");
+  var GLOBE = '<svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+
+  function buildBtn() {
+    if (btn) return;
+    btn = document.createElement("div");
+    btn.id = "langSwitch";
+    btn.className = "lang-seg";
+    btn.setAttribute("role", "group");
+    btn.setAttribute("aria-label", "Language / ቋንቋ");
+    btn.innerHTML = GLOBE +
+      '<button type="button" class="lang-opt" data-lang="en" title="English" aria-label="English">EN</button>' +
+      '<button type="button" class="lang-opt" data-lang="am" title="አማርኛ" aria-label="አማርኛ">አማ</button>';
+    btn.addEventListener("click", function (e) {
+      var opt = e.target.closest ? e.target.closest(".lang-opt") : null;
+      if (opt) setLang(opt.getAttribute("data-lang"), false);
+    });
   }
 
-  function placeSwitcher() {
-    if (!btn) {
-      btn = document.createElement("button");
-      btn.type = "button";
-      btn.id = "langSwitch";
-      btn.className = "lang-switch";
-      btn.addEventListener("click", function () { setLang(lang === "am" ? "en" : "am"); });
+  function updateLabels() {
+    if (!btn) return;
+    var opts = btn.querySelectorAll(".lang-opt");
+    for (var i = 0; i < opts.length; i++) {
+      var on = opts[i].getAttribute("data-lang") === lang;
+      opts[i].classList.toggle("active", on);
+      opts[i].setAttribute("aria-pressed", on ? "true" : "false");
     }
+  }
+
+  function placeControls() {
+    buildBtn();
+    updateLabels();
+    var wrapper = document.getElementById("appControls");
+    if (!wrapper) {
+      wrapper = document.createElement("div");
+      wrapper.id = "appControls";
+      wrapper.className = "app-controls";
+    }
+    if (!wrapper.contains(btn)) wrapper.appendChild(btn);
+    var tbtn = document.getElementById("themeSwitch");
+    if (tbtn && !wrapper.contains(tbtn)) wrapper.appendChild(tbtn);
+
     var bar = document.querySelector(".topbar");
-    var visible = bar && bar.offsetParent !== null && !bar.classList.contains("hidden");
-    if (visible) {
-      btn.classList.remove("lang-switch-fixed");
-      if (btn.parentNode !== bar) bar.insertBefore(btn, bar.firstChild);
-    } else {
-      btn.classList.add("lang-switch-fixed");
-      if (btn.parentNode !== document.body) document.body.appendChild(btn);
+    var visible = false;
+    if (bar && !bar.classList.contains("hidden") &&
+        !(bar.closest && bar.closest(".hidden"))) {   // e.g. empty topbar inside #appView
+      try { visible = window.getComputedStyle(bar).display !== "none"; }
+      catch (e) { visible = true; }
     }
-    switchLabel();
+    if (visible) {
+      var right = bar.querySelector(".topbar-right") || bar;
+      if (wrapper.parentNode !== right) right.insertBefore(wrapper, right.firstChild);
+      wrapper.classList.remove("app-controls-fixed");
+    } else {
+      if (wrapper.parentNode !== document.body) document.body.appendChild(wrapper);
+      wrapper.classList.add("app-controls-fixed");
+    }
   }
 
   /* ---------------- observer ---------------- */
@@ -223,7 +250,7 @@
       busy = true;
       try {
         if (lang === "am") translateNode(document.body);
-        placeSwitcher();
+        placeControls();
       } finally { busy = false; }
     }, 120);
   }
@@ -288,7 +315,7 @@
       if (lang === "am") translateNode(document.body);
       else restoreNode(document.body);
       applyFonts();
-      placeSwitcher();
+      placeControls();
     } finally { busy = false; }
     if (!silent) {
       try { window.dispatchEvent(new CustomEvent("i18n:changed", { detail: { lang: lang } })); } catch (e) {}
@@ -350,29 +377,12 @@
           mo && mo.disconnect();
         }
         applyFonts();
-        placeSwitcher();
+        placeControls();
         startObserver();
       } finally { busy = false; }
       missingReport();
       try { window.dispatchEvent(new CustomEvent("i18n:ready", { detail: { lang: lang } })); } catch (e) {}
     });
-  }
-
-  function injectStyles() {
-    if (document.getElementById("langSwitchCss")) return;
-    var st = document.createElement("style");
-    st.id = "langSwitchCss";
-    st.textContent =
-      ".lang-switch{border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:999px;" +
-      "padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;" +
-      "align-items:center;gap:7px;white-space:nowrap;transition:border-color .15s,color .15s;margin-right:8px}" +
-      ".lang-switch:hover{border-color:#2563eb;color:#2563eb}" +
-      ".lang-switch b{color:#2563eb}" +
-      ".lang-switch-fixed{position:fixed;right:16px;bottom:16px;z-index:99999;background:#fff;" +
-      "box-shadow:0 6px 22px rgba(0,0,0,.22);border:1px solid #e2e8f0}" +
-      "@media(max-width:768px){.lang-switch{padding:6px 10px;font-size:11.5px;margin-right:4px}}" +
-      ".topbar .lang-switch{order:-1}";
-    document.head.appendChild(st);
   }
 
   /* API for page scripts */
@@ -381,14 +391,15 @@
     translate: function (s) { return translateText(s); },
     setLang: setLang,
     getLang: function () { return lang; },
-    dict: function () { return dict; }
+    dict: function () { return dict; },
+    placeControls: placeControls
   };
   window.t = t;
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () { injectStyles(); boot(); });
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    injectStyles(); boot();
+    boot();
   }
 
   // global shortcut Alt+⇧+L toggles the language (works anywhere)

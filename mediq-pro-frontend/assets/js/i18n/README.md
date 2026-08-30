@@ -11,9 +11,11 @@ at runtime** — no page rewrites needed.
 
 ## Using it
 
-- **Switch language:** the globe button (`English · አማርኛ`) appears in the topbar of every role page,
-  and as a floating chip on pages without a topbar (login, signup, admin login).
-- **Shortcut:** `Alt + Shift + L` toggles the language anywhere.
+- **Switch language:** a segmented **`EN | አማ`** control (with a globe icon) sits in the
+  **topbar-right, next to the notification bell** on every role page, and in the
+  **top-right corner** of pages without a topbar (login, signup, admin login, forgot password).
+  It sits together with the **dark-mode toggle** in a single control group.
+- **Shortcut:** `Alt + Shift + L` toggles the language anywhere; `Alt + Shift + T` toggles the theme.
 - **Persistence:** the choice is saved (`localStorage` → key `mediq_lang`, with a
   memory fallback) and applied on every page. It also survives login.
 - **URL override:** `?lang=am` or `?lang=en` forces a language for that visit.
@@ -67,3 +69,15 @@ fires with `{lang}` after every switch.
   formatting differences in HTML don't break matching.
 - To extend to a 3rd language: copy `am.js`, translate the keys, and load it
   the same way (the engine supports arbitrary codes — `lang` is stored as-is).
+
+## Light / Dark mode
+
+`assets/js/theme.js` (loaded in the `<head>` of every page) provides the sun/moon
+toggle and applies the saved theme **before first paint** (no flash):
+
+- Persisted in localStorage (`mediq_theme`); `?theme=dark|light` forces a visit;
+  follows the OS `prefers-color-scheme` until you choose explicitly.
+- Dark colors are declared once in `global.css` under `html[data-theme="dark"]`
+  (variable re-mapping + a few targeted overrides for hardcoded light values).
+- API: `window.Theme.get() / .set("dark") / .toggle()` — and the `theme:changed`
+  event fires with `{theme}` after every switch.
