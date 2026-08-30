@@ -378,10 +378,10 @@ const MOCK = {
   ],
 
   shifts: [
-    { id: "SH-1", name: "Morning", start: "07:00", end: "15:00", color: "#1A56DB", css: "morning", workers: 34 },
-    { id: "SH-2", name: "Evening", start: "15:00", end: "23:00", color: "#D97706", css: "evening", workers: 22 },
+    { id: "SH-1", name: "Morning", start: "07:00", end: "15:00", color: "#1A6FA8", css: "morning", workers: 34 },
+    { id: "SH-2", name: "Evening", start: "15:00", end: "23:00", color: "#B45309", css: "evening", workers: 22 },
     { id: "SH-3", name: "Night", start: "23:00", end: "07:00", color: "#7C3AED", css: "night", workers: 15 },
-    { id: "SH-4", name: "Day (OPD)", start: "08:00", end: "17:00", color: "#047857", css: "day", workers: 18 },
+    { id: "SH-4", name: "Day (OPD)", start: "08:00", end: "17:00", color: "#0F9D5C", css: "day", workers: 18 },
     { id: "SH-5", name: "Half-day", start: "08:00", end: "13:00", color: "#0891B2", css: "half", workers: 6 }
   ],
 

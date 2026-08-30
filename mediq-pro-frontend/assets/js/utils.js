@@ -137,7 +137,7 @@ function badge(text, kind = "neutral") {
 }
 
 function emptyRow(colspan, msg) {
-  return '<tr class="empty-row"><td colspan="' + colspan + '" style="text-align:center;color:#6B7280;padding:32px">' +
+  return '<tr class="empty-row"><td colspan="' + colspan + '" style="text-align:center;color:#64748B;padding:32px">' +
          (msg || "No records found.") + "</td></tr>";
 }
 
@@ -178,14 +178,14 @@ function exportCSV(filename, headers, rows) {
 // ============================================================
 // SVG CHART ENGINE (no external libraries)
 // ============================================================
-const CHART_COLORS = ["#1A56DB", "#10B981", "#D97706", "#7C3AED", "#DC2626", "#0891B2", "#65A30D", "#DB2777"];
+const CHART_COLORS = ["#1A6FA8", "#18BF75", "#B45309", "#7C3AED", "#DC2626", "#0891B2", "#65A30D", "#DB2777"];
 
 function chartSvg(width, height, inner) {
   return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
 }
 
 // Bar chart: data = [{label, value}]
-function barChart(data, { height = 240, color = "#1A56DB", valueFmt = (v) => v } = {}) {
+function barChart(data, { height = 240, color = "#1A6FA8", valueFmt = (v) => v } = {}) {
   const padL = 44, padB = 34, padT = 14, padR = 10;
   const max = Math.max(...data.map(d => d.value), 1);
   const innerW = 620, innerH = height;
@@ -195,8 +195,8 @@ function barChart(data, { height = 240, color = "#1A56DB", valueFmt = (v) => v }
   let bars = "", labels = "", grid = "";
   for (let i = 0; i <= 4; i++) {
     const y = padT + (plotH / 4) * i;
-    grid += `<line x1="${padL}" y1="${y}" x2="${innerW - padR}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`;
-    grid += `<text x="${padL - 8}" y="${y + 4}" font-size="11" fill="#6B7280" text-anchor="end">${valueFmt(Math.round(max - (max / 4) * i))}</text>`;
+    grid += `<line x1="${padL}" y1="${y}" x2="${innerW - padR}" y2="${y}" stroke="#E2E8F0" stroke-width="1"/>`;
+    grid += `<text x="${padL - 8}" y="${y + 4}" font-size="11" fill="#64748B" text-anchor="end">${valueFmt(Math.round(max - (max / 4) * i))}</text>`;
   }
   data.forEach((d, i) => {
     const h = Math.max(2, (d.value / max) * plotH);
@@ -204,13 +204,13 @@ function barChart(data, { height = 240, color = "#1A56DB", valueFmt = (v) => v }
     const y = padT + plotH - h;
     bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="5" fill="${Array.isArray(color) ? color[i % color.length] : color}" opacity="0.92"/>`;
     bars += `<text x="${x + barW / 2}" y="${y - 5}" font-size="10" fill="#374151" text-anchor="middle" font-weight="600">${valueFmt(d.value)}</text>`;
-    labels += `<text x="${x + barW / 2}" y="${innerH - 10}" font-size="10" fill="#6B7280" text-anchor="middle">${d.label}</text>`;
+    labels += `<text x="${x + barW / 2}" y="${innerH - 10}" font-size="10" fill="#64748B" text-anchor="middle">${d.label}</text>`;
   });
   return chartSvg(innerW, innerH, grid + bars + labels);
 }
 
 // Line/area chart: data = [{label, value}]  (opts.area → fill)
-function lineChart(data, { height = 240, color = "#1A56DB", area = true, valueFmt = (v) => v, showPoints = true } = {}) {
+function lineChart(data, { height = 240, color = "#1A6FA8", area = true, valueFmt = (v) => v, showPoints = true } = {}) {
   const padL = 44, padB = 34, padT = 14, padR = 14;
   const values = data.map(d => d.value);
   const max = Math.max(...values, 1);
@@ -223,9 +223,9 @@ function lineChart(data, { height = 240, color = "#1A56DB", area = true, valueFm
   let grid = "";
   for (let i = 0; i <= 4; i++) {
     const y = padT + (plotH / 4) * i;
-    grid += `<line x1="${padL}" y1="${y}" x2="${innerW - padR}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`;
+    grid += `<line x1="${padL}" y1="${y}" x2="${innerW - padR}" y2="${y}" stroke="#E2E8F0" stroke-width="1"/>`;
     const val = min + (range / 4) * (4 - i);
-    grid += `<text x="${padL - 8}" y="${y + 4}" font-size="11" fill="#6B7280" text-anchor="end">${valueFmt(Math.round(val))}</text>`;
+    grid += `<text x="${padL - 8}" y="${y + 4}" font-size="11" fill="#64748B" text-anchor="end">${valueFmt(Math.round(val))}</text>`;
   }
   const pts = data.map((d, i) => X(i) + "," + Y(d.value)).join(" ");
   const poly = `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -233,7 +233,7 @@ function lineChart(data, { height = 240, color = "#1A56DB", area = true, valueFm
   const dots = showPoints ? data.map((d, i) => `<circle cx="${X(i)}" cy="${Y(d.value)}" r="3.4" fill="#fff" stroke="${color}" stroke-width="2"/>`).join("") : "";
   const labels = data.map((d, i) => {
     if (data.length > 12 && i % Math.ceil(data.length / 8) !== 0) return "";
-    return `<text x="${X(i)}" y="${innerH - 10}" font-size="10" fill="#6B7280" text-anchor="middle">${d.label}</text>`;
+    return `<text x="${X(i)}" y="${innerH - 10}" font-size="10" fill="#64748B" text-anchor="middle">${d.label}</text>`;
   }).join("");
   return chartSvg(innerW, innerH, grid + fill + poly + dots + labels);
 }
@@ -254,8 +254,8 @@ function donutChart(data, { size = 200 } = {}) {
   }).join("");
   const centerPct = Math.round((data[0] ? data[0].value : 0) / total * 100);
   return chartSvg(size, size, arcs +
-    `<text x="${cx}" y="${cy - 4}" font-size="24" font-weight="700" fill="#111827" text-anchor="middle">${centerPct}%</text>` +
-    `<text x="${cx}" y="${cy + 16}" font-size="10" fill="#6B7280" text-anchor="middle">${escapeHtml(data[0] ? data[0].label : "")}</text>`);
+    `<text x="${cx}" y="${cy - 4}" font-size="24" font-weight="700" fill="#1E293B" text-anchor="middle">${centerPct}%</text>` +
+    `<text x="${cx}" y="${cy + 16}" font-size="10" fill="#64748B" text-anchor="middle">${escapeHtml(data[0] ? data[0].label : "")}</text>`);
 }
 function polar(cx, cy, r, deg) {
   const rad = (deg - 90) * Math.PI / 180;
@@ -263,7 +263,7 @@ function polar(cx, cy, r, deg) {
 }
 
 // Sparkline: values = [numbers]
-function sparkline(values, { width = 140, height = 40, color = "#1A56DB" } = {}) {
+function sparkline(values, { width = 140, height = 40, color = "#1A6FA8" } = {}) {
   const max = Math.max(...values, 1), min = Math.min(...values, 0);
   const range = Math.max(max - min, 1);
   const X = (i) => (width * i) / Math.max(values.length - 1, 1);
@@ -279,16 +279,16 @@ function heatmapChart(rows) {
   let s = "";
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   days.forEach((d, i) => {
-    s += `<text x="${padL + i * cellW + cellW / 2}" y="${18}" font-size="11" fill="#6B7280" text-anchor="middle">${d}</text>`;
+    s += `<text x="${padL + i * cellW + cellW / 2}" y="${18}" font-size="11" fill="#64748B" text-anchor="middle">${d}</text>`;
   });
   rows.forEach((row, r) => {
     const y = colH + r * cellH;
     s += `<text x="${padL - 10}" y="${y + cellH / 2 + 4}" font-size="11" fill="#374151" text-anchor="end" font-weight="600">${escapeHtml(row.label)}</text>`;
     row.cells.forEach((c, i) => {
       const x = padL + i * cellW;
-      const color = c.v >= 75 ? "#DC2626" : c.v >= 50 ? "#D97706" : c.v >= 25 ? "#FACC15" : "#E7F0E9";
+      const color = c.v >= 75 ? "#DC2626" : c.v >= 50 ? "#B45309" : c.v >= 25 ? "#FACC15" : "#E3F9EF";
       s += `<rect x="${x}" y="${y}" width="${cellW - 8}" height="${cellH - 10}" rx="8" fill="${color}" opacity="0.85"/>`;
-      s += `<text x="${x + (cellW - 8) / 2}" y="${y + (cellH - 10) / 2 + 5}" font-size="13" font-weight="700" fill="${c.v >= 25 ? "#111827" : "#fff"}" text-anchor="middle">${c.v}</text>`;
+      s += `<text x="${x + (cellW - 8) / 2}" y="${y + (cellH - 10) / 2 + 5}" font-size="13" font-weight="700" fill="${c.v >= 25 ? "#1E293B" : "#fff"}" text-anchor="middle">${c.v}</text>`;
     });
   });
   return chartSvg(w, h, s);
@@ -502,7 +502,7 @@ function initNotifications() {
     if (inv.ok) {
       inv.data.items.filter(i => i.status === "low-stock" || i.status === "out-of-stock")
         .slice(0, 2).forEach(i => items.push({
-          icon: "package", tint: "#FFFBEB", color: "#D97706",
+          icon: "package", tint: "#FBF0D3", color: "#B45309",
           category: "Inventory", time: now,
           title: i.name + " — " + i.status.replace("-", " "),
           sub: i.stock + " " + i.unit + " remaining",
@@ -523,7 +523,7 @@ function initNotifications() {
     if (appt.ok) {
       const today = appt.data.items.filter(a => a.date === todayStr() && a.status === "confirmed").length;
       if (today) items.push({
-        icon: "calendar", tint: "#EFF6FF", color: "#1A56DB",
+        icon: "calendar", tint: "#E1EFFA", color: "#1A6FA8",
         category: "Appointments", time: todayStr(),
         title: today + " confirmed appointment" + (today > 1 ? "s" : "") + " today",
         sub: "Review today's schedule",
@@ -538,7 +538,7 @@ function renderNotifItems(menu, items) {
   menu.innerHTML = '<div class="dd-header">Notifications</div>' +
     (items.length
       ? items.map((i, idx) => `<div class="dd-item" data-notif="${idx}"><div class="feed-icon" style="background:${i.tint};color:${i.color}">${ICONS[i.icon]}</div><div class="feed-text"><div class="dd-title">${esc(i.title)}</div><div class="dd-sub">${esc(i.sub)}</div></div></div>`).join("")
-      : '<div class="empty-state" style="padding:22px;color:#6B7280">You\'re all caught up ✅</div>') +
+      : '<div class="empty-state" style="padding:22px;color:#64748B">You\'re all caught up ✅</div>') +
     '<div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast(\'All notifications shown\',\'info\')">View all</a></div>';
   menu.querySelectorAll("[data-notif]").forEach(el => {
     el.addEventListener("click", (e) => {

@@ -5,26 +5,25 @@
 
 /* ---------- 1. Design tokens ---------- */
 :root {
-  /* Colors */
-  --primary: #1A56DB;
-  --primary-dark: #1E40AF;
-  --primary-deep: #1E3A8A;      /* sidebar background */
-  --primary-light: #EFF6FF;
-  --success: #065F46;
-  --success-bg: #ECFDF5;
-  --warning: #D97706;
-  --warning-bg: #FFFBEB;
-  --danger: #DC2626;
+  /* Colors — professional healthcare palette */
+  --primary: #1A6FA8;            /* Ocean blue — primary brand / buttons */
+  --primary-dark: #0F4D78;       /* Deep navy — hover / active */
+  --primary-deep: #0B3A5E;       /* Sidebar background (deepest navy) */
+  --primary-light: #E1EFFA;      /* Sky tint — hovers / light chips */
+  --success: #0F9D5C;            /* Teal green (text-safe) — success / Doctor */
+  --success-bg: #E3F9EF;
+  --warning: #B45309;            /* Amber (text-safe) — Nurse / temperature */
+  --warning-bg: #FBF0D3;
+  --danger: #DC2626;             /* Crimson — Lab / alerts / urgent */
   --danger-bg: #FEF2F2;
-  --info: #0369A1;
-  --info-bg: #F0F9FF;
-  --dark: #111827;
-  --gray: #6B7280;
-  --light-gray: #F3F4F6;
-  --white: #FFFFFF;
-  --border: #E5E7EB;
-  --table-stripe: #F9FAFB;
-
+  --info: #0891B2;               /* Cyan — Reception / calendar */
+  --info-bg: #E0F4FA;
+  --dark: #1E293B;               /* Slate 900 — headings / primary text */
+  --gray: #64748B;               /* Slate 500 — secondary / labels */
+  --light-gray: #E8F4FF;         /* Sky tint — page background */
+  --white: #FFFFFF;              /* Card / modal surface */
+  --border: #E2E8F0;
+  --table-stripe: #F8FAFC;
   /* Typography */
   --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'Courier New', Courier, monospace;
@@ -129,7 +128,7 @@ h3 { font-size: 18px; font-weight: 600; }
 /* Scrollbar */
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
 
 /* ---------- 4. Responsive helpers ---------- */
@@ -155,24 +154,24 @@ body.compact .page-body { padding-top: var(--sp-4); }
    ============================================================================ */
 html[data-theme="dark"] {
   /* Brand (brightened for dark surfaces) */
-  --primary: #3B82F6;
-  --primary-dark: #2563EB;
-  --primary-deep: #0A1322;          /* sidebar background */
-  --primary-light: #16294A;
+  --primary: #4FA3D9;
+  --primary-dark: #6FB8E5;
+  --primary-deep: #0B2B47;          /* sidebar background */
+  --primary-light: #14324D;
 
   /* Status colors */
-  --success: #34D399;  --success-bg: #0E2A23;
-  --warning: #FBBF24;  --warning-bg: #33260B;
-  --danger:  #F87171;  --danger-bg:  #38151F;
-  --info:    #38BDF8;  --info-bg:    #0C2B3E;
+  --success: #2ECE8A;  --success-bg: #0D2B1F;
+  --warning: #F2C14E;  --warning-bg: #33270D;
+  --danger:  #F87171;  --danger-bg:  #3A161F;
+  --info:    #45B8DC;  --info-bg:    #0C3242;
 
   /* Neutrals — surfaces & text */
-  --dark: #E2E8F0;                   /* main text        */
+  --dark: #E2E8F0;                    /* main text        */
   --gray: #94A3B8;
-  --light-gray: #16243A;             /* page bg          */
-  --white: #101A2B;                  /* surface (cards)  */
-  --border: #24334D;
-  --table-stripe: #131E30;
+  --light-gray: #16283E;              /* inputs / hover   */
+  --white: #10203A;                   /* surface (cards)  */
+  --border: #26364F;
+  --table-stripe: #14243A;
 
   /* Deeper shadows on dark */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .45);
@@ -181,12 +180,13 @@ html[data-theme="dark"] {
 }
 
 /* Page / topbar / login surfaces with hardcoded light backgrounds */
-html[data-theme="dark"] body { background: #0B1220; }
-html[data-theme="dark"] .topbar { background: rgba(11, 18, 32, .92); }
+html[data-theme="dark"] body { background: #0C1726; }
+html[data-theme="dark"] .topbar { background: rgba(12, 23, 38, .92); }
 html[data-theme="dark"] .topbar-search .form-control:focus { background: #131E30; }
-html[data-theme="dark"] .login-card { background: rgba(13, 19, 32, .97); box-shadow: 0 24px 60px rgba(0, 0, 0, .6); }
-html[data-theme="dark"] .login-body { background: linear-gradient(135deg, #060D1C 0%, #0C1B3D 55%, #123069 100%); }
-html[data-theme="dark"] .login-demo .demo-role { background: #16243A; border-color: var(--border); color: #C9D4E4; }
+html[data-theme="dark"] .login-card { background: rgba(14, 24, 38, .97); box-shadow: 0 24px 60px rgba(0, 0, 0, .6); }
+html[data-theme="dark"] .login-body { background: linear-gradient(135deg, #05101C 0%, #0A2B47 55%, #0F4066 100%); }
+html[data-theme="dark"] .login-demo .demo-role { background: #16283E; border-color: var(--border); color: #C9D4E4; }
+html[data-theme="dark"] .dr-icon { background: #1B2E48 !important; color: #9DB8D4 !important; }
 html[data-theme="dark"] .login-error { background: var(--danger-bg); color: var(--danger); border-color: rgba(248,113,113,.35); }
 
 /* Sidebar: keep dark but fix elements that used --white */
@@ -199,16 +199,16 @@ html[data-theme="dark"] .sidebar .user-box { background: rgba(255,255,255,.04); 
 /* Components with hardcoded light values */
 html[data-theme="dark"] .badge-default { background: #263550; color: #C9D4E4; }
 html[data-theme="dark"] .chip:hover { background: #1B2A44; }
-html[data-theme="dark"] .skeleton { background: linear-gradient(90deg, #1A2438 25%, #243149 50%, #1A2438 75%); background-size: 200% 100%; }
+html[data-theme="dark"] .skeleton { background: linear-gradient(90deg, #1B2A40 25%, #26364F 50%, #1B2A40 75%); background-size: 200% 100%; }
 html[data-theme="dark"] .doc-card .doc-summary, html[data-theme="dark"] .id-card .idc-rows { color: #A9B6C8; }
 html[data-theme="dark"] .toast { box-shadow: 0 10px 30px rgba(0,0,0,.6); }
-html[data-theme="dark"] .modal-header, html[data-theme="dark"] .modal-footer { background: #0D1526; }
+html[data-theme="dark"] .modal-header, html[data-theme="dark"] .modal-footer { background: #0E1B2E; }
 html[data-theme="dark"] .feed-icon { opacity: .92; }
 
 /* Scrollbars */
-html[data-theme="dark"] * { scrollbar-color: #2E405E #0B1220; }
+html[data-theme="dark"] * { scrollbar-color: #2E405E #0C1726; }
 html[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
-html[data-theme="dark"] ::-webkit-scrollbar-track { background: #0B1220; }
+html[data-theme="dark"] ::-webkit-scrollbar-track { background: #0C1726; }
 html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #2E405E; border-radius: 6px; }
 
 /* Smooth transition only while toggling (theme.js adds .theme-anim) */

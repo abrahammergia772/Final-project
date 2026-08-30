@@ -143,6 +143,27 @@ Every AI output shows a clinical disclaimer, confidence bars and error/loading s
    ```
 4. **Supabase**: put your URL + anon key into `config.js`. Never commit secret keys.
 
+## 🎨 Design tokens — professional healthcare palette
+
+Defined once in `assets/css/global.css` (`:root` for light, `html[data-theme="dark"]` for dark mode).
+
+| Token | Color | Hex | Use |
+|---|---|---|---|
+| `--primary` | Ocean blue | `#1A6FA8` | Primary brand / buttons |
+| `--primary-dark` | Deep navy | `#0F4D78` | Hover / active states |
+| `--primary-deep` | Deepest navy | `#0B3A5E` | Sidebar background |
+| `--primary-light` | Sky tint | `#E1EFFA` | Hovers / light chips |
+| `--success` | Teal green | `#18BF75` (text `#0F9D5C`) | Success / Doctor role |
+| `--warning` | Amber | `#EAB308` (text `#B45309`) | Nurse / Temperature |
+| `--danger` | Crimson | `#DC2626` | Lab / Alerts / Urgent |
+| `--info` | Cyan | `#0891B2` | Reception / Calendar |
+| `--dark` | Slate 900 | `#1E293B` | Headings / primary text |
+| `--gray` | Slate 500 | `#64748B` | Secondary / labels |
+| `--light-gray` | Sky tint bg | `#E8F4FF` | Page background |
+| `--white` / `--border` | White / Slate 300 | `#FFFFFF` / `#E2E8F0` | Card surface / borders |
+
+**Role accent mapping:** Manager `#1A6FA8` · Doctor `#18BF75` · Nurse `#EAB308` · Pharmacist `#7C3AED` · Laboratory `#DC2626` · Reception `#0891B2` · Patient `#18BF75` (used on the login demo buttons and role chips).
+
 ## 📝 Notes
 
 - All money shown in **ETB**, dates in **DD/MM/YYYY** (Ethiopian standard).
