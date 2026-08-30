@@ -485,6 +485,341 @@ const MOCK = {
 };
 
 // ============================================================
+// DEMO DATA SEED — relative to "today", so every page always
+// looks alive (today's appointments, recent lab results, fresh
+// messages, this week's roster, last month's attendance…).
+// Deterministic (seeded) so demo screenshots stay consistent.
+// ============================================================
+(function seedDemoData() {
+  var __s = 20260830;
+  function rnd() { __s = (__s * 1103515245 + 12345) % 2147483648; return __s / 2147483648; }
+  function ri(n) { return Math.floor(rnd() * n); }
+  function pick(a) { return a[ri(a.length)]; }
+  function iso(d) { return d.toISOString().slice(0, 10); }
+  function D(off) { var d = new Date(); d.setDate(d.getDate() + off); return iso(d); }
+  function DT(off, hhmm) { return D(off) + "T" + (hhmm || "09:00") + ":00"; }
+
+  var TIMES = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00"];
+  var DOCS = [
+    { n: "Dr. Daniel Alemu", dept: "Internal Medicine" },
+    { n: "Dr. Fikru Debebe", dept: "Pediatrics" },
+    { n: "Dr. Meron Assefa", dept: "Cardiology" },
+    { n: "Dr. Girma Tola", dept: "Orthopedics" },
+    { n: "Dr. Natnael Fekadu", dept: "Emergency" },
+    { n: "Dr. Tsehay Mengistu", dept: "Maternity" }
+  ];
+  var NURSES = ["Marta Tesfaye", "Bethelehem Girma", "Rahel Demissie"];
+
+  // ---------- 6 extra patients (full directory) ----------
+  var EXTRA_P = [
+    { id: "P-1011", first_name: "Meron", last_name: "Getachew", age: 41, gender: "Female", phone: "+251 912 222 111", email: "meron.g@mail.com", blood: "O+", address: "Sodo, Wolaita", emergency: "+251 912 222 122", condition: "Anemia", status: "active" },
+    { id: "P-1012", first_name: "Sileshi", last_name: "Berta", age: 52, gender: "Male", phone: "+251 913 333 222", email: "sileshi.b@mail.com", blood: "B+", address: "Damot, Wolaita", emergency: "+251 913 333 233", condition: "Tuberculosis", status: "active" },
+    { id: "P-1013", first_name: "Amina", last_name: "Mohammed", age: 26, gender: "Female", phone: "+251 914 444 333", email: "amina.m@mail.com", blood: "A-", address: "Humbo, Wolaita", emergency: "+251 914 444 344", condition: "Malaria (recovering)", status: "active" },
+    { id: "P-1014", first_name: "Chala", last_name: "Desta", age: 35, gender: "Male", phone: "+251 915 555 444", email: "chala.d@mail.com", blood: "AB+", address: "Boditi, Wolaita", emergency: "+251 915 555 455", condition: "Typhoid Fever", status: "active" },
+    { id: "P-1015", first_name: "Tigist", last_name: "Woldu", age: 29, gender: "Female", phone: "+251 916 666 555", email: "tigist.w@mail.com", blood: "O-", address: "Sodo, Wolaita", emergency: "+251 916 666 566", condition: "Maternity (prenatal)", status: "active" },
+    { id: "P-1016", first_name: "Meseret", last_name: "Fikru", age: 63, gender: "Female", phone: "+251 917 777 666", email: "meseret.f@mail.com", blood: "B-", address: "Areka, Wolaita", emergency: "+251 917 777 677", condition: "Osteoarthritis", status: "active" }
+  ];
+  EXTRA_P.forEach(function (p) { p.last_visit = D(-ri(9)); MOCK.patients.push(p); });
+  var ALLP = MOCK.patients;
+  function pIdx() { return ri(ALLP.length); }
+
+  // ---------- appointments: today (+8), next days, past (with no-shows) ----------
+  var apptTypes = ["Consultation", "Follow-up", "New patient", "Teleconsult", "Walk-in"];
+  var apptStatus = ["confirmed", "confirmed", "checked-in", "completed", "cancelled"];
+  var nAppt = 0;
+  function mkAppt(dayOff, forceStatus) {
+    var p = ALLP[pIdx()];
+    var d = DOCS[ri(DOCS.length)];
+    var st = forceStatus || apptStatus[ri(apptStatus.length)];
+    MOCK.appointments.push({
+      id: "A-60" + (nAppt++),
+      patient: p.first_name + " " + p.last_name, patient_id: p.id,
+      doctor: d.n, dept: d.dept, date: D(dayOff), time: TIMES[ri(TIMES.length)],
+      type: apptTypes[ri(apptTypes.length)], status: st,
+      no_show: st === "cancelled" ? ri(45) : 3 + ri(38)
+    });
+  }
+  for (var i = 0; i < 9; i++) mkAppt(0);            // today
+  for (i = 0; i < 6; i++) mkAppt(1 + ri(2));        // next days
+  for (i = 0; i < 8; i++) mkAppt(6 + ri(4));        // next week
+  for (i = 0; i < 7; i++) mkAppt(-(1 + ri(6)));     // past
+
+  // ---------- prescriptions ----------
+  var drugLib = [
+    ["Amoxicillin 500mg", "1 capsule", "Three times daily", "7 days"],
+    ["Ibuprofen 400mg", "1 tablet", "Twice daily", "5 days"],
+    ["Omeprazole 20mg", "1 capsule", "Once daily before breakfast", "14 days"],
+    ["Doxycycline 100mg", "1 tablet", "Once daily", "10 days"],
+    ["Azithromycin 500mg", "1 tablet", "Once daily", "3 days"],
+    ["Metronidazole 400mg", "1 tablet", "Three times daily", "7 days"],
+    ["Vitamin B12 1000mcg", "1 tablet", "Once daily", "30 days"],
+    ["Ferrous Sulfate 200mg", "1 tablet", "Twice daily with food", "60 days"],
+    ["Paracetamol 500mg", "1 tablet", "Up to 3 times daily", "5 days"],
+    ["Amlodipine 10mg", "1 tablet", "Once daily", "30 days"]
+  ];
+  for (i = 0; i < 8; i++) {
+    var rp = ALLP[pIdx()];
+    var rd = DOCS[ri(DOCS.length)];
+    var drugs = [];
+    var nDrugs = 1 + ri(2);
+    for (var d2 = 0; d2 < nDrugs; d2++) {
+      var dl = drugLib[ri(drugLib.length)];
+      drugs.push({ name: dl[0], dose: dl[1], freq: dl[2], duration: dl[3] });
+    }
+    MOCK.prescriptions.push({ id: "RX-22" + (11 + i), patient: rp.first_name + " " + rp.last_name, doctor: rd.n, date: D(-ri(3)), drugs: drugs, status: "active" });
+  }
+
+  // ---------- inventory (round out to the Prophet-forecasted drugs) ----------
+  [
+    { id: "I-013", name: "Ibuprofen 400mg", category: "Analgesic", stock: 190, unit: "tablets", expiry: D(120), status: "in-stock" },
+    { id: "I-014", name: "Omeprazole 20mg", category: "Gastro", stock: 58, unit: "capsules", expiry: D(45), status: "low-stock" },
+    { id: "I-015", name: "Doxycycline 100mg", category: "Antibiotic", stock: 96, unit: "capsules", expiry: D(90), status: "in-stock" },
+    { id: "I-016", name: "Metronidazole 400mg", category: "Antibiotic", stock: 12, unit: "tablets", expiry: D(25), status: "low-stock" },
+    { id: "I-017", name: "Azithromycin 500mg", category: "Antibiotic", stock: 0, unit: "tablets", expiry: D(15), status: "out-of-stock" },
+    { id: "I-018", name: "Ferrous Sulfate 200mg", category: "Supplement", stock: 240, unit: "tablets", expiry: D(200), status: "in-stock" },
+    { id: "I-019", name: "Vitamin B12 1000mcg", category: "Supplement", stock: 141, unit: "tablets", expiry: D(160), status: "in-stock" }
+  ].forEach(function (x) { MOCK.inventory.push(x); });
+
+  // ---------- lab requests & results (recent) ----------
+  var tests = ["Complete Blood Count", "Fasting Blood Sugar", "Lipid Profile", "Thyroid Panel", "Urinalysis", "Malaria Test", "Liver Function", "Kidney Function", "HbA1c"];
+  var prio = ["Routine", "Urgent", "Routine", "Urgent"];
+  for (i = 0; i < 8; i++) {
+    var lp = ALLP[pIdx()];
+    MOCK.lab_requests.push({ id: "LR-34" + i, patient: lp.first_name + " " + lp.last_name, test: tests[ri(tests.length)], doctor: DOCS[ri(DOCS.length)].n, date: D(ri(2) === 0 ? 0 : -1), priority: prio[ri(prio.length)], status: ["pending", "in-progress", "completed"][ri(3)] });
+  }
+  var valueSets = {
+    "Complete Blood Count": [
+      { name: "Hemoglobin", range: "13.5 – 17.5 g/dL", value: "11.2 g/dL", status: "low" },
+      { name: "WBC", range: "4.0 – 11.0 ×10³/µL", value: "7.1 ×10³/µL", status: "normal" },
+      { name: "RBC", range: "4.5 – 5.9 ×10⁶/µL", value: "4.1 ×10⁶/µL", status: "low" }
+    ],
+    "Fasting Blood Sugar": [{ name: "Glucose (Fasting)", range: "70 – 100 mg/dL", value: "126 mg/dL", status: "high" }],
+    "Lipid Profile": [
+      { name: "Total Cholesterol", range: "< 200 mg/dL", value: "238 mg/dL", status: "high" },
+      { name: "LDL", range: "< 100 mg/dL", value: "151 mg/dL", status: "high" },
+      { name: "HDL", range: "> 40 mg/dL", value: "44 mg/dL", status: "normal" }
+    ],
+    "Thyroid Panel": [{ name: "TSH", range: "0.4 – 4.0 mIU/L", value: "6.2 mIU/L", status: "high" }],
+    "Liver Function": [
+      { name: "ALT", range: "7 – 56 U/L", value: "72 U/L", status: "high" },
+      { name: "AST", range: "10 – 40 U/L", value: "61 U/L", status: "high" }
+    ],
+    "Kidney Function": [
+      { name: "Creatinine", range: "0.7 – 1.3 mg/dL", value: "2.1 mg/dL", status: "high" }
+    ],
+    "Urinalysis": [{ name: "Protein", range: "Negative", value: "Trace", status: "abnormal" }],
+    "Malaria Test": [{ name: "Malaria Antigen", range: "Negative", value: "Positive", status: "abnormal" }],
+    "HbA1c": [{ name: "HbA1c", range: "4.0 – 5.6 %", value: "7.9 %", status: "abnormal" }]
+  };
+  var resN = 0;
+  for (i = 0; i < 9; i++) {
+    var lt = tests[ri(tests.length)];
+    var lv = valueSets[lt];
+    var abn = lv.some(function (v) { return v.status !== "normal"; });
+    MOCK.lab_results.push({
+      id: "R-91" + (resN++), patient: (b => b.first_name + " " + b.last_name)(ALLP[pIdx()]),
+      test: lt, date: D(-(1 + ri(4))), status: abn ? "abnormal" : "normal", ai_flag: abn ? "abnormal" : "normal",
+      values: lv
+    });
+  }
+
+  // ---------- medications (today's shift) ----------
+  var medState = ["administered", "pending", "pending", "pending", "missed"];
+  for (i = 0; i < 9; i++) {
+    var mp = ALLP[pIdx()];
+    var md = drugLib[ri(drugLib.length)];
+    var st2 = medState[ri(medState.length)];
+    MOCK.medications.push({ id: "M-" + (10 + i), patient: mp.first_name + " " + mp.last_name, drug: md[0], dose: md[1], due: TIMES[2 + ri(6)], status: st2, time: st2 === "administered" ? "0" + (7 + ri(2)) + ":" + (10 + ri(40)) : "" });
+  }
+
+  // ---------- care plans ----------
+  [
+    { patient: "Meron Getachew", plan: "Iron-deficiency anemia treatment", steps: ["Oral iron twice daily", "Diet: iron-rich foods", "Repeat CBC in 4 weeks"] },
+    { patient: "Sileshi Berta", plan: "TB DOTS therapy", steps: ["Daily supervised dose", "Sputum check monthly", "Nutrition support"] },
+    { patient: "Meseret Fikru", plan: "Osteoarthritis pain management", steps: ["Physiotherapy 3×/week", "Weight management", "Joint protection advice"] }
+  ].forEach(function (cp, ci) { MOCK.care_plans.push({ id: "CP-" + (5 + ci), patient: cp.patient, plan: cp.plan, created: D(-20), updated: D(-ri(3)), status: "in-progress", steps: cp.steps }); });
+
+  // ---------- bills (last 10 days, mixed statuses) ----------
+  var billDesc = ["Consultation — Internal Medicine", "Consultation — Pediatrics", "Complete Blood Count", "Chest X-ray", "ECG — Cardiology", "Prescription — Antibiotics", "Inpatient ward — 1 night", "IV fluids & infusion set", "Physiotherapy session", "Surgical dressing pack", "Malaria RDT", "Ultrasound — Abdomen"];
+  var billStatus = ["paid", "paid", "pending", "pending", "overdue", "paid", "pending"];
+  for (i = 0; i < 12; i++) {
+    MOCK.bills.push({ id: "B-71" + (1 + i), date: D(-ri(9)), description: billDesc[ri(billDesc.length)], amount: [250, 350, 500, 800, 180, 1200, 650, 300][ri(8)], status: billStatus[ri(billStatus.length)] });
+  }
+
+  // ---------- audit logs (today) ----------
+  var auditActs = [
+    ["Dr. Daniel Alemu", "doctor", "create", "Created prescription RX-22" + (11 + ri(8))],
+    ["Yonas Girma", "pharmacist", "update", "Dispensed medication M-" + (10 + ri(9))],
+    ["Sara Worku", "laboratory", "create", "Uploaded lab result R-91" + ri(9)],
+    ["Liya Hailu", "reception", "create", "Registered new patient P-101" + (1 + ri(6))],
+    ["Marta Tesfaye", "nurse", "update", "Recorded vitals for patient"],
+    ["unknown", "—", "login", ""]
+  ];
+  for (i = 0; i < 8; i++) {
+    var aa = auditActs[ri(auditActs.length)];
+    MOCK.audit_logs.push({ id: "AL-1" + (1 + i), ts: DT(0, "0" + (6 + ri(3)) + ":" + (10 + ri(45))), user: aa[0], role: aa[1], action: aa[2], ip: "196.188.24." + (10 + ri(200)), status: aa[0] === "unknown" ? "failed" : "success", detail: aa[3] || "" });
+  }
+
+  // ---------- queue (today walk-ins) ----------
+  var qNames = ALLP.slice(4, 16);
+  for (i = 0; i < 6; i++) {
+    var qp = qNames[ri(qNames.length)];
+    MOCK.queue.push({ id: "Q-" + (7 + i), name: qp.first_name + " " + qp.last_name, dept: DOCS[ri(DOCS.length)].dept, arrived: "0" + (9 + ri(2)) + ":" + (10 + ri(45)), status: i < 2 ? "in-service" : "waiting" });
+  }
+
+  // ---------- announcements (fresh) ----------
+  [
+    { title: "Blood donation drive — this Saturday", message: "The Ethiopian Red Cross will run a blood donation drive at the hospital main hall this Saturday from 08:00 to 14:00. Staff and visitors are encouraged to donate.", audience: "All staff", author: "Solomon Tadesse", priority: "important", status: "published", views: 96 },
+    { title: "Water interruption — Ward 2", message: "Water supply to Ward 2 will be interrupted today from 14:00 to 16:00 for maintenance. Emergency water tanks have been filled.", audience: "All staff", author: "Hanna Bekele", priority: "urgent", status: "published", views: 58 },
+    { title: "New lab analyzer commissioned", message: "The new hematology analyzer in the laboratory is fully operational. All CBC requests will now be processed same-day.", audience: "Doctors", author: "Sara Worku", priority: "normal", status: "published", views: 41 }
+  ].forEach(function (an, ai) { MOCK.announcements.push({ id: "AN-" + (7 + ai), title: an.title, message: an.message, audience: an.audience, author: an.author, publish_date: DT(ai === 2 ? -1 : 0, "0" + (7 + ai) + ":" + (30 + ai * 10)), priority: an.priority, status: an.status, views: an.views }); });
+
+  // ---------- referrals (recent) ----------
+  var refSpec = [["Cardiology", "Dr. Meron Assefa"], ["Nephrology", "Dr. Girma Tola"], ["Endocrinology", "Dr. Fikru Debebe"], ["Pediatric ICU", "St. Mary's Hospital"], ["Ophthalmology", "Hawassa Referral"]];
+  for (i = 0; i < 5; i++) {
+    var fp = ALLP[pIdx()];
+    var fs = refSpec[ri(refSpec.length)];
+    MOCK.referrals.push({ id: "RF-" + (407 + i), patient: fp.first_name + " " + fp.last_name, to: fs[1], specialty: fs[0], reason: ["Requires specialist assessment and further investigation.", "Disease progression needs specialty review.", "Second opinion requested by attending physician."][ri(3)], priority: ["routine", "urgent", "emergency"][ri(3)], date: D(-ri(3)), status: ["pending", "accepted", "completed"][ri(3)] });
+  }
+
+  // ---------- suppliers / POs ----------
+  MOCK.suppliers.push(
+    { id: "SP-7", name: "Ethio Pharma Distributors", contact: "Mr. Abebe Negash", phone: "+251 911 000 107", categories: "Antibiotics, supplements", lead_time: 4, rating: 4.3 },
+    { id: "SP-8", name: "Sodo Medical Trading", contact: "Ms. Birtukan Tadesse", phone: "+251 911 000 108", categories: "Analgesics, IV fluids", lead_time: 3, rating: 4.0 }
+  );
+  [
+    { id: "PO-506", supplier: "Ethio Pharma Distributors", items: ["Azithromycin 500mg — 500", "Ferrous Sulfate — 1000"], total: 14200, status: "ordered" },
+    { id: "PO-507", supplier: "Sodo Medical Trading", items: ["Ibuprofen 400mg — 1500"], total: 9800, status: "received" },
+    { id: "PO-508", supplier: "United Pharma PLC", items: ["Omeprazole 20mg — 800"], total: 11600, status: "ordered" }
+  ].forEach(function (po) { po.date = D(-ri(6)); MOCK.purchase_orders.push(po); });
+
+  // ---------- samples (today pipeline) ----------
+  var stages = ["collected", "received", "processing", "result-ready", "completed"];
+  var sampleTypes = ["Whole blood", "Serum", "Urine"];
+  for (i = 0; i < 6; i++) {
+    var sp = ALLP[pIdx()];
+    MOCK.samples.push({ id: "S-81" + (1 + i), patient: sp.first_name + " " + sp.last_name, test: tests[ri(tests.length)], type: sampleTypes[ri(sampleTypes.length)], collected: "0" + (8 + ri(4)) + ":" + (10 + ri(40)), stage: stages[ri(stages.length)], tat: "" });
+  }
+
+  // ---------- insurance (more coverage checks) ----------
+  [
+    { patient: "Tigist Woldu", provider: "EHBPA", policy: "EHB-2026-5109", coverage: 80, valid_until: D(200), status: "verified" },
+    { patient: "Sileshi Berta", provider: "Nyala Insurance", policy: "NYL-9130", coverage: 75, valid_until: D(90), status: "pending" },
+    { patient: "Meseret Fikru", provider: "GIB (Global Insurance)", policy: "GIB-7712", coverage: 85, valid_until: D(40), status: "verified" }
+  ].forEach(function (x) { MOCK.insurance.push({ id: "IN-" + (7 + ri(100)), patient: x.patient, provider: x.provider, policy: x.policy, coverage: x.coverage, valid_until: x.valid_until, status: x.status }); });
+
+  // ---------- messages & sent (fresh, some unread) ----------
+  var msgs = [
+    ["Dr. Daniel Alemu", "Doctor", "Follow-up review — P-1004", "Selam Tadesse's BP is improving on the reduced dose. Please schedule a follow-up ECG before the end of the week.", "high"],
+    ["Pharmacy", "Pharmacist", "Amoxicillin stock restored", "Amoxicillin 250mg is back in stock. Outstanding prescriptions can now be dispensed.", "normal"],
+    ["Laboratory", "Laboratory", "HbA1c result ready", "Yohannes Mamo's HbA1c is 7.9% — a copy has been sent to the doctor on file.", "normal"],
+    ["Front Desk (Reception)", "Reception", "Walk-in queue update", "The OPD walk-in queue currently has 4 patients. Two have been waiting over 40 minutes.", "normal"],
+    ["Hanna Bekele", "Manager", "Q3 staff review timeline", "Please submit staff self-assessments by Friday. The review meetings start next Monday.", "high"],
+    ["Front Desk (Reception)", "Reception", "Appointment reminder", "Reminder: 5 confirmed appointments and 2 new registrations are scheduled for today.", "normal"]
+  ];
+  msgs.forEach(function (m, mi) { MOCK.messages.push({ id: "MSG-11" + (1 + mi), from: m[0], from_role: m[1], subject: m[2], body: m[3], date: DT(mi < 3 ? -1 : 0, "0" + (8 + ri(4)) + ":" + (10 + ri(45))), read: mi > 2, priority: m[4], replies: [] }); });
+  [
+    ["Dr. Daniel Alemu", "Re: HbA1c result", "Noted. Insulin dose re-evaluation is scheduled for the next visit."],
+    ["Pharmacy", "Re: Amoxicillin stock", "Great — we will notify the affected patients."],
+    ["Hanna Bekele", "Re: Q3 reviews", "Self-assessments will be submitted before Friday as requested."]
+  ].forEach(function (s, si) { MOCK.sent.push({ id: "SENT-60" + (1 + si), to: s[0], subject: s[1], body: s[2], date: DT(0, "09:0" + si + ":00") }); });
+
+  // ---------- documents (fresh uploads) ----------
+  var docTemplates = [
+    ["Lab Report", "Complete Blood Count — ", 214, "Sara Worku", "CBC with low hemoglobin — repeat in 2 weeks."],
+    ["Lab Report", "Kidney Function — ", 208, "Sara Worku", "Creatinine mildly elevated — monitor."],
+    ["Prescription", "Prescription — ", 86, "Dr. Daniel Alemu", "Antibiotic course 7 days."],
+    ["Prescription", "Prescription — ", 92, "Dr. Fikru Debebe", "Bronchodilator as needed."],
+    ["Consent Form", "Consent — ", 138, "Liya Hailu", "Signed consent for procedure."],
+    ["Insurance", "Insurance Verification — ", 310, "Liya Hailu", "Policy verified with 80% coverage."],
+    ["Referral Letter", "Referral — ", 124, "Dr. Meron Assefa", "Referral to specialty clinic."],
+    ["ID Copy", "ID Copy — ", 458, "Liya Hailu", "National ID on file."]
+  ];
+  for (i = 0; i < 8; i++) {
+    var tp = ALLP[pIdx()];
+    var dt2 = docTemplates[ri(docTemplates.length)];
+    MOCK.documents.push({ id: "DOC-" + (11 + i), patient: tp.first_name + " " + tp.last_name, patient_id: tp.id, type: dt2[0], title: dt2[1] + (tp.first_name + " " + tp.last_name), date: D(-ri(4)), size: dt2[2] + " KB", uploaded_by: dt2[3], summary: dt2[4] });
+  }
+
+  // ---------- complaints (open + one resolved today) ----------
+  [
+    ["Hana Wolde", "Billing", "Double charge on lab test", "I was charged twice for the same blood test on my last visit. Please review my account.", "high", "in-review", ""],
+    ["Tigist Woldu", "Service Quality", "Maternity waiting area crowd", "The maternity waiting area was overcrowded this morning with no seats for late arrivals.", "normal", "pending", ""],
+    ["Merch Awoke", "Treatment / Care", "Pain medication timing", "My mother's pain medication was given 3 hours late on the night shift.", "high", "resolved", "Reviewed with the night supervisor — dosage schedules are now checked at shift handover. Apologies for the delay."]
+  ].forEach(function (c, ci) {
+    MOCK.complaints.push({ id: "CMP-" + (106 + ci), reporter: c[0], reporter_role: "patient", category: c[1], subject: c[2], description: c[3], priority: c[4], date: DT(-ri(2), "1" + (0 + ri(3)) + ":00"), status: c[5], solution: c[6], resolved_by: c[6] ? "Hanna Bekele" : "", resolved_date: c[6] ? DT(0, "09:00") : "" });
+  });
+
+  // ---------- roster: this week (tomorrow → +6) for all 10 staff ----------
+  var rosterStaff = [
+    ["Dr. Daniel Alemu", "Internal Medicine"], ["Dr. Fikru Debebe", "Pediatrics"], ["Dr. Meron Assefa", "Cardiology"],
+    ["Marta Tesfaye", "Internal Medicine"], ["Bethelehem Girma", "Pediatrics"], ["Yonas Girma", "Pharmacy"],
+    ["Sara Worku", "Laboratory"], ["Liya Hailu", "Front Desk"], ["Kaleb Teshome", "Pharmacy"], ["Hanna Bekele", "Management"]
+  ];
+  var shiftsPool = [["Morning", "07:00", "15:00"], ["Evening", "15:00", "23:00"], ["Day (OPD)", "08:00", "17:00"], ["Half-day", "08:00", "13:00"]];
+  var roN = 100;
+  for (var dayOff = 1; dayOff <= 6; dayOff++) {
+    rosterStaff.forEach(function (rs2) {
+      var sh = shiftsPool[ri(shiftsPool.length)];
+      MOCK.roster.push({ id: "RO-" + (roN++), staff: rs2[0], dept: rs2[1], date: D(dayOff), shift: sh[0], start: sh[1], end: sh[2] });
+    });
+  }
+
+  // ---------- attendance: today + last 13 days for all 10 staff ----------
+  var attStatus = ["present", "present", "present", "present", "late", "present", "present", "absent", "leave", "present"];
+  function mkAtt(off, staff, idx) {
+    var sh = shiftsPool[ri(shiftsPool.length)];
+    var st3 = off === 0 ? (idx % 4 === 3 ? "late" : "present") : attStatus[ri(attStatus.length)];
+    var checkIn = st3 === "absent" || st3 === "leave" ? null : "0" + (6 + ri(2)) + ":" + (10 + ri(45));
+    var checkOut = off === 0 ? null : (st3 === "absent" || st3 === "leave" ? null : "1" + (4 + ri(2)) + ":" + (5 + ri(50)));
+    MOCK.attendance.push({ id: "AT-" + (400 + off * 20 + idx), staff: staff[0], dept: staff[1], date: D(off), shift: sh[0] === "Day (OPD)" ? "Day (OPD)" : (sh[2] === "23:00" ? "Evening" : "Morning"), check_in: checkIn, check_out: checkOut, status: st3, source: st3 === "absent" ? "manual" : "fingerprint", device: st3 === "absent" ? null : "FP-0" + (1 + ri(5)) });
+  }
+  for (var off = 0; off <= 13; off++) rosterStaff.forEach(function (rs3, idx) { mkAtt(off, rs3, idx); });
+
+  // ---------- observations (nursing, today) ----------
+  MOCK.observations = [];
+  var obsN = 0;
+  for (i = 0; i < 12; i++) {
+    var op = ALLP[pIdx()];
+    MOCK.observations.push({
+      id: "O-" + (obsN++), time: TIMES[ri(TIMES.length)],
+      patient: op.first_name + " " + op.last_name,
+      pain: ri(9), intake: 100 + ri(7) * 50, output: 80 + ri(7) * 40,
+      temp: (36.4 + rnd() * 1.8).toFixed(1),
+      nurse: NURSES[ri(NURSES.length)],
+      notes: ["Resting comfortably", "Pain after repositioning", "Tolerating oral fluids", "Reduced urine output, monitor", "Good oral intake", "Sleeping", "Arms swollen, elevate", "Vomited once, reviewing fluids"][ri(8)]
+    });
+  }
+
+  // ---------- notifications (topbar bell) ----------
+  MOCK.notifications = [
+    { title: "3 critical patient alerts", sub: "Flagged by the vitals AI", icon: "alert", tint: "#FEF2F2", color: "#DC2626", category: "AI", time: "06:40", detail: "Three patients currently monitored in the wards have vitals outside safe ranges. The vitals AI has flagged them for immediate nursing review.", link: getUserRole && getUserRole() === "nurse" ? "nurse/vitals.html" : "doctor/patients.html" },
+    { title: "4 items low in stock", sub: "Pharmacy reorder suggested", icon: "package", tint: "#FBF0D3", color: "#B45309", category: "Inventory", time: "07:15", detail: "Metformin 500mg, Insulin Glargine, Ceftriaxone 1g and Metronidazole 400mg are at low stock levels. Suggested reorder quantities are ready on the AI forecast page.", link: "pharmacist/ai-forecast.html" },
+    { title: "AI modules online", sub: "All 7 modules passed health check", icon: "check", tint: "#E3F9EF", color: "#0F9D5C", category: "System", time: "08:00", detail: "Clinical diagnosis, drug interaction, lab analyzer, vitals alerts, inventory forecast, appointment no-show and symptom chatbot all passed their health checks.", link: "" },
+    { title: "2 lab results flagged abnormal", sub: "Review in the AI analyzer", icon: "flask", tint: "#E0F4FA", color: "#0891B2", category: "Laboratory", time: "08:22", detail: "The lab analyzer flagged two results: elevated creatinine (Kidney Function) and high fasting glucose. Both have been pushed to the requesting doctors.", link: "laboratory/ai-analyzer.html" }
+  ];
+
+  // ---------- vitals history (extra monitored patients) ----------
+  function vitSeries(sysBase, diaBase, hrBase, spo2Base) {
+    var out = [];
+    for (var h = 6; h <= 20; h += 2) {
+      out.push({
+        t: (h < 10 ? "0" + h : h) + ":00",
+        hr: hrBase + ri(9) - 4, sys: sysBase + ri(14) - 7, dia: diaBase + ri(10) - 5,
+        temp: +(36.4 + rnd() * 1.2).toFixed(1), spo2: Math.min(99, spo2Base + ri(4) - 1), rr: 16 + ri(6) - 2
+      });
+    }
+    return out;
+  }
+  MOCK.vitals_history["P-1001"] = vitSeries(138, 88, 84, 95);   // Abel — hypertensive
+  MOCK.vitals_history["P-1002"] = vitSeries(122, 78, 76, 97);
+  MOCK.vitals_history["P-1004"] = vitSeries(150, 92, 90, 95);   // Selam — cardiac (already present)
+  MOCK.vitals_history["P-1006"] = vitSeries(128, 82, 80, 96);
+  MOCK.vitals_history["P-1009"] = vitSeries(132, 84, 82, 96);
+  MOCK.vitals_history["P-1011"] = vitSeries(118, 74, 92, 98);   // Meron — anemia
+})();
+
+// ============================================================
 // DEMO RESPONSE ROUTER
 // ============================================================
 function mockResponse(endpoint, method, body) {
@@ -550,7 +885,7 @@ function mockResponse(endpoint, method, body) {
       data = list(MOCK.referrals);
       break;
     case CONFIG.ENDPOINTS.OBSERVATIONS.replace(/^\//, ""):
-      data = list(MOCK.vitals_history ? [{ id: "O-1", time: "06:00", patient: "Selam Tadesse", pain: 3, intake: 300, output: 220, temp: 36.8 }] : []);
+      data = list(MOCK.observations || []);
       break;
     case CONFIG.ENDPOINTS.SUPPLIERS.replace(/^\//, ""):
       data = list(MOCK.suppliers);
@@ -571,7 +906,7 @@ function mockResponse(endpoint, method, body) {
       data = list(MOCK.sent);
       break;
     case CONFIG.ENDPOINTS.NOTIFICATIONS.replace(/^\//, ""):
-      data = list(MOCK.messages.slice(0, 4));
+      data = list(MOCK.notifications || []);
       break;
     case CONFIG.ENDPOINTS.COMPLAINTS.replace(/^\//, ""):
       data = list(MOCK.complaints);

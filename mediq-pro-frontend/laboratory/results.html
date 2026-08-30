@@ -9,7 +9,8 @@
 <link rel="stylesheet" href="/assets/css/sidebar.css" />
 <link rel="stylesheet" href="/assets/css/components.css" />
 <link rel="stylesheet" href="/assets/css/dashboard.css" />
-</head>
+
+  <script src="/assets/js/theme.js"></script></head>
 <body>
 <aside class="sidebar" id="sidebar">
 <button class="sidebar-toggle" id="sidebarToggle" title="Collapse menu"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m15 18-6-6 6-6"/></svg></button>
@@ -182,18 +183,19 @@ function sendToDoctor(id) { showToast("Result sent to the requesting doctor","su
 function printResult(id) {
   const r = RESULTS.find(x => x.id === id);
   const w = window.open("", "_blank");
-  w.document.write(`<html><head><title>Lab Report</title><style>body{font-family:monospace;padding:40px}.h{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px}</style>  <script src="/assets/js/theme.js"></script>
+  w.document.write(`<html><head><title>Lab Report</title><style>body{font-family:monospace;padding:40px}.h{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px}</style>
 </head><body>
     <div class="h"><h2>Wolaita Sodo University Hospital</h2><p>Care | Compassion | Community — Laboratory Report: ${r.test}</p></div>
     <p><strong>Patient:</strong> ${r.patient} &nbsp; <strong>Date:</strong> ${formatDate(r.date)}</p>
     <table width="100%" border="1" cellpadding="8" style="border-collapse:collapse;margin-top:16px">
     <tr><th align="left">Parameter</th><th align="left">Normal Range</th><th align="left">Value</th><th align="left">Status</th></tr>
     ${r.values.map(v => `<tr><td>${v.name}</td><td>${v.range}</td><td>${v.value}</td><td>${v.status}</td></tr>`).join("")}</table>
-    <p style="margin-top:24px">Signed: ______________________</p><script src="/assets/js/i18n.js"></script>
+    <p style="margin-top:24px">Signed: ______________________</p>
 </body></html>`);
   w.document.close(); w.print();
 }
 
 </script>
-</body>
+
+<script src="/assets/js/i18n.js"></script></body>
 </html>

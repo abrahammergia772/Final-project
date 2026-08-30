@@ -111,6 +111,28 @@ python3 -m http.server 8000      # or: npx serve .
 
 ---
 
+## 📦 Built-in demo data (all pages pre-populated)
+
+With `DEMO_MODE: true` every page loads a rich, realistic dataset — **dates are generated
+relative to "today"**, so dashboards always show today's appointments, fresh lab results,
+recent messages, this week's roster and last month's attendance. Preloaded per module:
+
+| Area | What you'll see |
+|---|---|
+| Patients | 16 patients with Ethiopian names, conditions, insurance, ID cards |
+| Appointments | 30+ (today, next days, past), 6 doctors, all statuses + no-show risk |
+| Lab | Requests, results with real value panels, 16-sample tracking pipeline |
+| Pharmacy | 19 inventory items (in-stock / low / out-of-stock), 8 suppliers, POs |
+| Clinical | Prescriptions, medications, care plans, observations, referrals |
+| Admin | 12 users, 8 role cards, 9 announcements, 20+ audit logs, shift roster + 150 attendance records, 5 fingerprint devices |
+| Manager | 8 departments, 10 staff, 12-month finance, 8 complaints |
+| Reception | Walk-in queue, insurance verification (EHBPA/Nyala/GIB/Awash) |
+| Patient | Bills history, health card, messages inbox, health videos |
+| All roles | Inbox messages, documents (18), notifications in the bell, AI responses |
+
+The seed lives in `assets/js/api.js` (`DEMO DATA SEED` block — deterministic, refresh-safe)
+and runs only in demo mode. Log in with any of the 8 demo accounts to explore.
+
 ## 🤖 The 7 AI modules (integrated in the UI)
 
 All AI calls go through `assets/js/api.js`. In demo mode they return realistic
