@@ -30,10 +30,11 @@ function getSession() {
 
 function saveSession(data) {
   Store.set(STORAGE_KEY, JSON.stringify({
-    token: data.token || "demo-token",
+    token: data.token || "",
     role: data.role,
     user_id: data.user_id,
-    name: data.name
+    name: data.name,
+    email: data.email || ""
   }));
 }
 
@@ -150,32 +151,25 @@ function logout() {
 // Admin grants/revokes from Roles & Permissions; changes are stored here and
 // each role page applies them when the sidebar renders — so a granted tab
 // appears automatically, a revoked one disappears.
+let _permCache = null;
+let _permRequested = false;
 function seedPermissions() {
-  const raw = Store.get("mediq_pro_permissions");
-  if (!raw) {
-    Store.set("mediq_pro_permissions", JSON.stringify(CONFIG.PERMISSIONS));
-    return;
-  }
-  // Merge newly added tabs into an existing saved map so upgrades appear
-  // without wiping grants the admin already made.
-  try {
-    const all = JSON.parse(raw) || {};
-    let changed = false;
-    Object.keys(CONFIG.PERMISSIONS).forEach((role) => {
-      if (!all[role]) { all[role] = {}; changed = true; }
-      Object.keys(CONFIG.PERMISSIONS[role]).forEach((key) => {
-        if (!(key in all[role])) { all[role][key] = CONFIG.PERMISSIONS[role][key]; changed = true; }
-      });
-    });
-    if (changed) Store.set("mediq_pro_permissions", JSON.stringify(all));
-  } catch (e) {
-    Store.set("mediq_pro_permissions", JSON.stringify(CONFIG.PERMISSIONS));
-  }
+  if (!_permCache) _permCache = JSON.parse(JSON.stringify(CONFIG.PERMISSIONS));
+  if (_permRequested || typeof apiFetch !== "function") return;
+  _permRequested = true;
+  apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS).then(function (res) {
+    if (!res.ok) return;
+    const row = (res.data.items || []).find(function (item) { return item.id === "permissions"; });
+    if (row && row.value) {
+      _permCache = row.value;
+      markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
+      applyPermissions();
+    }
+  });
 }
 
 function loadPermissions() {
-  try { return JSON.parse(Store.get("mediq_pro_permissions")) || {}; }
-  catch (e) { return {}; }
+  return _permCache || CONFIG.PERMISSIONS;
 }
 
 // canAccess(role, permKey) — true when the tab should be visible
@@ -186,10 +180,36 @@ function canAccess(role, permKey) {
 }
 
 function savePermissions(role, map) {
-  const all = loadPermissions();
+  const all = Object.assign({}, loadPermissions());
   all[role] = map;
-  Store.set("mediq_pro_permissions", JSON.stringify(all));
+  _permCache = all;
+  const row = { id: "permissions", value: all };
+  apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS, "POST", row).then(function (res) {
+    if (!res.ok) persistUpdate(CONFIG.ENDPOINTS.APP_SETTINGS, "permissions", { value: all });
+    else markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
+  });
 }
+
+let _userPrefs = {};
+function getSetting(k) { return _userPrefs[k]; }
+function setSetting(k, v) {
+  _userPrefs[k] = v;
+  const s = getSession();
+  if (s && s.user_id) persistUpdate(CONFIG.ENDPOINTS.USERS, s.user_id, { details: { prefs: _userPrefs } });
+}
+function loadMyPrefs(done) {
+  apiFetch(CONFIG.ENDPOINTS.ME).then(function (res) {
+    const prefs = (res.ok && res.data && res.data.details && res.data.details.prefs) || {};
+    _userPrefs = prefs;
+    if (prefs.theme && window.Theme) window.Theme.set(prefs.theme, false);
+    if (prefs.lang && window.I18N) window.I18N.setLang(prefs.lang, true);
+    if (done) done(prefs);
+  });
+}
+window.saveUserPref = function (key, value) {
+  const name = key === "mediq_theme" ? "theme" : key === "mediq_lang" ? "lang" : key;
+  setSetting(name, value);
+};
 
 // ---------- Wire up UI bits ----------
 // Uses event delegation so dropdowns/hamburger/logout work even when elements
@@ -198,6 +218,8 @@ function savePermissions(role, map) {
 // only attached once.
 let _authUI_bound = false;
 function initAuthUI() {
+  if (getSession()) loadMyPrefs();
+
   // --- Populate user name / role / initials everywhere currently in DOM ---
   const nameEl = document.querySelector("[data-user-name]");
   const roleEl = document.querySelector("[data-user-role]");

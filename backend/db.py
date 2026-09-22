@@ -45,6 +45,7 @@ TABLES = {
     "ambulances": "ambulances", "ambulance_missions": "ambulance_missions",
     "theatre_cases": "theatre_cases", "imaging_studies": "imaging_studies",
     "cashier_invoices": "cashier_invoices",
+    "app_settings": "app_settings",
 }
 
 # Columns the SQL files create. Anything else is stored in details so a new
@@ -90,6 +91,7 @@ COLUMNS = {
     "theatre_cases": {"id", "theatre", "time", "patient", "proc", "surgeon", "anaesth", "status", "details"},
     "imaging_studies": {"id", "patient", "study", "priority", "status", "note", "details"},
     "cashier_invoices": {"id", "patient", "service", "amount", "paid", "method", "status", "details"},
+    "app_settings": {"id", "value"},
 }
 
 

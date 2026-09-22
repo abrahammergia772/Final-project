@@ -24,7 +24,7 @@ RESOURCES = [
     "observations", "referrals", "suppliers", "purchase_orders",
     "fingerprint_devices", "videos", "vitals", "finance",
     "beds", "bed_requests", "blood_units", "ambulances", "ambulance_missions",
-    "theatre_cases", "imaging_studies", "cashier_invoices",
+    "theatre_cases", "imaging_studies", "cashier_invoices", "app_settings",
 ]
 
 
@@ -42,7 +42,7 @@ ROLE_RESOURCES = {
     "pharmacist": set(RESOURCES) - {"users", "audit_logs", "fingerprint_devices", "beds", "bed_requests", "blood_units", "ambulances", "ambulance_missions", "theatre_cases", "imaging_studies", "finance"},
     "laboratory": set(RESOURCES) - {"users", "audit_logs", "suppliers", "purchase_orders", "inventory", "fingerprint_devices", "finance", "cashier_invoices", "ambulances", "ambulance_missions"},
     "reception": set(RESOURCES) - {"users", "audit_logs", "suppliers", "purchase_orders", "fingerprint_devices", "finance", "blood_units", "theatre_cases"},
-    "patient": {"patients", "appointments", "prescriptions", "lab_results", "medications", "care_plans", "bills", "cashier_invoices", "complaints", "messages", "documents", "videos", "announcements"},
+    "patient": {"patients", "appointments", "prescriptions", "lab_results", "medications", "care_plans", "bills", "cashier_invoices", "complaints", "messages", "documents", "videos", "announcements", "app_settings"},
 }
 
 # Write access is narrower than read access for clinical actions.
@@ -59,6 +59,7 @@ WRITE_ROLES = {
     "ambulance_missions": {"reception", "admin"},
     "cashier_invoices": {"reception", "admin", "manager"},
     "finance": {"manager", "admin"},
+    "app_settings": {"admin"},
 }
 PATIENT_WRITE = {"complaints", "messages"}
 
@@ -154,7 +155,7 @@ async def update(resource: str, row_id: str, request: Request, user=Depends(curr
     if not isinstance(body, dict):
         body = {}
     if resource == "users" and str(row_id) == str(user.get("sub")):
-        body = {k: body[k] for k in ("name", "phone", "department") if k in body}
+        body = {k: body[k] for k in ("name", "phone", "department", "details") if k in body}
         return _fail_if_down(update_row(resource, row_id, body))
     _authorize(resource, user, write=True)
     _assert_patient_owns(resource, row_id, user)

@@ -15,6 +15,8 @@ Do not run a sample-patient seed. The first account created on the signup page b
 1. `004_upgrade_existing.sql`
 2. `002_security.sql`
 
+If the other tables already exist, also run `005_app_settings.sql`.
+
 ## Required API settings
 
 ```

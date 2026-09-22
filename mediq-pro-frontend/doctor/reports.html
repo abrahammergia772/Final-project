@@ -256,11 +256,18 @@ function sendReport() {
 }
 // Store sent reports so the patient's Messages inbox can show them
 function saveSentReport(r) {
-  try {
-    const all = JSON.parse(localStorage.getItem("mediq_pro_sent_reports") || "[]");
-    all.push(Object.assign({ date: new Date().toISOString(), from_role: "Doctor", read: false }, r));
-    localStorage.setItem("mediq_pro_sent_reports", JSON.stringify(all));
-  } catch (e) {}
+  persistInsert(CONFIG.ENDPOINTS.MESSAGES, {
+    id: uid("MSG"),
+    from: r.from || (getSession() && getSession().name) || "",
+    from_role: (getSession() && getSession().role) || "",
+    subject: r.subject || "Health report",
+    body: r.body || "",
+    date: new Date().toISOString(),
+    read: false,
+    priority: r.priority || "normal",
+    replies: [],
+    patient: r.patient || ""
+  });
 }
 
 </script>

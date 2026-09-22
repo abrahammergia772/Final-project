@@ -191,7 +191,7 @@ document.getElementById("btnAddRole").addEventListener("click", () => {
       if (CONFIG.PERMISSIONS[n]) { showToast("Role already exists", "warning"); return; }
       CONFIG.PERMISSIONS[n] = {};
       ROLE_NAMES[n] = n; ROLE_ICONS[n] = "shield";
-      const all = loadPermissions(); all[n] = {}; Store.set("mediq_pro_permissions", JSON.stringify(all));
+      savePermissions(n, {});
       renderRoles(); ov.remove(); showToast("Role created — grant tabs to enable access", "success");
     };
   }});

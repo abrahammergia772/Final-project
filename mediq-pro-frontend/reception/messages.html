@@ -170,19 +170,7 @@ function loadPageData() {
 }
 
 // Health reports sent to this patient by a doctor appear in the inbox
-function mergeSentReports() {
-  let sent = [];
-  try { sent = JSON.parse(localStorage.getItem("mediq_pro_sent_reports") || "[]"); } catch (e) {}
-  const who = getUserName();
-  sent.filter(s => s.patient === who || (who === "Test User" && s.patient === "Abel Mekonnen"))
-      .forEach(s => {
-        (function(){var _row={
-          id: uid("MSG"), from: s.from || "Dr. Daniel Alemu", from_role: "Doctor",
-          subject: s.subject, body: s.body, date: s.date || new Date().toISOString(),
-          read: false, priority: s.priority || "normal", replies: [], isReport: true
-        };INBOX.unshift(_row);persistInsert(CONFIG.ENDPOINTS.MESSAGES,_row);return _row;})();
-      });
-}
+function mergeSentReports() {}
 
 function lastText(m) {
   const arr = m.replies || [];

@@ -246,6 +246,13 @@ create index if not exists beds_status_idx on public.beds (status);
 create index if not exists bed_requests_status_idx on public.bed_requests (status);
 create index if not exists blood_units_type_idx on public.blood_units (type);
 
+
+create table if not exists public.app_settings (
+  id text primary key,
+  value jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
 insert into public.schema_migrations (id)
 values ('004_upgrade_existing')
 on conflict (id) do nothing;

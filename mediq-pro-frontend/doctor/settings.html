@@ -189,16 +189,17 @@ function loadPageData() {
   document.getElementById("stRole").value = ROLE_LABELS[ROLE] || ROLE;
   if (s) {
     document.getElementById("stName").value = s.name || "";
-    document.getElementById("stEmail").value = (ROLE + "@wsh.et");
+    document.getElementById("stEmail").value = s.email || "";
     document.querySelectorAll("[data-user-initials]").forEach(el => el.textContent = initialsOf(s.name));
   }
-  const saved = getSetting("accent") || "blue";
-  applyAccent(saved);
-  document.getElementById("stAccent").value = saved;
-  if (getSetting("compact")) document.getElementById("stCompact").checked = true;
+  loadMyPrefs(function (prefs) {
+    const saved = (prefs && prefs.accent) || "blue";
+    applyAccent(saved);
+    const accent = document.getElementById("stAccent");
+    if (accent) accent.value = saved;
+    if (prefs && prefs.compact) document.getElementById("stCompact").checked = true;
+  });
 }
-function getSetting(k) { try { return JSON.parse(localStorage.getItem("mediq_pro_settings") || "{}")[k]; } catch (e) { return null; } }
-function setSetting(k, v) { try { const o = JSON.parse(localStorage.getItem("mediq_pro_settings") || "{}"); o[k] = v; localStorage.setItem("mediq_pro_settings", JSON.stringify(o)); } catch (e) {} }
 function applyAccent(name) {
   const map = { blue: "#1A6FA8", teal: "#0F766E", purple: "#7C3AED", green: "#0F9D5C", rose: "#BE123C" };
   const c = map[name] || map.blue;

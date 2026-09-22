@@ -559,6 +559,13 @@ create index if not exists cashier_status_idx on public.cashier_invoices (status
 create index if not exists lab_requests_status_idx on public.lab_requests (status);
 create index if not exists messages_read_idx on public.messages (read);
 
+
+create table if not exists public.app_settings (
+  id text primary key,
+  value jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
 insert into public.schema_migrations (id)
 values ('001_schema')
 on conflict (id) do nothing;

@@ -17,8 +17,8 @@
   var btn = null;
   var cur = "light";
 
-  function sGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return memory[k] || null; } }
-  function sSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { memory[k] = v; } }
+  function sGet(k) { return memory[k] || null; }
+  function sSet(k, v) { memory[k] = v; if (window.saveUserPref) window.saveUserPref(k, v); }
 
   function preferred() {
     var saved = sGet(LS_KEY);

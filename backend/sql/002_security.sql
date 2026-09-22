@@ -24,7 +24,7 @@ declare
     'staff','observations','referrals','suppliers','purchase_orders',
     'notifications','fingerprint_devices','videos','vitals','finance',
     'beds','bed_requests','blood_units','ambulances','ambulance_missions',
-    'theatre_cases','imaging_studies','cashier_invoices'
+    'theatre_cases','imaging_studies','cashier_invoices','app_settings'
   ];
 begin
   foreach t in array tables loop

@@ -213,7 +213,7 @@ window.SPA = { mode: true, current: "" };
     // The only exception is a one-shot auto-enter flag set by admin-login.html,
     // so the Administrator portal can drop you straight into the admin dashboard.
     let autoEnter = false;
-    try { autoEnter = sessionStorage.getItem("mediq_autoenter") === "1"; sessionStorage.removeItem("mediq_autoenter"); } catch (e) {}
+    try { autoEnter = new URLSearchParams(location.search).get("enter") === "1"; } catch (e) {}
     if (autoEnter && getSession()) enterApp(); else showLogin();
   });
 })();

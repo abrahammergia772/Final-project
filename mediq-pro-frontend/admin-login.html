@@ -103,8 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Welcome, " + getUserName() + "!", "success");
       // One-shot flag: the root page will auto-enter the admin dashboard once,
       // then always show the login page on later visits.
-      try { sessionStorage.setItem("mediq_autoenter", "1"); } catch (e) {}
-      window.location.replace("./");
+      window.location.replace("./?enter=1");
     } else {
       showErr(res.error || "Invalid administrator credentials.");
       btn.disabled = false;

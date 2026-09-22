@@ -128,6 +128,22 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
 
 
+@router.get("/auth/me")
+def me(user=Depends(current_user)):
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=503, detail="Supabase is not configured")
+    try:
+        resp = client.table("users").select("id,email,name,role,phone,department,status,details").eq("id", str(user.get("sub"))).limit(1).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("supabase profile failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Profile service unavailable")
+    rows = resp.data or []
+    if not rows:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return rows[0]
+
+
 @router.post("/auth/change-password")
 def change_password(req: ChangePasswordRequest, user=Depends(current_user)):
     if len(req.new_password) < 8:

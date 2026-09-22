@@ -20,8 +20,7 @@ const CONFIG = {
     // Allow override via ?api=... URL param or localStorage for local dev
     var urlParams = new URLSearchParams(window.location.search);
     var saved = null;
-    try { saved = localStorage.getItem('mediq_api_base'); } catch (e) {}
-    return urlParams.get('api') || saved || "https://final-project-bo4l.onrender.com";
+    return urlParams.get('api') || "https://final-project-bo4l.onrender.com";
   })(),
 
   // Supabase (PostgreSQL) — replace with your project values before deploy
@@ -95,6 +94,8 @@ const CONFIG = {
     IMAGING_STUDIES:"/imaging_studies",
     CASHIER_INVOICES:"/cashier_invoices",
     CHANGE_PASSWORD:"/auth/change-password",
+    ME:             "/auth/me",
+    APP_SETTINGS:   "/app_settings",
 
     // Auth
     SIGNUP:         "/auth/signup",
