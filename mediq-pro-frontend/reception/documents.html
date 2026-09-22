@@ -222,7 +222,7 @@ function dlDoc(id) { showToast("Downloading " + DOCS.find(x => x.id === id).titl
 async function delDoc(id) {
   const ok = await confirmDialog("Delete this document from the patient's file?");
   if (!ok) return;
-  DOCS = DOCS.filter(d => d.id !== id); renderDocs();
+  persistDelete(CONFIG.ENDPOINTS.DOCUMENTS, id); DOCS = DOCS.filter(d => d.id !== id); renderDocs();
   showToast("Document deleted", "success");
 }
 function editDoc(id) {
@@ -268,13 +268,13 @@ function uploadModal() {
         const title = ov.querySelector("#uTitle").value.trim();
         if (!title) { showToast("Title is required", "error"); return; }
         const pSel = PATIENTS.find(p => p.id === ov.querySelector("#uPat").value);
-        DOCS.unshift({
+        (function(){var _row={
           id: uid("DOC"), patient: pSel ? pSel.first_name + " " + pSel.last_name : "Patient",
           patient_id: pSel ? pSel.id : ov.querySelector("#uPat").value,
           type: ov.querySelector("#uType").value, title,
           date: todayStr(), size: "— KB", uploaded_by: getUserName(),
           summary: ov.querySelector("#uSum").value.trim() || "No summary."
-        });
+        };DOCS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.DOCUMENTS,_row);return _row;})();
         renderDocs(); ov.remove();
         showToast("Document uploaded to the patient's file", "success");
       };

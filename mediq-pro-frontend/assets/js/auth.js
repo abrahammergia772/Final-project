@@ -88,52 +88,13 @@ function getRoleLabel(role) {
 }
 
 // ---------- Login ----------
-function findSavedSignup(email, password) {
-  let rows = [];
-  try { rows = JSON.parse(Store.get("mediq_pro_signups") || "[]"); } catch (e) { rows = []; }
-  const wanted = String(email || "").trim().toLowerCase();
-  return rows.find(function (row) {
-    return String(row.email || "").trim().toLowerCase() === wanted && row.password === password;
-  }) || null;
-}
-
 async function login(email, password) {
-  if (CONFIG.DEMO_MODE) {
-    // Demo: accept demo accounts by email (e.g. admin@wsh.et) or role name
-    const roleKey = (email || "").toLowerCase().split("@")[0];
-    const account = CONFIG.DEMO_ACCOUNTS[roleKey];
-    if (account && account.password === password) {
-      const session = {
-        token: "demo-token-" + roleKey,
-        role: account.role,
-        user_id: roleKey + "-001",
-        name: account.name
-      };
-      saveSession(session);
-      return { ok: true, session };
-    }
-    // Accounts created on the signup page are stored in this browser only.
-    const created = findSavedSignup(email, password);
-    if (created) {
-      const session = {
-        token: "demo-token-" + created.id,
-        role: created.role || "patient",
-        user_id: created.id,
-        name: created.name || email
-      };
-      saveSession(session);
-      return { ok: true, session };
-    }
-    return { ok: false, error: "Invalid email or password. Use the same email and password from Create an account, or a demo account (admin@wsh.et / admin123)." };
-  }
-
-  // Production: call FastAPI
   const res = await apiFetch(CONFIG.ENDPOINTS.LOGIN, "POST", { email, password }, { skipAuth: true });
   if (res.ok) {
     saveSession({ token: res.data.token, role: res.data.role, user_id: res.data.user_id, name: res.data.name });
-    return { ok: true };
+    return { ok: true, session: getSession() };
   }
-  return { ok: false, error: res.error || "Login failed. Please try again." };
+  return { ok: false, error: res.error || "Invalid email or password." };
 }
 
 // ---------- Session protection ----------

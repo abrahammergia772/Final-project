@@ -207,9 +207,12 @@ function userModal(u) {
           const target = USERS.find(x => x.id === u.id);
           target.name = name; target.email = email; target.role = role;
           target.department = ov.querySelector("#mDept").value; target.status = ov.querySelector("#mStatus").value;
+          const pw = ov.querySelector("#mPass").value;
+          if (pw) target.password = pw;
+          persistUpdate(CONFIG.ENDPOINTS.USERS, target.id, target);
           showToast("User updated successfully","success");
         } else {
-          USERS.unshift({ id: uid("U"), name, email, role, department: ov.querySelector("#mDept").value || "—", status: ov.querySelector("#mStatus").value, last_login: "—" });
+          (function(){var _row={ id: uid("U"), name, email, role, department: ov.querySelector("#mDept").value || "—", status: ov.querySelector("#mStatus").value, last_login: "—", password: ov.querySelector("#mPass").value };USERS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.USERS,_row);return _row;})();
           showToast("User created successfully","success");
         }
         renderUsers(); ov.remove();
@@ -227,7 +230,7 @@ document.getElementById("btnExport").addEventListener("click", () => {
 async function deleteUser(id) {
   const ok = await confirmDialog("Are you sure you want to delete this user? This action cannot be undone.");
   if (!ok) return;
-  USERS = USERS.filter(u => u.id !== id);
+  persistDelete(CONFIG.ENDPOINTS.USERS, id); USERS = USERS.filter(u => u.id !== id);
   renderUsers();
   showToast("User deleted","success");
 }

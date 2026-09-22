@@ -197,7 +197,7 @@ function refModal() {
     ov.querySelector("#saveRef").onclick = () => {
       const pat = ov.querySelector("#rPat").value.trim(), reason = ov.querySelector("#rReason").value.trim();
       if (!pat || !reason) { showToast("Patient and reason are required","error"); return; }
-      REFS.unshift({ id: uid("RF"), patient: pat, to: ov.querySelector("#rTo").value || "Specialist", specialty: ov.querySelector("#rSpec").value, reason, priority: ov.querySelector("#rPri").value, date: todayStr(), status: "pending" });
+      (function(){var _row={ id: uid("RF"), patient: pat, to: ov.querySelector("#rTo").value || "Specialist", specialty: ov.querySelector("#rSpec").value, reason, priority: ov.querySelector("#rPri").value, date: todayStr(), status: "pending" };REFS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.REFERRALS,_row);return _row;})();
       renderRefs(); ov.remove();
       showToast("Referral sent to " + ov.querySelector("#rSpec").value, "success");
     };

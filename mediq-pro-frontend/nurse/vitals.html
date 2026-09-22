@@ -146,17 +146,8 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("nurse"); initLayout(); loadPageData();
 });
-const HISTORY = [
-  { t: "06:00", hr: 88, sys: 148, dia: 92, temp: 36.8, spo2: 96, rr: 18 },
-  { t: "08:00", hr: 92, sys: 152, dia: 94, temp: 36.9, spo2: 95, rr: 19 },
-  { t: "10:00", hr: 90, sys: 145, dia: 90, temp: 36.7, spo2: 96, rr: 18 },
-  { t: "12:00", hr: 95, sys: 158, dia: 98, temp: 37.0, spo2: 94, rr: 20 },
-  { t: "14:00", hr: 91, sys: 150, dia: 93, temp: 36.9, spo2: 95, rr: 18 },
-  { t: "16:00", hr: 89, sys: 146, dia: 91, temp: 36.8, spo2: 96, rr: 18 },
-  { t: "18:00", hr: 93, sys: 154, dia: 95, temp: 37.0, spo2: 95, rr: 19 },
-  { t: "20:00", hr: 90, sys: 149, dia: 92, temp: 36.9, spo2: 96, rr: 18 }
-];
-function loadPageData() {
+const HISTORY = [];
+ function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.PATIENTS).then(r => {
     if (!r.ok) return;
     document.getElementById("vtPatient").innerHTML = '<option value="">— Select patient —</option>' +
@@ -164,8 +155,16 @@ function loadPageData() {
   });
   document.getElementById("btnCheckVitals").addEventListener("click", runVitalsCheck);
   document.getElementById("btnSaveVitals").addEventListener("click", () => {
-    if (!document.getElementById("vtPatient").value) { showToast("Select a patient first","error"); return; }
-    showToast("Vitals saved to patient record","success");
+    const patient = document.getElementById("vtPatient").value;
+    if (!patient) { showToast("Select a patient first","error"); return; }
+    persistInsert(CONFIG.ENDPOINTS.VITALS, {
+      id: uid("VT"), patient: patient, t: new Date().toISOString().slice(11, 16),
+      hr: document.getElementById("vtHr").value, sys: document.getElementById("vtSys").value,
+      dia: document.getElementById("vtDia").value, temp: document.getElementById("vtTemp").value,
+      spo2: document.getElementById("vtSpo2").value, rr: document.getElementById("vtRr").value,
+      nurse: (getSession() || {}).name || ""
+    });
+    showToast("Vitals saved", "success");
   });
   renderHistory();
 }

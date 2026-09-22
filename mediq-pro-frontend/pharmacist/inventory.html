@@ -197,7 +197,7 @@ function invModal(id) {
         i.unit = ov.querySelector("#iUnit").value; i.expiry = ov.querySelector("#iExp").value; i.status = ov.querySelector("#iStatus").value;
         showToast("Stock updated","success");
       } else {
-        INV.unshift({ id: uid("I"), name, category: ov.querySelector("#iCat").value, stock: +ov.querySelector("#iStock").value || 0, unit: ov.querySelector("#iUnit").value, expiry: ov.querySelector("#iExp").value || "2027-01-01", status: "in-stock" });
+        (function(){var _row={ id: uid("I"), name, category: ov.querySelector("#iCat").value, stock: +ov.querySelector("#iStock").value || 0, unit: ov.querySelector("#iUnit").value, expiry: ov.querySelector("#iExp").value || "2027-01-01", status: "in-stock" };INV.unshift(_row);persistInsert(CONFIG.ENDPOINTS.INVENTORY,_row);return _row;})();
         showToast("Drug added to inventory","success");
       }
       renderInv(); ov.remove();
@@ -207,7 +207,7 @@ function invModal(id) {
 async function delInv(id) {
   const ok = await confirmDialog("Delete this drug from inventory?");
   if (!ok) return;
-  INV = INV.filter(i => i.id !== id); renderInv(); showToast("Drug removed","success");
+  persistDelete(CONFIG.ENDPOINTS.INVENTORY, id); INV = INV.filter(i => i.id !== id); renderInv(); showToast("Drug removed","success");
 }
 
 </script>

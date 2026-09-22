@@ -197,7 +197,7 @@ function submitComplaint() {
     priority: document.getElementById("cmpPri").value, description: desc,
     date: new Date().toISOString(), status: "pending", solution: ""
   };
-  MINE.unshift(c);
+  (function(){var _row=c;MINE.unshift(_row);persistInsert(CONFIG.ENDPOINTS.COMPLAINTS,_row);return _row;})();
   renderMine();
   document.getElementById("cmpSubj").value = "";
   document.getElementById("cmpDesc").value = "";

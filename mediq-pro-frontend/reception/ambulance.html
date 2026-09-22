@@ -73,21 +73,22 @@ document.addEventListener("DOMContentLoaded", () => {
 var ICONS = window.ICONS || {};
 const KEY = "wsh_amb_v1";
 const PLACES = ["Merkato", "Gido", "Wadu", "Otona", "Fana", "Damot Gale road", "University campus", "Wolaita Sodo bus station", "Areka junction"];
-function seedFleet() {
-  return [
-    { id: "AMB-01", crew: "Nurse Alma + driver Bekele", status: "available", place: "Hospital bay" },
-    { id: "AMB-02", crew: "Nurse Tadesse + driver Getu", status: "en-route", place: "Otona", eta: "8 min", case: "RTA — two casualties" },
-    { id: "AMB-03", crew: "Paramedic Selam + driver Hailu", status: "at-scene", place: "Merkato", eta: "on scene", case: "Unconscious adult" },
-    { id: "AMB-04", crew: "—", status: "maintenance", place: "Workshop", case: "Brake service" }
-  ];
-}
+function seedFleet() { return []; }
 let fleet = [], log = [];
 function loadA() {
-  try { const r = sessionStorage.getItem(KEY); if (r) { const s = JSON.parse(r); fleet = s.fleet; log = s.log; return; } } catch (e) {}
-  fleet = seedFleet();
-  log = [{ time: "08:12", text: "AMB-02 dispatched to Otona — RTA" }, { time: "07:40", text: "AMB-03 on scene at Merkato" }];
+  fleet = []; log = [];
+  Promise.all([apiFetch(CONFIG.ENDPOINTS.AMBULANCES), apiFetch(CONFIG.ENDPOINTS.AMBULANCE_MISSIONS)]).then(function (res) {
+    fleet = (res[0].ok && res[0].data && res[0].data.items) || [];
+    log = (res[1].ok && res[1].data && res[1].data.items) || [];
+    markKnown(CONFIG.ENDPOINTS.AMBULANCES, fleet);
+    markKnown(CONFIG.ENDPOINTS.AMBULANCE_MISSIONS, log);
+    renderAmb();
+  });
 }
-function saveA() { try { sessionStorage.setItem(KEY, JSON.stringify({ fleet, log })); } catch (e) {} }
+function saveA() {
+  fleet.forEach(function (v) { persistUpsert(CONFIG.ENDPOINTS.AMBULANCES, v); });
+  log.forEach(function (row) { persistUpsert(CONFIG.ENDPOINTS.AMBULANCE_MISSIONS, row); });
+}
 function ambBadge(s) {
   return badge(s.replace("-", " "), s === "available" ? "success" : s === "maintenance" ? "neutral" : s === "at-scene" ? "danger" : "warning");
 }
@@ -116,7 +117,7 @@ function advance(id) {
   if (v.status === "available") { v.case = ""; v.eta = ""; v.place = "Hospital bay"; }
   if (v.status === "transporting") { v.eta = "12 min"; v.place = "En route to WSUH"; }
   const now = new Date().toTimeString().slice(0, 5);
-  log.unshift({ time: now, text: v.id + " → " + v.status.replace("-", " ") });
+  log.unshift({ id: uid("LOG"), time: now, text: v.id + " → " + v.status.replace("-", " ") });
   saveA(); renderAmb(); showToast(v.id + " is now " + v.status.replace("-", " "), "info");
 }
 function bootPage() {
@@ -136,7 +137,7 @@ function bootPage() {
     v.case = document.getElementById("ambCase").value.trim() || "Emergency call";
     v.eta = document.getElementById("ambPri").value === "Emergency" ? "6 min" : "14 min";
     const now = new Date().toTimeString().slice(0, 5);
-    log.unshift({ time: now, text: id + " dispatched to " + v.place + " — " + v.case });
+    log.unshift({ id: uid("LOG"), time: now, text: id + " dispatched to " + v.place + " — " + v.case });
     saveA(); renderAmb();
     showToast(id + " dispatched to " + v.place, "success");
     e.target.reset();

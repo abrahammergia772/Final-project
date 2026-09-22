@@ -167,8 +167,8 @@ function newRxModal() {
     ov.querySelector("#saveRx").onclick = () => {
       const pat = ov.querySelector("#rxPat").value.trim();
       if (!pat) { showToast("Patient is required","error"); return; }
-      RX.unshift({ id: uid("RX"), patient: pat, doctor: getUserName(), date: todayStr(), status: "active",
-        drugs: [{ name: ov.querySelector("#rxMed").value || "Medication", dose: ov.querySelector("#rxD1").value, freq: ov.querySelector("#rxF1").value, duration: ov.querySelector("#rxDur1").value }] });
+      (function(){var _row={ id: uid("RX"), patient: pat, doctor: getUserName(), date: todayStr(), status: "active",
+        drugs: [{ name: ov.querySelector("#rxMed").value || "Medication", dose: ov.querySelector("#rxD1").value, freq: ov.querySelector("#rxF1").value, duration: ov.querySelector("#rxDur1").value }] };RX.unshift(_row);persistInsert(CONFIG.ENDPOINTS.PRESCRIPTIONS,_row);return _row;})();
       renderRx(); ov.remove(); showToast("Prescription created","success");
     };
   }});

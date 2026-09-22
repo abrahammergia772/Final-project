@@ -196,7 +196,7 @@ function annModal(id) {
         a.title = title; a.message = msg; a.audience = ov.querySelector("#aAud").value; a.priority = ov.querySelector("#aPri").value; a.status = status; a.publish_date = publish_date;
         showToast("Announcement updated","success");
       } else {
-        ANN.unshift({ id: uid("AN"), title, message: msg, audience: ov.querySelector("#aAud").value, author: getUserName(), publish_date, priority: ov.querySelector("#aPri").value, status, views: 0 });
+        (function(){var _row={ id: uid("AN"), title, message: msg, audience: ov.querySelector("#aAud").value, author: getUserName(), publish_date, priority: ov.querySelector("#aPri").value, status, views: 0 };ANN.unshift(_row);persistInsert(CONFIG.ENDPOINTS.ANNOUNCEMENTS,_row);return _row;})();
         showToast(status === "published" ? "Announcement published to " + ov.querySelector("#aAud").value : "Announcement saved (" + status + ")", "success");
       }
       renderAnn(); ov.remove();
@@ -219,7 +219,7 @@ function viewAnn(id) {
 async function delAnn(id) {
   const ok = await confirmDialog("Delete this announcement? Users who already saw it will keep it in their history.");
   if (!ok) return;
-  ANN = ANN.filter(a => a.id !== id); renderAnn(); showToast("Announcement deleted","success");
+  persistDelete(CONFIG.ENDPOINTS.ANNOUNCEMENTS, id); ANN = ANN.filter(a => a.id !== id); renderAnn(); showToast("Announcement deleted","success");
 }
 
 </script>

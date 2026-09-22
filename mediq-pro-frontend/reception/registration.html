@@ -176,7 +176,17 @@ function register() {
   if (!f || !l) { showToast("First and last name are required","error"); return; }
   if (!dob) { showToast("Date of birth is required","error"); return; }
   if (!ph) { showToast("Phone number is required","error"); return; }
-  const id = "P-" + (1011 + Math.floor(Math.random() * 900));
+  const id = uid("P");
+  const row = {
+    id, first_name: f, last_name: l, dob,
+    gender: document.getElementById("rG").value,
+    phone: ph, blood: document.getElementById("rB").value,
+    email: document.getElementById("rE").value.trim(),
+    address: document.getElementById("rA").value.trim(),
+    emergency: document.getElementById("rEc").value.trim(),
+    status: "active"
+  };
+  persistInsert(CONFIG.ENDPOINTS.PATIENTS, row);
   document.getElementById("regResult").innerHTML = `<section class="card mt-4">
     <div class="severity-card severity-safe"><div class="flex" style="gap:10px"><span>${ICONS.check}</span>
       <div><strong style="font-size:16px">Patient registered successfully!</strong></div></div></div>

@@ -165,7 +165,7 @@ function depModal(id) {
       const name = ov.querySelector("#dName").value.trim();
       if (!name) { showToast("Department name required","error"); return; }
       if (d) { d.name = name; d.head = ov.querySelector("#dHead").value || "—"; d.beds = +ov.querySelector("#dBeds").value; d.occupied = +ov.querySelector("#dOcc").value; showToast("Department updated","success"); }
-      else { DEPTS.unshift({ id: uid("D"), name, head: ov.querySelector("#dHead").value || "—", staff: 0, beds: +ov.querySelector("#dBeds").value, occupied: +ov.querySelector("#dOcc").value, status: "active" }); showToast("Department added","success"); }
+      else { (function(){var _row={ id: uid("D"), name, head: ov.querySelector("#dHead").value || "—", staff: 0, beds: +ov.querySelector("#dBeds").value, occupied: +ov.querySelector("#dOcc").value, status: "active" };DEPTS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.DEPARTMENTS,_row);return _row;})(); showToast("Department added","success"); }
       renderDepts(); ov.remove();
     };
   }});
@@ -173,7 +173,7 @@ function depModal(id) {
 async function delDep(id) {
   const ok = await confirmDialog("Delete this department?");
   if (!ok) return;
-  DEPTS = DEPTS.filter(d => d.id !== id); renderDepts(); showToast("Department deleted","success");
+  persistDelete(CONFIG.ENDPOINTS.DEPARTMENTS, id); DEPTS = DEPTS.filter(d => d.id !== id); renderDepts(); showToast("Department deleted","success");
 }
 
 </script>

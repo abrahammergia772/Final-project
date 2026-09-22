@@ -73,31 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
 var ICONS = window.ICONS || {};
 const KEY = "wsh_blood_v1";
 const TYPES = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
-function seedUnits() {
-  const rows = [];
-  const donors = ["Gemechu T.", "Almaz K.", "Tesfaye B.", "Hirut A.", "Mulugeta D.", "Senait W.", "Kebede L.", "Aster G."];
-  TYPES.forEach((t, ti) => {
-    const n = t.endsWith("-") ? 2 : 4;
-    for (let i = 0; i < n; i++) {
-      const exp = new Date(); exp.setDate(exp.getDate() + (i === 0 && ti % 3 === 0 ? 3 : 18 + i * 4));
-      rows.push({
-        id: "BB-" + t.replace("+", "P").replace("-", "N") + "-" + (10 + i),
-        type: t, donor: donors[(ti + i) % donors.length],
-        collected: "2026-09-" + String(8 + i).padStart(2, "0"),
-        expires: exp.toISOString().slice(0, 10),
-        status: i === 0 && t === "O-" ? "reserved" : "available",
-        for: i === 0 && t === "O-" ? "ICU-02 Frehiwot A." : ""
-      });
-    }
-  });
-  return rows;
-}
-let units = [];
+function seedUnits() { return []; }
 function loadU() {
-  try { const r = sessionStorage.getItem(KEY); if (r) { units = JSON.parse(r); return; } } catch (e) {}
-  units = seedUnits();
+  units = [];
+  apiFetch(CONFIG.ENDPOINTS.BLOOD_UNITS).then(function (r) {
+    units = (r.ok && r.data && r.data.items) || [];
+    markKnown(CONFIG.ENDPOINTS.BLOOD_UNITS, units);
+    renderBlood();
+  });
 }
-function saveU() { try { sessionStorage.setItem(KEY, JSON.stringify(units)); } catch (e) {} }
+function saveU() { units.forEach(function (u) { persistUpsert(CONFIG.ENDPOINTS.BLOOD_UNITS, u); }); }
 function daysLeft(iso) {
   return Math.round((new Date(iso + "T00:00:00") - new Date(new Date().toDateString())) / 86400000);
 }

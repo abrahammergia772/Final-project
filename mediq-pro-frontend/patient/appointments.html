@@ -176,7 +176,7 @@ function bookModal() {
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     ov.querySelector("#saveBk").onclick = () => {
-      MYAPPT.unshift({ id: uid("A"), patient: getUserName(), doctor: ov.querySelector("#pDoc").value, dept: ov.querySelector("#pDept").value, date: ov.querySelector("#pDate").value, time: ov.querySelector("#pTime").value, type: "Consultation", status: "confirmed" });
+      MY(function(){var _row={ id: uid("A"), patient: getUserName(), doctor: ov.querySelector("#pDoc").value, dept: ov.querySelector("#pDept").value, date: ov.querySelector("#pDate").value, time: ov.querySelector("#pTime").value, type: "Consultation", status: "confirmed" };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
       renderMy(); ov.remove(); showToast("Appointment requested — you will be notified","success");
     };
   }});

@@ -135,37 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
 var ICONS = window.ICONS || {};
 const STORE_KEY = "wsh_beds_v1";
 const WARDS = ["Medical", "Surgical", "Maternity", "Pediatrics", "ICU", "Emergency"];
-const SEED = [
-  { id: "MED-01", ward: "Medical", status: "occupied", patient: "Abel Mekonnen", dx: "Hypertension", since: "2d" },
-  { id: "MED-02", ward: "Medical", status: "occupied", patient: "Hanna Bekele", dx: "Pneumonia", since: "1d" },
-  { id: "MED-03", ward: "Medical", status: "available", patient: "", dx: "", since: "" },
-  { id: "MED-04", ward: "Medical", status: "cleaning", patient: "", dx: "", since: "" },
-  { id: "MED-05", ward: "Medical", status: "occupied", patient: "Tigist Kebede", dx: "Malaria", since: "3d" },
-  { id: "MED-06", ward: "Medical", status: "reserved", patient: "Waiting: Dawit M.", dx: "Admission hold", since: "" },
-  { id: "SUR-01", ward: "Surgical", status: "occupied", patient: "Yonas Girma", dx: "Appendectomy", since: "1d" },
-  { id: "SUR-02", ward: "Surgical", status: "occupied", patient: "Samuel Getachew", dx: "Hernia repair", since: "2d" },
-  { id: "SUR-03", ward: "Surgical", status: "available", patient: "", dx: "", since: "" },
-  { id: "SUR-04", ward: "Surgical", status: "isolation", patient: "Bereket Wolde", dx: "Post-op infection", since: "4d" },
-  { id: "MAT-01", ward: "Maternity", status: "occupied", patient: "Selamawit Tadesse", dx: "Post C-section", since: "1d" },
-  { id: "MAT-02", ward: "Maternity", status: "occupied", patient: "Meron Desta", dx: "Labour", since: "6h" },
-  { id: "MAT-03", ward: "Maternity", status: "available", patient: "", dx: "", since: "" },
-  { id: "PED-01", ward: "Pediatrics", status: "occupied", patient: "Kidus Haile", dx: "Asthma", since: "1d" },
-  { id: "PED-02", ward: "Pediatrics", status: "available", patient: "", dx: "", since: "" },
-  { id: "PED-03", ward: "Pediatrics", status: "occupied", patient: "Rahel Bekele", dx: "Gastroenteritis", since: "2d" },
-  { id: "ICU-01", ward: "ICU", status: "occupied", patient: "Daniel Alemu", dx: "DKA — critical", since: "8h" },
-  { id: "ICU-02", ward: "ICU", status: "occupied", patient: "Frehiwot Assefa", dx: "Sepsis", since: "1d" },
-  { id: "ICU-03", ward: "ICU", status: "available", patient: "", dx: "", since: "" },
-  { id: "ICU-04", ward: "ICU", status: "cleaning", patient: "", dx: "", since: "" },
-  { id: "ER-01", ward: "Emergency", status: "occupied", patient: "Liya Hailu", dx: "RTA — observation", since: "3h" },
-  { id: "ER-02", ward: "Emergency", status: "available", patient: "", dx: "", since: "" },
-  { id: "ER-03", ward: "Emergency", status: "occupied", patient: "Marta Tesfaye", dx: "Chest pain", since: "1h" },
-  { id: "ER-04", ward: "Emergency", status: "reserved", patient: "Ambulance inbound", dx: "Trauma", since: "" }
-];
-const SEED_REQUESTS = [
-  { id: "BR-2041", name: "Sara Worku", mrn: "WSH-1044", sex: "F", age: "34", dx: "Respiratory distress", ward: "ICU", priority: "Emergency", note: "Needs a monitored bed", doctor: "Dr. Daniel Alemu", status: "pending", bedId: "", at: "today" },
-  { id: "BR-2042", name: "Dawit Mengistu", mrn: "WSH-1088", sex: "M", age: "51", dx: "Uncontrolled hypertension", ward: "Medical", priority: "Urgent", note: "From OPD", doctor: "Dr. Daniel Alemu", status: "pending", bedId: "", at: "today" },
-  { id: "BR-2043", name: "Abel Desta", mrn: "WSH-1102", sex: "M", age: "29", dx: "Inguinal hernia", ward: "Surgical", priority: "Routine", note: "Referral", doctor: "Dr. Daniel Alemu", status: "pending", bedId: "", at: "today" }
-];
+const SEED = [];
+const SEED_REQUESTS = [];
 let beds = [];
 let waiting = [];
 let requests = [];
@@ -181,26 +152,23 @@ function freeBeds(ward) {
   return beds.filter(b => b.ward === ward && (b.status === "available" || b.status === "reserved"));
 }
 function loadStore() {
-  let saved = null;
-  try {
-    const raw = sessionStorage.getItem(STORE_KEY);
-    if (raw) saved = JSON.parse(raw);
-  } catch (e) {}
-  if (saved && Array.isArray(saved.beds) && saved.beds.length) beds = saved.beds;
-  else beds = JSON.parse(JSON.stringify(SEED));
-  waiting = saved && Array.isArray(saved.waiting) ? saved.waiting : [];
-  if (saved && Array.isArray(saved.requests)) {
-    requests = saved.requests;
-    return;
-  }
-  const taken = new Set(beds.filter(b => b.patient).map(b => String(b.patient).toLowerCase()));
-  requests = JSON.parse(JSON.stringify(SEED_REQUESTS)).filter(r => !taken.has(r.name.toLowerCase()));
-  saveStore();
+  beds = [];
+  requests = [];
+  waiting = [];
+  Promise.all([
+    apiFetch(CONFIG.ENDPOINTS.BEDS),
+    apiFetch(CONFIG.ENDPOINTS.BED_REQUESTS)
+  ]).then(function (res) {
+    beds = (res[0].ok && res[0].data && res[0].data.items) || [];
+    requests = (res[1].ok && res[1].data && res[1].data.items) || [];
+    markKnown(CONFIG.ENDPOINTS.BEDS, beds);
+    markKnown(CONFIG.ENDPOINTS.BED_REQUESTS, requests);
+    renderAll();
+  });
 }
 function saveStore() {
-  try {
-    sessionStorage.setItem(STORE_KEY, JSON.stringify({ beds, waiting, requests }));
-  } catch (e) {}
+  beds.forEach(function (b) { persistUpsert(CONFIG.ENDPOINTS.BEDS, b); });
+  requests.forEach(function (r) { persistUpsert(CONFIG.ENDPOINTS.BED_REQUESTS, r); });
 }
 function doctorName() {
   try { return getUserName() || "Doctor"; } catch (e) { return "Doctor"; }
@@ -320,7 +288,7 @@ function renderRequests() {
   </tr>`).join("") : emptyRow(6, "No bed requests yet. Use the form above.");
   body.querySelectorAll("[data-approve]").forEach(b => b.onclick = () => approveRequest(b.dataset.approve));
   body.querySelectorAll("[data-cancel]").forEach(b => b.onclick = () => {
-    requests = requests.filter(r => r.id !== b.dataset.cancel);
+    persistDelete(CONFIG.ENDPOINTS.BED_REQUESTS, b.dataset.cancel); requests = requests.filter(r => r.id !== b.dataset.cancel);
     saveStore();
     renderAll();
     showToast("Request cancelled", "info");

@@ -192,7 +192,7 @@ function verifyModal() {
     ov.querySelector("#saveV").onclick = () => {
       const pat = ov.querySelector("#vPat").value.trim();
       if (!pat) { showToast("Patient is required","error"); return; }
-      INS.unshift({ id: uid("IN"), patient: pat, provider: ov.querySelector("#vProv").value, policy: ov.querySelector("#vPol").value || "—", coverage: +ov.querySelector("#vCov").value || 0, valid_until: ov.querySelector("#vUntil").value, status: "verified" });
+      (function(){var _row={ id: uid("IN"), patient: pat, provider: ov.querySelector("#vProv").value, policy: ov.querySelector("#vPol").value || "—", coverage: +ov.querySelector("#vCov").value || 0, valid_until: ov.querySelector("#vUntil").value, status: "verified" };INS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.INSURANCE,_row);return _row;})();
       renderIns(); ov.remove(); showToast("Coverage verified for " + pat, "success");
     };
   }});

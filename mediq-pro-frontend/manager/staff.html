@@ -170,7 +170,7 @@ function staffModal(id) {
       const name = ov.querySelector("#sName").value.trim();
       if (!name) { showToast("Name required","error"); return; }
       if (s) { s.name = name; s.role = ov.querySelector("#sRole").value; s.dept = ov.querySelector("#sDept").value; s.shift = ov.querySelector("#sShift").value; s.status = ov.querySelector("#sStatus").value; s.contact = ov.querySelector("#sContact").value; showToast("Staff updated","success"); }
-      else { STAFF.unshift({ id: uid("S"), name, role: ov.querySelector("#sRole").value || "Staff", dept: ov.querySelector("#sDept").value || "—", shift: ov.querySelector("#sShift").value, status: ov.querySelector("#sStatus").value, contact: ov.querySelector("#sContact").value }); showToast("Staff added","success"); }
+      else { (function(){var _row={ id: uid("S"), name, role: ov.querySelector("#sRole").value || "Staff", dept: ov.querySelector("#sDept").value || "—", shift: ov.querySelector("#sShift").value, status: ov.querySelector("#sStatus").value, contact: ov.querySelector("#sContact").value };STAFF.unshift(_row);persistInsert(CONFIG.ENDPOINTS.STAFF,_row);return _row;})(); showToast("Staff added","success"); }
       renderStaff(); ov.remove();
     };
   }});
@@ -178,7 +178,7 @@ function staffModal(id) {
 async function delStaff(id) {
   const ok = await confirmDialog("Remove this staff member?");
   if (!ok) return;
-  STAFF = STAFF.filter(s => s.id !== id); renderStaff(); showToast("Staff removed","success");
+  persistDelete(CONFIG.ENDPOINTS.STAFF, id); STAFF = STAFF.filter(s => s.id !== id); renderStaff(); showToast("Staff removed","success");
 }
 
 </script>

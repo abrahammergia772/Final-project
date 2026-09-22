@@ -85,19 +85,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 var ICONS = window.ICONS || {};
 const KEY = "wsh_img_v1";
-function seedImg() {
-  return [
-    { id: "IMG-331", patient: "Liya Hailu", study: "Chest X-ray", priority: "Urgent", status: "reported", note: "No acute infiltrate" },
-    { id: "IMG-332", patient: "Marta Tesfaye", study: "ECG + chest X-ray", priority: "Emergency", status: "in-progress", note: "" },
-    { id: "IMG-333", patient: "Abel Mekonnen", study: "Abdominal ultrasound", priority: "Routine", status: "scheduled", note: "" },
-    { id: "IMG-334", patient: "Samuel Getachew", study: "Pelvis X-ray", priority: "Urgent", status: "scheduled", note: "" },
-    { id: "IMG-335", patient: "Frehiwot Assefa", study: "CT head", priority: "Emergency", status: "scheduled", note: "" },
-    { id: "IMG-336", patient: "Kidus Haile", study: "Chest X-ray", priority: "Routine", status: "reported", note: "Hyperinflation, no focal consolidation" }
-  ];
-}
+function seedImg() { return []; }
 let studies = [];
-function loadI() { try { const r = sessionStorage.getItem(KEY); if (r) { studies = JSON.parse(r); return; } } catch (e) {} studies = seedImg(); }
-function saveI() { try { sessionStorage.setItem(KEY, JSON.stringify(studies)); } catch (e) {} }
+function loadI() {
+  studies = [];
+  apiFetch(CONFIG.ENDPOINTS.IMAGING_STUDIES).then(function (r) {
+    studies = (r.ok && r.data && r.data.items) || [];
+    markKnown(CONFIG.ENDPOINTS.IMAGING_STUDIES, studies);
+    renderImg();
+  });
+}
+function saveI() { studies.forEach(function (s) { persistUpsert(CONFIG.ENDPOINTS.IMAGING_STUDIES, s); }); }
 function imgBadge(s) { return badge(s.replace("-", " "), s === "reported" ? "success" : s === "in-progress" ? "warning" : "info"); }
 function priBadge(p) { return badge(p, p === "Emergency" ? "danger" : p === "Urgent" ? "warning" : "neutral"); }
 function renderImg() {

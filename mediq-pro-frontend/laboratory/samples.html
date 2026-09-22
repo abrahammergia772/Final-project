@@ -197,7 +197,7 @@ function regModal() {
       const pat = ov.querySelector("#smPat").value.trim();
       if (!pat) { showToast("Patient is required","error"); return; }
       const id = "S-" + (800 + Math.floor(Math.random() * 900));
-      SMPS.unshift({ id, patient: pat, test: ov.querySelector("#smTest").value, type: ov.querySelector("#smType").value, collected: ov.querySelector("#smTime").value, stage: "collected", tat: "—" });
+      (function(){var _row={ id, patient: pat, test: ov.querySelector("#smTest").value, type: ov.querySelector("#smType").value, collected: ov.querySelector("#smTime").value, stage: "collected", tat: "—" };SMPS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.SAMPLES,_row);return _row;})();
       renderSmps(); ov.remove();
       showToast("Sample " + id + " registered — barcode printed", "success");
     };

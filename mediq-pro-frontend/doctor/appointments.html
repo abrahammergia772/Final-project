@@ -181,9 +181,9 @@ function bookModal() {
       const pat = ov.querySelector("#bkPat").value.trim();
       if (!pat) { showToast("Patient is required","error"); return; }
       const noShow = Math.round(5 + Math.random() * 30);
-      APPT.unshift({ id: uid("A"), patient: pat, doctor: getUserName(), dept: ov.querySelector("#bkDept").value,
+      (function(){var _row={ id: uid("A"), patient: pat, doctor: getUserName(), dept: ov.querySelector("#bkDept").value,
         date: ov.querySelector("#bkDate").value, time: ov.querySelector("#bkTime").value,
-        type: ov.querySelector("#bkType").value, status: "confirmed", no_show: noShow });
+        type: ov.querySelector("#bkType").value, status: "confirmed", no_show: noShow };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
       renderAppts(); ov.remove(); showToast("Appointment booked (no-show risk " + noShow + "%)","success");
     };
   }});

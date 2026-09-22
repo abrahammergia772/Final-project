@@ -174,7 +174,7 @@ function poModal() {
     ov.querySelector("#savePo").onclick = () => {
       const items = ov.querySelector("#poItems").value.trim().split("\n").filter(Boolean);
       if (!items.length) { showToast("Add at least one item","error"); return; }
-      POS.unshift({ id: uid("PO"), supplier: ov.querySelector("#poSupp").value, items, total: +ov.querySelector("#poTotal").value || 0, date: todayStr(), status: "ordered" });
+      (function(){var _row={ id: uid("PO"), supplier: ov.querySelector("#poSupp").value, items, total: +ov.querySelector("#poTotal").value || 0, date: todayStr(), status: "ordered" };POS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.PURCHASE_ORDERS,_row);return _row;})();
       renderPos(); ov.remove();
       showToast("Purchase order placed with " + ov.querySelector("#poSupp").value, "success");
     };

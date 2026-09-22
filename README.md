@@ -42,7 +42,7 @@ Final-project/
 
 **106 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
 
-The shell (sidebar, topbar, Ctrl+K page search) is built from `assets/js/nav.js` by `assets/js/shell.js`, so every role page stays in sync. Demo mode is on, so the UI works without the backend.
+The shell (sidebar, topbar, Ctrl+K page search) is built from `assets/js/nav.js` by `assets/js/shell.js`, so every role page stays in sync. Demo mode is off. The website reads and saves through the API into Supabase.
 
 ### Hospital operations added in this pass
 

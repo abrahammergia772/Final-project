@@ -182,7 +182,7 @@ function newPlan() {
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     ov.querySelector("#saveNew").onclick = () => {
-      PLANS.unshift({ id: uid("CP"), patient: "New Patient", plan: "New care plan", created: todayStr(), updated: todayStr(), status: "in-progress", steps: ["Step 1"] });
+      (function(){var _row={ id: uid("CP"), patient: "New Patient", plan: "New care plan", created: todayStr(), updated: todayStr(), status: "in-progress", steps: ["Step 1"] };PLANS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.CARE_PLANS,_row);return _row;})();
       renderPlans(); ov.remove(); showToast("Care plan created","success");
     };
   }});

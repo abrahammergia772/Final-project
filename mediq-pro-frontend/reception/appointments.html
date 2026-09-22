@@ -200,9 +200,9 @@ function bookModal() {
       showLoading("AI predicting no-show risk…");
       predictAppointment({ patient: pat, day: "Monday", type: ov.querySelector("#bType").value, dept: ov.querySelector("#bDept").value }, res => {
         hideLoading();
-        APPT.unshift({ id: uid("A"), patient: pat, doctor: ov.querySelector("#bDoc").value, dept: ov.querySelector("#bDept").value,
+        (function(){var _row={ id: uid("A"), patient: pat, doctor: ov.querySelector("#bDoc").value, dept: ov.querySelector("#bDept").value,
           date: ov.querySelector("#bDate").value, time: ov.querySelector("#bTime").value,
-          type: ov.querySelector("#bType").value, status: "confirmed", no_show: res.no_show_percent });
+          type: ov.querySelector("#bType").value, status: "confirmed", no_show: res.no_show_percent };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
         renderAppts(); ov.remove();
         showToast("Appointment booked — AI no-show risk " + res.no_show_percent + "%", "success");
       });

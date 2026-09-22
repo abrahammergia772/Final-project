@@ -128,14 +128,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 function loadPageData() {
   const months = ["Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"];
-  const rev = [640, 688, 701, 745, 720, 768, 790, 812, 798, 826, 831, 842];
-  const exp = [420, 431, 448, 462, 455, 470, 481, 490, 486, 500, 505, 513];
+  const rev = [0,0,0,0,0,0,0,0,0,0,0,0];
+  const exp = [0,0,0,0,0,0,0,0,0,0,0,0];
   const flow = months.map((m, i) => ({ label: m, value: rev[i] }));
   const flow2 = months.map((m, i) => ({ label: m, value: exp[i] }));
   // two series in one chart → overlay two line charts
   document.getElementById("finFlowChart").innerHTML =
     lineChart(flow, { height: 250, color: "#1A6FA8" }) + "<br>" + lineChart(flow2, { height: 250, color: "#DC2626" });
-  const dept = [{label:"Medicine",value:186},{label:"Pharmacy",value:141},{label:"Surgery",value:122},{label:"Maternity",value:98},{label:"Cardiology",value:112},{label:"Lab",value:74},{label:"Radiology",value:52}];
+  const dept = [];
   document.getElementById("finDeptChart").innerHTML = barChart(dept, { height: 250, color: "#18BF75" });
   const budget = [
     {label:"Medicine", value:190, actual: 178}, {label:"Pharmacy", value:130, actual: 122},
@@ -157,7 +157,7 @@ function loadPageData() {
   document.getElementById("finBudgetChart").innerHTML = `<svg viewBox="0 0 ${pw} ${ph}" xmlns="http://www.w3.org/2000/svg">${s}</svg>
     <div class="chart-legend"><span class="lg-item"><span class="lg-swatch" style="background:#1A6FA8"></span> Budget</span>
     <span class="lg-item"><span class="lg-swatch" style="background:#18BF75"></span> Actual</span></div>`;
-  const svc = [["Consultation (OPD)", 1240, 186000], ["Inpatient ward", 312, 153400], ["Pharmacy sales", 2105, 141200], ["Surgery", 84, 122300], ["Cardiology procedures", 96, 112000], ["Laboratory tests", 3420, 74200]];
+  const svc = [];
   const total = svc.reduce((s2, x) => s2 + x[2], 0);
   document.getElementById("finSvcBody").innerHTML = svc.map(x => `<tr>
     <td><strong>${esc(x[0])}</strong></td><td>${x[1]}</td><td>${formatCurrency(x[2])}</td>
@@ -165,7 +165,7 @@ function loadPageData() {
 }
 function exportFinance() {
   exportCSV("finance-summary.csv", ["Month","Revenue (ETB)","Expenses (ETB)"],
-    [["Sep",640,420],["Oct",688,431],["Nov",701,448],["Dec",745,462],["Jan",720,455],["Feb",768,470],["Mar",790,481],["Apr",812,490],["May",798,486],["Jun",826,500],["Jul",831,505],["Aug",842,513]]);
+    []);
   showToast("Finance summary exported to CSV","success");
 }
 

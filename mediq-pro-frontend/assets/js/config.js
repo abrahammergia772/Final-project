@@ -31,19 +31,9 @@ const CONFIG = {
   // DEMO_MODE = true → the app runs with realistic mock data so the whole
   // frontend is fully testable BEFORE the FastAPI backend + .pkl models are ready.
   // Set to false once your backend is live AND redeployed with matching accounts.
-  DEMO_MODE: true,
+  DEMO_MODE: false,
 
-  // Demo accounts used when DEMO_MODE is true (also reachable from the login page)
-  DEMO_ACCOUNTS: {
-    admin:      { password: "admin123",      name: "Solomon Tadesse",  role: "admin" },
-    manager:    { password: "manager123",    name: "Hanna Bekele",     role: "manager" },
-    doctor:     { password: "doctor123",     name: "Dr. Daniel Alemu", role: "doctor" },
-    nurse:      { password: "nurse123",      name: "Marta Tesfaye",    role: "nurse" },
-    pharmacist: { password: "pharmacist123", name: "Yonas Girma",      role: "pharmacist" },
-    laboratory: { password: "lab123",        name: "Sara Worku",       role: "laboratory" },
-    reception:  { password: "reception123",  name: "Liya Hailu",       role: "reception" },
-    patient:    { password: "patient123",    name: "Abel Mekonnen",    role: "patient" }
-  },
+  DEMO_ACCOUNTS: {},
 
   // All API endpoints used by the frontend (AI modules + core)
   ENDPOINTS: {
@@ -96,6 +86,15 @@ const CONFIG = {
     DOCUMENTS:      "/documents",
     VIDEOS:         "/videos",
     VIDEO_SEARCH:   "/videos/search",
+    BEDS:           "/beds",
+    BED_REQUESTS:   "/bed_requests",
+    BLOOD_UNITS:    "/blood_units",
+    AMBULANCES:     "/ambulances",
+    AMBULANCE_MISSIONS: "/ambulance_missions",
+    THEATRE_CASES:  "/theatre_cases",
+    IMAGING_STUDIES:"/imaging_studies",
+    CASHIER_INVOICES:"/cashier_invoices",
+    CHANGE_PASSWORD:"/auth/change-password",
 
     // Auth
     SIGNUP:         "/auth/signup",

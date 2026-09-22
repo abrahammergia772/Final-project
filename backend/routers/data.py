@@ -95,8 +95,9 @@ def _scope(resource: str, result: dict, user) -> dict:
 
 def _fail_if_down(result: dict):
     from fastapi import HTTPException
-    if result.get("ok") is False and result.get("source") == "supabase":
-        raise HTTPException(status_code=503, detail="Database unavailable")
+    if result.get("ok") is False:
+        detail = "Supabase is not configured" if result.get("source") == "none" else "Database unavailable"
+        raise HTTPException(status_code=503, detail=result.get("error") or detail)
     return result
 
 
@@ -149,11 +150,14 @@ def _assert_patient_owns(resource: str, row_id: str, user):
 
 @router.put("/{resource}/{row_id}")
 async def update(resource: str, row_id: str, request: Request, user=Depends(current_user)):
-    _authorize(resource, user, write=True)
-    _assert_patient_owns(resource, row_id, user)
     body = await request.json()
     if not isinstance(body, dict):
         body = {}
+    if resource == "users" and str(row_id) == str(user.get("sub")):
+        body = {k: body[k] for k in ("name", "phone", "department") if k in body}
+        return _fail_if_down(update_row(resource, row_id, body))
+    _authorize(resource, user, write=True)
+    _assert_patient_owns(resource, row_id, user)
     return _fail_if_down(update_row(resource, row_id, _stamp_patient(resource, body, user)))
 
 

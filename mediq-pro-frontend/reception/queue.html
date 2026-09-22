@@ -180,12 +180,12 @@ function addToQueue() {
   const name = document.getElementById("qName").value.trim();
   if (!name) { showToast("Enter a patient name","error"); return; }
   const t = new Date().toTimeString().slice(0, 5);
-  QUEUE.push({ id: uid("Q"), name, dept: document.getElementById("qDept").value, arrived: t, status: "waiting" });
+  (function(){var _row={ id: uid("Q"), name, dept: document.getElementById("qDept").value, arrived: t, status: "waiting" };QUEUE.push(_row);persistInsert(CONFIG.ENDPOINTS.QUEUE,_row);return _row;})();
   document.getElementById("qName").value = "";
   renderQueue();
   showToast(name + " added to queue","success");
 }
-function removeQ(id) { QUEUE = QUEUE.filter(q => q.id !== id); renderQueue(); }
+function removeQ(id) { persistDelete(CONFIG.ENDPOINTS.QUEUE, id); QUEUE = QUEUE.filter(q => q.id !== id); renderQueue(); }
 
 </script>
 

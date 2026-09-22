@@ -72,18 +72,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 var ICONS = window.ICONS || {};
 const KEY = "wsh_ot_v1";
-function seedOT() {
-  return [
-    { id: "OT-104", theatre: "OT-1", time: "08:30", patient: "Selamawit Tadesse", proc: "C-section", surgeon: "Dr. Daniel Alemu", anaesth: "Dr. Hanna", status: "done" },
-    { id: "OT-105", theatre: "OT-1", time: "11:00", patient: "Yonas Girma", proc: "Appendectomy", surgeon: "Dr. Daniel Alemu", anaesth: "Dr. Hanna", status: "in-progress" },
-    { id: "OT-106", theatre: "OT-2", time: "09:15", patient: "Samuel Getachew", proc: "Inguinal hernia", surgeon: "Dr. Mekdes", anaesth: "Dr. Abel", status: "scheduled" },
-    { id: "OT-107", theatre: "OT-2", time: "13:30", patient: "Bereket Wolde", proc: "ORIF tibia", surgeon: "Dr. Mekdes", anaesth: "Dr. Abel", status: "scheduled" },
-    { id: "OT-108", theatre: "Maternity OT", time: "15:00", patient: "Meron Desta", proc: "Emergency C-section", surgeon: "Dr. Sara", anaesth: "Dr. Hanna", status: "scheduled" }
-  ];
-}
+function seedOT() { return []; }
 let cases = [];
-function loadT() { try { const r = sessionStorage.getItem(KEY); if (r) { cases = JSON.parse(r); return; } } catch (e) {} cases = seedOT(); }
-function saveT() { try { sessionStorage.setItem(KEY, JSON.stringify(cases)); } catch (e) {} }
+function loadT() {
+  cases = [];
+  apiFetch(CONFIG.ENDPOINTS.THEATRE_CASES).then(function (r) {
+    cases = (r.ok && r.data && r.data.items) || [];
+    markKnown(CONFIG.ENDPOINTS.THEATRE_CASES, cases);
+    renderTheatre();
+  });
+}
+function saveT() { cases.forEach(function (c) { persistUpsert(CONFIG.ENDPOINTS.THEATRE_CASES, c); }); }
 function otBadge(s) {
   return badge(s.replace("-", " "), s === "done" ? "success" : s === "in-progress" ? "warning" : s === "cancelled" ? "neutral" : "info");
 }

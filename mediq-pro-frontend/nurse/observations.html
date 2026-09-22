@@ -173,7 +173,7 @@ function saveObs() {
   if (!document.getElementById("obPatient").value) { showToast("Select a patient first","error"); return; }
   const pain = +document.getElementById("painScore").value;
   const t = new Date().toTimeString().slice(0, 5);
-  OBS.unshift({ id: uid("O"), time: t, patient: "Recorded", pain, intake: +document.getElementById("obIn").value || 0, output: +document.getElementById("obOut").value || 0, temp: +document.getElementById("obTemp").value || 36.5, nurse: getUserName(), notes: document.getElementById("obNotes").value.trim() });
+  (function(){var _row={ id: uid("O"), time: t, patient: "Recorded", pain, intake: +document.getElementById("obIn").value || 0, output: +document.getElementById("obOut").value || 0, temp: +document.getElementById("obTemp").value || 36.5, nurse: getUserName(), notes: document.getElementById("obNotes").value.trim() };OBS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.OBSERVATIONS,_row);return _row;})();
   renderObs();
   showToast("Observation saved — pain " + pain + "/10", "success");
   document.getElementById("obNotes").value = "";

@@ -208,8 +208,8 @@ function saveProfile() {
   const name = document.getElementById("stName").value.trim();
   if (!name) { showToast("Name is required", "error"); return; }
   const s = getSession();
-  if (s) { s.name = name; saveSession(s); }
-  showToast("Profile updated successfully", "success");
+  if (s) { s.name = name; saveSession(s); persistUpdate(CONFIG.ENDPOINTS.USERS, s.user_id, { name: name }); }
+  showToast("Profile saved", "success");
 }
 function saveSecurity() {
   const cur = document.getElementById("stCur").value;
@@ -218,8 +218,11 @@ function saveSecurity() {
   if (!cur) { showToast("Enter your current password", "error"); return; }
   if (n1.length < 8) { showToast("New password must be at least 8 characters", "error"); return; }
   if (n1 !== n2) { showToast("Passwords do not match", "error"); return; }
-  ["stCur", "stNew1", "stNew2"].forEach(i => document.getElementById(i).value = "");
-  showToast("Password updated successfully", "success");
+  apiFetch(CONFIG.ENDPOINTS.CHANGE_PASSWORD, "POST", { current_password: cur, new_password: n1 }).then(function (res) {
+    if (!res.ok) { showToast(res.error || "Could not update password", "error"); return; }
+    ["stCur", "stNew1", "stNew2"].forEach(i => document.getElementById(i).value = "");
+    showToast("Password saved", "success");
+  });
 }
 function savePrefs() { showToast("Notification preferences saved", "success"); }
 function saveAppearance() {

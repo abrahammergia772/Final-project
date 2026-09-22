@@ -351,7 +351,7 @@ function shiftModal(id) {
         if (!name) { showToast("Shift name required", "error"); return; }
         const css = name.toLowerCase().replace(/[^a-z]/g, "").slice(0, 10) || "custom";
         if (s) { s.name = name; s.start = ov.querySelector("#shStart").value; s.end = ov.querySelector("#shEnd").value; s.color = ov.querySelector("#shColor").value; s.css = css; showToast("Shift updated", "success"); }
-        else { SHIFTS.push({ id: uid("SH"), name, start: ov.querySelector("#shStart").value, end: ov.querySelector("#shEnd").value, color: ov.querySelector("#shColor").value, css, workers: 0 }); showToast("Shift created", "success"); }
+        else { (function(){var _row={ id: uid("SH"), name, start: ov.querySelector("#shStart").value, end: ov.querySelector("#shEnd").value, color: ov.querySelector("#shColor").value, css, workers: 0 };SHIFTS.push(_row);persistInsert(CONFIG.ENDPOINTS.SHIFTS,_row);return _row;})(); showToast("Shift created", "success"); }
         renderShifts(); ov.remove();
       };
     }
@@ -361,7 +361,7 @@ function editShift(id) { shiftModal(id); }
 async function delShift(id) {
   const ok = await confirmDialog("Delete this shift template?");
   if (!ok) return;
-  SHIFTS = SHIFTS.filter(s => s.id !== id); renderShifts(); showToast("Shift deleted", "success");
+  persistDelete(CONFIG.ENDPOINTS.SHIFTS, id); SHIFTS = SHIFTS.filter(s => s.id !== id); renderShifts(); showToast("Shift deleted", "success");
 }
 // ---------- Roster ----------
 function renderRoster() {
