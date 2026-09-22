@@ -171,7 +171,13 @@ window.SPA = { mode: true, current: "" };
         ev.preventDefault();
         const btn = $("#loginBtn");
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner sm white"></span> Signing in…';
+        btn.classList.add("is-busy");
+        btn.setAttribute("aria-busy", "true");
+        const settle = () => {
+          btn.disabled = false;
+          btn.classList.remove("is-busy");
+          btn.removeAttribute("aria-busy");
+        };
         login($("#loginEmail").value.trim(), $("#loginPassword").value).then(res => {
           if (res.ok) {
             showToast("Welcome back, " + getUserName() + "!", "success");
@@ -180,15 +186,13 @@ window.SPA = { mode: true, current: "" };
             const box = $("#loginError");
             $("#loginErrorText").textContent = res.error || "Login failed.";
             box.classList.add("show");
-            btn.disabled = false;
-            btn.innerHTML = "Sign In";
+            settle();
           }
         }).catch(() => {
           const box = $("#loginError");
           $("#loginErrorText").textContent = "Cannot reach the server. Please try again.";
           box.classList.add("show");
-          btn.disabled = false;
-          btn.innerHTML = "Sign In";
+          settle();
         });
       });
       $$(".demo-role").forEach(b => b.addEventListener("click", () => {

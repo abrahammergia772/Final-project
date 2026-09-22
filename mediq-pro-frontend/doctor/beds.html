@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
+<title>Bed requests — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+<link rel="stylesheet" href="../assets/css/global.css" />
+<link rel="stylesheet" href="../assets/css/sidebar.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+<link rel="stylesheet" href="../assets/css/modules.css" />
+<script src="../assets/js/theme.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<main class="main-content" id="mainContent">
+<header class="topbar" id="topbar" data-title="Bed requests"></header>
+<section class="page-body">
+
+<p class="page-kicker">Inpatient flow</p>
+<p class="page-intro">Register a patient who needs a bed, then approve it yourself. Nursing, reception and management only see the bed after it is occupied.</p>
+<div class="stat-grid" id="reqStats"></div>
+
+<section class="panel">
+  <div class="panel-header"><div><h3>Register a bed request</h3><div class="sub">You approve this request. It is not sent to another role.</div></div></div>
+  <div class="panel-body">
+    <form id="bedRequestForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rqName">Patient name <span class="req">*</span></label>
+          <input class="form-control" id="rqName" name="name" autocomplete="name" placeholder="Full name" required>
+        </div>
+        <div class="form-group">
+          <label for="rqMrn">MRN / card</label>
+          <input class="form-control" id="rqMrn" name="mrn" placeholder="WSH-0000" autocomplete="off">
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label for="rqSex">Sex</label>
+          <select class="form-control" id="rqSex" name="sex">
+            <option value="">—</option>
+            <option>F</option>
+            <option>M</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="rqAge">Age</label>
+          <input class="form-control" id="rqAge" name="age" inputmode="numeric" placeholder="Years" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="rqPri">Priority <span class="req">*</span></label>
+          <select class="form-control" id="rqPri" name="priority">
+            <option>Routine</option>
+            <option selected>Urgent</option>
+            <option>Emergency</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rqWard">Ward needed <span class="req">*</span></label>
+          <select class="form-control" id="rqWard" name="ward" required>
+            <option>Medical</option>
+            <option>Surgical</option>
+            <option>Maternity</option>
+            <option>Pediatrics</option>
+            <option>ICU</option>
+            <option>Emergency</option>
+          </select>
+          <div class="hint" id="wardFree"></div>
+        </div>
+        <div class="form-group">
+          <label for="rqDoctor">Requesting doctor</label>
+          <input class="form-control" id="rqDoctor" name="doctor" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="rqDx">Diagnosis / reason <span class="req">*</span></label>
+        <input class="form-control" id="rqDx" name="dx" placeholder="Why this patient needs a bed" required>
+      </div>
+      <div class="form-group">
+        <label for="rqNote">Clinical note</label>
+        <textarea class="form-control" id="rqNote" name="note" rows="2" placeholder="Optional — isolation, oxygen, escort"></textarea>
+      </div>
+      <div class="flex gap-3" style="flex-wrap:wrap">
+        <button class="btn btn-primary" type="submit" id="btnApprove">Approve and assign bed</button>
+        <button class="btn btn-secondary" type="button" id="btnSave">Save request only</button>
+      </div>
+    </form>
+    <p class="module-note">Approving assigns the first free bed in the ward you chose. Other staff never see empty beds or this form.</p>
+  </div>
+</section>
+
+<section class="panel mt-5">
+  <div class="panel-header"><div><h3>Your bed requests</h3><div class="sub">Approve a saved request yourself — no second signature</div></div></div>
+  <div class="panel-body no-pad"><div class="table-wrap"><table class="data-table" id="reqTable">
+    <thead><tr><th>Patient</th><th>Ward</th><th>Priority</th><th>Status</th><th>Bed</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table></div></div>
+</section>
+
+<section class="panel mt-5">
+  <div class="panel-header"><div><h3>Occupied beds</h3><div class="sub">What other staff can see after you approve</div></div></div>
+  <div class="panel-body">
+    <div class="chip-row" id="wardFilters"></div>
+    <div class="bed-board" id="bedBoard"></div>
+  </div>
+</section>
+
+</section>
+</main>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/icons.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  checkSession();
+  checkRoleAccess("doctor");
+  initLayout();
+  bootPage();
+});
+var ICONS = window.ICONS || {};
+const STORE_KEY = "wsh_beds_v1";
+const WARDS = ["Medical", "Surgical", "Maternity", "Pediatrics", "ICU", "Emergency"];
+const SEED = [
+  { id: "MED-01", ward: "Medical", status: "occupied", patient: "Abel Mekonnen", dx: "Hypertension", since: "2d" },
+  { id: "MED-02", ward: "Medical", status: "occupied", patient: "Hanna Bekele", dx: "Pneumonia", since: "1d" },
+  { id: "MED-03", ward: "Medical", status: "available", patient: "", dx: "", since: "" },
+  { id: "MED-04", ward: "Medical", status: "cleaning", patient: "", dx: "", since: "" },
+  { id: "MED-05", ward: "Medical", status: "occupied", patient: "Tigist Kebede", dx: "Malaria", since: "3d" },
+  { id: "MED-06", ward: "Medical", status: "reserved", patient: "Waiting: Dawit M.", dx: "Admission hold", since: "" },
+  { id: "SUR-01", ward: "Surgical", status: "occupied", patient: "Yonas Girma", dx: "Appendectomy", since: "1d" },
+  { id: "SUR-02", ward: "Surgical", status: "occupied", patient: "Samuel Getachew", dx: "Hernia repair", since: "2d" },
+  { id: "SUR-03", ward: "Surgical", status: "available", patient: "", dx: "", since: "" },
+  { id: "SUR-04", ward: "Surgical", status: "isolation", patient: "Bereket Wolde", dx: "Post-op infection", since: "4d" },
+  { id: "MAT-01", ward: "Maternity", status: "occupied", patient: "Selamawit Tadesse", dx: "Post C-section", since: "1d" },
+  { id: "MAT-02", ward: "Maternity", status: "occupied", patient: "Meron Desta", dx: "Labour", since: "6h" },
+  { id: "MAT-03", ward: "Maternity", status: "available", patient: "", dx: "", since: "" },
+  { id: "PED-01", ward: "Pediatrics", status: "occupied", patient: "Kidus Haile", dx: "Asthma", since: "1d" },
+  { id: "PED-02", ward: "Pediatrics", status: "available", patient: "", dx: "", since: "" },
+  { id: "PED-03", ward: "Pediatrics", status: "occupied", patient: "Rahel Bekele", dx: "Gastroenteritis", since: "2d" },
+  { id: "ICU-01", ward: "ICU", status: "occupied", patient: "Daniel Alemu", dx: "DKA — critical", since: "8h" },
+  { id: "ICU-02", ward: "ICU", status: "occupied", patient: "Frehiwot Assefa", dx: "Sepsis", since: "1d" },
+  { id: "ICU-03", ward: "ICU", status: "available", patient: "", dx: "", since: "" },
+  { id: "ICU-04", ward: "ICU", status: "cleaning", patient: "", dx: "", since: "" },
+  { id: "ER-01", ward: "Emergency", status: "occupied", patient: "Liya Hailu", dx: "RTA — observation", since: "3h" },
+  { id: "ER-02", ward: "Emergency", status: "available", patient: "", dx: "", since: "" },
+  { id: "ER-03", ward: "Emergency", status: "occupied", patient: "Marta Tesfaye", dx: "Chest pain", since: "1h" },
+  { id: "ER-04", ward: "Emergency", status: "reserved", patient: "Ambulance inbound", dx: "Trauma", since: "" }
+];
+const SEED_REQUESTS = [
+  { id: "BR-2041", name: "Sara Worku", mrn: "WSH-1044", sex: "F", age: "34", dx: "Respiratory distress", ward: "ICU", priority: "Emergency", note: "Needs a monitored bed", doctor: "Dr. Daniel Alemu", status: "pending", bedId: "", at: "today" },
+  { id: "BR-2042", name: "Dawit Mengistu", mrn: "WSH-1088", sex: "M", age: "51", dx: "Uncontrolled hypertension", ward: "Medical", priority: "Urgent", note: "From OPD", doctor: "Dr. Daniel Alemu", status: "pending", bedId: "", at: "today" },
+  { id: "BR-2043", name: "Abel Desta", mrn: "WSH-1102", sex: "M", age: "29", dx: "Inguinal hernia", ward: "Surgical", priority: "Routine", note: "Referral", doctor: "Dr. Daniel Alemu", status: "pending", bedId: "", at: "today" }
+];
+let beds = [];
+let waiting = [];
+let requests = [];
+let filter = "All";
+
+function stamp() {
+  return new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+function isOccupied(b) {
+  return b && (b.status === "occupied" || b.status === "isolation") && b.patient;
+}
+function freeBeds(ward) {
+  return beds.filter(b => b.ward === ward && (b.status === "available" || b.status === "reserved"));
+}
+function loadStore() {
+  let saved = null;
+  try {
+    const raw = sessionStorage.getItem(STORE_KEY);
+    if (raw) saved = JSON.parse(raw);
+  } catch (e) {}
+  if (saved && Array.isArray(saved.beds) && saved.beds.length) beds = saved.beds;
+  else beds = JSON.parse(JSON.stringify(SEED));
+  waiting = saved && Array.isArray(saved.waiting) ? saved.waiting : [];
+  if (saved && Array.isArray(saved.requests)) {
+    requests = saved.requests;
+    return;
+  }
+  const taken = new Set(beds.filter(b => b.patient).map(b => String(b.patient).toLowerCase()));
+  requests = JSON.parse(JSON.stringify(SEED_REQUESTS)).filter(r => !taken.has(r.name.toLowerCase()));
+  saveStore();
+}
+function saveStore() {
+  try {
+    sessionStorage.setItem(STORE_KEY, JSON.stringify({ beds, waiting, requests }));
+  } catch (e) {}
+}
+function doctorName() {
+  try { return getUserName() || "Doctor"; } catch (e) { return "Doctor"; }
+}
+function priBadge(p) {
+  return badge(p, p === "Emergency" ? "danger" : p === "Urgent" ? "warning" : "neutral");
+}
+function readForm() {
+  const name = document.getElementById("rqName").value.trim();
+  const dx = document.getElementById("rqDx").value.trim();
+  const ward = document.getElementById("rqWard").value;
+  const age = document.getElementById("rqAge").value.trim();
+  if (!name || !dx || !ward) {
+    showToast("Enter the patient name, ward and diagnosis", "warning");
+    return null;
+  }
+  if (age && (!/^\d{1,3}$/.test(age) || Number(age) > 120)) {
+    showToast("Enter age in years, or leave it blank", "warning");
+    return null;
+  }
+  return {
+    id: "BR-" + Date.now().toString(36).toUpperCase(),
+    name,
+    mrn: document.getElementById("rqMrn").value.trim(),
+    sex: document.getElementById("rqSex").value,
+    age,
+    dx,
+    ward,
+    priority: document.getElementById("rqPri").value || "Urgent",
+    note: document.getElementById("rqNote").value.trim(),
+    doctor: document.getElementById("rqDoctor").value.trim() || doctorName(),
+    status: "pending",
+    bedId: "",
+    at: stamp()
+  };
+}
+function clearForm() {
+  const form = document.getElementById("bedRequestForm");
+  if (form) form.reset();
+  const doc = document.getElementById("rqDoctor");
+  if (doc) doc.value = doctorName();
+  const pri = document.getElementById("rqPri");
+  if (pri) pri.value = "Urgent";
+  updateWardHint();
+}
+function assignRequest(req) {
+  if (!req || req.status === "approved") return req && req.bedId;
+  const free = beds.find(b => b.ward === req.ward && b.status === "available")
+    || beds.find(b => b.ward === req.ward && b.status === "reserved");
+  if (!free) return null;
+  free.status = "occupied";
+  free.patient = req.name;
+  free.dx = req.dx;
+  free.since = "now";
+  free.doctor = req.doctor;
+  free.mrn = req.mrn || "";
+  req.status = "approved";
+  req.bedId = free.id;
+  req.approvedAt = stamp();
+  return free;
+}
+function approveRequest(id, quiet) {
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+  if (req.status === "approved") {
+    showToast(req.name + " is already in " + req.bedId, "info");
+    return;
+  }
+  const bed = assignRequest(req);
+  saveStore();
+  renderAll();
+  if (!bed) {
+    showToast("No free bed in " + req.ward + ". Request saved — approve it when a bed is free.", "error");
+    return;
+  }
+  if (!quiet) showToast(req.name + " approved into " + bed.id, "success");
+}
+function saveRequest(req) {
+  requests.unshift(req);
+  saveStore();
+  renderAll();
+}
+function updateWardHint() {
+  const ward = document.getElementById("rqWard").value;
+  const n = freeBeds(ward).length;
+  const el = document.getElementById("wardFree");
+  if (!el) return;
+  el.textContent = n
+    ? ward + " has " + n + (n === 1 ? " bed" : " beds") + " you can approve into."
+    : ward + " has no free bed. Saving keeps the request pending until you approve it.";
+}
+function renderStats() {
+  const pending = requests.filter(r => r.status !== "approved").length;
+  const approved = requests.filter(r => r.status === "approved").length;
+  const occupied = beds.filter(isOccupied).length;
+  const free = beds.filter(b => b.status === "available" || b.status === "reserved").length;
+  document.getElementById("reqStats").innerHTML = [
+    ["Pending", String(pending), "warning", "Waiting for your approval"],
+    ["Approved", String(approved), "success", "Assigned by you"],
+    ["Occupied", String(occupied), "primary", "Visible to other staff"],
+    ["Free beds", String(free), free ? "info" : "danger", "Only you can assign these"]
+  ].map(s => `<div class="stat-card ${s[2] === "primary" ? "" : "color-" + (s[2] === "success" ? "success" : s[2] === "danger" ? "danger" : s[2] === "warning" ? "warning" : "info")}"><div class="stat-icon">${ICONS.bed}</div><div><div class="stat-value">${s[1]}</div><div class="stat-label">${s[0]}</div><div class="stat-trend text-gray">${s[3]}</div></div></div>`).join("");
+}
+function renderRequests() {
+  const body = document.querySelector("#reqTable tbody");
+  const rows = requests.slice();
+  body.innerHTML = rows.length ? rows.map(r => `<tr>
+    <td><strong>${esc(r.name)}</strong><div class="text-sm text-gray">${esc(r.mrn || r.dx)}</div></td>
+    <td>${esc(r.ward)}</td>
+    <td>${priBadge(r.priority)}</td>
+    <td>${r.status === "approved" ? badge("approved", "success") : badge("pending", "warning")}</td>
+    <td>${esc(r.bedId || "—")}</td>
+    <td class="actions">${r.status === "approved"
+      ? `<span class="text-sm text-gray">${esc(r.approvedAt || "Approved")}</span>`
+      : `<button type="button" class="btn btn-primary btn-sm" data-approve="${esc(r.id)}">Approve</button>
+         <button type="button" class="btn btn-secondary btn-sm" data-cancel="${esc(r.id)}">Cancel</button>`}</td>
+  </tr>`).join("") : emptyRow(6, "No bed requests yet. Use the form above.");
+  body.querySelectorAll("[data-approve]").forEach(b => b.onclick = () => approveRequest(b.dataset.approve));
+  body.querySelectorAll("[data-cancel]").forEach(b => b.onclick = () => {
+    requests = requests.filter(r => r.id !== b.dataset.cancel);
+    saveStore();
+    renderAll();
+    showToast("Request cancelled", "info");
+  });
+}
+function renderOccupied() {
+  const occupied = beds.filter(isOccupied).filter(b => filter === "All" || b.ward === filter);
+  document.getElementById("wardFilters").innerHTML = ["All"].concat(WARDS).map(w =>
+    `<button type="button" class="chip ${filter === w ? "selected" : ""}" data-ward="${esc(w)}">${esc(w)}</button>`).join("");
+  document.getElementById("wardFilters").querySelectorAll("[data-ward]").forEach(b => b.onclick = () => { filter = b.dataset.ward; renderOccupied(); });
+  const board = document.getElementById("bedBoard");
+  board.innerHTML = occupied.length ? occupied.map(b => `
+    <button type="button" class="bed-card status-${esc(b.status)}" data-bed="${esc(b.id)}">
+      <div class="flex-between"><span class="bed-id">${esc(b.id)}</span>${badge(b.status === "isolation" ? "isolation" : "occupied", b.status === "isolation" ? "danger" : "primary")}</div>
+      <div class="bed-meta">${esc(b.ward)}${b.since ? " · " + esc(b.since) : ""}</div>
+      <div class="bed-name">${esc(b.patient)}</div>
+      <div class="bed-meta">${esc(b.dx || "Occupied")}</div>
+    </button>`).join("") : `<p class="module-note">No occupied beds${filter === "All" ? "." : " in " + esc(filter) + "."}</p>`;
+  board.querySelectorAll("[data-bed]").forEach(el => el.onclick = () => openOccupied(el.dataset.bed));
+}
+function openOccupied(id) {
+  const b = beds.find(x => x.id === id);
+  if (!isOccupied(b)) return;
+  openModal({
+    title: b.id + " · " + b.ward,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Patient</span><span class="v">${esc(b.patient)}</span></div>
+      <div class="detail-item"><span class="k">Diagnosis</span><span class="v">${esc(b.dx || "—")}</span></div>
+      <div class="detail-item"><span class="k">Doctor</span><span class="v">${esc(b.doctor || "—")}</span></div>
+      <div class="detail-item"><span class="k">MRN</span><span class="v">${esc(b.mrn || "—")}</span></div>
+    </div>
+    <p class="module-note">Discharging hides this bed from other staff and frees it for your next approval.</p>`,
+    footer: `<button class="btn btn-danger" id="actDischarge">Discharge and free bed</button><button class="btn btn-secondary" data-close>Close</button>`
+  }, { onMount(ov) {
+    const btn = ov.querySelector("#actDischarge");
+    if (!btn) return;
+    btn.onclick = () => {
+      const name = b.patient;
+      b.status = "available";
+      b.patient = "";
+      b.dx = "";
+      b.since = "";
+      b.doctor = "";
+      b.mrn = "";
+      saveStore();
+      closeModal(ov);
+      renderAll();
+      showToast(name + " discharged. " + b.id + " is free for a new approval.", "info");
+    };
+  }});
+}
+function renderAll() {
+  renderStats();
+  updateWardHint();
+  renderRequests();
+  renderOccupied();
+}
+function bootPage() {
+  const ICONS = window.ICONS || {};
+  window.ICONS = ICONS;
+  loadStore();
+  const doc = document.getElementById("rqDoctor");
+  if (doc) doc.value = doctorName();
+  const ward = document.getElementById("rqWard");
+  if (ward) ward.onchange = updateWardHint;
+  const form = document.getElementById("bedRequestForm");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const req = readForm();
+    if (!req) return;
+    requests.unshift(req);
+    const bed = assignRequest(req);
+    saveStore();
+    clearForm();
+    renderAll();
+    if (bed) showToast(req.name + " approved into " + bed.id, "success");
+    else showToast("No free bed in " + req.ward + ". Request saved as pending.", "error");
+  });
+  document.getElementById("btnSave").onclick = () => {
+    const req = readForm();
+    if (!req) return;
+    saveRequest(req);
+    clearForm();
+    showToast("Request saved. Approve it yourself when you are ready.", "info");
+  };
+  renderAll();
+}
+</script>
+<script src="../assets/js/i18n.js"></script>
+</body>
+</html>

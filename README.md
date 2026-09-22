@@ -39,7 +39,7 @@ Final-project/
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 
-**105 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
+**106 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
 
 The shell (sidebar, topbar, Ctrl+K page search) is built from `assets/js/nav.js` by `assets/js/shell.js`, so every role page stays in sync. Demo mode is on, so the UI works without the backend.
 
@@ -47,7 +47,8 @@ The shell (sidebar, topbar, Ctrl+K page search) is built from `assets/js/nav.js`
 
 | Module | Page | Who uses it |
 |--------|------|-------------|
-| Wards & beds | `nurse/beds.html`, `admin/wards.html`, `manager/wards.html`, `reception/admissions.html` | Admit, transfer, isolate, discharge |
+| Bed requests | `doctor/beds.html` | Doctor registers who needs a bed and approves it themselves |
+| Occupied beds | `nurse/beds.html`, `admin/wards.html`, `manager/wards.html`, `reception/admissions.html` | Other staff see occupied beds only |
 | Blood bank | `laboratory/blood-bank.html` | Stock, expiry, reserve, issue |
 | Ambulance desk | `reception/ambulance.html` | Dispatch around Wolaita Sodo |
 | Cashier | `reception/billing.html` | ETB invoices, Telebirr / CBE Birr / cash / insurance |

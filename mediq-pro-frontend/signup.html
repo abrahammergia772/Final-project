@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <meta name="theme-color" content="#0B3A5E" />
 
 <title>Create Account — Wolaita Sodo Hospital</title>
@@ -17,11 +17,27 @@
 
   <script src="assets/js/theme.js"></script></head>
 <body>
-<div class="login-body">
-  <div class="login-card" style="max-width:560px;padding:32px 36px;max-height:92vh;overflow-y:auto">
+<div class="login-body login-split login-scroll">
+  <div class="login-stage">
+    <aside class="login-hero" aria-label="Wolaita Sodo Hospital">
+      <div class="login-hero-inner">
+        <img class="login-mark" src="assets/images/logo-mark.png" alt="" />
+        <p class="login-kicker">Wolaita Sodo University</p>
+        <h1 class="wide">Wolaita Sodo<br>Hospital</h1>
+        <p class="login-tag">Care | Compassion | Community</p>
+        <p class="login-lead">Open an account for a patient, or ask for a staff role. The hospital team reviews staff requests.</p>
+        <p class="login-place">Wolaita Sodo, South Ethiopia</p>
+      </div>
+      <svg class="login-hills" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 150 L90 118 L160 142 L250 72 L330 128 L410 90 L500 146 L590 64 L680 130 L800 96 L800 200 L0 200 Z" fill="rgba(255,255,255,.06)"/>
+        <path d="M0 168 L120 136 L210 162 L300 104 L390 154 L500 86 L610 148 L720 112 L800 150 L800 200 L0 200 Z" fill="rgba(46,168,112,.22)"/>
+      </svg>
+    </aside>
+    <section class="login-panel">
+  <div class="login-card login-card-wide">
     <div class="login-logo" style="margin-bottom:20px">
       <img src="assets/images/logo-mark.png" alt="Wolaita Sodo Hospital" />
-      <h1 style="font-size:22px">Create Your Account</h1>
+      <h1 class="login-title">Create Your Account</h1>
       <div class="sub">Join Wolaita Sodo Hospital — AI-Powered Hospital Management System</div>
     </div>
 
@@ -31,7 +47,7 @@
     </div>
 
     <form id="signupForm" novalidate>
-      <h3 style="font-size:15px;margin-bottom:14px">👤 Account Information</h3>
+      <h3 style="font-size:15px;margin-bottom:14px">Account information</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="suName">Full Name <span class="req">*</span></label>
@@ -53,7 +69,7 @@
         </div>
       </div>
 
-      <h3 style="font-size:15px;margin:20px 0 14px">🪪 Personal Information</h3>
+      <h3 style="font-size:15px;margin:20px 0 14px">Personal information</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="suDob">Date of Birth <span class="req">*</span></label>
@@ -94,7 +110,7 @@
         </div>
       </div>
 
-      <h3 style="font-size:15px;margin:20px 0 14px">🏥 Account Type &amp; Emergency</h3>
+      <h3 style="font-size:15px;margin:20px 0 14px">Account type and emergency contact</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="suRole">I am registering as</label>
@@ -115,7 +131,7 @@
         </div>
       </div>
 
-      <h3 style="font-size:15px;margin:20px 0 14px">💳 Insurance (optional)</h3>
+      <h3 style="font-size:15px;margin:20px 0 14px">Insurance, optional</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="suIns">Insurance Provider</label>
@@ -143,6 +159,8 @@
     <p class="text-center mt-4" style="font-size:13px;color:#6B7280">
       Already have an account? <a href="index.html">Sign in</a>
     </p>
+  </div>
+    </section>
   </div>
 </div>
 

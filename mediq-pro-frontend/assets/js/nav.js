@@ -40,6 +40,7 @@ window.NAV_ROLES = {
     nav: [["MAIN", [
       ["dashboard.html", "Dashboard", "grid"],
       ["patients.html", "Patients", "users"],
+      ["beds.html", "Bed requests", "bed"],
       ["consultation.html", "Consultation", "stethoscope"],
       ["prescriptions.html", "Prescriptions", "file-text"],
       ["appointments.html", "Appointments", "calendar"],
@@ -148,7 +149,7 @@ window.NAV_PERM_MAP = {
     "patients.html": "patients", "wards.html": "wards"
   },
   doctor: {
-    "patients.html": "patients", "consultation.html": "consultation", "prescriptions.html": "prescriptions",
+    "patients.html": "patients", "beds.html": "bedrequests", "consultation.html": "consultation", "prescriptions.html": "prescriptions",
     "appointments.html": "appointments", "referrals.html": "referrals", "shifts.html": "shifts",
     "videos.html": "videos", "ai-diagnosis.html": "ai", "settings.html": "settings",
     "documents.html": "documents", "theatre.html": "theatre", "imaging.html": "imaging",

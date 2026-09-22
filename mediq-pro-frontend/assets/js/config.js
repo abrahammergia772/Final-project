@@ -108,7 +108,7 @@ const CONFIG = {
   PERMISSIONS: {
     admin:      { users: 1, roles: 1, announcements: 1, audit: 1, settings: 1, shifts: 1, documents: 1, patients: 1, reports: 1, wards: 1, ai: 1, messages: 1 },
     manager:    { departments: 1, staff: 1, reports: 1, finance: 1, complaints: 1, shifts: 1, documents: 1, patients: 1, wards: 1, ai: 1, messages: 1, settings: 1 },
-    doctor:     { patients: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, theatre: 1, imaging: 1, shifts: 1, documents: 1, videos: 1, ai: 1, messages: 1, settings: 1 },
+    doctor:     { patients: 1, bedrequests: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, theatre: 1, imaging: 1, shifts: 1, documents: 1, videos: 1, ai: 1, messages: 1, settings: 1 },
     nurse:      { beds: 1, vitals: 1, observations: 1, medications: 1, careplans: 1, shifts: 1, documents: 1, patients: 1, reports: 1, messages: 1, settings: 1 },
     pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, shifts: 1, documents: 1, patients: 1, reports: 1, ai: 1, messages: 1, settings: 1 },
     laboratory: { testrequests: 1, samples: 1, bloodbank: 1, results: 1, shifts: 1, documents: 1, patients: 1, reports: 1, ai: 1, messages: 1, settings: 1 },

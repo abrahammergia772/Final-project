@@ -275,17 +275,9 @@ BEDS_BODY = """
 <p class="page-kicker">Inpatient flow</p>
 <p class="page-intro">@@INTRO@@</p>
 <div class="stat-grid" id="bedStats"></div>
-<div id="occMeter" class="panel" style="padding:14px 18px;margin-bottom:16px"></div>
 <div class="chip-row" id="wardFilters"></div>
 <div class="bed-board" id="bedBoard"></div>
-<section class="panel mt-5">
-  <div class="panel-header"><div><h3>Waiting for a bed</h3><div class="sub">Admit into the first suitable free bed</div></div></div>
-  <div class="panel-body no-pad"><div class="table-wrap"><table class="data-table" id="waitTable">
-    <thead><tr><th>Patient</th><th>From</th><th>Needs</th><th>Priority</th><th></th></tr></thead>
-    <tbody></tbody>
-  </table></div></div>
-</section>
-<p class="module-note">Training demo for Wolaita Sodo Hospital — confirm on the ward before moving a patient.</p>
+<p class="module-note">Training demo for Wolaita Sodo Hospital — this board lists occupied beds only.</p>
 """
 
 BLOOD_BODY = """
@@ -455,10 +447,10 @@ IMG_BODY = """
 
 def write_new_pages() -> None:
     intros = {
-        "nurse": "Ward board for nursing — see who is in each bed, admit, transfer, isolate or discharge.",
-        "admin": "Hospital occupancy for administration — the same live board the wards use.",
-        "manager": "Bed occupancy across Medical, Surgical, Maternity, Pediatrics, ICU and Emergency.",
-        "reception": "Admit a waiting patient into the first free bed in the right ward.",
+        "nurse": "Occupied beds only. Empty, cleaning and reserved beds stay hidden. A doctor registers and approves anyone who needs a bed.",
+        "admin": "Occupied beds for administration. Free beds and new requests are handled by the doctor, not from this board.",
+        "manager": "Occupied beds across the hospital. Empty beds are not shown. Doctors approve new admissions themselves.",
+        "reception": "Occupied beds only. Registering and approving a patient who needs a bed is done by the doctor.",
     }
     write_page("nurse/beds.html", "nurse", "Wards & Beds", BEDS_BODY.replace("@@INTRO@@", intros["nurse"]), "beds.js")
     write_page("admin/wards.html", "admin", "Wards & Beds", BEDS_BODY.replace("@@INTRO@@", intros["admin"]), "beds.js")

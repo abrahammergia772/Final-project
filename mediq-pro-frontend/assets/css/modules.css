@@ -273,3 +273,385 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
   .stat-card, .bed-card, .cmd-overlay { transition: none; }
   .stat-card:hover, .bed-card:hover { transform: none; }
 }
+
+
+/* ---------- Login stage ---------- */
+.login-body {
+  background:
+    radial-gradient(720px 420px at 8% -8%, rgba(255, 214, 140, .18), transparent 58%),
+    radial-gradient(560px 380px at 100% 110%, rgba(46, 168, 112, .22), transparent 52%),
+    linear-gradient(165deg, #07263F 0%, #0B3A5E 52%, #14608F 100%);
+}
+.login-card {
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  box-shadow: 0 28px 70px rgba(3, 16, 32, .32);
+}
+.login-split {
+  display: block;
+  padding: 0;
+  overflow: auto;
+}
+.login-split::before,
+.login-split::after { display: none; }
+.login-stage {
+  display: grid;
+  grid-template-columns: minmax(340px, 1.12fr) minmax(400px, .88fr);
+  min-height: 100vh;
+}
+.login-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  padding: 64px 64px 120px;
+  display: flex;
+  align-items: center;
+  background:
+    radial-gradient(520px 320px at 82% 12%, rgba(255, 214, 140, .28), transparent 62%),
+    radial-gradient(420px 300px at 8% 86%, rgba(46, 168, 112, .22), transparent 58%),
+    linear-gradient(180deg, #08304F 0%, #0B3A5E 46%, #0E4F78 100%);
+}
+.login-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  animation: slideUp .55s ease both;
+}
+.login-mark {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, .28));
+  margin-bottom: 22px;
+}
+.login-kicker {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .72);
+  margin-bottom: 10px;
+}
+.login-hero h1 {
+  font-family: Fraunces, "Noto Sans Ethiopic", Georgia, "Times New Roman", serif;
+  font-size: clamp(36px, 4.4vw, 58px);
+  line-height: 1.02;
+  font-weight: 560;
+  letter-spacing: -.035em;
+  color: #fff;
+  max-width: 12ch;
+}
+.login-hero h1.wide { max-width: none; font-size: clamp(42px, 5vw, 68px); }
+.login-hero .login-tag {
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #B7E3C8;
+}
+.login-lead {
+  margin-top: 18px;
+  max-width: 42ch;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .82);
+}
+.login-ecg {
+  width: min(280px, 70%);
+  height: 36px;
+  margin-top: 22px;
+  display: block;
+}
+.login-ecg path {
+  fill: none;
+  stroke: rgba(183, 227, 200, .85);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 70 280;
+  animation: loginEcg 2.8s linear infinite;
+}
+.login-points {
+  margin-top: 28px;
+  display: grid;
+  gap: 14px;
+  max-width: 440px;
+}
+.login-points li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.lp-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .16);
+}
+.lp-icon svg { width: 18px; height: 18px; }
+.login-points strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 650;
+  color: #fff;
+}
+.login-points small {
+  display: block;
+  margin-top: 1px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, .7);
+}
+.login-place {
+  position: relative;
+  z-index: 2;
+  margin-top: 28px;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: rgba(255, 255, 255, .7);
+}
+.login-hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 180px;
+  z-index: 1;
+  pointer-events: none;
+}
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 36px 40px;
+  background:
+    radial-gradient(480px 220px at 50% 0%, rgba(26, 111, 168, .08), transparent 70%),
+    #F4F8FB;
+}
+.login-split .login-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 8px 4px 12px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  animation: slideUp .6s ease .05s both;
+}
+.login-title {
+  font-family: Fraunces, "Noto Sans Ethiopic", Georgia, serif;
+  font-size: 36px;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  font-weight: 560;
+  color: var(--dark);
+}
+.login-sub {
+  margin: 8px 0 22px;
+  color: var(--gray);
+  font-size: 14px;
+}
+.login-field { margin-bottom: 14px; }
+.login-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text-strong);
+}
+.login-input { position: relative; }
+.login-input .field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: #64748B;
+  pointer-events: none;
+}
+.login-input .form-control {
+  height: 50px;
+  padding-left: 42px;
+  border-radius: 14px;
+  background: #fff;
+  border-color: #D7E3EE;
+}
+.login-input .form-control.has-toggle { padding-right: 48px; }
+.login-input .form-control:focus {
+  border-color: #1A6FA8;
+  box-shadow: 0 0 0 4px rgba(26, 111, 168, .16);
+}
+.pw-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #64748B;
+  display: grid;
+  place-items: center;
+}
+.pw-toggle svg { width: 18px; height: 18px; }
+.pw-toggle .eye-off { display: none; }
+.pw-toggle.is-on .eye-on { display: none; }
+.pw-toggle.is-on .eye-off { display: block; }
+.pw-toggle:hover { background: #E7F2FA; color: #0B3A5E; }
+.login-submit {
+  height: 50px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 650;
+  background: linear-gradient(180deg, #1C84C4 0%, #0F5F96 100%);
+  box-shadow: 0 12px 24px rgba(15, 79, 120, .24);
+}
+.login-submit:hover:not(:disabled) { background: linear-gradient(180deg, #176FA6 0%, #0C4E7C 100%); }
+.login-submit .btn-spin {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, .35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+.login-submit.is-busy .btn-spin { display: inline-block; }
+.login-submit.is-busy .btn-label { display: none; }
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.login-links a { color: #0F5F96; }
+.login-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.login-split .login-demo {
+  margin-top: 22px;
+  padding: 14px;
+  border: 1px solid #E3EDF5;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .72);
+}
+.login-split .login-demo .ld-title {
+  letter-spacing: .08em;
+  text-transform: none;
+  font-size: 12px;
+  font-weight: 650;
+  color: #64748B;
+}
+.login-split .demo-roles { grid-template-columns: 1fr 1fr; gap: 8px; }
+.login-split .demo-role {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  border-color: #E3EDF5;
+}
+.login-split .demo-role:last-child { grid-column: 1 / -1; }
+.login-split .demo-role:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(15, 63, 96, .08);
+}
+.login-split .login-foot { margin-top: 18px; }
+html.lang-am .login-hero h1,
+html.lang-am .login-title,
+html.lang-am .login-split .login-logo h1 {
+  font-family: "Noto Sans Ethiopic", Nyala, "Noto Sans", system-ui, sans-serif;
+  letter-spacing: 0;
+  max-width: none;
+}
+html[data-theme="dark"] .login-panel {
+  background: #0C1726;
+}
+html[data-theme="dark"] .login-split .login-card {
+  background: transparent;
+  box-shadow: none;
+}
+html[data-theme="dark"] .login-input .form-control { background: #10203A; border-color: #26364F; }
+html[data-theme="dark"] .login-split .login-demo {
+  background: rgba(16, 32, 58, .72);
+  border-color: #26364F;
+}
+html[data-theme="dark"] .pw-toggle:hover { background: #14324D; color: #E2E8F0; }
+@media (max-width: 980px) {
+  .login-stage { grid-template-columns: 1fr; }
+  .login-hero { padding: 28px 22px 78px; align-items: flex-end; }
+  .login-hero h1 { font-size: 40px; max-width: none; }
+  .login-points { display: none; }
+  .login-lead { font-size: 14px; }
+  .login-mark { width: 64px; height: 64px; margin-bottom: 12px; }
+  .login-panel { padding: 28px 18px 36px; align-items: flex-start; }
+  .login-hills { height: 90px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-ecg path { animation: none; stroke-dasharray: none; }
+  .login-hero-inner, .login-split .login-card { animation: none; }
+  .login-split .demo-role:hover { transform: none; }
+}
+@keyframes loginEcg { to { stroke-dashoffset: -350; } }
+
+.login-panel .login-kicker,
+.login-kicker-form { color: #0F5F96; }
+html[data-theme="dark"] .login-panel .login-kicker,
+html[data-theme="dark"] .login-kicker-form { color: #8EC8EE; }
+
+.login-split .login-panel .login-logo img { display: none; }
+.login-split .login-panel .login-logo { text-align: left; margin-bottom: 4px; }
+.login-split .login-panel .login-logo .sub { text-align: left; margin-bottom: 16px; }
+
+.login-split .login-title,
+.login-split .login-logo h1.login-title {
+  font-family: Fraunces, "Noto Sans Ethiopic", Georgia, serif;
+  font-size: 36px;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  font-weight: 560;
+}
+.login-panel { box-shadow: inset 1px 0 0 rgba(11, 58, 94, .08); }
+
+.login-split .login-panel .form-control {
+  height: 50px;
+  border-radius: 14px;
+  border-color: #D7E3EE;
+}
+.login-split .login-panel .btn-primary.btn-block {
+  height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #1C84C4 0%, #0F5F96 100%);
+  box-shadow: 0 12px 24px rgba(15, 79, 120, .24);
+}
+.login-split .login-panel .btn-primary.btn-block:hover:not(:disabled) {
+  background: linear-gradient(180deg, #176FA6 0%, #0C4E7C 100%);
+}
+html.lang-am .login-kicker { letter-spacing: 0; text-transform: none; }
+@media (max-height: 820px) and (min-width: 981px) {
+  .login-hero { padding: 28px 48px 84px; }
+  .login-mark { width: 60px; height: 60px; margin-bottom: 8px; }
+  .login-points, .login-ecg { display: none; }
+  .login-lead { margin-top: 12px; }
+}
+
+.login-card-wide { max-width: 640px; }
+.login-scroll .login-panel { align-items: flex-start; }
+.login-scroll .login-card { padding-top: 12px; padding-bottom: 28px; }

@@ -14,7 +14,7 @@ What changed so the thesis demo is modern, consistent, and covers a full hospita
 
 ## Hospital modules that were missing
 
-Wards and beds, blood bank, ambulance dispatch, cashier, operating theatre, and imaging. Each one runs on demo data stored in `sessionStorage` for the browser tab, with admit / reserve / dispatch / pay / book actions. They are not a live clinical record.
+Wards and beds, blood bank, ambulance dispatch, cashier, operating theatre, and imaging. Each one runs on demo data stored in `sessionStorage` for the browser tab. Doctors register and self-approve bed requests on `doctor/beds.html`; other staff only see occupied beds. They are not a live clinical record.
 
 ## Fixes evaluators would hit first
 
