@@ -2,6 +2,7 @@
    Wolaita Sodo Hospital — global.css
    Shared styles, CSS variables, typography, utilities & reset
    ============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 /* ---------- 1. Design tokens ---------- */
 :root {
@@ -24,6 +25,10 @@
   --white: #FFFFFF;              /* Card / modal surface */
   --border: #E2E8F0;
   --table-stripe: #F8FAFC;
+  --table-head: #F8FAFC;
+  --text-strong: #374151;
+  --purple: #6D28D9;
+  --purple-bg: #F5F3FF;
   /* Typography */
   --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'Courier New', Courier, monospace;
@@ -172,6 +177,10 @@ html[data-theme="dark"] {
   --white: #10203A;                   /* surface (cards)  */
   --border: #26364F;
   --table-stripe: #14243A;
+  --table-head: #1B2E48;
+  --text-strong: #E2E8F0;
+  --purple: #C4B5FD;
+  --purple-bg: #2E1065;
 
   /* Deeper shadows on dark */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .45);

@@ -15,7 +15,10 @@
 import gc
 import logging
 import os
-import resource
+try:
+    import resource  # Unix only — missing on Windows
+except ImportError:
+    resource = None
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends
@@ -31,6 +34,8 @@ log = logging.getLogger("mediq")
 
 
 def _log_memory(tag: str = "") -> None:
+    if resource is None:
+        return
     try:
         ru = resource.getrusage(resource.RUSAGE_SELF)
         # ru_maxrss is KB on Linux
@@ -93,13 +98,15 @@ def health():
 
 
 @app.get("/debug/memory")
-def debug_memory():
-    """Diagnostic endpoint — returns current RSS memory usage."""
-    try:
-        ru = resource.getrusage(resource.RUSAGE_SELF)
-        mb = ru.ru_maxrss / 1024.0
-    except Exception:  # noqa: BLE001
-        mb = -1
+def debug_memory(_user=Depends(current_user)):
+    """Signed-in diagnostic — current RSS. Hidden from anonymous callers."""
+    mb = -1
+    if resource is not None:
+        try:
+            ru = resource.getrusage(resource.RUSAGE_SELF)
+            mb = ru.ru_maxrss / 1024.0
+        except Exception:  # noqa: BLE001
+            mb = -1
     return {
         "max_rss_mb": round(mb, 1),
         "low_memory": LOW_MEMORY,

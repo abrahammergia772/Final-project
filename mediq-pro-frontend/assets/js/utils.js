@@ -76,23 +76,49 @@ function hideLoading() {
 }
 
 // ---------- Confirm dialog (Promise) ----------
+function bindModalKeys(overlay, onClose) {
+  const focusables = () => Array.from(overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+    .filter(el => !el.disabled && el.offsetParent !== null);
+  function onKey(e) {
+    if (!overlay.isConnected) { document.removeEventListener("keydown", onKey); return; }
+    if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
+    if (e.key !== "Tab") return;
+    const els = focusables();
+    if (!els.length) return;
+    const i = els.indexOf(document.activeElement);
+    if (e.shiftKey && (i <= 0)) { e.preventDefault(); els[els.length - 1].focus(); }
+    else if (!e.shiftKey && (i === -1 || i === els.length - 1)) { e.preventDefault(); els[0].focus(); }
+  }
+  document.addEventListener("keydown", onKey);
+  overlay._unbindKeys = () => document.removeEventListener("keydown", onKey);
+  setTimeout(() => { const f = focusables()[0]; if (f) f.focus(); }, 20);
+}
+function dismissOverlay(overlay) {
+  if (overlay && overlay._unbindKeys) overlay._unbindKeys();
+  if (overlay) overlay.remove();
+}
+
 function confirmDialog(message, { title = "Confirm Action", confirmText = "Delete", danger = true } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "modal-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
     overlay.innerHTML = `
       <div class="modal sm">
         <div class="modal-header"><h3>${escapeHtml(title)}</h3></div>
-        <div class="modal-body"><p style="color:#374151">${escapeHtml(message)}</p></div>
+        <div class="modal-body"><p>${escapeHtml(message)}</p></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-cancel>Cancel</button>
           <button class="btn ${danger ? "btn-danger" : "btn-primary"}" data-ok>${escapeHtml(confirmText)}</button>
         </div>
       </div>`;
+    const finish = (val) => { dismissOverlay(overlay); resolve(val); };
     document.body.appendChild(overlay);
-    overlay.querySelector("[data-cancel]").onclick = () => { overlay.remove(); resolve(false); };
-    overlay.querySelector("[data-ok]").onclick = () => { overlay.remove(); resolve(true); };
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+    overlay.querySelector("[data-cancel]").onclick = () => finish(false);
+    overlay.querySelector("[data-ok]").onclick = () => finish(true);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) finish(false); });
+    bindModalKeys(overlay, () => finish(false));
   });
 }
 
@@ -110,9 +136,13 @@ function openModal(html, { size = "", onMount = null } = {}) {
       ${html.footer ? '<div class="modal-footer">' + html.footer + "</div>" : ""}
     </div>`;
   overlay.querySelector(".modal-header h3").textContent = html.title || "";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
   document.body.appendChild(overlay);
-  overlay.querySelector("[data-close]").onclick = () => overlay.remove();
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+  const close = () => dismissOverlay(overlay);
+  overlay.querySelectorAll("[data-close]").forEach(btn => { btn.onclick = close; });
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  bindModalKeys(overlay, close);
   if (onMount) onMount(overlay);
   return overlay;
 }

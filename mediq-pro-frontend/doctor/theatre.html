@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
+<title>Operating Theatre — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+<link rel="stylesheet" href="../assets/css/global.css" />
+<link rel="stylesheet" href="../assets/css/sidebar.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+<link rel="stylesheet" href="../assets/css/modules.css" />
+<script src="../assets/js/theme.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<main class="main-content" id="mainContent">
+<header class="topbar" id="topbar" data-title="Operating Theatre"></header>
+<section class="page-body">
+
+<p class="page-kicker">Surgery</p>
+<p class="page-intro">Operating theatre list — three rooms, today's cases, and a slot you can book from the ward.</p>
+<div class="ot-grid" id="otGrid"></div>
+<div class="panel-grid">
+  <section class="panel">
+    <div class="panel-header"><div><h3>Today's list</h3></div></div>
+    <div class="panel-body no-pad"><div class="table-wrap"><table class="data-table" id="otTable">
+      <thead><tr><th>Time</th><th>Theatre</th><th>Patient</th><th>Procedure</th><th>Surgeon</th><th>Status</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
+  </section>
+  <section class="panel">
+    <div class="panel-header"><div><h3>Book a slot</h3></div></div>
+    <div class="panel-body">
+      <form id="otForm">
+        <div class="form-group"><label>Patient</label><input class="form-control" id="otPatient" placeholder="Full name"></div>
+        <div class="form-group"><label>Procedure</label><input class="form-control" id="otProc" placeholder="e.g. C-section"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Theatre</label><select class="form-control" id="otRoom"><option>OT-1</option><option>OT-2</option><option>Maternity OT</option></select></div>
+          <div class="form-group"><label>Time</label><input class="form-control" id="otTime" type="time" value="16:00"></div>
+        </div>
+        <div class="form-group"><label>Surgeon</label><input class="form-control" id="otSurg" placeholder="Dr. name"></div>
+        <button class="btn btn-primary" type="submit">Book theatre</button>
+      </form>
+      <p class="module-note">Demo list. Confirm consent, blood and anaesthesia before the patient leaves the ward.</p>
+    </div>
+  </section>
+</div>
+
+</section>
+</main>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/icons.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  checkSession();
+  checkRoleAccess("doctor");
+  initLayout();
+  bootPage();
+});
+var ICONS = window.ICONS || {};
+const KEY = "wsh_ot_v1";
+function seedOT() {
+  return [
+    { id: "OT-104", theatre: "OT-1", time: "08:30", patient: "Selamawit Tadesse", proc: "C-section", surgeon: "Dr. Daniel Alemu", anaesth: "Dr. Hanna", status: "done" },
+    { id: "OT-105", theatre: "OT-1", time: "11:00", patient: "Yonas Girma", proc: "Appendectomy", surgeon: "Dr. Daniel Alemu", anaesth: "Dr. Hanna", status: "in-progress" },
+    { id: "OT-106", theatre: "OT-2", time: "09:15", patient: "Samuel Getachew", proc: "Inguinal hernia", surgeon: "Dr. Mekdes", anaesth: "Dr. Abel", status: "scheduled" },
+    { id: "OT-107", theatre: "OT-2", time: "13:30", patient: "Bereket Wolde", proc: "ORIF tibia", surgeon: "Dr. Mekdes", anaesth: "Dr. Abel", status: "scheduled" },
+    { id: "OT-108", theatre: "Maternity OT", time: "15:00", patient: "Meron Desta", proc: "Emergency C-section", surgeon: "Dr. Sara", anaesth: "Dr. Hanna", status: "scheduled" }
+  ];
+}
+let cases = [];
+function loadT() { try { const r = sessionStorage.getItem(KEY); if (r) { cases = JSON.parse(r); return; } } catch (e) {} cases = seedOT(); }
+function saveT() { try { sessionStorage.setItem(KEY, JSON.stringify(cases)); } catch (e) {} }
+function otBadge(s) {
+  return badge(s.replace("-", " "), s === "done" ? "success" : s === "in-progress" ? "warning" : s === "cancelled" ? "neutral" : "info");
+}
+function renderOT() {
+  const rooms = ["OT-1", "OT-2", "Maternity OT"];
+  document.getElementById("otGrid").innerHTML = rooms.map(r => {
+    const live = cases.find(c => c.theatre === r && c.status === "in-progress");
+    const next = cases.find(c => c.theatre === r && c.status === "scheduled");
+    return `<article class="ot-card"><h3>${esc(r)}</h3>
+      <div class="text-sm text-gray">${live ? "In theatre now" : "No case in progress"}</div>
+      <div class="mt-2"><strong>${esc(live ? live.patient + " — " + live.proc : "Idle")}</strong></div>
+      <div class="text-sm mt-1">Next: ${esc(next ? next.time + " " + next.proc : "—")}</div></article>`;
+  }).join("");
+  document.querySelector("#otTable tbody").innerHTML = cases.map(c => `<tr>
+    <td>${esc(c.time)}</td><td>${esc(c.theatre)}</td><td>${esc(c.patient)}</td><td>${esc(c.proc)}</td>
+    <td>${esc(c.surgeon)}</td><td>${otBadge(c.status)}</td>
+    <td class="actions">${c.status === "scheduled" ? `<button class="btn btn-primary btn-sm" data-start="${esc(c.id)}">Start</button>` : ""}
+      ${c.status === "in-progress" ? `<button class="btn btn-success btn-sm" data-done="${esc(c.id)}">Complete</button>` : ""}
+      ${c.status === "scheduled" ? `<button class="btn btn-secondary btn-sm" data-cancel="${esc(c.id)}">Cancel</button>` : ""}</td>
+  </tr>`).join("");
+  document.querySelectorAll("[data-start]").forEach(b => b.onclick = () => setStatus(b.dataset.start, "in-progress", "Case started"));
+  document.querySelectorAll("[data-done]").forEach(b => b.onclick = () => setStatus(b.dataset.done, "done", "Patient to recovery"));
+  document.querySelectorAll("[data-cancel]").forEach(b => b.onclick = () => setStatus(b.dataset.cancel, "cancelled", "Case cancelled"));
+}
+function setStatus(id, status, msg) {
+  const c = cases.find(x => x.id === id);
+  if (status === "in-progress" && cases.some(x => x.theatre === c.theatre && x.status === "in-progress")) {
+    showToast(c.theatre + " already has a case in progress", "error"); return;
+  }
+  c.status = status; saveT(); renderOT(); showToast(msg, status === "cancelled" ? "warning" : "success");
+}
+function bootPage() {
+  const ICONS = window.ICONS || {};
+  window.ICONS = ICONS;
+  loadT();
+  document.getElementById("otForm").onsubmit = (e) => {
+    e.preventDefault();
+    const patient = document.getElementById("otPatient").value.trim();
+    const proc = document.getElementById("otProc").value.trim();
+    const time = document.getElementById("otTime").value;
+    if (!patient || !proc || !time) { showToast("Patient, procedure and time are required", "warning"); return; }
+    cases.push({
+      id: "OT-" + (200 + cases.length),
+      theatre: document.getElementById("otRoom").value,
+      time, patient, proc,
+      surgeon: document.getElementById("otSurg").value.trim() || "Dr. on call",
+      anaesth: "Dr. on call",
+      status: "scheduled"
+    });
+    saveT(); renderOT(); showToast("Theatre slot booked", "success");
+    e.target.reset();
+  };
+  renderOT();
+}
+
+</script>
+<script src="../assets/js/i18n.js"></script>
+</body>
+</html>

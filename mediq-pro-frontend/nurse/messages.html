@@ -3,38 +3,25 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Messages — Wolaita Sodo Hospital</title>
-<link rel="icon" type="image/png" href="/assets/images/favicon.png" />
-<link rel="stylesheet" href="/assets/css/global.css" />
-<link rel="stylesheet" href="/assets/css/sidebar.css" />
-<link rel="stylesheet" href="/assets/css/components.css" />
-<link rel="stylesheet" href="/assets/css/dashboard.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
 
-  <script src="/assets/js/theme.js"></script></head>
+<title>Messages — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+<link rel="stylesheet" href="../assets/css/global.css" />
+<link rel="stylesheet" href="../assets/css/sidebar.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+<link rel="stylesheet" href="../assets/css/modules.css" />
+
+  <script src="../assets/js/theme.js"></script></head>
 <body>
-<aside class="sidebar" id="sidebar">
-<button class="sidebar-toggle" id="sidebarToggle" title="Collapse menu"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m15 18-6-6 6-6"/></svg></button>
-<div class="sidebar-logo"><img src="/assets/images/logo-mark.png" alt="Wolaita Sodo Hospital"><div class="logo-text"><div class="brand">Wolaita Sodo Hospital</div><div class="tag">Management System</div></div></div>
-<nav class="sidebar-nav">
-<div class="nav-section-label">MAIN</div>
-<a class="nav-link" href="dashboard.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></a>
-<a class="nav-link" href="vitals.html" data-perm="vitals" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg><span class="nav-label">Vitals</span></a>
-<a class="nav-link" href="observations.html" data-perm="observations" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-label">Observations</span></a>
-<a class="nav-link" href="medications.html" data-perm="medications" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg><span class="nav-label">Medications</span></a>
-<a class="nav-link" href="care-plans.html" data-perm="careplans" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg><span class="nav-label">Care Plans</span></a>
-<a class="nav-link" href="shifts.html" data-perm="shifts" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="nav-label">Shifts & Attendance</span></a>
-<a class="nav-link" href="documents.html" data-perm="documents" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg><span class="nav-label">Documents</span></a>
-<a class="nav-link" href="reports.html" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20V10M18 20V4M6 20v-4"/></svg><span class="nav-label">Reports</span></a>
-<a class="nav-link" href="patients.html" data-perm="patients" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Patients</span></a>
-<div class="nav-section-label">MESSAGES</div>
-<a class="nav-link active" href="messages.html" data-perm="messages" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="nav-label">Messages</span></a>
-<div class="nav-section-label">ACCOUNT</div>
-<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
-</nav>
-<div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div></div></aside>
+<aside class="sidebar" id="sidebar"></aside>
 <div class="mobile-overlay" id="mobileOverlay"></div>
 <main class="main-content" id="mainContent">
-<header class="topbar"><div class="topbar-left"><button class="hamburger" id="hamburger" aria-label="Open menu" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button><h1 class="page-title">Messages</h1></div><div class="topbar-right"><div class="topbar-search"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" placeholder="Search…" aria-label="Search"></div><div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div><div class="dd-item"><div class="feed-icon" style="background:#FEF2F2;color:#DC2626"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="feed-text"><div class="dd-title">3 critical patient alerts</div><div class="dd-sub">Flagged by the vitals AI</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#FBF0D3;color:#B45309"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div><div class="feed-text"><div class="dd-title">4 items low in stock</div><div class="dd-sub">Pharmacy reorder suggested</div></div></div><div class="dd-item"><div class="feed-icon" style="background:#E3F9EF;color:#0F9D5C"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div class="feed-text"><div class="dd-title">AI modules online</div><div class="dd-sub">All 7 modules passed health check</div></div></div><div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast('No more notifications','info')">View all</a></div></div></div><div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></div></div></div></div></header>
+<header class="topbar" id="topbar" data-title="Messages"></header>
 <section class="page-body">
 
 <div class="flex-between mb-4 wrap" style="gap:12px">
@@ -42,9 +29,9 @@
     <span class="chip selected" data-tab="inbox">Inbox <strong>(<span id="unreadCount">0</span>)</strong></span>
     <span class="chip" data-tab="sent">Sent</span>
   </div>
-  <button class="btn btn-primary" id="btnCompose"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Compose Message</button>
+  <button class="btn btn-primary" id="btnCompose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Compose Message</button>
 </div>
-<div class="alert alert-info mb-4"><span><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
+<div class="alert alert-info mb-4"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
   <div class="alert-body"><strong>Tip:</strong> single-click a received message to open it in a popup · <strong>double-click</strong> to minimize it (click again to restore).</div></div>
 <div id="inboxView" class="card" style="padding:0">
   <div class="table-toolbar"><h3 style="font-size:16px">Received Messages</h3>
@@ -61,10 +48,13 @@
 </main>
 <div id="modalContainer"></div>
 <div id="toastContainer"></div>
-<script src="/assets/js/config.js"></script>
-<script src="/assets/js/auth.js"></script>
-<script src="/assets/js/api.js"></script>
-<script src="/assets/js/utils.js"></script>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/icons.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/shell.js"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
 "users": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/></svg>",
@@ -240,7 +230,7 @@ function renderSent() {
   const list = document.getElementById("sentList");
   document.getElementById("sentCount").textContent = SENT.length + " messages";
   list.innerHTML = SENT.length ? SENT.map(m => `
-    <div class="msg-card"><div class="mc-avatar" style="background:#E3F9EF;color:#0F9D5C">${initialsOf(m.to)}</div>
+    <div class="msg-card"><div class="tile-success mc-avatar">${initialsOf(m.to)}</div>
       <div class="mc-main">
         <div class="mc-head"><strong>To: ${esc(m.to)}</strong><span class="mc-time">${formatDateTime(m.date)}</span></div>
         <div class="mc-subject">${esc(m.subject)}</div>
@@ -343,5 +333,5 @@ function composeModal(replyTo, replySubj, threadMsg) {
 
 </script>
 
-<script src="/assets/js/i18n.js"></script></body>
+<script src="../assets/js/i18n.js"></script></body>
 </html>

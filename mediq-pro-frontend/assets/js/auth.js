@@ -169,8 +169,26 @@ function logout() {
 // each role page applies them when the sidebar renders — so a granted tab
 // appears automatically, a revoked one disappears.
 function seedPermissions() {
-  if (Store.get("mediq_pro_permissions")) return;
-  Store.set("mediq_pro_permissions", JSON.stringify(CONFIG.PERMISSIONS));
+  const raw = Store.get("mediq_pro_permissions");
+  if (!raw) {
+    Store.set("mediq_pro_permissions", JSON.stringify(CONFIG.PERMISSIONS));
+    return;
+  }
+  // Merge newly added tabs into an existing saved map so upgrades appear
+  // without wiping grants the admin already made.
+  try {
+    const all = JSON.parse(raw) || {};
+    let changed = false;
+    Object.keys(CONFIG.PERMISSIONS).forEach((role) => {
+      if (!all[role]) { all[role] = {}; changed = true; }
+      Object.keys(CONFIG.PERMISSIONS[role]).forEach((key) => {
+        if (!(key in all[role])) { all[role][key] = CONFIG.PERMISSIONS[role][key]; changed = true; }
+      });
+    });
+    if (changed) Store.set("mediq_pro_permissions", JSON.stringify(all));
+  } catch (e) {
+    Store.set("mediq_pro_permissions", JSON.stringify(CONFIG.PERMISSIONS));
+  }
 }
 
 function loadPermissions() {

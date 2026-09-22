@@ -3,14 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
+
 <title>Wolaita Sodo Hospital — Login</title>
 <link rel="icon" type="image/png" href="assets/images/favicon.png" />
 <link rel="stylesheet" href="assets/css/global.css" />
 <link rel="stylesheet" href="assets/css/sidebar.css" />
 <link rel="stylesheet" href="assets/css/components.css" />
 <link rel="stylesheet" href="assets/css/dashboard.css" />
+<link rel="stylesheet" href="assets/css/modules.css" />
 
-  <script src="/assets/js/theme.js"></script></head>
+  <script src="assets/js/theme.js"></script></head>
 <body>
 
 <!-- ============ LOGIN VIEW ============ -->
@@ -45,24 +51,24 @@
         <a href="signup.html">Create an account</a>
       </div>
       <div class="text-center mt-3" style="font-size:13px">
-        <a href="admin-login.html" style="color:var(--primary);font-weight:600">🔐 Administrator sign in</a>
+        <a href="admin-login.html" class="login-admin-link"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Administrator sign in</a>
       </div>
     </form>
 
     <div class="login-demo">
       <div class="ld-title">Demo accounts — one-click login</div>
       <div class="demo-roles">
-        <button class="demo-role" data-role="manager"><span class="dr-icon" style="background:#E3F0F9;color:#1A6FA8"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span> Manager</button>
-        <button class="demo-role" data-role="doctor"><span class="dr-icon" style="background:#E3F9EF;color:#18BF75"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg></span> Doctor</button>
-        <button class="demo-role" data-role="nurse"><span class="dr-icon" style="background:#FBF0D3;color:#EAB308"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span> Nurse</button>
-        <button class="demo-role" data-role="pharmacist"><span class="dr-icon" style="background:#F5F3FF;color:#7C3AED"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></span> Pharmacist</button>
-        <button class="demo-role" data-role="laboratory"><span class="dr-icon" style="background:#FEF2F2;color:#DC2626"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></span> Laboratory</button>
-        <button class="demo-role" data-role="reception"><span class="dr-icon" style="background:#E0F4FA;color:#0891B2"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Reception</button>
-        <button class="demo-role" data-role="patient"><span class="dr-icon" style="background:#E3F9EF;color:#18BF75"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> Patient</button>
+        <button class="demo-role" data-role="manager"><span class="tile-primary dr-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span> Manager</button>
+        <button class="demo-role" data-role="doctor"><span class="tile-success dr-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg></span> Doctor</button>
+        <button class="demo-role" data-role="nurse"><span class="tile-warning dr-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span> Nurse</button>
+        <button class="demo-role" data-role="pharmacist"><span class="tile-purple dr-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></span> Pharmacist</button>
+        <button class="demo-role" data-role="laboratory"><span class="dr-icon tile-info"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></span> Laboratory</button>
+        <button class="demo-role" data-role="reception"><span class="tile-info dr-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Reception</button>
+        <button class="demo-role" data-role="patient"><span class="tile-success dr-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> Patient</button>
       </div>
     </div>
 
-    <p class="text-center text-sm mt-4" style="color:#9CA3AF">Wolaita Sodo Hospital v1.0 · Demo mode active</p>
+    <p class="text-center text-sm mt-4 login-foot">Wolaita Sodo Hospital · Demo mode active</p>
   </div>
 </div>
 
@@ -86,7 +92,8 @@
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/utils.js"></script>
+<script src="assets/js/shell.js"></script>
 <script src="assets/js/app.js"></script>
 
-<script src="/assets/js/i18n.js"></script></body>
+<script src="assets/js/i18n.js"></script></body>
 </html>

@@ -1,0 +1,275 @@
+/* ============================================================
+   Wolaita Sodo Hospital — modules.css
+   Modern layer: calmer tables, command palette, ward board,
+   blood bank, ambulance, theatre, imaging and cashier.
+   Loaded after components.css so these rules win.
+   ============================================================ */
+
+/* ---------- Calmer data tables ---------- */
+.data-table thead th {
+  background: var(--table-head);
+  color: var(--text-strong);
+  border-bottom: 2px solid var(--border);
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+.data-table thead th.sortable:hover,
+.data-table thead th.sorted {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+.data-table tbody tr { transition: background 0.12s ease; }
+
+/* Stat cards: one color signal (icon), bar only on alerts */
+.stat-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.stat-icon:empty { display: none; }
+.stat-card::before { display: none; }
+.stat-card.color-danger::before { display: block; background: var(--danger); }
+
+/* Contrast-safe badges (11px text needs 4.5:1 on the tint) */
+.badge-warning { color: #92400E; }
+.badge-danger { color: #B91C1C; }
+.badge-neutral { background: #F3F4F6; color: #374151; }
+.badge-default { background: var(--border); color: var(--text-strong); }
+html[data-theme="dark"] .badge-warning { color: #FDE68A; }
+html[data-theme="dark"] .badge-danger { color: #FCA5A5; }
+html[data-theme="dark"] .badge-neutral { background: #263550; color: #E2E8F0; }
+html[data-theme="dark"] .badge-default { background: #263550; color: #E2E8F0; }
+
+.shift-half { background: #E0F4FA; color: #0E7490; }
+.shift-custom { background: #F3F4F6; color: #374151; }
+html[data-theme="dark"] .shift-half { background: #0C3242; color: #7DD3FC; }
+html[data-theme="dark"] .shift-custom { background: #263550; color: #E2E8F0; }
+
+.form-control::placeholder { color: #6B7280; }
+html[data-theme="dark"] .form-control::placeholder { color: #94A3B8; }
+
+.login-foot { color: var(--gray); font-size: 12px; }
+.login-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  font-weight: 600;
+}
+.login-admin-link svg { width: 15px; height: 15px; }
+
+/* Icon tiles — replace inline background/color pairs */
+.tile-info, .feed-icon.tile-info, .qa-icon.tile-info, .dr-icon.tile-info { background: var(--info-bg); color: var(--info); }
+.tile-success, .feed-icon.tile-success, .qa-icon.tile-success { background: var(--success-bg); color: var(--success); }
+.tile-warning, .feed-icon.tile-warning, .qa-icon.tile-warning { background: var(--warning-bg); color: var(--warning); }
+.tile-danger, .feed-icon.tile-danger, .qa-icon.tile-danger { background: var(--danger-bg); color: var(--danger); }
+.tile-purple, .feed-icon.tile-purple, .qa-icon.tile-purple { background: var(--purple-bg); color: var(--purple); }
+.tile-neutral, .feed-icon.tile-neutral, .qa-icon.tile-neutral { background: #F3F4F6; color: #374151; }
+.tile-primary, .feed-icon.tile-primary, .qa-icon.tile-primary { background: var(--primary-light); color: var(--primary); }
+html[data-theme="dark"] .tile-neutral { background: #263550; color: #E2E8F0; }
+
+.user-box .u-logout { color: #fff; }
+
+/* ---------- Topbar search → command palette trigger ---------- */
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 260px;
+  height: 40px;
+  padding: 0 10px 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--light-gray);
+  color: var(--gray);
+  font-size: 13px;
+  font-weight: 500;
+}
+.search-trigger:hover { border-color: var(--border); color: var(--dark); }
+.search-trigger svg { width: 16px; height: 16px; flex-shrink: 0; }
+.search-trigger span { flex: 1; text-align: left; }
+.search-trigger kbd, .cmd-esc, .cmd-foot kbd {
+  font-family: var(--font-main);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--gray);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+.cmd-btn { display: none; }
+@media (max-width: 768px) {
+  .cmd-btn { display: inline-flex; }
+}
+
+/* ---------- Command palette ---------- */
+.cmd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 16px 16px;
+}
+.cmd-overlay[hidden] { display: none; }
+.cmd-modal {
+  width: min(560px, 100%);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.cmd-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.cmd-input-wrap svg { width: 18px; height: 18px; color: var(--gray); flex-shrink: 0; }
+.cmd-input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--dark);
+  font-size: 16px;
+  font-family: inherit;
+}
+.cmd-list { max-height: 360px; overflow: auto; padding: 8px; }
+.cmd-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--dark);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 14px;
+}
+.cmd-item svg { width: 18px; height: 18px; color: var(--primary); flex-shrink: 0; }
+.cmd-item .cmd-label { flex: 1; font-weight: 600; }
+.cmd-item .cmd-sec { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.04em; }
+.cmd-item.active, .cmd-item:hover { background: var(--primary-light); }
+.cmd-empty { padding: 28px 12px; text-align: center; color: var(--gray); }
+.cmd-foot {
+  display: flex;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--gray);
+  background: var(--light-gray);
+}
+
+/* ---------- Shared module bits ---------- */
+.page-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.module-note {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 8px;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.occ-meter { height: 8px; border-radius: 999px; background: var(--light-gray); overflow: hidden; }
+.occ-meter span { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+
+/* Ward / bed board */
+.bed-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+.bed-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 156px;
+  text-align: left;
+  color: var(--dark);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+button.bed-card { width: 100%; cursor: pointer; font: inherit; }
+.bed-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.bed-card .bed-id { font-weight: 700; font-size: 15px; }
+.bed-card .bed-meta { font-size: 12px; color: var(--gray); }
+.bed-card .bed-name { font-weight: 600; font-size: 14px; }
+.bed-card.status-occupied { border-top: 3px solid var(--primary); }
+.bed-card.status-available { border-top: 3px solid var(--success); }
+.bed-card.status-cleaning { border-top: 3px solid var(--warning); }
+.bed-card.status-reserved { border-top: 3px solid var(--info); }
+.bed-card.status-isolation { border-top: 3px solid var(--danger); }
+
+/* Blood inventory bars */
+.blood-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.blood-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.blood-card .bt { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.blood-card .bt.crit { color: var(--danger); }
+.unit-row { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.unit-row:last-child { border-bottom: 0; }
+
+/* Ambulance fleet */
+.fleet-grid, .ot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.fleet-card, .ot-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.fleet-card h3, .ot-card h3 { font-size: 15px; margin-bottom: 4px; }
+.mission { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.mission:last-child { border-bottom: 0; }
+
+/* Imaging / cashier helpers */
+.pay-methods { display: flex; flex-wrap: wrap; gap: 8px; }
+.pay-methods label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.pay-methods input { accent-color: var(--primary); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card, .bed-card, .cmd-overlay { transition: none; }
+  .stat-card:hover, .bed-card:hover { transform: none; }
+}

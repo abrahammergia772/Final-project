@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
+<title>Blood Bank — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+<link rel="stylesheet" href="../assets/css/global.css" />
+<link rel="stylesheet" href="../assets/css/sidebar.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+<link rel="stylesheet" href="../assets/css/modules.css" />
+<script src="../assets/js/theme.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<main class="main-content" id="mainContent">
+<header class="topbar" id="topbar" data-title="Blood Bank"></header>
+<section class="page-body">
+
+<p class="page-kicker">Laboratory</p>
+<p class="page-intro">Blood bank inventory for Wolaita Sodo Hospital — stock by group, expiry watch, reserve and issue.</p>
+<div class="stat-grid" id="bloodStats"></div>
+<div class="blood-grid" id="bloodGrid"></div>
+<div class="panel-grid">
+  <section class="panel">
+    <div class="panel-header"><div><h3>Units on the shelf</h3></div></div>
+    <div class="table-toolbar"><div class="filters">
+      <input class="form-control" id="bloodSearch" placeholder="Search unit, donor, patient…" aria-label="Search units" style="max-width:260px">
+      <select class="form-control" id="bloodType" style="max-width:160px" aria-label="Blood group"></select>
+    </div></div>
+    <div class="panel-body no-pad"><div class="table-wrap"><table class="data-table" id="bloodTable">
+      <thead><tr><th>Unit</th><th>Group</th><th>Donor</th><th>Expires</th><th>Status</th><th>Reserved for</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div></div>
+  </section>
+  <section class="panel">
+    <div class="panel-header"><div><h3>Log a donation</h3><div class="sub">Walk-in donor, this session only</div></div></div>
+    <div class="panel-body">
+      <div class="form-group"><label>Donor name</label><input class="form-control" id="donName" placeholder="Full name"></div>
+      <div class="form-group"><label>Blood group</label>
+        <select class="form-control" id="donType"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select>
+      </div>
+      <button class="btn btn-primary" id="addDonation" type="button">Save donation</button>
+      <p class="module-note">Demo stock. A live bank would screen, crossmatch and quarantine before release.</p>
+    </div>
+  </section>
+</div>
+
+</section>
+</main>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/icons.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  checkSession();
+  checkRoleAccess("laboratory");
+  initLayout();
+  bootPage();
+});
+var ICONS = window.ICONS || {};
+const KEY = "wsh_blood_v1";
+const TYPES = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
+function seedUnits() {
+  const rows = [];
+  const donors = ["Gemechu T.", "Almaz K.", "Tesfaye B.", "Hirut A.", "Mulugeta D.", "Senait W.", "Kebede L.", "Aster G."];
+  TYPES.forEach((t, ti) => {
+    const n = t.endsWith("-") ? 2 : 4;
+    for (let i = 0; i < n; i++) {
+      const exp = new Date(); exp.setDate(exp.getDate() + (i === 0 && ti % 3 === 0 ? 3 : 18 + i * 4));
+      rows.push({
+        id: "BB-" + t.replace("+", "P").replace("-", "N") + "-" + (10 + i),
+        type: t, donor: donors[(ti + i) % donors.length],
+        collected: "2026-09-" + String(8 + i).padStart(2, "0"),
+        expires: exp.toISOString().slice(0, 10),
+        status: i === 0 && t === "O-" ? "reserved" : "available",
+        for: i === 0 && t === "O-" ? "ICU-02 Frehiwot A." : ""
+      });
+    }
+  });
+  return rows;
+}
+let units = [];
+function loadU() {
+  try { const r = sessionStorage.getItem(KEY); if (r) { units = JSON.parse(r); return; } } catch (e) {}
+  units = seedUnits();
+}
+function saveU() { try { sessionStorage.setItem(KEY, JSON.stringify(units)); } catch (e) {} }
+function daysLeft(iso) {
+  return Math.round((new Date(iso + "T00:00:00") - new Date(new Date().toDateString())) / 86400000);
+}
+function renderBlood() {
+  const by = {};
+  TYPES.forEach(t => by[t] = units.filter(u => u.type === t && u.status !== "issued"));
+  document.getElementById("bloodGrid").innerHTML = TYPES.map(t => {
+    const avail = by[t].filter(u => u.status === "available").length;
+    const crit = avail <= 1;
+    return `<div class="blood-card"><div class="bt ${crit ? "crit" : ""}">${esc(t)}</div>
+      <div class="stat-value" style="font-size:28px">${avail}</div>
+      <div class="text-sm text-gray">${by[t].length} on shelf · ${crit ? "low stock" : "stable"}</div>
+      <div class="occ-meter mt-2"><span style="width:${Math.min(100, avail * 22)}%;background:${crit ? "var(--danger)" : "var(--success)"}"></span></div></div>`;
+  }).join("");
+  const expiring = units.filter(u => u.status !== "issued" && daysLeft(u.expires) <= 7).length;
+  const reserved = units.filter(u => u.status === "reserved").length;
+  document.getElementById("bloodStats").innerHTML = `
+    <div class="stat-card"><div class="stat-icon tile-danger">${ICONS.droplet}</div><div><div class="stat-value">${units.filter(u => u.status === "available").length}</div><div class="stat-label">Units available</div></div></div>
+    <div class="stat-card color-warning"><div class="stat-icon">${ICONS.clock}</div><div><div class="stat-value">${expiring}</div><div class="stat-label">Expiring in 7 days</div></div></div>
+    <div class="stat-card color-info"><div class="stat-icon">${ICONS.clipboard}</div><div><div class="stat-value">${reserved}</div><div class="stat-label">Reserved for surgery</div></div></div>
+    <div class="stat-card color-success"><div class="stat-icon">${ICONS.check}</div><div><div class="stat-value">${units.filter(u => u.status === "issued").length}</div><div class="stat-label">Issued this session</div></div></div>`;
+  const q = (document.getElementById("bloodSearch").value || "").toLowerCase();
+  const typeF = document.getElementById("bloodType").value;
+  const rows = units.filter(u => (!typeF || u.type === typeF) && (!q || (u.id + u.donor + u.for + u.status).toLowerCase().includes(q)));
+  document.querySelector("#bloodTable tbody").innerHTML = rows.map(u => {
+    const d = daysLeft(u.expires);
+    const kind = u.status === "issued" ? "neutral" : u.status === "reserved" ? "info" : d <= 7 ? "warning" : "success";
+    return `<tr>
+      <td>${esc(u.id)}</td><td><strong>${esc(u.type)}</strong></td><td>${esc(u.donor)}</td>
+      <td>${formatDate(u.expires)} <span class="text-sm text-gray">(${d}d)</span></td>
+      <td>${badge(u.status, kind)}</td><td>${esc(u.for || "—")}</td>
+      <td class="actions">
+        ${u.status === "available" ? `<button class="btn btn-secondary btn-sm" data-res="${esc(u.id)}">Reserve</button> <button class="btn btn-primary btn-sm" data-iss="${esc(u.id)}">Issue</button>` : ""}
+        ${u.status === "reserved" ? `<button class="btn btn-primary btn-sm" data-iss="${esc(u.id)}">Issue</button> <button class="btn btn-secondary btn-sm" data-rel="${esc(u.id)}">Release</button>` : ""}
+      </td></tr>`;
+  }).join("") || emptyRow(7, "No units match.");
+  document.querySelectorAll("[data-res]").forEach(b => b.onclick = () => reserveUnit(b.dataset.res));
+  document.querySelectorAll("[data-iss]").forEach(b => b.onclick = () => issueUnit(b.dataset.iss));
+  document.querySelectorAll("[data-rel]").forEach(b => b.onclick = () => {
+    const u = units.find(x => x.id === b.dataset.rel); u.status = "available"; u.for = ""; saveU(); renderBlood(); showToast("Unit released", "info");
+  });
+}
+function reserveUnit(id) {
+  openModal({
+    title: "Reserve " + id,
+    body: `<div class="form-group"><label>Reserve for</label><input class="form-control" id="resFor" placeholder="Patient or theatre, e.g. OT-1 C-section"></div>
+      <p class="module-note">Crossmatch is assumed compatible in this demo. A real bank would hold the unit until the lab confirms.</p>`,
+    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="resOk">Reserve</button>`
+  }, { onMount(ov) {
+    ov.querySelector("#resOk").onclick = () => {
+      const forWhom = ov.querySelector("#resFor").value.trim();
+      if (!forWhom) { showToast("Who is this reserved for?", "warning"); return; }
+      const u = units.find(x => x.id === id);
+      u.status = "reserved"; u.for = forWhom; saveU(); closeModal(ov); renderBlood();
+      showToast(id + " reserved", "success");
+    };
+  }});
+}
+function issueUnit(id) {
+  const u = units.find(x => x.id === id);
+  u.status = "issued"; if (!u.for) u.for = "Issued at counter";
+  saveU(); renderBlood(); showToast(id + " issued from the blood bank", "success");
+}
+function bootPage() {
+  const ICONS = window.ICONS || {};
+  window.ICONS = ICONS;
+  loadU();
+  document.getElementById("bloodType").innerHTML = `<option value="">All groups</option>` + TYPES.map(t => `<option>${t}</option>`).join("");
+  document.getElementById("bloodSearch").oninput = debounce(renderBlood, 200);
+  document.getElementById("bloodType").onchange = renderBlood;
+  document.getElementById("addDonation").onclick = () => {
+    const type = document.getElementById("donType").value;
+    const donor = document.getElementById("donName").value.trim();
+    if (!donor) { showToast("Donor name is required", "warning"); return; }
+    const exp = new Date(); exp.setDate(exp.getDate() + 35);
+    units.unshift({ id: "BB-NEW-" + (units.length + 20), type, donor, collected: todayStr(), expires: exp.toISOString().slice(0, 10), status: "available", for: "" });
+    saveU(); renderBlood(); showToast("Donation logged — " + type, "success");
+    document.getElementById("donName").value = "";
+  };
+  renderBlood();
+}
+
+</script>
+<script src="../assets/js/i18n.js"></script>
+</body>
+</html>

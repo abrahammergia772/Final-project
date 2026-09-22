@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
+<title>Wards & Beds — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+<link rel="stylesheet" href="../assets/css/global.css" />
+<link rel="stylesheet" href="../assets/css/sidebar.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+<link rel="stylesheet" href="../assets/css/modules.css" />
+<script src="../assets/js/theme.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<main class="main-content" id="mainContent">
+<header class="topbar" id="topbar" data-title="Wards & Beds"></header>
+<section class="page-body">
+
+<p class="page-kicker">Inpatient flow</p>
+<p class="page-intro">Bed occupancy across Medical, Surgical, Maternity, Pediatrics, ICU and Emergency.</p>
+<div class="stat-grid" id="bedStats"></div>
+<div id="occMeter" class="panel" style="padding:14px 18px;margin-bottom:16px"></div>
+<div class="chip-row" id="wardFilters"></div>
+<div class="bed-board" id="bedBoard"></div>
+<section class="panel mt-5">
+  <div class="panel-header"><div><h3>Waiting for a bed</h3><div class="sub">Admit into the first suitable free bed</div></div></div>
+  <div class="panel-body no-pad"><div class="table-wrap"><table class="data-table" id="waitTable">
+    <thead><tr><th>Patient</th><th>From</th><th>Needs</th><th>Priority</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table></div></div>
+</section>
+<p class="module-note">Training demo for Wolaita Sodo Hospital — confirm on the ward before moving a patient.</p>
+
+</section>
+</main>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/icons.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  checkSession();
+  checkRoleAccess("manager");
+  initLayout();
+  bootPage();
+});
+var ICONS = window.ICONS || {};
+const STORE_KEY = "wsh_beds_v1";
+const WARDS = ["Medical", "Surgical", "Maternity", "Pediatrics", "ICU", "Emergency"];
+const SEED = [
+  { id: "MED-01", ward: "Medical", status: "occupied", patient: "Abel Mekonnen", dx: "Hypertension", since: "2d" },
+  { id: "MED-02", ward: "Medical", status: "occupied", patient: "Hanna Bekele", dx: "Pneumonia", since: "1d" },
+  { id: "MED-03", ward: "Medical", status: "available", patient: "", dx: "", since: "" },
+  { id: "MED-04", ward: "Medical", status: "cleaning", patient: "", dx: "", since: "" },
+  { id: "MED-05", ward: "Medical", status: "occupied", patient: "Tigist Kebede", dx: "Malaria", since: "3d" },
+  { id: "MED-06", ward: "Medical", status: "reserved", patient: "Waiting: Dawit M.", dx: "Admission hold", since: "" },
+  { id: "SUR-01", ward: "Surgical", status: "occupied", patient: "Yonas Girma", dx: "Appendectomy", since: "1d" },
+  { id: "SUR-02", ward: "Surgical", status: "occupied", patient: "Samuel Getachew", dx: "Hernia repair", since: "2d" },
+  { id: "SUR-03", ward: "Surgical", status: "available", patient: "", dx: "", since: "" },
+  { id: "SUR-04", ward: "Surgical", status: "isolation", patient: "Bereket Wolde", dx: "Post-op infection", since: "4d" },
+  { id: "MAT-01", ward: "Maternity", status: "occupied", patient: "Selamawit Tadesse", dx: "Post C-section", since: "1d" },
+  { id: "MAT-02", ward: "Maternity", status: "occupied", patient: "Meron Desta", dx: "Labour", since: "6h" },
+  { id: "MAT-03", ward: "Maternity", status: "available", patient: "", dx: "", since: "" },
+  { id: "PED-01", ward: "Pediatrics", status: "occupied", patient: "Kidus Haile", dx: "Asthma", since: "1d" },
+  { id: "PED-02", ward: "Pediatrics", status: "available", patient: "", dx: "", since: "" },
+  { id: "PED-03", ward: "Pediatrics", status: "occupied", patient: "Rahel Bekele", dx: "Gastroenteritis", since: "2d" },
+  { id: "ICU-01", ward: "ICU", status: "occupied", patient: "Daniel Alemu", dx: "DKA — critical", since: "8h" },
+  { id: "ICU-02", ward: "ICU", status: "occupied", patient: "Frehiwot Assefa", dx: "Sepsis", since: "1d" },
+  { id: "ICU-03", ward: "ICU", status: "available", patient: "", dx: "", since: "" },
+  { id: "ICU-04", ward: "ICU", status: "cleaning", patient: "", dx: "", since: "" },
+  { id: "ER-01", ward: "Emergency", status: "occupied", patient: "Liya Hailu", dx: "RTA — observation", since: "3h" },
+  { id: "ER-02", ward: "Emergency", status: "available", patient: "", dx: "", since: "" },
+  { id: "ER-03", ward: "Emergency", status: "occupied", patient: "Marta Tesfaye", dx: "Chest pain", since: "1h" },
+  { id: "ER-04", ward: "Emergency", status: "reserved", patient: "Ambulance inbound", dx: "Trauma", since: "" }
+];
+let beds = [];
+let waiting = [
+  { name: "Dawit Mengistu", from: "OPD", need: "Medical", priority: "Urgent" },
+  { name: "Sara Worku", from: "ER", need: "ICU", priority: "Emergency" },
+  { name: "Abel Desta", from: "Referral", need: "Surgical", priority: "Routine" }
+];
+let filter = "All";
+
+function loadBeds() {
+  try {
+    const raw = sessionStorage.getItem(STORE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      beds = s.beds; waiting = s.waiting; return;
+    }
+  } catch (e) {}
+  beds = JSON.parse(JSON.stringify(SEED));
+}
+function saveBeds() {
+  try { sessionStorage.setItem(STORE_KEY, JSON.stringify({ beds, waiting })); } catch (e) {}
+}
+function statusBadge(s) {
+  const map = { occupied: "primary", available: "success", cleaning: "warning", reserved: "info", isolation: "danger" };
+  return badge(s, map[s] || "neutral");
+}
+function renderBeds() {
+  const shown = beds.filter(b => filter === "All" || b.ward === filter);
+  const occ = beds.filter(b => b.status === "occupied" || b.status === "isolation").length;
+  const free = beds.filter(b => b.status === "available").length;
+  const icuFree = beds.filter(b => b.ward === "ICU" && b.status === "available").length;
+  const pct = Math.round(occ / beds.length * 100);
+  document.getElementById("bedStats").innerHTML = [
+    ["Occupied", occ + " / " + beds.length, "primary", occ + " in a bed"],
+    ["Available", String(free), "success", "Ready to admit"],
+    ["ICU free", String(icuFree), icuFree ? "info" : "danger", icuFree ? "Critical capacity" : "ICU full"],
+    ["Waiting", String(waiting.length), "warning", "Need a bed"]
+  ].map(s => `<div class="stat-card ${s[2] === "primary" ? "" : "color-" + (s[2] === "success" ? "success" : s[2] === "danger" ? "danger" : s[2] === "warning" ? "warning" : "info")}"><div class="stat-icon">${ICONS.bed}</div><div><div class="stat-value">${s[1]}</div><div class="stat-label">${s[0]}</div><div class="stat-trend text-gray">${s[3]}</div></div></div>`).join("");
+  const meter = document.getElementById("occMeter");
+  if (meter) meter.innerHTML = `<div class="flex-between mb-2"><span class="text-sm text-gray">Hospital occupancy</span><strong>${pct}%</strong></div><div class="occ-meter"><span style="width:${pct}%"></span></div>`;
+  document.getElementById("wardFilters").innerHTML = ["All"].concat(WARDS).map(w =>
+    `<button type="button" class="chip ${filter === w ? "selected" : ""}" data-ward="${esc(w)}">${esc(w)}</button>`).join("");
+  document.getElementById("wardFilters").querySelectorAll("[data-ward]").forEach(b => b.onclick = () => { filter = b.dataset.ward; renderBeds(); });
+  document.getElementById("bedBoard").innerHTML = shown.map(b => `
+    <button type="button" class="bed-card status-${b.status}" data-bed="${esc(b.id)}">
+      <div class="flex-between"><span class="bed-id">${esc(b.id)}</span>${statusBadge(b.status)}</div>
+      <div class="bed-meta">${esc(b.ward)}${b.since ? " · " + esc(b.since) : ""}</div>
+      <div class="bed-name">${esc(b.patient || "Empty bed")}</div>
+      <div class="bed-meta">${esc(b.dx || "Tap to admit, transfer or discharge")}</div>
+    </button>`).join("");
+  document.getElementById("bedBoard").querySelectorAll("[data-bed]").forEach(el => el.onclick = () => openBed(el.dataset.bed));
+  const body = document.querySelector("#waitTable tbody");
+  body.innerHTML = waiting.length ? waiting.map((w, i) => `<tr>
+    <td>${esc(w.name)}</td><td>${esc(w.from)}</td><td>${esc(w.need)}</td>
+    <td>${badge(w.priority, w.priority === "Emergency" ? "danger" : w.priority === "Urgent" ? "warning" : "neutral")}</td>
+    <td class="actions"><button class="btn btn-primary btn-sm" data-admit="${i}">Admit</button></td></tr>`).join("")
+    : emptyRow(5, "No one is waiting for a bed.");
+  body.querySelectorAll("[data-admit]").forEach(b => b.onclick = () => admitWaiting(+b.dataset.admit));
+}
+function openBed(id) {
+  const b = beds.find(x => x.id === id);
+  if (!b) return;
+  const actions = [];
+  if (b.status === "available" || b.status === "reserved" || b.status === "cleaning") {
+    actions.push(`<button class="btn btn-primary" id="actAdmit">Admit patient</button>`);
+  }
+  if (b.status === "occupied" || b.status === "isolation") {
+    actions.push(`<button class="btn btn-secondary" id="actTransfer">Transfer</button>`);
+    actions.push(`<button class="btn btn-danger" id="actDischarge">Discharge</button>`);
+    if (b.status !== "isolation") actions.push(`<button class="btn btn-secondary" id="actIso">Mark isolation</button>`);
+  }
+  if (b.status === "cleaning") actions.push(`<button class="btn btn-success" id="actReady">Mark available</button>`);
+  openModal({
+    title: b.id + " · " + b.ward,
+    body: `<div class="detail-list">
+      <div class="detail-item"><span class="k">Status</span><span class="v">${statusBadge(b.status)}</span></div>
+      <div class="detail-item"><span class="k">Patient</span><span class="v">${esc(b.patient || "—")}</span></div>
+      <div class="detail-item"><span class="k">Diagnosis</span><span class="v">${esc(b.dx || "—")}</span></div>
+    </div>
+    <div class="form-group mt-4"><label>Patient name</label><input class="form-control" id="bedName" value="${esc(b.patient || "")}" placeholder="Full name"></div>
+    <div class="form-group"><label>Reason / diagnosis</label><input class="form-control" id="bedDx" value="${esc(b.dx || "")}" placeholder="e.g. Pneumonia"></div>
+    <p class="module-note">Demo board for Wolaita Sodo Hospital. Confirm on the ward before moving a patient.</p>`,
+    footer: actions.join("") + `<button class="btn btn-secondary" data-close>Close</button>`
+  }, { onMount(ov) {
+    const admit = ov.querySelector("#actAdmit");
+    const transfer = ov.querySelector("#actTransfer");
+    const discharge = ov.querySelector("#actDischarge");
+    const iso = ov.querySelector("#actIso");
+    const ready = ov.querySelector("#actReady");
+    if (admit) admit.onclick = () => {
+      const name = ov.querySelector("#bedName").value.trim();
+      if (!name) { showToast("Enter the patient name", "warning"); return; }
+      b.status = "occupied"; b.patient = name; b.dx = ov.querySelector("#bedDx").value.trim() || "Admitted"; b.since = "now";
+      saveBeds(); closeModal(ov); renderBeds(); showToast(name + " admitted to " + b.id, "success");
+    };
+    if (transfer) transfer.onclick = () => {
+      const next = WARDS[(WARDS.indexOf(b.ward) + 1) % WARDS.length];
+      const free = beds.find(x => x.ward === next && x.status === "available");
+      if (!free) { showToast("No free bed in " + next, "error"); return; }
+      free.status = b.status === "isolation" ? "isolation" : "occupied";
+      free.patient = b.patient; free.dx = b.dx; free.since = "now";
+      b.status = "cleaning"; b.patient = ""; b.dx = ""; b.since = "";
+      saveBeds(); closeModal(ov); renderBeds(); showToast("Transferred to " + free.id, "success");
+    };
+    if (discharge) discharge.onclick = () => {
+      b.status = "cleaning"; b.patient = ""; b.dx = ""; b.since = "";
+      saveBeds(); closeModal(ov); renderBeds(); showToast(b.id + " marked for cleaning", "info");
+    };
+    if (iso) iso.onclick = () => { b.status = "isolation"; saveBeds(); closeModal(ov); renderBeds(); showToast(b.id + " isolation precautions", "warning"); };
+    if (ready) ready.onclick = () => { b.status = "available"; saveBeds(); closeModal(ov); renderBeds(); showToast(b.id + " is ready", "success"); };
+  }});
+}
+function admitWaiting(i) {
+  const w = waiting[i];
+  const free = beds.find(b => b.ward === w.need && (b.status === "available" || b.status === "reserved"))
+    || beds.find(b => b.status === "available");
+  if (!free) { showToast("No free bed for " + w.need, "error"); return; }
+  free.status = "occupied"; free.patient = w.name; free.dx = "From " + w.from; free.since = "now";
+  waiting.splice(i, 1);
+  saveBeds(); renderBeds();
+  showToast(w.name + " admitted to " + free.id, "success");
+}
+function bootPage() {
+  const ICONS = window.ICONS || {};
+  window.ICONS = ICONS;
+  loadBeds();
+  renderBeds();
+}
+
+</script>
+<script src="../assets/js/i18n.js"></script>
+</body>
+</html>

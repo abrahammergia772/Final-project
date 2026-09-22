@@ -128,7 +128,7 @@
   width: 38px;
   height: 38px;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--primary), #7C3AED);
+  background: var(--primary);
   color: #fff;
   display: flex;
   align-items: center;

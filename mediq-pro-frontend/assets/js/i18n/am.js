@@ -829,7 +829,18 @@ window.I18N_AM = {
 "valid": "ልክ ነው",
 "this week": "በዚህ ሳምንት",
 "last hour": "ባለፈው ሰዓት",
-"resolved": "ተፈትቷል"
+"resolved": "ተፈትቷል",
+
+"Wards & Beds": "ዋርዶች እና አልጋዎች",
+"Admissions & Beds": "መግቢያ እና አልጋዎች",
+"Blood Bank": "የደም ባንክ",
+"Ambulance": "አምቡላንስ",
+"Cashier": "ገንዘብ ተቀባይ",
+"Operating Theatre": "የቀዶ ጥገና ክፍል",
+"Imaging": "ምስል ምርመራ",
+"Administrator sign in": "የአስተዳዳሪ መግቢያ",
+"Search pages": "ገጾችን ፈልግ",
+"Jump to a page…": "ወደ ገጽ ዝለል…",
+"Waiting for a bed": "አልጋ በመጠባበቅ ላይ",
+"Demo mode active": "የሙከራ ሁነታ ንቁ",
 };
-
-

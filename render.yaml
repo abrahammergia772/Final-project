@@ -53,13 +53,5 @@ services:
     buildCommand: ""     # pure static — no build step
     staticPublishPath: .
     pullRequestPreviewsEnabled: true
-    headers:
-      # No special headers needed — this is a static HTML/JS site
-      # that talks to the FastAPI backend over CORS.
-    envVars:
-      # This static site talks to the backend above.
-      # The API URL is baked into assets/js/config.js (defaults to
-      # the deployed backend URL), but you can override at runtime
-      # by visiting /?api=https://your-custom-url
-      - key: VITE_API_BASE_URL
-        value: "https://final-project-bo4l.onrender.com"
+    # No Vite env injection (there is no build). The API URL lives in
+    # mediq-pro-frontend/assets/js/config.js and can be overridden with ?api=

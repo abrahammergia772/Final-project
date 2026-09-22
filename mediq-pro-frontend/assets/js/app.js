@@ -58,6 +58,9 @@ window.SPA = { mode: true, current: "" };
       if (/^(const|let)\s+[A-Za-z_$][\w$]*\b/.test(line)) {
         return line.replace(/^(const|let)\s+/, "var ");
       }
+      if (/^(const|let)\s+[\[{]/.test(line)) {
+        console.warn("SPA: destructuring declaration may not survive page swaps:", line.trim().slice(0, 90));
+      }
       return line;
     });
     evalGuard = true;
@@ -90,10 +93,12 @@ window.SPA = { mode: true, current: "" };
       let inline = "";
       for (const s of scripts) if (!s.getAttribute("src")) inline = s.textContent || "";
       $("#spaBody").innerHTML = body ? body.innerHTML : "";
+      const titled = doc.querySelector("header.topbar[data-title], [data-title]");
       const title = doc.querySelector(".page-title");
-      if (title) {
+      const label = (titled && titled.getAttribute("data-title")) || (title && title.textContent) || "";
+      if (label) {
         const tt = $("#topbarTitle");
-        if (tt) tt.textContent = title.textContent;
+        if (tt) tt.textContent = label.trim();
       }
       const base = (doc.title || "Wolaita Sodo Hospital").replace(/\s*—\s*(Wolaita Sodo Hospital|MedIQ Pro)\s*$/, "");
       document.title = base + " — Wolaita Sodo Hospital";
@@ -111,45 +116,16 @@ window.SPA = { mode: true, current: "" };
     }
   }
 
-  // ---------- shell (sidebar + topbar) ----------
-  function buildShell(role) {
-    const cfg = (window.NAV_ROLES || {})[role] || { label: role, nav: [] };
-    // Sidebar
-    let sb = '<button class="sidebar-toggle" id="sidebarToggle" title="Collapse menu">' + (window.ICONS ? window.ICONS["chevron-left"] : "") + '</button>';
-    sb += '<div class="sidebar-logo"><img src="assets/images/logo-mark.png" alt="Wolaita Sodo Hospital"><div class="logo-text"><div class="brand">Wolaita Sodo Hospital</div><div class="tag">Management System</div></div></div>';
-    sb += '<nav class="sidebar-nav">';
-    const perm = (window.NAV_PERM_MAP || {})[role] || {};
-    cfg.nav.forEach(([section, items]) => {
-      sb += '<div class="nav-section-label">' + section + "</div>";
-      items.forEach(([href, label, ic]) => {
-        const p = perm[href] || "";
-        sb += '<a class="nav-link" href="' + href + '"' + (p ? ' data-perm="' + p + '"' : "") + ' data-close-menu>' + (window.ICONS[ic] || "") + '<span class="nav-label">' + label + "</span></a>";
-      });
-    });
-    sb += '<div class="nav-section-label">MESSAGES</div>';
-    sb += '<a class="nav-link" href="messages.html" data-perm="messages" data-close-menu>' + (window.ICONS.mail || "") + '<span class="nav-label">Messages</span></a>';
-    sb += '<div class="nav-section-label">ACCOUNT</div>';
-    sb += '<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu>' + (window.ICONS.settings || "") + '<span class="nav-label">Settings</span></a>';
-    sb += "</nav>";
-    sb += '<div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div><button class="btn-icon u-logout" data-logout title="Log out" style="color:#fff">' + (window.ICONS.logout || "") + '<span class="u-logout-label">Log out</span></button></div></div>';
-    $("#sidebar").innerHTML = sb;
-    // Topbar
-    let tb = '<div class="topbar-left"><button class="hamburger" id="hamburger" aria-label="Open menu" aria-controls="sidebar">' + (window.ICONS.menu || "") + "</button><h1 class=\"page-title\" id=\"topbarTitle\">Dashboard</h1></div>";
-    tb += '<div class="topbar-right">';
-    tb += '<div class="topbar-search">' + (window.ICONS.search || "") + '<input class="form-control" placeholder="Search…" aria-label="Search"></div>';
-    tb += '<div class="dropdown"><button class="icon-btn" data-dropdown-toggle="#notifMenu" aria-label="Notifications">' + (window.ICONS.bell || "") + '<span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu"><div class="dd-header">Notifications</div></div></div>';
-    tb += '<div class="dropdown"><button class="topbar-avatar" data-dropdown-toggle="#profileMenu"><span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button><div class="dropdown-menu" id="profileMenu" style="min-width:210px"><div class="dd-header">Account</div><div class="dd-item" data-logout>' + (window.ICONS.logout || "") + "<span>Log out</span></div></div></div>";
-    tb += "</div>";
-    $("#topbar").innerHTML = tb;
-  }
+  // Sidebar + topbar are built by shell.js (window.buildShell).
 
-  // ---------- enter / exit the app ----------
+    // ---------- enter / exit the app ----------
   function enterApp() {
     const role = getUserRole();
     if (!role) return showLogin();
     $("#loginView").classList.add("hidden");
     $("#appView").classList.remove("hidden");
-    buildShell(role);
+    if (typeof window.buildShell === "function") window.buildShell(role);
+    else console.error("shell.js did not load — navigation cannot be built");
     // Wire up hamburger / profile dropdown / notifications / permissions
     // for the freshly-built shell (delegated handlers in initAuthUI ensure
     // the listeners survive future DOM rebuilds too).

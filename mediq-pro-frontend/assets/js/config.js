@@ -5,7 +5,7 @@
 
 const CONFIG = {
   APP_NAME: "Wolaita Sodo Hospital",
-  VERSION: "1.0.0",
+  VERSION: "2.1.0",
 
   // Optional free YouTube Data API v3 key (Google). If left empty, the Health
   // Videos feature uses the built-in curated library + targeted YouTube search
@@ -19,8 +19,9 @@ const CONFIG = {
   API_BASE_URL: (function() {
     // Allow override via ?api=... URL param or localStorage for local dev
     var urlParams = new URLSearchParams(window.location.search);
-    var override = urlParams.get('api') || localStorage.getItem('mediq_api_base');
-    return override || "https://final-project-bo4l.onrender.com";
+    var saved = null;
+    try { saved = localStorage.getItem('mediq_api_base'); } catch (e) {}
+    return urlParams.get('api') || saved || "https://final-project-bo4l.onrender.com";
   })(),
 
   // Supabase (PostgreSQL) — replace with your project values before deploy
@@ -34,10 +35,10 @@ const CONFIG = {
 
   // Demo accounts used when DEMO_MODE is true (also reachable from the login page)
   DEMO_ACCOUNTS: {
-    admin:      { reports: 1, password: "admin123",      name: "Solomon Tadesse",  role: "admin" },
+    admin:      { password: "admin123",      name: "Solomon Tadesse",  role: "admin" },
     manager:    { password: "manager123",    name: "Hanna Bekele",     role: "manager" },
     doctor:     { password: "doctor123",     name: "Dr. Daniel Alemu", role: "doctor" },
-    nurse:      { reports: 1, password: "nurse123",      name: "Marta Tesfaye",    role: "nurse" },
+    nurse:      { password: "nurse123",      name: "Marta Tesfaye",    role: "nurse" },
     pharmacist: { password: "pharmacist123", name: "Yonas Girma",      role: "pharmacist" },
     laboratory: { password: "lab123",        name: "Sara Worku",       role: "laboratory" },
     reception:  { password: "reception123",  name: "Liya Hailu",       role: "reception" },
@@ -105,13 +106,13 @@ const CONFIG = {
   // Roles & Permissions page; changes apply automatically — the granted tab
   // appears (or disappears) in that role's sidebar on their next load.
   PERMISSIONS: {
-    admin:      { users: 1, roles: 1, announcements: 1, audit: 1, settings: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1 },
-    manager:    { departments: 1, staff: 1, reports: 1, finance: 1, complaints: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
-    doctor:     { patients: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, shifts: 1, documents: 1, videos: 1, ai: 1, messages: 1, settings: 1 },
-    nurse:      { vitals: 1, observations: 1, medications: 1, careplans: 1, shifts: 1, documents: 1, patients: 1, messages: 1, settings: 1 },
-    pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
-    laboratory: { testrequests: 1, samples: 1, results: 1, shifts: 1, documents: 1, patients: 1, ai: 1, messages: 1, settings: 1 },
-    reception:  { registration: 1, appointments: 1, insurance: 1, queue: 1, shifts: 1, documents: 1, patients: 1, messages: 1, settings: 1 },
+    admin:      { users: 1, roles: 1, announcements: 1, audit: 1, settings: 1, shifts: 1, documents: 1, patients: 1, reports: 1, wards: 1, ai: 1, messages: 1 },
+    manager:    { departments: 1, staff: 1, reports: 1, finance: 1, complaints: 1, shifts: 1, documents: 1, patients: 1, wards: 1, ai: 1, messages: 1, settings: 1 },
+    doctor:     { patients: 1, consultation: 1, prescriptions: 1, appointments: 1, referrals: 1, theatre: 1, imaging: 1, shifts: 1, documents: 1, videos: 1, ai: 1, messages: 1, settings: 1 },
+    nurse:      { beds: 1, vitals: 1, observations: 1, medications: 1, careplans: 1, shifts: 1, documents: 1, patients: 1, reports: 1, messages: 1, settings: 1 },
+    pharmacist: { prescriptions: 1, inventory: 1, suppliers: 1, shifts: 1, documents: 1, patients: 1, reports: 1, ai: 1, messages: 1, settings: 1 },
+    laboratory: { testrequests: 1, samples: 1, bloodbank: 1, results: 1, shifts: 1, documents: 1, patients: 1, reports: 1, ai: 1, messages: 1, settings: 1 },
+    reception:  { registration: 1, admissions: 1, appointments: 1, insurance: 1, queue: 1, ambulance: 1, billing: 1, shifts: 1, documents: 1, patients: 1, reports: 1, messages: 1, settings: 1 },
     patient:    { appointments: 1, records: 1, bills: 1, complaints: 1, healthcard: 1, videos: 1, messages: 1, ai: 1, settings: 1 }
   }
 };

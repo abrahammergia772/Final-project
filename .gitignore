@@ -3,3 +3,12 @@ __pycache__/
 node_modules/
 .DS_Store
 .env
+
+# RandomForest pickles are not loaded when SKIP_RF_MODELS=1 (Render free tier).
+# Pull them with backend/download_models.py if you need the full ensemble.
+backend/models/clinical_decision/rf_model.pkl
+backend/models/symptom-checker/rf_model.pkl
+backend/models/lab/lab_rf_model.pkl
+backend/models/vitals/vitals_rf_model.pkl
+backend/models/drug_interaction/drug_interaction_rf.pkl
+backend/models/appointment/rf_appointment.pkl
