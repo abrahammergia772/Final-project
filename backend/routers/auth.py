@@ -4,7 +4,6 @@
 # Authenticates against the Supabase `users` table when configured; otherwise
 # falls back to built-in demo accounts so the whole system stays usable.
 # =============================================================================
-import hashlib
 import logging
 import secrets
 import time
@@ -13,7 +12,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from db import get_client, DEMO
-from security import issue_token
+from security import hash_password, issue_token, verify_password
 
 router = APIRouter(tags=["Auth"])
 log = logging.getLogger("mediq.auth")
@@ -43,7 +42,8 @@ class ResetRequest(BaseModel):
 
 
 _RESET_CODES = {}
-_ALLOWED_ROLES = {"patient", "doctor", "nurse", "pharmacist", "laboratory", "reception", "manager"}
+_ALLOWED_ROLES = {"patient", "doctor", "nurse", "pharmacist", "laboratory", "reception"}
+_FAILS = {}
 
 
 DEMO_USERS = {
@@ -56,39 +56,63 @@ DEMO_PASSWORDS = {
     "doctor@wsh.et": "doctor123", "nurse@wsh.et": "nurse123",
     "pharmacist@wsh.et": "pharmacist123", "lab@wsh.et": "lab123",
     "reception@wsh.et": "reception123", "patient@wsh.et": "patient123",
+    "laboratory@wsh.et": "lab123",
 }
 
 
-def _hash(pw: str) -> str:
-    return hashlib.sha256(pw.encode()).hexdigest()
+def _too_many(email: str) -> bool:
+    now = time.time()
+    hits = [t for t in _FAILS.get(email, []) if now - t < 600]
+    _FAILS[email] = hits
+    return len(hits) >= 8
+
+
+def _note_failure(email: str) -> None:
+    _FAILS.setdefault(email, []).append(time.time())
+
+
+def _token_for(user_id, role, email, name):
+    return issue_token(user_id, role, email=email, name=name)
 
 
 @router.post("/auth/login")
 def login(req: LoginRequest):
     email = req.email.strip().lower()
+    if _too_many(email):
+        raise HTTPException(status_code=429, detail="Too many attempts. Try again later.")
     client = get_client()
     if client is not None:
         try:
-            resp = client.table("users").select("*").eq("email", email).limit(1).execute()
+            resp = client.table("users").select("id,email,name,role,status,password_hash").eq("email", email).limit(1).execute()
             rows = resp.data or []
-            if rows:
-                row = rows[0]
-                if row.get("password_hash") != _hash(req.password):
-                    raise HTTPException(status_code=401, detail="Invalid email or password")
-                if row.get("status", "active") != "active":
-                    raise HTTPException(status_code=403, detail="Account is not active")
-                return {"token": issue_token(row.get("id"), row.get("role", "patient")), "role": row.get("role", "patient"),
-                        "user_id": row.get("id"), "name": row.get("name", email)}
-        except HTTPException:
-            raise
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase login failed: %s → demo", exc)
-    # demo fallback
-    if email in DEMO_PASSWORDS:
-        if DEMO_PASSWORDS[email] == req.password:
-            user = next(u for u in DEMO["users"] if u["email"] == email)
-            return {"token": issue_token(user["id"], user["role"]), "role": user["role"],
-                    "user_id": user["id"], "name": user["name"]}
+            log.error("supabase login failed: %s", type(exc).__name__)
+            raise HTTPException(status_code=503, detail="Sign-in service unavailable")
+        if not rows or not verify_password(req.password, rows[0].get("password_hash") or ""):
+            _note_failure(email)
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        row = rows[0]
+        if row.get("status", "active") != "active":
+            raise HTTPException(status_code=403, detail="Account is not active")
+        _FAILS.pop(email, None)
+        return {
+            "token": _token_for(row.get("id"), row.get("role", "patient"), email, row.get("name") or email),
+            "role": row.get("role", "patient"),
+            "user_id": row.get("id"),
+            "name": row.get("name", email),
+        }
+    # Demo accounts only when Supabase is not configured. A configured database
+    # must never fall back to the published demo passwords.
+    demo_email = "lab@wsh.et" if email == "laboratory@wsh.et" else email
+    if demo_email in DEMO_PASSWORDS and secrets.compare_digest(DEMO_PASSWORDS[demo_email], req.password):
+        user = next(u for u in DEMO["users"] if u["email"] == demo_email)
+        return {
+            "token": _token_for(user["id"], user["role"], email, user["name"]),
+            "role": user["role"],
+            "user_id": user["id"],
+            "name": user["name"],
+        }
+    _note_failure(email)
     raise HTTPException(status_code=401, detail="Invalid email or password")
 
 
@@ -98,22 +122,25 @@ def signup(req: SignupRequest):
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
     # Public registration can never create an administrator or manager account.
     role = req.role if req.role in _ALLOWED_ROLES else "patient"
-    if role in {"manager"}:
+    if role == "manager":
         role = "patient"
     client = get_client()
     if client is not None:
         try:
             row = {
                 "name": req.name, "email": req.email.strip().lower(),
-                "password_hash": _hash(req.password), "role": role,
+                "password_hash": hash_password(req.password), "role": role,
                 "phone": req.phone, "dob": req.dob, "gender": req.gender,
                 "blood": req.blood, "emergency_contact": req.emergency_contact,
                 "status": "active" if role == "patient" else "pending",
             }
             resp = client.table("users").insert(row).execute()
-            return {"ok": True, "user": (resp.data or [row])[0]}
+            created = dict((resp.data or [row])[0])
+            created.pop("password_hash", None)
+            return {"ok": True, "user": created}
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase signup failed: %s → demo", exc)
+            log.error("supabase signup failed: %s", type(exc).__name__)
+            raise HTTPException(status_code=503, detail="Registration service unavailable")
     return {"ok": True, "user": {"email": req.email.strip().lower(), "name": req.name, "role": role, "status": "demo"}}
 
 
@@ -128,16 +155,21 @@ def reset_password(req: ResetRequest):
         log.info("Password reset requested for %s", email)
         return {"ok": True, "message": "If the account exists, a reset code was sent."}
     record = _RESET_CODES.get(email)
-    if not record or not secrets.compare_digest(req.code, record[0]) or time.time() > record[1]:
+    if not record or time.time() > record[1]:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
+    if not secrets.compare_digest(req.code, record[0]):
+        _note_failure("reset:" + email)
+        if _too_many("reset:" + email):
+            _RESET_CODES.pop(email, None)
         raise HTTPException(status_code=400, detail="Invalid or expired reset code")
     if len(req.new_password) < 8:
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
     client = get_client()
     if client is not None:
         try:
-            client.table("users").update({"password_hash": _hash(req.new_password)}).eq("email", email).execute()
+            client.table("users").update({"password_hash": hash_password(req.new_password)}).eq("email", email).execute()
         except Exception as exc:  # noqa: BLE001
-            log.warning("supabase reset failed: %s", exc)
+            log.error("supabase reset failed: %s", type(exc).__name__)
             raise HTTPException(status_code=503, detail="Password service unavailable")
     _RESET_CODES.pop(email, None)
     return {"ok": True}

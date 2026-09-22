@@ -26,26 +26,23 @@ SUPABASE_SERVICE_KEY=…  (service_role key — required for server-side CRUD; n
 MODEL_DOWNLOAD_URLS=…   (only needed for the >25 MB appointment model — see below)
 SECRET_KEY=…            (long random value; required in production)
 CORS_ORIGINS=https://your-frontend.example (exact comma-separated origins; never use *)
+CORS_ALLOW_ALL=0
 ```
 
 ## 🗄️ Set up Supabase (5 minutes)
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor** → paste the contents of `backend/supabase_schema.sql` → **Run**.
-   This creates all tables (users, patients, appointments, prescriptions, inventory,
-   lab, bills, complaints, messages, attendance, documents, …) with RLS policies.
-3. Copy the project **URL** and **anon key** into the Render env vars above.
-4. Optionally seed demo users:
-   ```sql
-   insert into users (email, password_hash, name, role) values
-   ('admin@wsh.et','<sha256 of admin123>','Solomon Tadesse','admin'),
-   ('doctor@wsh.et','<sha256 of doctor123>','Dr. Daniel Alemu','doctor');
-   ```
-   (`password_hash` is `sha256(password)` — compute it with
-   `python -c "import hashlib; print(hashlib.sha256(b'admin123').hexdigest())"`)
+2. Open **SQL Editor** → paste `backend/supabase_schema.sql` → **Run**.
+   That file creates every table and turns on row level security. It does not
+   insert patients. The split files live in `backend/sql/`:
+   - `001_schema.sql` then `002_security.sql` for a new project
+   - `004_upgrade_existing.sql` then `002_security.sql` if the old schema already ran
+   - `003_seed.sql` only for a training database
+3. Copy the project **URL**, **anon key**, and **service_role key** into the Render env vars above.
+   The service_role key stays on the server. Leave the frontend `SUPABASE_URL` and `SUPABASE_KEY` empty.
+4. For a training database only, run `backend/sql/003_seed.sql`. Those demo passwords are public. Do not use them with real patients.
 
-> **No Supabase configured?** The API automatically falls back to built-in demo
-> data — the whole system still works end-to-end while you set it up.
+> **No Supabase configured?** The API uses built-in demo data. Once `SUPABASE_URL` is set, a database error is returned instead of silently switching to the demo passwords.
 
 ## 🤖 The 7 AI endpoints (all use your trained models)
 

@@ -24,7 +24,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import CORS_ORIGINS, CORS_ALLOW_ALL, MODEL_DOWNLOAD_URLS, LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY
+from config import CORS_ORIGINS, CORS_ALLOW_ALL, MODEL_DOWNLOAD_URLS, LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY, SECRET_KEY
 import model_loader
 from security import current_user
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data
@@ -50,6 +50,12 @@ def _log_memory(tag: str = "") -> None:
 async def lifespan(app: FastAPI):
     log.info("Wolaita Sodo Hospital starting (LAZY_LOAD=%s, SKIP_RF_MODELS=%s, LOW_MEMORY=%s)",
              LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY)
+    if CORS_ALLOW_ALL:
+        log.warning("CORS_ALLOW_ALL is on. Set exact CORS_ORIGINS and CORS_ALLOW_ALL=0 before production.")
+    if SECRET_KEY == "mediq-pro-dev-secret-change-me":
+        log.warning("SECRET_KEY is the development default. Set a long random value before production.")
+    if not os.getenv("SUPABASE_URL"):
+        log.info("Supabase is not configured. Core data routes will use demo data.")
 
     # 1) In eager mode, try to fetch any missing >25 MB model files.
     #    In lazy/low-mem mode we skip this: we won't load the RF anyway.

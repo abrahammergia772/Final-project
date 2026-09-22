@@ -35,7 +35,8 @@ Final-project/
 │   ├── models/             ← your trained .pkl models (per module)
 │   ├── main.py, config.py, db.py, model_loader.py, download_models.py
 │   ├── routers/            ← auth + 7 AI modules + data CRUD
-│   └── supabase_schema.sql ← run in Supabase SQL editor
+│   ├── supabase_schema.sql ← paste in Supabase SQL editor (new project)
+│   └── sql/                ← 001 schema, 002 security, 003 training seed, 004 upgrade
 └── tools/build_frontend.py ← dev-only page generator (not needed to run)
 ```
 

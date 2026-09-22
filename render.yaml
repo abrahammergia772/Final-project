@@ -26,8 +26,9 @@ services:
         value: "1"
       - key: SKIP_RF_MODELS
         value: "1"
+      # Set to 1 only for a short local test. Production must list exact origins.
       - key: CORS_ALLOW_ALL
-        value: "1"
+        value: "0"
       # Backend URL — automatically set by Render; used here so the
       # frontend can discover it at build time if needed.
       - key: SECRET_KEY
