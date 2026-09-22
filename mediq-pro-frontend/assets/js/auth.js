@@ -88,6 +88,15 @@ function getRoleLabel(role) {
 }
 
 // ---------- Login ----------
+function findSavedSignup(email, password) {
+  let rows = [];
+  try { rows = JSON.parse(Store.get("mediq_pro_signups") || "[]"); } catch (e) { rows = []; }
+  const wanted = String(email || "").trim().toLowerCase();
+  return rows.find(function (row) {
+    return String(row.email || "").trim().toLowerCase() === wanted && row.password === password;
+  }) || null;
+}
+
 async function login(email, password) {
   if (CONFIG.DEMO_MODE) {
     // Demo: accept demo accounts by email (e.g. admin@wsh.et) or role name
@@ -103,7 +112,19 @@ async function login(email, password) {
       saveSession(session);
       return { ok: true, session };
     }
-    return { ok: false, error: "Invalid email or password. Try a demo account (e.g. admin@wsh.et / admin123)." };
+    // Accounts created on the signup page are stored in this browser only.
+    const created = findSavedSignup(email, password);
+    if (created) {
+      const session = {
+        token: "demo-token-" + created.id,
+        role: created.role || "patient",
+        user_id: created.id,
+        name: created.name || email
+      };
+      saveSession(session);
+      return { ok: true, session };
+    }
+    return { ok: false, error: "Invalid email or password. Use the same email and password from Create an account, or a demo account (admin@wsh.et / admin123)." };
   }
 
   // Production: call FastAPI

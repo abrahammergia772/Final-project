@@ -219,9 +219,12 @@ document.addEventListener("DOMContentLoaded", () => {
       created: new Date().toISOString()
     };
     try {
-      const all = JSON.parse(localStorage.getItem("mediq_pro_signups") || "[]");
+      const raw = (window.Store ? Store.get("mediq_pro_signups") : localStorage.getItem("mediq_pro_signups")) || "[]";
+      const all = JSON.parse(raw);
       all.push(record);
-      localStorage.setItem("mediq_pro_signups", JSON.stringify(all));
+      const saved = JSON.stringify(all);
+      if (window.Store) Store.set("mediq_pro_signups", saved);
+      else localStorage.setItem("mediq_pro_signups", saved);
     } catch (err) {}
 
     // Success modal
