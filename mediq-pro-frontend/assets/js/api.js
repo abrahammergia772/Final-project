@@ -168,16 +168,161 @@ function saveRow(endpoint, row, okMsg) {
 
 const _known = {};
 function persistUpsert(endpoint, row) {
-  if (!row) return;
+  if (!row) return Promise.resolve({ ok: false });
   const key = endpoint + ":" + row.id;
-  if (row.id && _known[key]) persistUpdate(endpoint, row.id, row);
-  else {
-    persistInsert(endpoint, row);
-    if (row.id) _known[key] = true;
-  }
+  if (row.id && _known[key]) return persistUpdate(endpoint, row.id, row);
+  if (row.id) _known[key] = true;
+  return persistInsert(endpoint, row);
 }
 function markKnown(endpoint, rows) {
   (rows || []).forEach(function (row) {
     if (row && row.id) _known[endpoint + ":" + row.id] = true;
+  });
+}
+
+// ---------- Files stored in Supabase ----------
+function readUploadFile(file, maxBytes) {
+  maxBytes = maxBytes || 1200000;
+  return new Promise(function (resolve, reject) {
+    if (!file) { resolve(null); return; }
+    if (file.size > maxBytes) { reject(new Error("File is too large. Use a file under 1.2 MB.")); return; }
+    const reader = new FileReader();
+    reader.onload = function () { resolve({ name: file.name, mime: file.type || "application/octet-stream", data: reader.result, size: file.size }); };
+    reader.onerror = function () { reject(new Error("Could not read the file")); };
+    reader.readAsDataURL(file);
+  });
+}
+function formatFileSize(bytes) {
+  const n = Number(bytes) || 0;
+  if (n < 1024) return n + " B";
+  if (n < 1024 * 1024) return Math.round(n / 1024) + " KB";
+  return (n / (1024 * 1024)).toFixed(1) + " MB";
+}
+function saveUploadedDocument(row, file) {
+  return readUploadFile(file).then(function (packed) {
+    if (!packed) throw new Error("Choose a file to upload");
+    row.file_name = packed.name;
+    row.file_mime = packed.mime;
+    row.file_data = packed.data;
+    row.size = formatFileSize(packed.size);
+    row.has_file = true;
+    return persistInsert(CONFIG.ENDPOINTS.DOCUMENTS, row);
+  });
+}
+function downloadStoredFile(doc) {
+  if (!doc) return;
+  const finish = function (packed) {
+    if (!packed || !packed.file_data) { showToast("No file is stored for this document", "error"); return; }
+    const a = document.createElement("a");
+    a.href = packed.file_data;
+    a.download = packed.file_name || doc.title || "document";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast("Downloaded " + (doc.title || packed.file_name), "success");
+  };
+  if (doc.file_data) { finish(doc); return; }
+  apiFetch(CONFIG.ENDPOINTS.DOCUMENTS + "/" + encodeURIComponent(doc.id) + "/file").then(function (res) {
+    if (!res.ok) { showToast(res.error || "Could not download the file", "error"); return; }
+    finish(res.data);
+  });
+}
+
+// ---------- Messages ----------
+let _directory = [];
+function loadMessageDirectory() {
+  return apiFetch(CONFIG.ENDPOINTS.MESSAGE_DIRECTORY).then(function (res) {
+    _directory = (res.ok && res.data && res.data.items) || [];
+    return _directory;
+  });
+}
+function messageGroups() {
+  return [
+    { id: "", name: "All Staff", email: "Every staff account", role: "staff", group: "All Staff" },
+    { id: "", name: "All Doctors", email: "Every doctor", role: "doctor", group: "All Doctors" },
+    { id: "", name: "All Nurses", email: "Every nurse", role: "nurse", group: "All Nurses" },
+    { id: "", name: "All Pharmacists", email: "Every pharmacist", role: "pharmacist", group: "All Pharmacists" },
+    { id: "", name: "All Laboratory", email: "Laboratory team", role: "laboratory", group: "All Laboratory" },
+    { id: "", name: "All Reception", email: "Front desk", role: "reception", group: "All Reception" },
+    { id: "", name: "All Patients", email: "Every patient", role: "patient", group: "All Patients" }
+  ];
+}
+function attachRecipientPicker(input, hint) {
+  const box = document.createElement("div");
+  box.style.position = "relative";
+  input.parentNode.insertBefore(box, input);
+  box.appendChild(input);
+  const list = document.createElement("div");
+  list.style.cssText = "display:none;position:absolute;z-index:20;left:0;right:0;top:100%;background:#fff;border:1px solid #E5E7EB;border-radius:12px;max-height:240px;overflow:auto;box-shadow:0 10px 28px rgba(15,23,42,.12)";
+  box.appendChild(list);
+  let picked = null;
+  function choices() {
+    const q = input.value.trim().toLowerCase();
+    const people = messageGroups().concat(_directory.filter(function (p) { return p.id !== (getSession() || {}).user_id; }));
+    return people.filter(function (p) {
+      if (!q) return true;
+      return (p.name || "").toLowerCase().indexOf(q) >= 0 || (p.email || "").toLowerCase().indexOf(q) >= 0 || (p.role || "").toLowerCase().indexOf(q) >= 0;
+    }).slice(0, 8);
+  }
+  function paint() {
+    const hits = choices();
+    if (!hits.length) { list.style.display = "none"; list.innerHTML = ""; return; }
+    list.style.display = "block";
+    list.innerHTML = hits.map(function (p, i) {
+      const role = p.group ? "Group" : (typeof getRoleLabel === "function" ? getRoleLabel(p.role) : p.role);
+      const initials = (typeof initialsOf === "function" ? initialsOf(p.name) : (p.name || "?").slice(0, 2));
+      return '<button type="button" data-i="' + i + '" style="display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:8px 10px;border:0;background:#fff;cursor:pointer">' +
+        '<span style="width:34px;height:34px;border-radius:50%;background:#0B3A5E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex:none">' + esc(initials) + '</span>' +
+        '<span><strong style="display:block">' + esc(p.name) + '</strong><span style="color:#6B7280;font-size:12px">' + esc(role) + ' · ' + esc(p.email || "No email") + '</span></span></button>';
+    }).join("");
+    list.querySelectorAll("button").forEach(function (btn) {
+      btn.onmouseenter = function () { btn.style.background = "#F3F4F6"; };
+      btn.onmouseleave = function () { btn.style.background = "#fff"; };
+      btn.onclick = function () {
+        const p = hits[Number(btn.getAttribute("data-i"))];
+        picked = p;
+        input.value = p.name;
+        input.dataset.email = p.email || "";
+        input.dataset.uid = p.id || "";
+        input.dataset.role = p.role || "";
+        input.dataset.group = p.group || "";
+        if (hint) hint.textContent = p.name + " · " + (p.group ? "group" : (typeof getRoleLabel === "function" ? getRoleLabel(p.role) : p.role)) + " · " + (p.email || "");
+        list.style.display = "none";
+      };
+    });
+  }
+  input.addEventListener("input", function () { picked = null; input.dataset.email = ""; input.dataset.uid = ""; input.dataset.group = ""; paint(); });
+  input.addEventListener("focus", paint);
+  document.addEventListener("click", function (e) { if (!box.contains(e.target)) list.style.display = "none"; });
+  loadMessageDirectory().then(paint);
+  return {
+    selected: function () {
+      if (picked) return picked;
+      const typed = input.value.trim().toLowerCase();
+      return _directory.find(function (p) { return (p.name || "").toLowerCase() === typed || (p.email || "").toLowerCase() === typed; }) || null;
+    }
+  };
+}
+function sendHospitalMessage(fields) {
+  const person = fields.person;
+  const row = {
+    id: uid("MSG"),
+    from: getUserName(),
+    from_role: getUserRole(),
+    from_email: (getSession() || {}).email || "",
+    to: person ? person.name : fields.to,
+    to_email: person && !person.group ? person.email : "",
+    to_id: person && !person.group ? person.id : "",
+    to_role: person ? person.role : "",
+    subject: fields.subject,
+    body: fields.body,
+    date: new Date().toISOString(),
+    read: false,
+    priority: fields.priority || "normal",
+    replies: fields.replies || []
+  };
+  return persistInsert(CONFIG.ENDPOINTS.MESSAGES, row).then(function (res) {
+    if (res && res.ok) row.id = (res.data && res.data.row && res.data.row.id) || row.id;
+    return { res: res, row: row };
   });
 }

@@ -5,6 +5,7 @@
 # falls back to built-in demo accounts so the whole system stays usable.
 # =============================================================================
 import logging
+from typing import Optional
 import secrets
 import time
 
@@ -89,6 +90,7 @@ def login(req: LoginRequest):
         "role": row.get("role", "patient"),
         "user_id": row.get("id"),
         "name": row.get("name", email),
+        "email": email,
     }
 
 
@@ -131,13 +133,88 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
 
 
+
+def _merge_dict(base: dict, patch: dict) -> dict:
+    out = dict(base or {})
+    for key, value in (patch or {}).items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _merge_dict(out[key], value)
+        else:
+            out[key] = value
+    return out
+
+
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    department: Optional[str] = None
+    blood: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    details_patch: dict = Field(default_factory=dict)
+
+
+@router.post("/auth/profile")
+def update_profile(req: ProfileUpdate, user=Depends(current_user)):
+    """Save the signed-in person's own profile. Role and password stay unchanged."""
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=503, detail="Supabase is not configured")
+    uid = str(user.get("sub") or "")
+    try:
+        resp = client.table("users").select("id,email,name,role,phone,department,blood,emergency_contact,details").eq("id", uid).limit(1).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("profile lookup failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Profile service unavailable")
+    rows = resp.data or []
+    if not rows:
+        raise HTTPException(status_code=404, detail="Account not found")
+    current = rows[0]
+    avatar = ""
+    profile = req.details_patch.get("profile") if isinstance(req.details_patch.get("profile"), dict) else {}
+    if profile:
+        avatar = str(profile.get("avatar") or "")
+    if len(avatar) > 500_000:
+        raise HTTPException(status_code=413, detail="Profile photo is too large. Use an image under 300 KB.")
+    email = str(current.get("email") or "").strip().lower() if req.email is None else req.email.strip().lower()
+    if email and email != str(current.get("email") or "").strip().lower():
+        try:
+            taken = client.table("users").select("id").eq("email", email).limit(1).execute()
+        except Exception as exc:  # noqa: BLE001
+            log.error("email check failed: %s", type(exc).__name__)
+            raise HTTPException(status_code=503, detail="Profile service unavailable")
+        if taken.data and str(taken.data[0].get("id")) != uid:
+            raise HTTPException(status_code=409, detail="That email is already used")
+    details = current.get("details") if isinstance(current.get("details"), dict) else {}
+    details = _merge_dict(details, req.details_patch or {})
+    def keep(value, current_value):
+        return current_value if value is None else value
+    payload = {
+        "name": str(keep(req.name, current.get("name") or "")).strip(),
+        "phone": keep(req.phone, current.get("phone") or ""),
+        "email": email,
+        "department": keep(req.department, current.get("department") or ""),
+        "blood": keep(req.blood, current.get("blood") or ""),
+        "emergency_contact": keep(req.emergency_contact, current.get("emergency_contact") or ""),
+        "details": details,
+    }
+    try:
+        saved = client.table("users").update(payload).eq("id", uid).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("profile update failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Could not save the profile")
+    row = (saved.data or [payload])[0]
+    row.pop("password_hash", None)
+    return {"ok": True, "user": row}
+
+
 @router.get("/auth/me")
 def me(user=Depends(current_user)):
     client = get_client()
     if client is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
     try:
-        resp = client.table("users").select("id,email,name,role,phone,department,status,details").eq("id", str(user.get("sub"))).limit(1).execute()
+        resp = client.table("users").select("id,email,name,role,phone,department,status,blood,emergency_contact,dob,gender,details").eq("id", str(user.get("sub"))).limit(1).execute()
     except Exception as exc:  # noqa: BLE001
         log.error("supabase profile failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Profile service unavailable")

@@ -144,12 +144,39 @@ def _db_error(action: str, endpoint: str, exc: Exception) -> Dict[str, Any]:
 
 
 def _present(endpoint: str, row: dict) -> dict:
+    """Flatten details onto the row, but never return a stored file in a list."""
+    details = row.get("details")
+    if isinstance(details, dict):
+        details = dict(details)
+        if details.get("file_data"):
+            row["has_file"] = True
+            row["file_name"] = details.get("file_name") or row.get("file_name") or ""
+            row["file_mime"] = details.get("file_mime") or row.get("file_mime") or ""
+            details.pop("file_data", None)
+            row["details"] = details
+        for key, value in details.items():
+            if key not in row or row.get(key) in (None, "", []):
+                row[key] = value
     if endpoint == "bed_requests":
         if row.get("bed_id") and "bedId" not in row:
             row["bedId"] = row["bed_id"]
         if row.get("approved_at") and "approvedAt" not in row:
             row["approvedAt"] = row["approved_at"]
     return row
+
+
+def get_row(endpoint: str, row_id: str) -> dict | None:
+    table = TABLES.get(endpoint, endpoint)
+    client = get_client()
+    if client is None or not row_id:
+        return None
+    try:
+        resp = client.table(table).select("*").eq("id", str(row_id)).limit(1).execute()
+        rows = resp.data or []
+        return dict(rows[0]) if rows else None
+    except Exception as exc:  # noqa: BLE001
+        log.error("supabase read %s/%s failed: %s", endpoint, row_id, type(exc).__name__)
+        return None
 
 
 def list_rows(endpoint: str, limit: int = 500) -> Dict[str, Any]:
@@ -185,6 +212,12 @@ def update_row(endpoint: str, row_id: str, data: dict) -> Dict[str, Any]:
     table = TABLES.get(endpoint, endpoint)
     payload = prepare_write(endpoint, data)
     payload.pop("id", None)
+    if isinstance(payload.get("details"), dict):
+        current = get_row(endpoint, row_id) or {}
+        old_details = current.get("details") if isinstance(current.get("details"), dict) else {}
+        merged = dict(old_details)
+        merged.update(payload["details"])
+        payload["details"] = merged
     client = get_client()
     if client is not None:
         try:

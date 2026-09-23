@@ -40,14 +40,15 @@
     </table></div></div>
   </section>
   <section class="panel">
-    <div class="panel-header"><div><h3>Log a donation</h3><div class="sub">Walk-in donor, this session only</div></div></div>
+    <div class="panel-header"><div><h3>Log a donation</h3><div class="sub">Saved to the blood bank in Supabase</div></div></div>
     <div class="panel-body">
       <div class="form-group"><label>Donor name</label><input class="form-control" id="donName" placeholder="Full name"></div>
       <div class="form-group"><label>Blood group</label>
         <select class="form-control" id="donType"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select>
       </div>
+      <div class="form-group"><label>Donor form, optional</label><input class="form-control" type="file" id="donFile" accept="image/*,.pdf"></div>
       <button class="btn btn-primary" id="addDonation" type="button">Save donation</button>
-      <p class="module-note">Demo stock. A live bank would screen, crossmatch and quarantine before release.</p>
+      <p class="module-note">The unit, donor, and any uploaded form are saved for the laboratory.</p>
     </div>
   </section>
 </div>
@@ -82,7 +83,14 @@ function loadU() {
     renderBlood();
   });
 }
-function saveU() { units.forEach(function (u) { persistUpsert(CONFIG.ENDPOINTS.BLOOD_UNITS, u); }); }
+function saveUnit(u, okMsg) {
+  return persistUpsert(CONFIG.ENDPOINTS.BLOOD_UNITS, u).then(function (res) {
+    if (res && res.ok && okMsg) showToast(okMsg, "success");
+    else if (res && !res.ok) return res;
+    return res;
+  });
+}
+function saveU() { return saveUnit(arguments[0]); }
 function daysLeft(iso) {
   return Math.round((new Date(iso + "T00:00:00") - new Date(new Date().toDateString())) / 86400000);
 }
@@ -122,7 +130,7 @@ function renderBlood() {
   document.querySelectorAll("[data-res]").forEach(b => b.onclick = () => reserveUnit(b.dataset.res));
   document.querySelectorAll("[data-iss]").forEach(b => b.onclick = () => issueUnit(b.dataset.iss));
   document.querySelectorAll("[data-rel]").forEach(b => b.onclick = () => {
-    const u = units.find(x => x.id === b.dataset.rel); u.status = "available"; u.for = ""; saveU(); renderBlood(); showToast("Unit released", "info");
+    const u = units.find(x => x.id === b.dataset.rel); u.status = "available"; u.for = ""; saveUnit(u, "Unit released").then(function (res) { if (res && res.ok) renderBlood(); });
   });
 }
 function reserveUnit(id) {
@@ -136,15 +144,15 @@ function reserveUnit(id) {
       const forWhom = ov.querySelector("#resFor").value.trim();
       if (!forWhom) { showToast("Who is this reserved for?", "warning"); return; }
       const u = units.find(x => x.id === id);
-      u.status = "reserved"; u.for = forWhom; saveU(); closeModal(ov); renderBlood();
-      showToast(id + " reserved", "success");
+      u.status = "reserved"; u.for = forWhom;
+      saveUnit(u, id + " reserved").then(function (res) { if (res && res.ok) { closeModal(ov); renderBlood(); } });
     };
   }});
 }
 function issueUnit(id) {
   const u = units.find(x => x.id === id);
   u.status = "issued"; if (!u.for) u.for = "Issued at counter";
-  saveU(); renderBlood(); showToast(id + " issued from the blood bank", "success");
+  saveUnit(u, id + " issued from the blood bank").then(function (res) { if (res && res.ok) renderBlood(); });
 }
 function bootPage() {
   const ICONS = window.ICONS || {};
@@ -156,11 +164,24 @@ function bootPage() {
   document.getElementById("addDonation").onclick = () => {
     const type = document.getElementById("donType").value;
     const donor = document.getElementById("donName").value.trim();
+    const file = document.getElementById("donFile").files[0];
     if (!donor) { showToast("Donor name is required", "warning"); return; }
     const exp = new Date(); exp.setDate(exp.getDate() + 35);
-    units.unshift({ id: "BB-NEW-" + (units.length + 20), type, donor, collected: todayStr(), expires: exp.toISOString().slice(0, 10), status: "available", for: "" });
-    saveU(); renderBlood(); showToast("Donation logged — " + type, "success");
-    document.getElementById("donName").value = "";
+    const unit = { id: uid("BB"), type: type, donor: donor, collected: todayStr(), expires: exp.toISOString().slice(0, 10), status: "available", for: "" };
+    const store = function (packed) {
+      if (packed) { unit.file_name = packed.name; unit.file_mime = packed.mime; unit.file_data = packed.data; }
+      units.unshift(unit);
+      saveUnit(unit, "Donation saved — " + type).then(function (res) {
+        if (!res || !res.ok) { units.shift(); return; }
+        unit.file_data = "";
+        unit.has_file = !!packed;
+        renderBlood();
+        document.getElementById("donName").value = "";
+        document.getElementById("donFile").value = "";
+      });
+    };
+    if (!file) store(null);
+    else readUploadFile(file).then(store).catch(function (err) { showToast(err.message, "error"); });
   };
   renderBlood();
 }

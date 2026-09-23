@@ -158,15 +158,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadPageData() {
+  refreshMessages();
+  if (window._msgPoll) clearInterval(window._msgPoll);
+  window._msgPoll = setInterval(refreshMessages, 8000);
+}
+function refreshMessages() {
+  const prev = (INBOX || []).map(m => m.id).join(",");
   apiFetch(CONFIG.ENDPOINTS.MESSAGES).then(r => {
-    if (r.ok) {
-      INBOX = r.data.items;
-      // Merge health reports sent to this user by the doctor (Reports page)
-      mergeSentReports();
-      renderInbox();
-    }
+    if (!r.ok) return;
+    const next = r.data.items || [];
+    const arrived = next.filter(m => prev && prev.indexOf(m.id) < 0 && !m.read);
+    INBOX = next;
+    mergeSentReports();
+    renderInbox();
+    if (arrived.length) showToast("New message from " + (arrived[0].from || "the hospital"), "info");
   });
-  apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(r => { if (r.ok) { SENT = r.data.items; renderSent(); } });
+  apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(r => { if (r.ok) { SENT = r.data.items || []; renderSent(); } });
 }
 
 // Health reports sent to this patient by a doctor appear in the inbox
@@ -243,8 +250,9 @@ function threadBubbles(m) {
 function openMessage(id) {
   const m = INBOX.find(x => x.id === id);
   if (!m) return;
-  m.read = true; m.min = false;
+  m.min = false;
   m.replies = m.replies || [];
+  if (!m.read) { m.read = true; saveRow(CONFIG.ENDPOINTS.MESSAGES, m); }
   renderInbox();
   openModal({
     title: m.subject,
@@ -271,8 +279,8 @@ function composeModal(replyTo, replySubj, threadMsg) {
   openModal({
     title: threadMsg ? "Reply to " + threadMsg.from : "Compose Message",
     body: `<div class="form-group"><label>To <span class="req">*</span></label>
-      <input class="form-control" id="cTo" list="cToOpts" value="${replyTo ? esc(replyTo) : ""}">
-      <datalist id="cToOpts">${toOpts.map(r => `<option value="${esc(r)}">`).join("")}</datalist></div>
+      <input class="form-control" id="cTo" value="${replyTo ? esc(replyTo) : ""}" placeholder="Type a name or email" autocomplete="off">
+      <div class="hint" id="cToHint" style="color:#6B7280">Matching profiles and email addresses appear as you type.</div></div>
       <div class="form-group"><label>Subject</label><input class="form-control" id="cSubj" value="${replySubj ? esc(replySubj) : ""}" placeholder="Message subject"></div>
       <div class="form-group"><label>Message <span class="req">*</span></label><textarea class="form-control" rows="4" id="cBody" placeholder="Write your message…"></textarea></div>
       <div class="form-group"><label>Priority</label><select class="form-control" id="cPri"><option>normal</option><option>high</option></select></div>`,
@@ -280,24 +288,32 @@ function composeModal(replyTo, replySubj, threadMsg) {
   }, {
     onMount: (ov) => {
       ov.querySelector("[data-c]").onclick = () => ov.remove();
+      const picker = attachRecipientPicker(ov.querySelector("#cTo"), ov.querySelector("#cToHint"));
       ov.querySelector("#cSend").onclick = () => {
         const to = ov.querySelector("#cTo").value.trim();
         const body = ov.querySelector("#cBody").value.trim();
         const subject = ov.querySelector("#cSubj").value.trim() || "Message from " + getUserName();
+        const person = picker.selected();
+        if (!to || !person) { showToast("Select a person so their name and email are attached", "error"); return; }
         if (!body) { showToast("Message body is required", "error"); return; }
-        const now = new Date().toISOString();
-        (function(){var _row={ id: uid("SENT"), to, subject, body, date: now };SENT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.MESSAGES,_row);return _row;})();
-        renderSent();
-        ov.remove();
-        if (threadMsg) {
-                    threadMsg.replies.push({ from: "me", body, date: now });
-          threadMsg.date = now;
-          saveRow(CONFIG.ENDPOINTS.MESSAGES, threadMsg);
-          renderInbox();
-          showToast("Reply sent to " + to, "success");
-        } else {
-          showToast("Message sent to " + to, "success");
-                  }
+        const btn = ov.querySelector("#cSend");
+        btn.disabled = true;
+        sendHospitalMessage({ to: to, person: person, subject: subject, body: body, priority: ov.querySelector("#cPri").value }).then(function (out) {
+          btn.disabled = false;
+          if (!out.res || !out.res.ok) return;
+          SENT.unshift(out.row);
+          renderSent();
+          ov.remove();
+          if (threadMsg) {
+            threadMsg.replies = threadMsg.replies || [];
+            threadMsg.replies.push({ from: getUserName(), body: body, date: out.row.date });
+            threadMsg.date = out.row.date;
+            saveRow(CONFIG.ENDPOINTS.MESSAGES, threadMsg);
+            renderInbox();
+          }
+          showToast("Message sent to " + (person ? person.name : to), "success");
+          refreshMessages();
+        });
       };
     }
   });

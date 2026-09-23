@@ -24,7 +24,25 @@
 <section class="page-body">
 
 <p class="page-kicker">Inpatient flow</p>
-<p class="page-intro">Occupied beds across the hospital. Empty beds are not shown. Doctors approve new admissions themselves.</p>
+<p class="page-intro">Register a bed number for any ward. Saved beds stay on this board.</p>
+
+<section class="card mb-4">
+  <h3 class="mb-2">Register a bed number</h3>
+  <p class="text-sm mb-3" style="color:#6B7280">Enter the bed this role is responsible for. It is saved to Supabase and appears on the board.</p>
+  <div class="form-row">
+    <div class="form-group"><label>Bed number <span class="req">*</span></label><input class="form-control" id="bedNo" placeholder="e.g. MED-12"></div>
+    <div class="form-group"><label>Ward</label>
+      <select class="form-control" id="bedWard"><option>Medical</option><option>Surgical</option><option>Maternity</option><option>Pediatrics</option><option>ICU</option><option>Emergency</option></select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Status</label>
+      <select class="form-control" id="bedStatus"><option value="available">Available</option><option value="occupied">Occupied</option><option value="cleaning">Cleaning</option><option value="isolation">Isolation</option></select>
+    </div>
+    <div class="form-group"><label>Patient, if occupied</label><input class="form-control" id="bedPatient" placeholder="Patient name"></div>
+  </div>
+  <button class="btn btn-primary" type="button" id="btnSaveBed">Save bed number</button>
+</section>
 <div class="stat-grid" id="bedStats"></div>
 <div class="chip-row" id="wardFilters"></div>
 <div class="bed-board" id="bedBoard"></div>
@@ -68,11 +86,12 @@ function loadBeds() {
 }
 function statusBadge(s) {
   const map = { occupied: "primary", isolation: "danger" };
-  return badge(s === "isolation" ? "isolation" : "occupied", map[s] || "primary");
+  const mapAll = { occupied: "primary", isolation: "danger", available: "success", cleaning: "warning" };
+  return badge(s || "available", mapAll[s] || "neutral");
 }
 function renderBeds() {
   const occupied = beds.filter(isOccupied);
-  const shown = occupied.filter(b => filter === "All" || b.ward === filter);
+  const shown = beds.filter(b => filter === "All" || b.ward === filter);
   const iso = occupied.filter(b => b.status === "isolation").length;
   const wardsUsed = new Set(occupied.map(b => b.ward)).size;
   document.getElementById("bedStats").innerHTML = [
@@ -96,7 +115,7 @@ function renderBeds() {
 }
 function openBed(id) {
   const b = beds.find(x => x.id === id);
-  if (!isOccupied(b)) return;
+  if (!b) return;
   openModal({
     title: b.id + " · " + b.ward,
     body: `<div class="detail-list">
@@ -107,15 +126,41 @@ function openBed(id) {
       <div class="detail-item"><span class="k">Doctor</span><span class="v">${esc(b.doctor || "—")}</span></div>
       <div class="detail-item"><span class="k">MRN</span><span class="v">${esc(b.mrn || "—")}</span></div>
     </div>
-    <p class="module-note">Occupied beds only. Empty beds and new requests are registered and approved by the doctor.</p>`,
+    <p class="module-note">This bed number is saved in Supabase.</p>`,
     footer: `<button class="btn btn-secondary" data-close>Close</button>`
   });
 }
+
+function saveBedNumber() {
+  const id = document.getElementById("bedNo").value.trim();
+  const ward = document.getElementById("bedWard").value;
+  const status = document.getElementById("bedStatus").value;
+  const patient = document.getElementById("bedPatient").value.trim();
+  if (!id) { showToast("Bed number is required", "error"); return; }
+  if (status === "occupied" && !patient) { showToast("Enter the patient for an occupied bed", "error"); return; }
+  const row = { id: id, ward: ward, status: status, patient: patient, dx: "", since: status === "occupied" ? todayStr() : "", doctor: "", mrn: "" };
+  const existing = beds.find(b => b.id === id);
+  const done = function (res) {
+    if (!res || !res.ok) return;
+    if (!existing) beds.unshift(row);
+    else Object.assign(existing, row);
+    markKnown(CONFIG.ENDPOINTS.BEDS, [row]);
+    renderBeds();
+    document.getElementById("bedNo").value = "";
+    document.getElementById("bedPatient").value = "";
+    showToast("Bed " + id + " saved", "success");
+  };
+  if (existing) persistUpdate(CONFIG.ENDPOINTS.BEDS, id, row).then(done);
+  else persistInsert(CONFIG.ENDPOINTS.BEDS, row).then(done);
+}
+
 function bootPage() {
   const ICONS = window.ICONS || {};
   window.ICONS = ICONS;
   loadBeds();
   renderBeds();
+  const saveBtn = document.getElementById("btnSaveBed");
+  if (saveBtn) saveBtn.onclick = saveBedNumber;
 }
 
 </script>

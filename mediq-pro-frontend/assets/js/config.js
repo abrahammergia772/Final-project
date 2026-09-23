@@ -91,6 +91,8 @@ const CONFIG = {
     CASHIER_INVOICES:"/cashier_invoices",
     CHANGE_PASSWORD:"/auth/change-password",
     ME:             "/auth/me",
+    PROFILE:        "/auth/profile",
+    MESSAGE_DIRECTORY: "/messages/directory",
     APP_SETTINGS:   "/app_settings",
 
     // Auth

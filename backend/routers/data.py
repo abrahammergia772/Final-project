@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from youtube_search import search_youtube
 
-from db import list_rows, insert_row, update_row, delete_row
+from db import list_rows, insert_row, update_row, delete_row, get_row
 from security import current_user
 
 router = APIRouter(tags=["Data"])
@@ -56,7 +56,7 @@ WRITE_ROLES = {
     "audit_logs": {"admin"},
     "fingerprint_devices": {"admin"},
     "bed_requests": {"doctor", "admin"},
-    "beds": {"doctor", "admin"},
+    "beds": {"doctor", "nurse", "reception", "manager", "admin"},
     "blood_units": {"laboratory", "admin"},
     "theatre_cases": {"doctor", "admin"},
     "imaging_studies": {"doctor", "laboratory", "admin"},
@@ -132,10 +132,96 @@ def search_health_videos(body: VideoSearchBody, user=Depends(current_user)):
     return {"items": items, "total": len(items), "source": "youtube"}
 
 
+
+_GROUP_ROLES = {
+    "all staff": {"admin", "manager", "doctor", "nurse", "pharmacist", "laboratory", "reception"},
+    "all doctors": {"doctor"},
+    "all nurses": {"nurse"},
+    "all pharmacists": {"pharmacist"},
+    "all laboratory": {"laboratory"},
+    "all reception": {"reception"},
+    "all patients": {"patient"},
+    "all managers": {"manager"},
+    "all admins": {"admin"},
+}
+
+
+def _message_box(row: dict, user, box: str) -> bool:
+    name = str(user.get("name") or "").strip().lower()
+    email = str(user.get("email") or "").strip().lower()
+    uid = str(user.get("sub") or "")
+    role = str(user.get("role") or "")
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    to_name = str(row.get("to") or details.get("to") or "").strip().lower()
+    to_email = str(row.get("to_email") or details.get("to_email") or "").strip().lower()
+    to_id = str(row.get("to_id") or details.get("to_id") or "")
+    from_name = str(row.get("from") or "").strip().lower()
+    from_email = str(row.get("from_email") or details.get("from_email") or "").strip().lower()
+    sent_by_me = bool((name and from_name == name) or (email and from_email == email))
+    if box == "sent":
+        return sent_by_me
+    patient = str(row.get("patient") or details.get("patient") or "").strip().lower()
+    addressed = bool(
+        (email and to_email == email)
+        or (uid and to_id == uid)
+        or (name and to_name == name)
+        or (name and patient and name in patient)
+        or (role and role in _GROUP_ROLES.get(to_name, set()))
+    )
+    return addressed
+
+
+def _message_view(user, box: str) -> dict:
+    result = _fail_if_down(list_rows("messages"))
+    items = [row for row in result.get("items", []) if _message_box(row, user, box)]
+    items.sort(key=lambda row: str(row.get("date") or ""), reverse=True)
+    return {**result, "items": items, "total": len(items)}
+
+
+@router.get("/messages/directory")
+def message_directory(user=Depends(current_user)):
+    _authorize("messages", user)
+    result = _fail_if_down(list_rows("users", 500))
+    items = []
+    for row in result.get("items", []):
+        if row.get("status") == "inactive":
+            continue
+        items.append({
+            "id": row.get("id") or "",
+            "name": row.get("name") or "",
+            "email": row.get("email") or "",
+            "role": row.get("role") or "",
+            "department": row.get("department") or "",
+            "phone": row.get("phone") or "",
+        })
+    items.sort(key=lambda item: item["name"].lower())
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/documents/{doc_id}/file")
+def document_file(doc_id: str, user=Depends(current_user)):
+    _authorize("documents", user)
+    row = get_row("documents", doc_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if user.get("role") == "patient" and not _owns(row, user):
+        raise HTTPException(status_code=403, detail="You can only open your own documents")
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    data = details.get("file_data") or ""
+    if not data:
+        raise HTTPException(status_code=404, detail="No file is stored for this document")
+    return {
+        "id": row.get("id"),
+        "file_name": details.get("file_name") or row.get("title") or "document",
+        "file_mime": details.get("file_mime") or "application/octet-stream",
+        "file_data": data,
+    }
+
+
 @router.get("/messages/sent")
 def sent_messages(user=Depends(current_user)):
     _authorize("messages", user)
-    return _scope("messages", _fail_if_down(list_rows("messages")), user)
+    return _message_view(user, "sent")
 
 
 @router.get("/{resource}")
@@ -144,6 +230,8 @@ def read_all(resource: str, limit: int = 500, user=Depends(current_user)):
     if resource not in RESOURCES:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Unknown resource")
+    if resource == "messages":
+        return _message_view(user, "inbox")
     return _scope(resource, _fail_if_down(list_rows(resource, limit)), user)
 
 
@@ -153,6 +241,13 @@ async def create(resource: str, request: Request, user=Depends(current_user)):
     body = await request.json()
     if not isinstance(body, dict):
         body = {}
+    if resource == "documents" and len(str(body.get("file_data") or "")) > 1_800_000:
+        raise HTTPException(status_code=413, detail="File is too large. Use a file under 1.2 MB.")
+    if resource == "messages":
+        body["from"] = user.get("name") or user.get("email") or ""
+        body["from_role"] = user.get("role") or ""
+        body["from_email"] = user.get("email") or ""
+        body["read"] = False
     return _fail_if_down(insert_row(resource, _stamp_patient(resource, body, user)))
 
 

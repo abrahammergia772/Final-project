@@ -221,15 +221,7 @@ function viewDoc(id) {
 function dlDoc(id) {
   const d = DOCS.find(x => x.id === id);
   if (!d) return;
-  const text = (d.title || "Document") + "\n\n" + (d.summary || "No file is stored for this record yet.");
-  const blob = new Blob([text], { type: "text/plain" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = (d.title || "document").replace(/[^\w. -]+/g, "") + ".txt";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  showToast("Downloaded " + d.title, "success");
+  downloadStoredFile(d);
 }
 async function delDoc(id) {
   const ok = await confirmDialog("Delete this document from the patient's file?");
@@ -270,7 +262,7 @@ function uploadModal() {
       <select class="form-control" id="uPat">${PATIENTS.map(p => `<option value="${esc(p.id)}">${esc(p.first_name + " " + p.last_name)} (${esc(p.id)})</option>`).join("") || "<option>Abel Mekonnen (P-1001)</option>"}</select></div>
       <div class="form-group"><label>Document Type</label><select class="form-control" id="uType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option></select></div>
       <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="uTitle" placeholder="e.g. Lab Report — 11/08"></div>
-      <div class="form-group"><label>File</label><input class="form-control" type="file" id="uFile"></div>
+      <div class="form-group"><label>File <span class="req">*</span></label><input class="form-control" type="file" id="uFile"></div>
       <div class="form-group"><label>Summary</label><textarea class="form-control" rows="3" id="uSum" placeholder="Short note about the document…"></textarea></div>`,
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="uSave">${ICONS.upload} Upload</button>`
   }, {
@@ -278,17 +270,31 @@ function uploadModal() {
       ov.querySelector("[data-c]").onclick = () => ov.remove();
       ov.querySelector("#uSave").onclick = () => {
         const title = ov.querySelector("#uTitle").value.trim();
+        const file = ov.querySelector("#uFile").files[0];
         if (!title) { showToast("Title is required", "error"); return; }
+        if (!file) { showToast("Choose a file to upload", "error"); return; }
         const pSel = PATIENTS.find(p => p.id === ov.querySelector("#uPat").value);
-        (function(){var _row={
+        const row = {
           id: uid("DOC"), patient: pSel ? pSel.first_name + " " + pSel.last_name : "Patient",
           patient_id: pSel ? pSel.id : ov.querySelector("#uPat").value,
           type: ov.querySelector("#uType").value, title,
-          date: todayStr(), size: "— KB", uploaded_by: getUserName(),
-          summary: ov.querySelector("#uSum").value.trim() || "No summary."
-        };DOCS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.DOCUMENTS,_row);return _row;})();
-        renderDocs(); ov.remove();
-        showToast("Document uploaded to the patient's file", "success");
+          date: todayStr(), size: "—", uploaded_by: getUserName(),
+          summary: ov.querySelector("#uSum").value.trim() || "Uploaded file."
+        };
+        const btn = ov.querySelector("#uSave");
+        btn.disabled = true;
+        saveUploadedDocument(row, file).then(function (res) {
+          btn.disabled = false;
+          if (!res || !res.ok) return;
+          row.file_data = "";
+          DOCS.unshift(row);
+          renderDocs();
+          ov.remove();
+          showToast("Document uploaded", "success");
+        }).catch(function (err) {
+          btn.disabled = false;
+          showToast(err.message || "Could not upload the file", "error");
+        });
       };
     }
   });

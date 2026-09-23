@@ -32,7 +32,7 @@
         <span class="avatar" style="width:56px;height:56px;font-size:22px" data-user-initials>…</span>
         <div>
           <button class="btn btn-secondary btn-sm" onclick="document.getElementById('stAvatar').click()">Change Photo</button>
-          <input type="file" id="stAvatar" accept="image/*" class="hidden" onchange="showToast('Profile photo updated','success')">
+          <input type="file" id="stAvatar" accept="image/*" class="hidden" onchange="onProfilePhoto(this)">
           <div class="hint" style="margin-top:4px">PNG or JPG, max 2 MB</div>
         </div>
       </div>
@@ -185,6 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess(ROLE); initLayout(); loadPageData();
 });
 function loadPageData() {
+  fillSettingsForm();
   const s = getSession();
   document.getElementById("stRole").value = ROLE_LABELS[ROLE] || ROLE;
   if (s) {
@@ -206,13 +207,7 @@ function applyAccent(name) {
   document.documentElement.style.setProperty("--primary", c);
   document.documentElement.style.setProperty("--primary-dark", c);
 }
-function saveProfile() {
-  const name = document.getElementById("stName").value.trim();
-  if (!name) { showToast("Name is required", "error"); return; }
-  const s = getSession();
-  if (s) { s.name = name; saveSession(s); persistUpdate(CONFIG.ENDPOINTS.USERS, s.user_id, { name: name }); }
-  showToast("Profile saved", "success");
-}
+function saveProfile() { saveProfileForm(); }
 function saveSecurity() {
   const cur = document.getElementById("stCur").value;
   const n1 = document.getElementById("stNew1").value;
@@ -226,20 +221,8 @@ function saveSecurity() {
     showToast("Password saved", "success");
   });
 }
-function savePrefs() {
-  document.querySelectorAll("[data-pref]").forEach(function (box) {
-    setSetting("notify_" + box.getAttribute("data-pref"), box.checked ? 1 : 0);
-  });
-  showToast("Notification preferences saved", "success");
-}
-function saveAppearance() {
-  const a = document.getElementById("stAccent").value;
-  setSetting("accent", a);
-  applyAccent(a);
-  setSetting("compact", document.getElementById("stCompact").checked ? 1 : 0);
-  document.body.classList.toggle("compact", !!document.getElementById("stCompact").checked);
-  showToast("Appearance saved", "success");
-}
+function savePrefs() { savePrefsForm(); }
+function saveAppearance() { saveAppearanceForm(); }
 
 </script>
 
