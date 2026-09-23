@@ -203,7 +203,7 @@ function refModal() {
     };
   }});
 }
-function setRef(id, s) { const r = REFS.find(x => x.id === id); r.status = s; renderRefs(); showToast("Referral " + s, "success"); }
+function setRef(id, s) { const r = REFS.find(x => x.id === id); if (!r) return; r.status = s; renderRefs(); saveRow(CONFIG.ENDPOINTS.REFERRALS, r, "Referral " + s); }
 function viewRef(id) {
   const r = REFS.find(x => x.id === id);
   openModal({

@@ -283,7 +283,11 @@ function showForCondition(cond) {
 }
 function shareVideo(id) {
   const v = VIDS.find(x => x.id === id);
-  showToast("Video shared to the patient's Messages: " + v.title, "success");
+  if (!v) return;
+  const row = { id: uid("MSG"), from: getUserName(), from_role: getUserRole(), subject: "Health video: " + v.title, body: (v.description || v.title) + "\n" + (v.url || ""), date: new Date().toISOString(), read: false, priority: "normal", replies: [] };
+  persistInsert(CONFIG.ENDPOINTS.MESSAGES, row).then(function (res) {
+    if (res && res.ok) showToast("Video shared to Messages: " + v.title, "success");
+  });
 }
 
 </script>

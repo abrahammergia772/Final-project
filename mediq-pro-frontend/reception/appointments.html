@@ -175,7 +175,7 @@ function apptBadge(s) {
   const m = { confirmed:["success","Confirmed"], "checked-in":["info","Checked in"], completed:["neutral","Completed"], cancelled:["danger","Cancelled"], attended:["success","Attended"], rescheduled:["warning","Rescheduled"] };
   const b = m[s] || ["neutral", s]; return `<span class="badge badge-${b[0]}">${b[1]}</span>`;
 }
-function setA(id, s) { const a = APPT.find(x => x.id === id); a.status = s; renderAppts(); showToast("Appointment " + s,"success"); }
+function setA(id, s) { const a = APPT.find(x => x.id === id); if (!a) return; a.status = s; renderAppts(); saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment " + s); }
 function bookModal() {
   openModal({
     title: "Book Appointment",

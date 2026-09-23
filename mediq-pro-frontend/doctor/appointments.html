@@ -161,9 +161,10 @@ function apptBadge(s) {
 }
 function setStatus(id, s) {
   const a = APPT.find(x => x.id === id);
+  if (!a) { showToast("That appointment is no longer on this page.", "error"); return; }
   a.status = s === "rescheduled" ? "rescheduled" : s;
-  showToast("Appointment " + (s === "rescheduled" ? "rescheduled" : s), "success");
   renderAppts();
+  saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment " + (s === "rescheduled" ? "rescheduled" : s));
 }
 function bookModal() {
   openModal({

@@ -195,7 +195,7 @@ function invModal(id) {
       if (i) {
         i.name = name; i.category = ov.querySelector("#iCat").value; i.stock = +ov.querySelector("#iStock").value || 0;
         i.unit = ov.querySelector("#iUnit").value; i.expiry = ov.querySelector("#iExp").value; i.status = ov.querySelector("#iStatus").value;
-        showToast("Stock updated","success");
+        saveRow(CONFIG.ENDPOINTS.INVENTORY, i, "Stock updated");
       } else {
         (function(){var _row={ id: uid("I"), name, category: ov.querySelector("#iCat").value, stock: +ov.querySelector("#iStock").value || 0, unit: ov.querySelector("#iUnit").value, expiry: ov.querySelector("#iExp").value || "2027-01-01", status: "in-stock" };INV.unshift(_row);persistInsert(CONFIG.ENDPOINTS.INVENTORY,_row);return _row;})();
         showToast("Drug added to inventory","success");

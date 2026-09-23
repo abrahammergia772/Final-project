@@ -171,10 +171,10 @@ function renderQueue() {
 function callNext() {
   const next = QUEUE.find(q => q.status === "waiting");
   if (!next) { showToast("No patients waiting","info"); return; }
-  QUEUE.forEach(q => { if (q.status === "in-service") q.status = "waiting"; });
+  QUEUE.forEach(q => { if (q.status === "in-service") { q.status = "waiting"; saveRow(CONFIG.ENDPOINTS.QUEUE, q); } });
   next.status = "in-service";
   renderQueue();
-  showToast("Now serving: " + next.name, "success");
+  saveRow(CONFIG.ENDPOINTS.QUEUE, next, "Now serving: " + next.name);
 }
 function addToQueue() {
   const name = document.getElementById("qName").value.trim();

@@ -154,15 +154,19 @@ function renderMeds() {
 }
 function administer(id) {
   const m = MEDS.find(x => x.id === id);
+  if (!m) return;
   m.status = "administered";
   m.time = new Date().toTimeString().slice(0, 5);
   renderMeds();
-  showToast(m.drug + " administered to " + m.patient + " at " + m.time, "success");
+  saveRow(CONFIG.ENDPOINTS.MEDICATIONS, m, m.drug + " administered to " + m.patient + " at " + m.time);
 }
 function saveHandover() {
   const t = document.getElementById("handover").value.trim();
   if (!t) { showToast("Notes are empty","warning"); return; }
-  showToast("Shift handover notes saved","success");
+  const row = { id: uid("HO"), from: getUserName(), from_role: getUserRole(), subject: "Shift handover", body: t, date: new Date().toISOString(), read: false, priority: "normal", replies: [] };
+  persistInsert(CONFIG.ENDPOINTS.MESSAGES, row).then(function (res) {
+    if (res && res.ok) showToast("Shift handover notes saved", "success");
+  });
 }
 
 </script>

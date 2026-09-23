@@ -191,7 +191,7 @@ function quickPo(drug) {
     ov.querySelector("[data-ok]").onclick = () => { ov.remove(); showToast("Added to purchase order", "success"); };
   }});
 }
-function recvPo(id) { const p = POS.find(x => x.id === id); p.status = "received"; renderPos(); showToast("PO " + p.id + " marked as received — stock updated", "success"); }
+function recvPo(id) { const p = POS.find(x => x.id === id); if (!p) return; p.status = "received"; renderPos(); saveRow(CONFIG.ENDPOINTS.PURCHASE_ORDERS, p, "PO " + p.id + " marked as received"); }
 
 </script>
 

@@ -173,12 +173,13 @@ function renderSmps() {
 }
 function advance(id) {
   const s = SMPS.find(x => x.id === id);
+  if (!s) return;
   const i = STAGES.indexOf(s.stage);
   if (i < STAGES.length - 1) {
     s.stage = STAGES[i + 1];
     if (s.stage === "completed") s.tat = "3.2 h";
     renderSmps();
-    showToast("Sample " + s.id + " moved to " + STAGE_BADGE[s.stage][1], "success");
+    saveRow(CONFIG.ENDPOINTS.SAMPLES, s, "Sample " + s.id + " moved to " + STAGE_BADGE[s.stage][1]);
   }
 }
 function regModal() {

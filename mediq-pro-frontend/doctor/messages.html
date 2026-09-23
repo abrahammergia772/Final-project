@@ -292,6 +292,7 @@ function composeModal(replyTo, replySubj, threadMsg) {
         if (threadMsg) {
                     threadMsg.replies.push({ from: "me", body, date: now });
           threadMsg.date = now;
+          saveRow(CONFIG.ENDPOINTS.MESSAGES, threadMsg);
           renderInbox();
           showToast("Reply sent to " + to, "success");
         } else {

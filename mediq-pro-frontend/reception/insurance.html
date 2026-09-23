@@ -197,7 +197,7 @@ function verifyModal() {
     };
   }});
 }
-function verifyIns(id) { const i = INS.find(x => x.id === id); i.status = "verified"; renderIns(); showToast("Coverage verified — " + i.patient, "success"); }
+function verifyIns(id) { const i = INS.find(x => x.id === id); if (!i) return; i.status = "verified"; renderIns(); saveRow(CONFIG.ENDPOINTS.INSURANCE, i, "Coverage verified — " + i.patient); }
 function viewIns(id) {
   const i = INS.find(x => x.id === id);
   openModal({

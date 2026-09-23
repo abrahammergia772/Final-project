@@ -29,11 +29,11 @@
     <section class="card mb-4"><h3 class="mb-3">General Information</h3>
       <div class="form-row">
         <div class="form-group"><label>Hospital Name</label><input class="form-control" id="sName" value="Wolaita Sodo University Hospital"></div>
-        <div class="form-group"><label>Phone</label><input class="form-control" value="+251 46 551 2345"></div>
+        <div class="form-group"><label>Phone</label><input class="form-control" id="sPhone" value="+251 46 551 2345"></div>
       </div>
-      <div class="form-group"><label>Address</label><input class="form-control" value="Sodo, Wolaita Zone, SNNPR, Ethiopia"></div>
+      <div class="form-group"><label>Address</label><input class="form-control" id="sAddress" value="Sodo, Wolaita Zone, SNNPR, Ethiopia"></div>
       <div class="form-row">
-        <div class="form-group"><label>Email</label><input class="form-control" type="email" value="info@wsh.et"></div>
+        <div class="form-group"><label>Email</label><input class="form-control" id="sEmail" type="email" value="info@wsh.et"></div>
         <div class="form-group"><label>Hospital Logo</label><input class="form-control" type="file" accept="image/*"></div>
       </div>
       <div class="form-actions"><button class="btn btn-primary" onclick="saveSection('General settings saved')">Save General</button></div>
@@ -51,8 +51,11 @@
   </div>
   <div>
     <section class="card mb-4"><h3 class="mb-3">Notifications</h3>
-      ${["Email alerts","SMS alerts","System alerts","AI module alerts","Low stock alerts"].map((n,i) =>
-        `<div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-weight:500">${n}</div><label class="toggle"><input type="checkbox" ${i<3?"checked":""}><span class="track"></span></label></div>`).join("")}
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-weight:500">Email alerts</div><label class="toggle"><input type="checkbox" data-pref="email" checked><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-weight:500">SMS alerts</div><label class="toggle"><input type="checkbox" data-pref="sms" checked><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-weight:500">System alerts</div><label class="toggle"><input type="checkbox" data-pref="system" checked><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-weight:500">AI module alerts</div><label class="toggle"><input type="checkbox" data-pref="ai"><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-weight:500">Low stock alerts</div><label class="toggle"><input type="checkbox" data-pref="stock"><span class="track"></span></label></div>
       <div class="form-actions"><button class="btn btn-primary" onclick="saveSection('Notification settings saved')">Save Notifications</button></div>
     </section>
     <section class="card"><h3 class="mb-3">Data & Backup</h3>
@@ -162,8 +165,58 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("admin"); initLayout();
+  apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS).then(function (res) {
+    if (!res.ok) return;
+    const items = res.data.items || [];
+    const hospital = items.find(function (x) { return x.id === "hospital"; });
+    if (hospital && hospital.value) {
+      if (hospital.value.name) document.getElementById("sName").value = hospital.value.name;
+      if (hospital.value.phone) document.getElementById("sPhone").value = hospital.value.phone;
+      if (hospital.value.address) document.getElementById("sAddress").value = hospital.value.address;
+      if (hospital.value.email) document.getElementById("sEmail").value = hospital.value.email;
+    }
+    const notes = items.find(function (x) { return x.id === "notifications"; });
+    if (notes && notes.value) {
+      document.querySelectorAll("[data-pref]").forEach(function (box) {
+        const key = box.getAttribute("data-pref");
+        if (notes.value[key] != null) box.checked = !!notes.value[key];
+      });
+    }
+  });
 });
-function saveSection(msg) { showToast(msg, "success"); }
+function saveSettingRow(id, value, okMsg) {
+  const row = { id: id, value: value };
+  apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS, "POST", row).then(function (res) {
+    if (res.ok) { showToast(okMsg, "success"); return; }
+    persistUpdate(CONFIG.ENDPOINTS.APP_SETTINGS, id, { value: value }).then(function (upd) {
+      if (upd && upd.ok) showToast(okMsg, "success");
+    });
+  });
+}
+function saveSection(msg) {
+  if (msg.indexOf("General") === 0) {
+    saveSettingRow("hospital", {
+      name: document.getElementById("sName").value.trim(),
+      phone: document.getElementById("sPhone").value.trim(),
+      address: document.getElementById("sAddress").value.trim(),
+      email: document.getElementById("sEmail").value.trim()
+    }, "General settings saved");
+    return;
+  }
+  if (msg.indexOf("Notification") === 0) {
+    const value = {};
+    document.querySelectorAll("[data-pref]").forEach(function (box) {
+      value[box.getAttribute("data-pref")] = box.checked ? 1 : 0;
+    });
+    saveSettingRow("notifications", value, "Notification settings saved");
+    return;
+  }
+  if (msg.indexOf("Security") === 0) {
+    showToast("Change a password from your own account settings. Hospital security stays in Supabase.", "info");
+    return;
+  }
+  showToast("Backups run in Supabase. This button cannot start a backup from the browser.", "info");
+}
 
 </script>
 

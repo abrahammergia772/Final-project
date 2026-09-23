@@ -123,7 +123,14 @@ function confirmDialog(message, { title = "Confirm Action", confirmText = "Delet
 }
 
 // ---------- Generic modal helper ----------
-function openModal(html, { size = "", onMount = null } = {}) {
+function openModal(html, opts) {
+  opts = opts || {};
+  if (html && typeof html === "object") {
+    if (!opts.size && html.size) opts.size = html.size;
+    if (!opts.onMount && html.onMount) opts.onMount = html.onMount;
+  }
+  const size = opts.size || "";
+  const onMount = opts.onMount || null;
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.innerHTML = `
@@ -143,7 +150,13 @@ function openModal(html, { size = "", onMount = null } = {}) {
   overlay.querySelectorAll("[data-close]").forEach(btn => { btn.onclick = close; });
   overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
   bindModalKeys(overlay, close);
-  if (onMount) onMount(overlay);
+  if (onMount) {
+    try { onMount(overlay); }
+    catch (e) {
+      console.error(e);
+      showToast("This button could not finish opening. Refresh the page and try again.", "error");
+    }
+  }
   return overlay;
 }
 

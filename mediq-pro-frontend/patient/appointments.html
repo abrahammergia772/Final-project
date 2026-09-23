@@ -146,8 +146,11 @@ function renderMy() {
     </div></td></tr>`).join("") : emptyRow(7);
 }
 function cancelA(id) {
-  const a = MYAPPT.find(x => x.id === id); a.status = "cancelled"; renderMy();
-  showToast("Appointment cancelled","success");
+  const a = MYAPPT.find(x => x.id === id);
+  if (!a) return;
+  a.status = "cancelled";
+  renderMy();
+  saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment cancelled");
 }
 function resched(id) {
   const a = MYAPPT.find(x => x.id === id);
@@ -160,7 +163,7 @@ function resched(id) {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     ov.querySelector("#saveR").onclick = () => {
       a.date = ov.querySelector("#rDate").value; a.time = ov.querySelector("#rTime").value; a.status = "rescheduled";
-      renderMy(); ov.remove(); showToast("Appointment rescheduled","success");
+      renderMy(); ov.remove(); saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment rescheduled");
     };
   }});
 }
@@ -176,7 +179,7 @@ function bookModal() {
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     ov.querySelector("#saveBk").onclick = () => {
-      MY(function(){var _row={ id: uid("A"), patient: getUserName(), doctor: ov.querySelector("#pDoc").value, dept: ov.querySelector("#pDept").value, date: ov.querySelector("#pDate").value, time: ov.querySelector("#pTime").value, type: "Consultation", status: "confirmed" };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
+      (function(){var _row={ id: uid("A"), patient: getUserName(), doctor: ov.querySelector("#pDoc").value, dept: ov.querySelector("#pDept").value, date: ov.querySelector("#pDate").value, time: ov.querySelector("#pTime").value, type: "Consultation", status: "confirmed" };MYAPPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
       renderMy(); ov.remove(); showToast("Appointment requested — you will be notified","success");
     };
   }});

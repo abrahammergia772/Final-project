@@ -67,10 +67,10 @@
   <div>
     <section class="card mb-4">
       <h3 class="mb-3">Notification Preferences</h3>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Email alerts</div><div class="text-sm" style="color:#6B7280">Send updates to my email</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">SMS alerts</div><div class="text-sm" style="color:#6B7280">Text messages for urgent items</div></div><label class="toggle"><input type="checkbox"><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">In-app notifications</div><div class="text-sm" style="color:#6B7280">Show the bell notifications</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
-      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">AI module alerts</div><div class="text-sm" style="color:#6B7280">Alerts from the AI systems</div></div><label class="toggle"><input type="checkbox" checked><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Email alerts</div><div class="text-sm" style="color:#6B7280">Send updates to my email</div></div><label class="toggle"><input type="checkbox" data-pref="email" checked><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">SMS alerts</div><div class="text-sm" style="color:#6B7280">Text messages for urgent items</div></div><label class="toggle"><input type="checkbox" data-pref="sms"><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">In-app notifications</div><div class="text-sm" style="color:#6B7280">Show the bell notifications</div></div><label class="toggle"><input type="checkbox" data-pref="inapp" checked><span class="track"></span></label></div>
+      <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">AI module alerts</div><div class="text-sm" style="color:#6B7280">Alerts from the AI systems</div></div><label class="toggle"><input type="checkbox" data-pref="ai" checked><span class="track"></span></label></div>
       <div class="form-actions"><button class="btn btn-primary" onclick="savePrefs()">Save Preferences</button></div>
     </section>
     <section class="card">
@@ -226,7 +226,12 @@ function saveSecurity() {
     showToast("Password saved", "success");
   });
 }
-function savePrefs() { showToast("Notification preferences saved", "success"); }
+function savePrefs() {
+  document.querySelectorAll("[data-pref]").forEach(function (box) {
+    setSetting("notify_" + box.getAttribute("data-pref"), box.checked ? 1 : 0);
+  });
+  showToast("Notification preferences saved", "success");
+}
 function saveAppearance() {
   const a = document.getElementById("stAccent").value;
   setSetting("accent", a);

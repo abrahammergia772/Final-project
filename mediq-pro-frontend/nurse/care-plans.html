@@ -168,7 +168,7 @@ function updatePlan(id) {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     ov.querySelector("#saveCp").onclick = () => {
       p.status = ov.querySelector("#cpStatus").value; p.updated = todayStr();
-      renderPlans(); ov.remove(); showToast("Care plan updated","success");
+      renderPlans(); ov.remove(); saveRow(CONFIG.ENDPOINTS.CARE_PLANS, p, "Care plan updated");
     };
   }});
 }

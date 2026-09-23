@@ -168,7 +168,12 @@ function viewResult(id) {
     size: "lg"
   });
 }
-function sendToDoctor(id) { showToast("Result sent to the requesting doctor","success"); }
+function sendToDoctor(id) {
+  const r = RESULTS.find(x => x.id === id);
+  if (!r) return;
+  r.status = "sent";
+  saveRow(CONFIG.ENDPOINTS.LAB_RESULTS, r, "Result sent to the requesting doctor");
+}
 function printResult(id) {
   const r = RESULTS.find(x => x.id === id);
   const w = window.open("", "_blank");

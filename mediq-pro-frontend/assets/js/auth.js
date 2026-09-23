@@ -191,18 +191,35 @@ function savePermissions(role, map) {
 }
 
 let _userPrefs = {};
+let _userDetails = {};
+let _prefTimer = null;
 function getSetting(k) { return _userPrefs[k]; }
 function setSetting(k, v) {
   _userPrefs[k] = v;
+  _userDetails.prefs = _userPrefs;
   const s = getSession();
-  if (s && s.user_id) persistUpdate(CONFIG.ENDPOINTS.USERS, s.user_id, { details: { prefs: _userPrefs } });
+  if (!s || !s.user_id) return;
+  clearTimeout(_prefTimer);
+  _prefTimer = setTimeout(function () {
+    persistUpdate(CONFIG.ENDPOINTS.USERS, s.user_id, { details: _userDetails });
+  }, 40);
+}
+function applyNotifyPrefs() {
+  document.querySelectorAll("[data-pref]").forEach(function (box) {
+    const saved = _userPrefs["notify_" + box.getAttribute("data-pref")];
+    if (saved != null) box.checked = !!saved;
+  });
 }
 function loadMyPrefs(done) {
   apiFetch(CONFIG.ENDPOINTS.ME).then(function (res) {
-    const prefs = (res.ok && res.data && res.data.details && res.data.details.prefs) || {};
+    _userDetails = (res.ok && res.data && res.data.details) || {};
+    if (typeof _userDetails !== "object" || !_userDetails) _userDetails = {};
+    const prefs = _userDetails.prefs || {};
     _userPrefs = prefs;
+    _userDetails.prefs = _userPrefs;
     if (prefs.theme && window.Theme) window.Theme.set(prefs.theme, false);
     if (prefs.lang && window.I18N) window.I18N.setLang(prefs.lang, true);
+    applyNotifyPrefs();
     if (done) done(prefs);
   });
 }

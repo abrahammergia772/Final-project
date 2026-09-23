@@ -124,25 +124,45 @@ function uid(prefix) {
   return (prefix || "ID") + "-" + Date.now().toString(36) + idSeq.toString(36);
 }
 
+function _saveError(res, action) {
+  const msg = (res && res.error) || ("Could not " + action + " in Supabase");
+  showToast(msg, "error");
+}
+
 function persistInsert(endpoint, row) {
-  if (!endpoint || !row) return;
-  apiFetch(endpoint, "POST", row).then(function (res) {
-    if (!res.ok) showToast(res.error || "Could not save to Supabase", "error");
+  if (!endpoint || !row) return Promise.resolve({ ok: false, error: "Nothing to save" });
+  return apiFetch(endpoint, "POST", row).then(function (res) {
+    if (!res.ok) _saveError(res, "save");
     else if (res.data && res.data.row && res.data.row.id) row.id = res.data.row.id;
+    return res;
   });
 }
 
 function persistUpdate(endpoint, id, row) {
   if (!endpoint || !id) return persistInsert(endpoint, row);
-  apiFetch(endpoint + "/" + encodeURIComponent(id), "PUT", row).then(function (res) {
-    if (!res.ok) showToast(res.error || "Could not update Supabase", "error");
+  return apiFetch(endpoint + "/" + encodeURIComponent(id), "PUT", row).then(function (res) {
+    if (!res.ok) _saveError(res, "update");
+    return res;
   });
 }
 
 function persistDelete(endpoint, id) {
-  if (!endpoint || !id) return;
-  apiFetch(endpoint + "/" + encodeURIComponent(id), "DELETE").then(function (res) {
-    if (!res.ok) showToast(res.error || "Could not delete from Supabase", "error");
+  if (!endpoint || !id) return Promise.resolve({ ok: false });
+  return apiFetch(endpoint + "/" + encodeURIComponent(id), "DELETE").then(function (res) {
+    if (!res.ok) _saveError(res, "delete");
+    return res;
+  });
+}
+
+// Save a row the screen already changed. Shows okMsg only after Supabase accepts it.
+function saveRow(endpoint, row, okMsg) {
+  if (!endpoint || !row || row.id == null || row.id === "") {
+    showToast("This record has no id, so it cannot be saved.", "error");
+    return Promise.resolve({ ok: false });
+  }
+  return persistUpdate(endpoint, row.id, row).then(function (res) {
+    if (res && res.ok && okMsg) showToast(okMsg, "success");
+    return res;
   });
 }
 

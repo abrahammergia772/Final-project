@@ -218,7 +218,19 @@ function viewDoc(id) {
     onMount: (ov) => { ov.querySelector("[data-close]").onclick = () => ov.remove(); }
   });
 }
-function dlDoc(id) { showToast("Downloading " + DOCS.find(x => x.id === id).title + "…", "info"); }
+function dlDoc(id) {
+  const d = DOCS.find(x => x.id === id);
+  if (!d) return;
+  const text = (d.title || "Document") + "\n\n" + (d.summary || "No file is stored for this record yet.");
+  const blob = new Blob([text], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (d.title || "document").replace(/[^\w. -]+/g, "") + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showToast("Downloaded " + d.title, "success");
+}
 async function delDoc(id) {
   const ok = await confirmDialog("Delete this document from the patient's file?");
   if (!ok) return;
@@ -246,7 +258,7 @@ function editDoc(id) {
         d.summary = ov.querySelector("#eSum").value.trim() || d.summary;
         d.edited_by = getUserName();
         renderDocs(); ov.remove();
-        showToast("Document updated", "success");
+        saveRow(CONFIG.ENDPOINTS.DOCUMENTS, d, "Document updated");
       };
     }
   });

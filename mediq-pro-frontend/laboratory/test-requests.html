@@ -159,11 +159,12 @@ function renderReqs() {
       ${l.status !== "completed" ? `<button class="btn btn-success btn-sm" onclick="completeTest('${l.id}')">${ICONS.check} Complete</button>` : ""}
     </div></td></tr>`).join("") : emptyRow(8);
 }
-function startTest(id) { const l = REQS.find(x => x.id === id); l.status = "in-progress"; renderReqs(); showToast("Test started","info"); }
+function startTest(id) { const l = REQS.find(x => x.id === id); if (!l) return; l.status = "in-progress"; renderReqs(); saveRow(CONFIG.ENDPOINTS.LAB_REQUESTS, l, "Test started"); }
 function completeTest(id) {
   const l = REQS.find(x => x.id === id);
+  if (!l) return;
   l.status = "completed"; renderReqs();
-  showToast(l.test + " completed — you can now enter results","success");
+  saveRow(CONFIG.ENDPOINTS.LAB_REQUESTS, l, l.test + " completed — you can now enter results");
 }
 
 </script>
