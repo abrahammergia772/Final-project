@@ -7,13 +7,18 @@
 #   PUT    /<resource>/{id}      → update
 #   DELETE /<resource>/{id}      → delete
 # =============================================================================
-from fastapi import APIRouter, Request, Depends
-from pydantic import BaseModel
+import logging
+
+from fastapi import APIRouter, HTTPException, Request, Depends
+from pydantic import BaseModel, Field
+
+from youtube_search import search_youtube
 
 from db import list_rows, insert_row, update_row, delete_row
 from security import current_user
 
 router = APIRouter(tags=["Data"])
+log = logging.getLogger("mediq.videos")
 
 RESOURCES = [
     "users", "patients", "appointments", "prescriptions", "inventory",
@@ -100,6 +105,31 @@ def _fail_if_down(result: dict):
         detail = "Supabase is not configured" if result.get("source") == "none" else "Database unavailable"
         raise HTTPException(status_code=503, detail=result.get("error") or detail)
     return result
+
+
+
+class VideoSearchBody(BaseModel):
+    query: str = ""
+    conditions: list[str] = Field(default_factory=list)
+    max_results: int = 12
+
+
+@router.post("/videos/search")
+def search_health_videos(body: VideoSearchBody, user=Depends(current_user)):
+    """Search YouTube for health-education videos. Does not write a hospital record."""
+    if "videos" not in ROLE_RESOURCES.get(user.get("role"), set()):
+        raise HTTPException(status_code=403, detail="You do not have access to health videos")
+    query = " ".join((body.query or "").split())
+    if not query and body.conditions:
+        query = " ".join(str(item).strip() for item in body.conditions if str(item).strip())
+    if not query:
+        raise HTTPException(status_code=400, detail="Type a health topic to search")
+    try:
+        items = search_youtube(query, body.max_results)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("health video search failed: %s", exc)
+        raise HTTPException(status_code=502, detail="YouTube search is unavailable right now") from exc
+    return {"items": items, "total": len(items), "source": "youtube"}
 
 
 @router.get("/messages/sent")

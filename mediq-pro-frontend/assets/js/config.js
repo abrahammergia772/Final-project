@@ -7,13 +7,9 @@ const CONFIG = {
   APP_NAME: "Wolaita Sodo Hospital",
   VERSION: "2.1.0",
 
-  // Optional free YouTube Data API v3 key (Google). If left empty, the Health
-  // Videos feature uses the built-in curated library + targeted YouTube search
-  // links (100% free, no key). Add a key to enable live AI video search:
-  //   https://console.cloud.google.com/apis/library/youtube.googleapis.com
-  // NOTE: this key is client-side, so restrict it in Google Cloud Console to
-  // your domain/referrer (API & Services → Credentials → key → HTTP referrers).
-  YOUTUBE_API_KEY: "", // Set via a restricted deployment secret; never commit API keys.
+  // Optional. Health Videos search YouTube through the hospital API, so this
+  // can stay empty. A key is only a fallback if that API search fails.
+  YOUTUBE_API_KEY: "",
 
   // Backend (FastAPI) — replace with your Render URL before deploy
   API_BASE_URL: (function() {

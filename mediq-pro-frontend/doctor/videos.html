@@ -26,10 +26,11 @@
 
 <div class="flex-between mb-4 wrap" style="gap:12px">
   <div><h3 style="font-size:18px">🎥 Health Video Library</h3>
-    <p class="text-sm" style="color:#6B7280">Browse free patient-education videos and share them with your patients by condition. Videos play inline — no need to leave the system.</p></div>
+    <p class="text-sm" style="color:#6B7280">Search YouTube for patient-education videos. Results play here — no need to leave the system.</p></div>
   <div class="filters" style="display:flex;gap:10px;flex-wrap:wrap">
-    <select class="form-control" id="docCond" style="width:240px"></select>
-    <button class="btn btn-primary" id="btnDocSearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3l1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7L4.4 10.6l5.7-1.9z"/><path d="M19 15l.9 2.7 2.7.9-2.7.9L19 22.2l-.9-2.7-2.7-.9 2.7-.9z"/></svg> Show Videos</button>
+    <input class="form-control" id="docSearch" style="width:280px" placeholder="Search YouTube, e.g. asthma, malaria, diet">
+    <select class="form-control" id="docCond" style="width:220px"></select>
+    <button class="btn btn-primary" id="btnDocSearch" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> Search YouTube</button>
   </div>
 </div>
 <div id="docVideoGrid" class="doc-grid"></div>
@@ -129,7 +130,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let VIDS = [];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) { VIDS = r.data.items; afterVideos(); } });
+  apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => {
+    if (r.ok && r.data && Array.isArray(r.data.items)) VIDS = r.data.items;
+    afterVideos();
+  });
 }
 function watchUrl(v) {
   // Direct video link with autoplay so it starts playing right away on YouTube
@@ -262,24 +266,31 @@ function renderGrid(el, list, emptyMsg) {
 }
 
 const CONDITIONS = ["Hypertension", "Diabetes Type 2", "Asthma", "Heart Disease", "Chronic Kidney Disease", "Liver Disease", "Hepatitis", "Diarrhea", "Pneumonia", "Stroke", "Migraine", "Arthritis", "Cholesterol", "Kidney Stones", "Thyroid Disorder", "Malaria", "Tuberculosis", "Anemia", "Pregnancy", "Healthy Diet", "Stress & Mental Health"];
-const HAS_YT = !!CONFIG.YOUTUBE_API_KEY;
+function videoQuery() {
+  const typed = (document.getElementById("docSearch").value || "").trim();
+  return typed || document.getElementById("docCond").value;
+}
 function afterVideos() {
   const sel = document.getElementById("docCond");
   sel.innerHTML = CONDITIONS.map(c => `<option>${esc(c)}</option>`).join("");
+  document.getElementById("btnDocSearch").addEventListener("click", () => showForCondition(videoQuery()));
+  document.getElementById("docSearch").addEventListener("keydown", e => { if (e.key === "Enter") showForCondition(videoQuery()); });
+  sel.addEventListener("change", () => {
+    document.getElementById("docSearch").value = "";
+    showForCondition(sel.value);
+  });
   showForCondition(CONDITIONS[0]);
-  document.getElementById("btnDocSearch").addEventListener("click", () => showForCondition(sel.value));
-  sel.addEventListener("change", () => showForCondition(sel.value));
 }
 function showForCondition(cond) {
-  const lower = cond.toLowerCase();
-  const match = VIDS.filter(v => v.conditions.some(t => lower.includes(t) || t.includes(lower)));
   const grid = document.getElementById("docVideoGrid");
-  renderGrid(grid, match.slice(0, 9), "No videos for this condition.");
-  if (HAS_YT) {
-    searchYouTube(cond + " patient education", 9).then(items => {
-      if (items.length) { VIDS = items; renderGrid(grid, items, "No videos for this condition."); }
-    }).catch(() => {});
-  }
+  if (!cond) { renderGrid(grid, [], "Type a health topic or choose a condition."); return; }
+  grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">Searching YouTube for ${esc(cond)}…</div>`;
+  searchYouTube(cond + " patient education", 9).then(items => {
+    VIDS = items;
+    renderGrid(grid, items, "No YouTube videos found for " + cond + ". Try another topic.");
+  }).catch(err => {
+    renderGrid(grid, [], (err && err.message) || "YouTube search is unavailable. Try again in a moment.");
+  });
 }
 function shareVideo(id) {
   const v = VIDS.find(x => x.id === id);

@@ -30,19 +30,19 @@
 <!-- Search bar at the TOP -->
 <section class="card mb-5">
   <h3 class="mb-1">🔎 Search any health topic</h3>
-  <p class="text-sm mb-3" style="color:#6B7280">Find free educational videos about any health topic. Results are filtered to health &amp; medical content only.</p>
+  <p class="text-sm mb-3" style="color:#6B7280">Search YouTube for educational videos about any health topic. Results play here.</p>
   <div class="flex" style="gap:10px;flex-wrap:wrap">
     <input class="form-control" id="vidSearch" style="max-width:460px" placeholder="e.g. hypertension, healthy eating, inhaler use…">
     <button class="btn btn-primary" id="btnSearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> Search</button>
   </div>
-  <div class="hint mt-2" style="color:#6B7280">💡 Tip: type any health topic — the AI finds related educational videos and plays them right here.</div>
+  <div class="hint mt-2" style="color:#6B7280">Type a health topic and press Search. Matching YouTube videos play here.</div>
 </section>
 
 <!-- Suggested for the patient's own condition only -->
 <div class="flex-between mb-4 wrap" style="gap:12px">
   <div><h3 style="font-size:18px">🎯 Suggested for your condition</h3>
     <p class="text-sm" style="color:#6B7280">Based on your diseases: <strong id="myConds">—</strong></p></div>
-  <button class="btn btn-primary" id="btnRefine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3l1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7L4.4 10.6l5.7-1.9z"/><path d="M19 15l.9 2.7 2.7.9-2.7.9L19 22.2l-.9-2.7-2.7-.9 2.7-.9z"/></svg> Ask AI for more videos</button>
+  <button class="btn btn-primary" id="btnRefine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3l1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7L4.4 10.6l5.7-1.9z"/><path d="M19 15l.9 2.7 2.7.9-2.7.9L19 22.2l-.9-2.7-2.7-.9 2.7-.9z"/></svg> More YouTube videos</button>
 </div>
 <div id="patVideoGrid" class="doc-grid"></div>
 
@@ -141,7 +141,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let VIDS = [];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) { VIDS = r.data.items; afterVideos(); } });
+  Promise.all([apiFetch(CONFIG.ENDPOINTS.VIDEOS), apiFetch(CONFIG.ENDPOINTS.PATIENTS)]).then(([vids, pats]) => {
+    if (vids.ok && vids.data && Array.isArray(vids.data.items)) VIDS = vids.data.items;
+    if (pats.ok && pats.data && Array.isArray(pats.data.items)) {
+      const me = (getUserName() || "").trim().toLowerCase();
+      const row = pats.data.items.find(p => String(p.name || p.patient || "").trim().toLowerCase() === me) || pats.data.items[0];
+      const raw = row && (row.condition || (row.details && row.details.condition) || "");
+      const found = String(raw).split(/[,;/]/).map(s => s.trim()).filter(Boolean);
+      if (found.length) MY_CONDITIONS.splice(0, MY_CONDITIONS.length, ...found);
+    }
+    afterVideos();
+  });
 }
 function watchUrl(v) {
   // Direct video link with autoplay so it starts playing right away on YouTube
@@ -273,13 +283,12 @@ function renderGrid(el, list, emptyMsg) {
   el.innerHTML = list.length ? list.map(videoCard).join("") : `<div class="empty-state" style="grid-column:1/-1">${emptyMsg || "No videos found."}</div>`;
 }
 
-const MY_CONDITIONS = ["Hypertension", "Diabetes Type 2"];
-const HAS_YT = !!CONFIG.YOUTUBE_API_KEY;
+const MY_CONDITIONS = [];
+const HAS_YT = true;
 function afterVideos() {
-  document.getElementById("myConds").textContent = MY_CONDITIONS.join(", ");
-  // Suggestions = ONLY the patient's own disease videos
-  showForConditions(MY_CONDITIONS);
-  if (HAS_YT) loadLiveSuggestions(MY_CONDITIONS);
+  document.getElementById("myConds").textContent = MY_CONDITIONS.length ? MY_CONDITIONS.join(", ") : "none on file — search a topic";
+  if (MY_CONDITIONS.length) loadLiveSuggestions(MY_CONDITIONS);
+  else renderGrid(document.getElementById("patVideoGrid"), [], "Search a health topic above to find YouTube videos.");
   document.getElementById("btnSearch").addEventListener("click", searchVideos);
   document.getElementById("vidSearch").addEventListener("keydown", e => { if (e.key === "Enter") searchVideos(); });
   document.getElementById("btnRefine").addEventListener("click", askAI);
@@ -302,74 +311,57 @@ function loadLiveSuggestions(conds) {
   });
 }
 function askAI() {
+  const typed = document.getElementById("vidSearch").value.trim();
+  const topics = MY_CONDITIONS.length ? MY_CONDITIONS.slice() : (typed ? [typed] : ["healthy living patient education"]);
   const done = (items) => {
     openModal({
-      title: "AI Video Suggestions",
-      body: `<p style="color:#6B7280;font-size:14px">Based on your conditions (${esc(MY_CONDITIONS.join(", "))})${HAS_YT ? " — live results from YouTube" : ""}:</p>
+      title: "YouTube videos",
+      body: `<p style="color:#6B7280;font-size:14px">Live results from YouTube for ${esc(topics.join(", "))}.</p>
         <div class="doc-grid mt-4" id="aiVidGrid"></div>`,
       footer: `<button class="btn btn-primary" data-close>Close</button>`
     }, {
       size: "lg",
       onMount: (ov) => {
         ov.querySelector("[data-close]").onclick = () => ov.remove();
-        ov.querySelector("#aiVidGrid").innerHTML = items.map(videoCard).join("");
+        ov.querySelector("#aiVidGrid").innerHTML = items.length ? items.map(videoCard).join("") : `<div class="empty-state">No YouTube videos found.</div>`;
       }
     });
   };
-  showLoading("AI finding videos for you…");
-  if (HAS_YT) {
-    Promise.allSettled(MY_CONDITIONS.map(c => searchYouTube(c + " patient education", 4))).then(results => {
-      hideLoading();
-      const seen = {}, merged = [];
-      results.forEach(r => { if (r.status === "fulfilled") r.value.forEach(v => { if (!seen[v.video_id]) { seen[v.video_id] = 1; merged.push(v); } }); });
-      if (merged.length) VIDS = merged;
-      done(merged.length ? merged : VIDS.slice(0, 6));
-    });
-  } else {
-    setTimeout(() => { hideLoading(); done(VIDS.slice(0, 6)); }, 800);
-  }
+  showLoading("Searching YouTube…");
+  Promise.allSettled(topics.map(c => searchYouTube(c + " patient education", 4))).then(results => {
+    hideLoading();
+    const seen = {}, merged = [];
+    results.forEach(r => { if (r.status === "fulfilled") r.value.forEach(v => { if (!seen[v.video_id]) { seen[v.video_id] = 1; merged.push(v); } }); });
+    if (merged.length) VIDS = merged;
+    done(merged);
+  });
 }
 // Show ONLY videos matching the patient's own diseases
 function showForConditions(conds) {
   const lower = conds.map(c => c.toLowerCase());
-  const match = VIDS.filter(v => v.conditions.some(t => lower.some(c => c.includes(t) || t.includes(c))));
+  const match = VIDS.filter(v => (v.conditions || []).some(t => lower.some(c => c.includes(t) || t.includes(c))));
   renderGrid(document.getElementById("patVideoGrid"), match.slice(0, 8),
     "No videos for your condition yet — try searching a health topic above.");
 }
 function searchVideos() {
   const q = document.getElementById("vidSearch").value.trim();
   if (!q) { showToast("Type a health topic to search", "info"); return; }
-  showLoading("AI searching for health videos…");
-  const curatedFallback = () => {
-    apiFetch(CONFIG.ENDPOINTS.VIDEO_SEARCH, "POST", { query: q, conditions: MY_CONDITIONS }).then(r => {
-      if (!r.ok) { hideLoading(); showToast("Video search unavailable", "error"); return; }
-      const items = r.data.items || [];
-      if (items.length) {
-        VIDS = items;
-        renderGrid(document.getElementById("patVideoGrid"), items, "No health videos found.");
-        document.getElementById("myConds").textContent = 'search results for "' + esc(q) + '"';
-      } else {
-        // Nothing in the library — offer to open matching videos on YouTube
-        document.getElementById("patVideoGrid").innerHTML =
-          '<div class="empty-state" style="grid-column:1/-1">' +
-          '<div style="font-size:42px">🎬</div><p style="margin-top:8px">No in-site videos for <strong>' + esc(q) + '</strong> yet.</p>' +
-          '<button class="btn btn-primary mt-3" id="ytSearchFallback" type="button">' + ICONS.share + ' Find on YouTube</button>' +
-          '</div>';
-        document.getElementById("myConds").textContent = 'search results for "' + esc(q) + '"';
-        const fbBtn = document.getElementById("ytSearchFallback");
-        if (fbBtn) fbBtn.onclick = function () { window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " health education"), "_blank"); };
-      }
-    });
-  };
-  if (HAS_YT) {
-    searchYouTube(q).then(items => {
-      hideLoading();
-      if (!items.length) throw new Error("empty");
-      VIDS = items;
-      renderGrid(document.getElementById("patVideoGrid"), items, "No health videos found for '" + esc(q) + "'. Try another topic.");
-      document.getElementById("myConds").textContent = 'health results for "' + esc(q) + '"';
-    }).catch(() => { hideLoading(); curatedFallback(); });
-  } else { hideLoading(); curatedFallback(); }
+  const grid = document.getElementById("patVideoGrid");
+  grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">Searching YouTube for ${esc(q)}…</div>`;
+  document.getElementById("myConds").textContent = 'YouTube results for "' + q + '"';
+  searchYouTube(q).then(items => {
+    if (!items.length) throw new Error("empty");
+    VIDS = items;
+    renderGrid(grid, items, "No health videos found.");
+  }).catch(() => {
+    grid.innerHTML =
+      '<div class="empty-state" style="grid-column:1/-1">' +
+      '<p>YouTube search is unavailable right now.</p>' +
+      '<button class="btn btn-primary mt-3" id="ytSearchFallback" type="button">' + ICONS.share + ' Open YouTube search</button>' +
+      '</div>';
+    const fbBtn = document.getElementById("ytSearchFallback");
+    if (fbBtn) fbBtn.onclick = function () { window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " health education"), "_blank"); };
+  });
 }
 
 </script>

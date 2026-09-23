@@ -73,10 +73,9 @@ const symptomChat        = (payload, cb) => callAI(CONFIG.ENDPOINTS.SYMPTOM_CHAT
 
 // ---------- Helpers ----------
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
-// ---------- Live YouTube search (free YouTube Data API v3) ----------
-// Used by the Health Videos feature when CONFIG.YOUTUBE_API_KEY is set.
-// Throws on failure so callers can degrade to the curated library.
-// Results are filtered to HEALTH content only (no music/gaming/entertainment).
+// ---------- Live YouTube search ----------
+// The hospital API searches YouTube and returns playable health videos.
+// A browser YouTube key is optional and only used if the API search fails.
 const YT_HEALTH_KEYWORDS = ["health", "medical", "doctor", "medicine", "disease", "patient", "care", "treatment", "symptom", "hospital", "clinic", "nutrition", "diet", "wellness", "exercis", "prevent", "hypertension", "diabetes", "asthma", "cancer", "heart", "kidney", "thyroid", "anemia", "pregnancy", "stress", "mental", "tuberculosis", "malaria", "infection", "fever", "cough", "blood", "pain", "weight", "sleep", "vaccin", "therapy", "depression", "anxiety", "smoking", "alcohol", "hygiene", "sanitation", "first aid"];
 const YT_BLOCK_KEYWORDS = ["music video", "lyrics", "gameplay", "gaming", "let's play", "trailer", "movie", "prank", "comedy", "stand-up", "sports highlights", "highlights", "reaction", "vlog", "unboxing", "fifa", "minecraft", "dance", "karaoke", "review of phone", "test drive"];
 const YT_TRUSTED_CHANNELS = ["mayo clinic", "cleveland clinic", "osmosis", "mass general", "johns hopkins", "nhs", "webmd", "medlineplus", "healthline", "nucleus medical", "medscape", "harvard health", "stanford health", "ted-ed", "med school insiders"];
@@ -87,27 +86,28 @@ function isHealthVideo(v) {
   return YT_HEALTH_KEYWORDS.some(k => hay.includes(k));
 }
 async function searchYouTube(query, maxResults = 12) {
-  if (!CONFIG.YOUTUBE_API_KEY) throw new Error("no-youtube-key");
-  const q = query.toLowerCase().includes("health") ? query : query + " health";
+  const q = String(query || "").trim();
+  if (!q) return [];
+  const viaApi = await apiFetch(CONFIG.ENDPOINTS.VIDEO_SEARCH, "POST", { query: q, max_results: maxResults });
+  if (viaApi.ok && viaApi.data && Array.isArray(viaApi.data.items)) return viaApi.data.items;
+  if (!CONFIG.YOUTUBE_API_KEY) throw new Error((viaApi && viaApi.error) || "youtube-search-failed");
+  const search = q.toLowerCase().includes("health") ? q : q + " health";
   const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=" + maxResults +
-              "&q=" + encodeURIComponent(q) + "&type=video&videoEmbeddable=true&safeSearch=strict&relevanceLanguage=en&key=" + CONFIG.YOUTUBE_API_KEY;
+              "&q=" + encodeURIComponent(search) + "&type=video&videoEmbeddable=true&safeSearch=strict&relevanceLanguage=en&key=" + CONFIG.YOUTUBE_API_KEY;
   const res = await fetch(url);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    const reason = (err.error && err.error.errors && err.error.errors[0] && err.error.errors[0].reason) || ("HTTP " + res.status);
-    throw new Error(reason || "youtube-api-error");
-  }
+  if (!res.ok) throw new Error("youtube-api-error");
   const data = await res.json();
   return (data.items || []).map((it, i) => ({
-    id: "YT-" + it.id.videoId + "-" + i,
+    id: it.id.videoId,
     title: it.snippet.title,
     channel: it.snippet.channelTitle,
     video_id: it.id.videoId,
-    search: "",
+    url: "https://www.youtube.com/watch?v=" + it.id.videoId,
+    search: q,
     conditions: [],
     duration: "—",
     views: "—",
-    category: "Live results",
+    category: "YouTube",
     description: it.snippet.description || "",
     thumb: it.snippet.thumbnails && it.snippet.thumbnails.high ? it.snippet.thumbnails.high.url : null,
     live: true,
