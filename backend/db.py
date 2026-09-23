@@ -139,8 +139,12 @@ def prepare_write(endpoint: str, data: dict) -> dict:
 def _db_error(action: str, endpoint: str, exc: Exception) -> Dict[str, Any]:
     # Do not fall back to demo data when a real database is configured.
     # That used to hide schema errors and, on login, exposed demo passwords.
-    log.error("supabase %s %s failed: %s", action, endpoint, type(exc).__name__)
-    return {"ok": False, "error": "database unavailable", "source": "supabase"}
+    text = str(exc).replace("\n", " ")
+    if any(secret in text.lower() for secret in ("service_role", "supabase.co", "eyj")):
+        text = type(exc).__name__
+    text = text[:160]
+    log.error("supabase %s %s failed: %s %s", action, endpoint, type(exc).__name__, text)
+    return {"ok": False, "error": "Could not " + action + " " + endpoint + (": " + text if text else ""), "source": "supabase"}
 
 
 def _present(endpoint: str, row: dict) -> dict:
@@ -194,14 +198,36 @@ def list_rows(endpoint: str, limit: int = 500) -> Dict[str, Any]:
         return _db_error("read", endpoint, exc)
 
 
+
+def _has_file(payload: dict) -> bool:
+    details = payload.get("details")
+    return isinstance(details, dict) and bool(details.get("file_data"))
+
+
+def _write(client, table: str, payload: dict, row_id: str | None = None, huge: bool = False):
+    """Write a row. Large files use return=minimal so the file is not sent back."""
+    kwargs = {"returning": "minimal"} if huge else {}
+    try:
+        query = client.table(table)
+        if row_id:
+            return query.update(payload, **kwargs).eq("id", row_id).execute()
+        return query.insert(payload, **kwargs).execute()
+    except TypeError:
+        query = client.table(table)
+        if row_id:
+            return query.update(payload).eq("id", row_id).execute()
+        return query.insert(payload).execute()
+
+
 def insert_row(endpoint: str, data: dict) -> Dict[str, Any]:
     table = TABLES.get(endpoint, endpoint)
     payload = prepare_write(endpoint, data)
     client = get_client()
     if client is not None:
         try:
-            resp = client.table(table).insert(payload).execute()
-            row = _hide_secrets(dict((resp.data or [payload])[0]))
+            resp = _write(client, table, payload, huge=_has_file(payload))
+            stored = dict((resp.data or [payload])[0])
+            row = _present(endpoint, _hide_secrets(stored))
             return {"ok": True, "row": row, "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
             return _db_error("insert", endpoint, exc)
@@ -221,8 +247,10 @@ def update_row(endpoint: str, row_id: str, data: dict) -> Dict[str, Any]:
     client = get_client()
     if client is not None:
         try:
-            resp = client.table(table).update(payload).eq("id", row_id).execute()
-            row = _hide_secrets(dict((resp.data or [payload])[0]))
+            resp = _write(client, table, payload, row_id=row_id, huge=_has_file(payload))
+            stored = dict((resp.data or [payload])[0])
+            stored.setdefault("id", row_id)
+            row = _present(endpoint, _hide_secrets(stored))
             return {"ok": True, "row": row, "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
             return _db_error("update", endpoint, exc)

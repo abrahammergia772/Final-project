@@ -75,7 +75,7 @@ async def lifespan(app: FastAPI):
     _log_memory("shutdown")
 
 
-app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.1", lifespan=lifespan)
+app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.2", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -147,7 +147,7 @@ let ME = null;
 function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.HEALTH_CARD).then(r => {
     if (!r.ok || !r.data || !r.data.card) {
-      document.getElementById("hcCard").innerHTML = '<div class="empty-state">Your health card is not ready yet. Sign out and sign in again, or ask reception.</div>';
+      document.getElementById("hcCard").innerHTML = '<div class="empty-state">' + esc(r.error || "Your health card is not ready yet. Sign out and sign in again.") + '</div>';
       return;
     }
     ME = r.data.card;

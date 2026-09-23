@@ -24,6 +24,31 @@
 <header class="topbar" id="topbar" data-title="My Patients"></header>
 <section class="page-body">
 
+<section class="card mb-4" id="patientFileForm">
+  <h3 class="mb-1" id="patientFileTitle">File patient information</h3>
+  <p class="text-sm mb-3" style="color:#6B7280">This form is in Patients. Save writes the file to Supabase.</p>
+  <input type="hidden" id="fileId">
+  <div class="form-row">
+    <div class="form-group"><label>First name <span class="req">*</span></label><input class="form-control" id="fileFirst"></div>
+    <div class="form-group"><label>Last name <span class="req">*</span></label><input class="form-control" id="fileLast"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Age</label><input class="form-control" type="number" id="fileAge"></div>
+    <div class="form-group"><label>Gender</label><select class="form-control" id="fileGender"><option>Male</option><option>Female</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Phone</label><input class="form-control" id="filePhone"></div>
+    <div class="form-group"><label>Email</label><input class="form-control" id="fileEmail"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Blood type</label><select class="form-control" id="fileBlood"><option>Unknown</option><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select></div>
+    <div class="form-group"><label>Condition</label><input class="form-control" id="fileCond" placeholder="e.g. Hypertension"></div>
+  </div>
+  <div class="form-group"><label>Address</label><input class="form-control" id="fileAddr"></div>
+  <div class="form-group"><label>Emergency contact</label><input class="form-control" id="fileEc"></div>
+  <div class="form-group"><label>Clinical notes</label><textarea class="form-control" id="fileNotes" rows="3"></textarea></div>
+  <button class="btn btn-primary" type="button" id="btnSavePatientFile">Save to patient file</button>
+</section>
 <div class="card" style="padding:0">
   <div class="table-toolbar">
     <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="ptSearch" placeholder="Search name or ID…"></div>
@@ -163,6 +188,12 @@ function renderPatients() {
     <a class="btn-icon success" title="Consult" href="consultation.html?patient=${p.id}">${ICONS.stethoscope}</a></div></td></tr>`).join("") : emptyRow(8);
 }
 function filePatient(id) {
+  const form = document.getElementById("patientFileForm");
+  if (form && typeof fillDoctorPatientFile === "function") {
+    fillDoctorPatientFile(id || "");
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
   const p = id ? PATIENTS.find(x => x.id === id) : null;
   openModal({
     title: p ? "Update patient file" : "File patient information",

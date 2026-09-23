@@ -86,13 +86,18 @@ def login(req: LoginRequest):
     if row.get("status", "active") != "active":
         raise HTTPException(status_code=403, detail="Account is not active")
     _FAILS.pop(email, None)
-    return {
-        "token": _token_for(row.get("id"), row.get("role", "patient"), email, row.get("name") or email),
-        "role": row.get("role", "patient"),
+    role = row.get("role", "patient")
+    card = _ensure_patient_card(client, row.get("id"), role)
+    out = {
+        "token": _token_for(row.get("id"), role, email, row.get("name") or email),
+        "role": role,
         "user_id": row.get("id"),
         "name": row.get("name", email),
         "email": email,
     }
+    if card:
+        out["health_card"] = {"id": card.get("id"), "issued": (card.get("details") or {}).get("health_card", {}).get("issued")}
+    return out
 
 
 @router.post("/auth/signup")
@@ -140,6 +145,29 @@ def signup(req: SignupRequest):
         log.error("supabase signup failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Registration service unavailable")
 
+
+
+
+def _safe_exc(exc: Exception) -> str:
+    text = str(exc).replace("\n", " ")
+    if any(secret in text.lower() for secret in ("service_role", "supabase.co", "eyj")):
+        return type(exc).__name__
+    return text[:160]
+
+
+def _ensure_patient_card(client, user_id, role):
+    """Issue a health card without ever failing sign-in or signup."""
+    if role != "patient" or not user_id:
+        return None
+    try:
+        resp = client.table("users").select("id,email,name,role,phone,dob,gender,blood,emergency_contact,details").eq("id", str(user_id)).limit(1).execute()
+        rows = resp.data or []
+        if not rows:
+            return None
+        return issue_health_card(client, rows[0])
+    except Exception as exc:  # noqa: BLE001
+        log.error("health card ensure failed: %s %s", type(exc).__name__, _safe_exc(exc))
+        return None
 
 
 def _card_number() -> str:
@@ -210,11 +238,21 @@ def issue_health_card(client, user_row: dict) -> dict:
         "status": "active",
         "details": {"health_card": card, "dob": dob, "user_id": str(user_row.get("id") or ""), "insurance": details.get("insurance") or "", "policy": details.get("policy") or ""},
     }
-    client.table("patients").insert(row).execute()
-    merged = dict(details)
-    merged["health_card"] = card
+    payload = {key: value for key, value in row.items() if value is not None}
+    try:
+        client.table("patients").insert(payload).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("health card insert failed: %s %s", type(exc).__name__, _safe_exc(exc))
+        payload["age"] = payload.get("age") or 0
+        client.table("patients").insert(payload).execute()
     if user_row.get("id"):
-        client.table("users").update({"details": merged}).eq("id", user_row.get("id")).execute()
+        try:
+            current = user_row.get("details") if isinstance(user_row.get("details"), dict) else {}
+            merged = dict(current)
+            merged["health_card"] = card
+            client.table("users").update({"details": merged}).eq("id", user_row.get("id")).execute()
+        except Exception as exc:  # noqa: BLE001
+            log.error("health card user stamp failed: %s %s", type(exc).__name__, _safe_exc(exc))
     return row
 
 
@@ -318,8 +356,8 @@ def health_card(user=Depends(current_user)):
     try:
         card = issue_health_card(client, rows[0])
     except Exception as exc:  # noqa: BLE001
-        log.error("health card issue failed: %s", type(exc).__name__)
-        raise HTTPException(status_code=503, detail="Could not create the health card")
+        log.error("health card issue failed: %s %s", type(exc).__name__, _safe_exc(exc))
+        raise HTTPException(status_code=503, detail="Could not create the health card: " + _safe_exc(exc))
     return {"ok": True, "card": card}
 
 

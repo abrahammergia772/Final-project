@@ -34,7 +34,8 @@ function saveSession(data) {
     role: data.role,
     user_id: data.user_id,
     name: data.name,
-    email: data.email || ""
+    email: data.email || "",
+    health_card: data.health_card || ""
   }));
 }
 
@@ -92,7 +93,7 @@ function getRoleLabel(role) {
 async function login(email, password) {
   const res = await apiFetch(CONFIG.ENDPOINTS.LOGIN, "POST", { email, password }, { skipAuth: true });
   if (res.ok) {
-    saveSession({ token: res.data.token, role: res.data.role, user_id: res.data.user_id, name: res.data.name, email: res.data.email || email });
+    saveSession({ token: res.data.token, role: res.data.role, user_id: res.data.user_id, name: res.data.name, email: res.data.email || email, health_card: res.data.health_card && res.data.health_card.id });
     return { ok: true, session: getSession() };
   }
   return { ok: false, error: res.error || "Invalid email or password." };
@@ -353,6 +354,7 @@ window.saveUserPref = function (key, value) {
 let _authUI_bound = false;
 function initAuthUI() {
   if (getSession()) loadMyPrefs();
+  if (typeof ensureHealthCard === "function") ensureHealthCard();
 
   // --- Populate user name / role / initials everywhere currently in DOM ---
   const nameEl = document.querySelector("[data-user-name]");

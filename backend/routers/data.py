@@ -9,7 +9,11 @@
 # =============================================================================
 import logging
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+import base64
+import secrets
+from datetime import date
+
+from fastapi import APIRouter, File, Form, HTTPException, Request, Depends, UploadFile
 from pydantic import BaseModel, Field
 
 from youtube_search import search_youtube
@@ -176,6 +180,48 @@ def _message_view(user, box: str) -> dict:
     items = [row for row in result.get("items", []) if _message_box(row, user, box)]
     items.sort(key=lambda row: str(row.get("date") or ""), reverse=True)
     return {**result, "items": items, "total": len(items)}
+
+
+
+@router.post("/documents/upload")
+async def upload_document(
+    file: UploadFile = File(...),
+    title: str = Form(""),
+    patient: str = Form(""),
+    patient_id: str = Form(""),
+    doc_type: str = Form("Other"),
+    summary: str = Form(""),
+    user=Depends(current_user),
+):
+    """Store an uploaded file on the document row in Supabase."""
+    _authorize("documents", user, write=True)
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="Choose a file to upload")
+    if len(raw) > 1_200_000:
+        raise HTTPException(status_code=413, detail="File is too large. Use a file under 1.2 MB.")
+    mime = file.content_type or "application/octet-stream"
+    data_url = "data:" + mime + ";base64," + base64.b64encode(raw).decode("ascii")
+    row = {
+        "id": "DOC-" + secrets.token_hex(4).upper(),
+        "patient": patient.strip() or "Patient",
+        "patient_id": patient_id.strip(),
+        "type": doc_type.strip() or "Other",
+        "title": title.strip() or (file.filename or "Uploaded document"),
+        "date": date.today().isoformat(),
+        "size": str(max(1, round(len(raw) / 1024))) + " KB",
+        "uploaded_by": user.get("name") or user.get("email") or "",
+        "summary": summary.strip() or "Uploaded file.",
+        "file_name": file.filename or "upload",
+        "file_mime": mime,
+        "file_data": data_url,
+    }
+    result = insert_row("documents", row)
+    if result.get("ok") is False:
+        raise HTTPException(status_code=503, detail=result.get("error") or "Could not save the file")
+    saved = result.get("row") or {}
+    saved.pop("file_data", None)
+    return {"ok": True, "row": saved}
 
 
 @router.get("/messages/directory")

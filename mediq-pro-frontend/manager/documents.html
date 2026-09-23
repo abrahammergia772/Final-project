@@ -32,9 +32,24 @@
   <div class="filters" style="display:flex;gap:10px;flex-wrap:wrap">
     <select class="form-control" id="docType" style="width:180px"><option value="">All types</option><option>Lab Report</option><option>Prescription</option><option>Consent Form</option><option>Referral Letter</option><option>Insurance</option><option>ID Copy</option><option>Other</option></select>
     <select class="form-control" id="docPatient" style="width:220px"><option value="">All patients</option></select>
-    <button class="btn btn-primary" id="btnUpload" type="button" onclick="uploadModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Upload Document</button>
+    <button class="btn btn-primary" id="btnUpload" type="button" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Upload Document</button>
   </div>
 </div>
+<section class="card mb-4" id="uploadPanel">
+  <h3 class="mb-1">Upload a document</h3>
+  <p class="text-sm mb-3" style="color:#6B7280">Choose the file here, then press Save uploaded file. Files under 1.2 MB are stored in Supabase.</p>
+  <div class="form-row">
+    <div class="form-group"><label>Patient name <span class="req">*</span></label><input class="form-control" id="upPatient" placeholder="Patient full name"></div>
+    <div class="form-group"><label>Type</label><select class="form-control" id="upType"><option>Lab Report</option><option>Prescription</option><option>Consent Form</option><option>Referral Letter</option><option>Insurance</option><option>ID Copy</option><option>Other</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="upTitle" placeholder="e.g. Lab report"></div>
+    <div class="form-group"><label>File <span class="req">*</span></label><input class="form-control" id="upFile" type="file"></div>
+  </div>
+  <div class="form-group"><label>Summary</label><input class="form-control" id="upSum" placeholder="Short note about the file"></div>
+  <button class="btn btn-primary" type="button" id="btnUploadSave">Save uploaded file</button>
+  <p class="text-sm mt-2" id="upStatus" style="color:#6B7280"></p>
+</section>
 <div class="doc-grid" id="docGrid"></div>
 <div class="mt-4" style="text-align:center;color:#9CA3AF;font-size:13px"><strong id="docCount">0</strong> documents</div>
 
@@ -149,7 +164,7 @@ function loadPageData() {
   const up = document.getElementById("btnUpload");
   if (up) {
     up.style.display = DOC_PERMS.upload ? "" : "none";
-    up.onclick = function (e) { e.preventDefault(); uploadModal(); };
+    up.onclick = function (e) { e.preventDefault(); const panel = document.getElementById("uploadPanel"); if (panel) { panel.scrollIntoView({ behavior: "smooth", block: "center" }); return; } uploadModal(); };
   }
   document.getElementById("docSearch").addEventListener("input", debounce(() => renderDocs(), 200));
   document.getElementById("docType").addEventListener("change", renderDocs);

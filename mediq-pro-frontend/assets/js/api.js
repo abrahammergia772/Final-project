@@ -198,7 +198,14 @@ function formatFileSize(bytes) {
   if (n < 1024 * 1024) return Math.round(n / 1024) + " KB";
   return (n / (1024 * 1024)).toFixed(1) + " MB";
 }
-function saveUploadedDocument(row, file) {
+function _errText(data, fallback) {
+  const detail = data && (data.detail || data.error);
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) return detail.map(function (item) { return item.msg || item.message || "Invalid upload"; }).join("; ");
+  return fallback;
+}
+function saveUploadedDocumentJson(row, file) {
   return readUploadFile(file).then(function (packed) {
     if (!packed) throw new Error("Choose a file to upload");
     row.file_name = packed.name;
@@ -206,9 +213,205 @@ function saveUploadedDocument(row, file) {
     row.file_data = packed.data;
     row.size = formatFileSize(packed.size);
     row.has_file = true;
-    return persistInsert(CONFIG.ENDPOINTS.DOCUMENTS, row);
+    return persistInsert(CONFIG.ENDPOINTS.DOCUMENTS, row).then(function (res) {
+      row.file_data = "";
+      return res;
+    });
   });
 }
+function saveUploadedDocument(row, file) {
+  if (!file) return Promise.reject(new Error("Choose a file to upload"));
+  if (file.size > 1200000) return Promise.reject(new Error("File is too large. Use a file under 1.2 MB."));
+  const body = new FormData();
+  body.append("file", file, file.name);
+  body.append("title", row.title || file.name || "Uploaded document");
+  body.append("patient", row.patient || "");
+  body.append("patient_id", row.patient_id || "");
+  body.append("doc_type", row.type || "Other");
+  body.append("summary", row.summary || "");
+  const headers = {};
+  const session = getSession();
+  if (session && session.token) headers.Authorization = "Bearer " + session.token;
+  return fetch(CONFIG.API_BASE_URL + "/documents/upload", { method: "POST", headers: headers, body: body }).then(function (res) {
+    return res.json().catch(function () { return {}; }).then(function (data) {
+      if (res.status === 404 || res.status === 405) return saveUploadedDocumentJson(row, file);
+      if (!res.ok) {
+        const msg = _errText(data, "Could not upload the file");
+        showToast(msg, "error");
+        return { ok: false, error: msg, status: res.status };
+      }
+      if (data.row && data.row.id) row.id = data.row.id;
+      row.has_file = true;
+      row.file_data = "";
+      return { ok: true, data: data };
+    });
+  }).catch(function () {
+    showToast("Network error — cannot reach the server.", "error");
+    return { ok: false, error: "Network error" };
+  });
+}
+function submitInlineUpload() {
+  const titleEl = document.getElementById("upTitle");
+  const fileEl = document.getElementById("upFile");
+  const nameEl = document.getElementById("upPatient");
+  const typeEl = document.getElementById("upType");
+  const sumEl = document.getElementById("upSum");
+  const status = document.getElementById("upStatus");
+  const title = titleEl ? titleEl.value.trim() : "";
+  const file = fileEl && fileEl.files ? fileEl.files[0] : null;
+  const patient = nameEl ? nameEl.value.trim() : "";
+  if (!patient) { showToast("Enter the patient name", "error"); return; }
+  if (!title) { showToast("Title is required", "error"); return; }
+  if (!file) { showToast("Choose a file to upload", "error"); return; }
+  const row = {
+    id: uid("DOC"),
+    patient: patient,
+    patient_id: "",
+    type: typeEl ? typeEl.value : "Other",
+    title: title,
+    date: typeof todayStr === "function" ? todayStr() : new Date().toISOString().slice(0, 10),
+    uploaded_by: getUserName(),
+    summary: sumEl ? sumEl.value.trim() : ""
+  };
+  const btn = document.getElementById("btnUploadSave");
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = "Saving the file to Supabase…";
+  saveUploadedDocument(row, file).then(function (res) {
+    if (btn) btn.disabled = false;
+    if (!res || !res.ok) {
+      if (status) status.textContent = (res && res.error) || "Upload failed.";
+      return;
+    }
+    if (typeof DOCS !== "undefined" && Array.isArray(DOCS)) DOCS.unshift(row);
+    if (typeof renderDocs === "function") renderDocs();
+    if (titleEl) titleEl.value = "";
+    if (sumEl) sumEl.value = "";
+    if (fileEl) fileEl.value = "";
+    if (status) status.textContent = "Saved. The file is in the list below.";
+    showToast("Document uploaded", "success");
+  }).catch(function (err) {
+    if (btn) btn.disabled = false;
+    if (status) status.textContent = err.message || "Upload failed.";
+    showToast(err.message || "Could not upload the file", "error");
+  });
+}
+function saveDoctorPatientFile() {
+  const firstEl = document.getElementById("fileFirst");
+  if (!firstEl) return;
+  const first = firstEl.value.trim();
+  const last = (document.getElementById("fileLast").value || "").trim();
+  if (!first || !last) { showToast("First and last name are required", "error"); return; }
+  const existing = (document.getElementById("fileId").value || "").trim();
+  const row = {
+    id: existing || uid("P"),
+    first_name: first,
+    last_name: last,
+    age: Number(document.getElementById("fileAge").value) || null,
+    gender: document.getElementById("fileGender").value,
+    phone: document.getElementById("filePhone").value.trim(),
+    email: document.getElementById("fileEmail").value.trim(),
+    blood: document.getElementById("fileBlood").value,
+    address: document.getElementById("fileAddr").value.trim(),
+    emergency: document.getElementById("fileEc").value.trim(),
+    condition: document.getElementById("fileCond").value.trim(),
+    last_visit: typeof todayStr === "function" ? todayStr() : "",
+    status: "active",
+    notes: document.getElementById("fileNotes").value.trim(),
+    filed_by: getUserName()
+  };
+  const done = function (res) {
+    if (!res || !res.ok) return;
+    if (typeof PATIENTS !== "undefined" && Array.isArray(PATIENTS)) {
+      const found = PATIENTS.find(function (p) { return p.id === row.id; });
+      if (found) Object.assign(found, row);
+      else PATIENTS.unshift(row);
+    }
+    if (typeof renderPatients === "function") renderPatients();
+    ["fileId", "fileFirst", "fileLast", "fileAge", "filePhone", "fileEmail", "fileAddr", "fileEc", "fileCond", "fileNotes"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    showToast("Patient file saved", "success");
+  };
+  if (existing) persistUpdate(CONFIG.ENDPOINTS.PATIENTS, existing, row).then(done);
+  else persistInsert(CONFIG.ENDPOINTS.PATIENTS, row).then(done);
+}
+function ensureHealthCard() {
+  const session = getSession();
+  if (!session || session.role !== "patient" || !CONFIG.ENDPOINTS.HEALTH_CARD) return;
+  if (!window.__cardPromise) {
+    window.__cardPromise = apiFetch(CONFIG.ENDPOINTS.HEALTH_CARD).then(function (res) {
+      const card = res.ok && res.data && res.data.card;
+      if (!card || !card.id) return null;
+      session.health_card = card.id;
+      saveSession(session);
+      window.__healthCard = card;
+      return card;
+    });
+  }
+  window.__cardPromise.then(function (card) {
+    if (card) showHealthCardStrip(card);
+  });
+}
+function showHealthCardStrip(card) {
+  const host = document.querySelector(".page-body") || document.getElementById("spaBody");
+  if (!host || document.getElementById("autoHealthCard")) return;
+  const el = document.createElement("a");
+  el.id = "autoHealthCard";
+  el.href = "health-card.html";
+  el.className = "card mb-4";
+  el.style.cssText = "display:block;text-decoration:none;color:inherit";
+  el.innerHTML = '<div class="flex-between wrap" style="gap:8px"><div><div class="text-sm" style="color:#6B7280">Health card</div><strong>' +
+    esc(card.id) + '</strong><div class="text-sm" style="color:#6B7280">Issued automatically for this patient account.</div></div><span class="badge badge-success">Active</span></div>';
+  host.insertBefore(el, host.firstChild);
+}
+function fillDoctorPatientFile(id) {
+  const form = document.getElementById("patientFileForm");
+  if (!form) return;
+  const p = (id && typeof PATIENTS !== "undefined" && Array.isArray(PATIENTS)) ? PATIENTS.find(function (row) { return row.id === id; }) : null;
+  document.getElementById("fileId").value = p ? p.id : "";
+  document.getElementById("fileFirst").value = p ? (p.first_name || "") : "";
+  document.getElementById("fileLast").value = p ? (p.last_name || "") : "";
+  document.getElementById("fileAge").value = p && p.age != null ? p.age : "";
+  document.getElementById("fileGender").value = p && p.gender ? p.gender : "Male";
+  document.getElementById("filePhone").value = p ? (p.phone || "") : "";
+  document.getElementById("fileEmail").value = p ? (p.email || "") : "";
+  document.getElementById("fileBlood").value = p && p.blood ? p.blood : "Unknown";
+  document.getElementById("fileAddr").value = p ? (p.address || "") : "";
+  document.getElementById("fileEc").value = p ? (p.emergency || "") : "";
+  document.getElementById("fileCond").value = p ? (p.condition || "") : "";
+  document.getElementById("fileNotes").value = p && p.details && p.details.notes ? p.details.notes : (p && p.notes ? p.notes : "");
+  const title = document.getElementById("patientFileTitle");
+  if (title) title.textContent = p ? "Update patient file" : "File patient information";
+}
+document.addEventListener("click", function (e) {
+  const open = e.target && e.target.closest && e.target.closest("#btnUpload");
+  if (open) {
+    const panel = document.getElementById("uploadPanel");
+    if (panel) {
+      e.preventDefault();
+      panel.scrollIntoView({ behavior: "smooth", block: "center" });
+      const file = document.getElementById("upFile");
+      if (file) file.focus();
+    }
+  }
+  const save = e.target && e.target.closest && e.target.closest("#btnUploadSave");
+  if (save) {
+    e.preventDefault();
+    submitInlineUpload();
+  }
+  const fileSave = e.target && e.target.closest && e.target.closest("#btnSavePatientFile");
+  if (fileSave) {
+    e.preventDefault();
+    saveDoctorPatientFile();
+  }
+  const fileOpen = e.target && e.target.closest && e.target.closest("#btnFilePatient");
+  if (fileOpen && document.getElementById("patientFileForm")) {
+    e.preventDefault();
+    fillDoctorPatientFile("");
+    document.getElementById("patientFileForm").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
 function downloadStoredFile(doc) {
   if (!doc) return;
   const finish = function (packed) {

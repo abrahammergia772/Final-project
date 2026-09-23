@@ -276,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <h3 style="margin:10px 0 4px">Welcome, ${esc(name.split(" ")[0])}!</h3>
         <p style="color:#6B7280;font-size:14px">
           Your account is saved. Sign in with the email and password you just entered.
-          ${record.role === "patient" && res.data && res.data.health_card ? " Your health card is ready." : ""}
+          ${record.role === "patient" ? (res.data && res.data.health_card ? " Your health card was issued automatically." : " Your health card is issued when you sign in.") : ""}
         </p>
         <div class="detail-list" style="text-align:left;max-width:340px;margin:16px auto">
           <div class="detail-item"><span class="k">Email</span><span class="v">${esc(email)}</span></div>
