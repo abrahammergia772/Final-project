@@ -25,7 +25,7 @@
         <p class="login-kicker">Wolaita Sodo University</p>
         <h1 class="wide">Wolaita Sodo<br>Hospital</h1>
         <p class="login-tag">Care | Compassion | Community</p>
-        <p class="login-lead">Open an account for a patient, or ask for a staff role. The hospital team reviews staff requests.</p>
+        <p class="login-lead">Choose a role first. Patients are asked for medical details. Staff are only asked for a phone number and department.</p>
         <p class="login-place">Wolaita Sodo, South Ethiopia</p>
       </div>
       <svg class="login-hills" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
@@ -69,7 +69,26 @@
         </div>
       </div>
 
-      <h3 style="font-size:15px;margin:20px 0 14px">Personal information</h3>
+      <h3 style="font-size:15px;margin:20px 0 14px">I am registering as</h3>
+      <div class="form-group">
+        <label for="suRole">Account type</label>
+        <select class="form-control" id="suRole">
+          <option value="patient" selected>Patient</option>
+          <option value="doctor">Doctor</option>
+          <option value="nurse">Nurse</option>
+          <option value="pharmacist">Pharmacist</option>
+          <option value="laboratory">Laboratory</option>
+          <option value="reception">Receptionist</option>
+        </select>
+        <div class="hint" id="suRoleHint">Patients enter medical details. Staff only enter contact and department. An administrator creates manager accounts.</div>
+      </div>
+      <div class="form-group">
+        <label for="suPhone">Phone Number <span class="req">*</span></label>
+        <input class="form-control" id="suPhone" placeholder="+251 9xx xxx xxx" required />
+      </div>
+
+      <div id="suPatientFields">
+      <h3 style="font-size:15px;margin:20px 0 14px">Patient details</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="suDob">Date of Birth <span class="req">*</span></label>
@@ -82,12 +101,12 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label for="suPhone">Phone Number <span class="req">*</span></label>
-          <input class="form-control" id="suPhone" placeholder="+251 9xx xxx xxx" required />
-        </div>
-        <div class="form-group">
           <label for="suBlood">Blood Type</label>
           <select class="form-control" id="suBlood"><option>Unknown</option><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select>
+        </div>
+        <div class="form-group">
+          <label for="suEc">Emergency Contact (name &amp; phone) <span class="req">*</span></label>
+          <input class="form-control" id="suEc" placeholder="e.g. Hana Mekonnen — +251 9xx xxx xxx" required />
         </div>
       </div>
       <div class="form-group">
@@ -109,29 +128,6 @@
           </select>
         </div>
       </div>
-
-      <h3 style="font-size:15px;margin:20px 0 14px">Account type and emergency contact</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="suRole">I am registering as</label>
-          <select class="form-control" id="suRole">
-            <option value="patient" selected>Patient</option>
-            <option value="doctor">Doctor (staff)</option>
-            <option value="nurse">Nurse (staff)</option>
-            <option value="pharmacist">Pharmacist (staff)</option>
-            <option value="laboratory">Laboratory (staff)</option>
-            <option value="reception">Receptionist (staff)</option>
-            <option value="manager">Manager (staff)</option>
-          </select>
-          <div class="hint" id="suRoleHint">Patient accounts are activated immediately. Staff accounts are reviewed and approved by the administrator.</div>
-        </div>
-        <div class="form-group">
-          <label for="suEc">Emergency Contact (name &amp; phone) <span class="req">*</span></label>
-          <input class="form-control" id="suEc" placeholder="e.g. Hana Mekonnen — +251 9xx xxx xxx" required />
-        </div>
-      </div>
-
-      <h3 style="font-size:15px;margin:20px 0 14px">Insurance, optional</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="suIns">Insurance Provider</label>
@@ -144,6 +140,27 @@
           <label for="suPol">Policy / Member No.</label>
           <input class="form-control" id="suPol" placeholder="Policy number (if insured)" />
         </div>
+      </div>
+      </div>
+
+      <div id="suStaffFields" class="hidden">
+      <h3 style="font-size:15px;margin:20px 0 14px">Staff details</h3>
+      <div class="form-group">
+        <label for="suDept">Department <span class="req">*</span></label>
+        <select class="form-control" id="suDept">
+          <option value="">Select department</option>
+          <option>Internal Medicine</option>
+          <option>Pediatrics</option>
+          <option>Maternity</option>
+          <option>Emergency</option>
+          <option>Surgery</option>
+          <option>Nursing</option>
+          <option>Pharmacy</option>
+          <option>Laboratory</option>
+          <option>Reception</option>
+          <option>Radiology</option>
+        </select>
+      </div>
       </div>
 
       <div class="form-group">
@@ -177,12 +194,30 @@ document.addEventListener("DOMContentLoaded", () => {
   function showErr(msg) { errText.textContent = msg; errBox.classList.add("show"); }
   function ok() { errBox.classList.remove("show"); }
 
-  document.getElementById("suRole").addEventListener("change", e => {
-    const staff = e.target.value !== "patient";
+  function setRequired(id, on) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (on) el.setAttribute("required", "");
+    else el.removeAttribute("required");
+  }
+  function applyRoleFields() {
+    const role = document.getElementById("suRole").value;
+    const staff = role !== "patient";
+    document.getElementById("suPatientFields").classList.toggle("hidden", staff);
+    document.getElementById("suStaffFields").classList.toggle("hidden", !staff);
+    setRequired("suDob", !staff);
+    setRequired("suEc", !staff);
+    setRequired("suDept", staff);
     document.getElementById("suRoleHint").textContent = staff
-      ? "Staff accounts are saved in the hospital database and can sign in after they are created."
-      : "Patient accounts are activated immediately. Staff accounts are reviewed and approved by the administrator.";
-  });
+      ? "Staff only need a name, email, password, phone, and department."
+      : "Patients also enter date of birth, emergency contact, and optional medical details.";
+    const dept = document.getElementById("suDept");
+    const defaults = { doctor: "Internal Medicine", nurse: "Nursing", pharmacist: "Pharmacy", laboratory: "Laboratory", reception: "Reception" };
+    if (staff && defaults[role] && !dept.dataset.touched) dept.value = defaults[role];
+  }
+  document.getElementById("suRole").addEventListener("change", applyRoleFields);
+  document.getElementById("suDept").addEventListener("change", () => { document.getElementById("suDept").dataset.touched = "1"; });
+  applyRoleFields();
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -199,20 +234,35 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showErr("Please enter a valid email address.");
     if (pass.length < 8) return showErr("Password must be at least 8 characters.");
     if (pass !== pass2) return showErr("Passwords do not match.");
-    if (!dob) return showErr("Please select your date of birth.");
-    const age = Math.floor((Date.now() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
-    if (age < 0 || age > 120) return showErr("Please enter a valid date of birth.");
+    const role = document.getElementById("suRole").value;
+    const staff = role !== "patient";
+    const dept = document.getElementById("suDept").value;
     if (!/^\+?[0-9 ]{9,15}$/.test(phone)) return showErr("Please enter a valid phone number.");
-    if (!ec || ec.split("—").length < 2 && ec.split("-").length < 2 && ec.split(",").length < 2) return showErr("Emergency contact should include a name and phone.");
+    if (!staff) {
+      if (!dob) return showErr("Please select your date of birth.");
+      const age = Math.floor((Date.now() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
+      if (age < 0 || age > 120) return showErr("Please enter a valid date of birth.");
+      if (!ec || (ec.split("—").length < 2 && ec.split("-").length < 2 && ec.split(",").length < 2)) return showErr("Emergency contact should include a name and phone.");
+    } else if (!dept) {
+      return showErr("Please select your department.");
+    }
     if (!terms) return showErr("You must accept the Terms of Service and Privacy Policy.");
     ok();
 
     const record = {
-      name, email, password: pass, dob, gender: document.getElementById("suGender").value,
-      phone, blood: document.getElementById("suBlood").value, address: document.getElementById("suAddr").value.trim(),
-      city: document.getElementById("suCity").value.trim(), region: document.getElementById("suRegion").value,
-      role: document.getElementById("suRole").value, emergency_contact: ec,
-      insurance: document.getElementById("suIns").value, policy: document.getElementById("suPol").value.trim()
+      name, email, password: pass, phone, role,
+      gender: staff ? "" : document.getElementById("suGender").value,
+      dob: staff ? "" : dob,
+      blood: staff ? "" : document.getElementById("suBlood").value,
+      emergency_contact: staff ? "" : ec,
+      department: staff ? dept : "",
+      details: staff ? {} : {
+        address: document.getElementById("suAddr").value.trim(),
+        city: document.getElementById("suCity").value.trim(),
+        region: document.getElementById("suRegion").value,
+        insurance: document.getElementById("suIns").value,
+        policy: document.getElementById("suPol").value.trim()
+      }
     };
     apiFetch(CONFIG.ENDPOINTS.SIGNUP, "POST", record, { skipAuth: true }).then(res => {
       if (!res.ok) { showErr(res.error || "Could not save the account. Check that Supabase is connected."); return; }
@@ -236,6 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
       footer: `<a class="btn btn-primary" href="index.html">Go to Sign In</a>`
     });
     form.reset();
+    document.getElementById("suDept").dataset.touched = "";
+    applyRoleFields();
     });
   });
 });

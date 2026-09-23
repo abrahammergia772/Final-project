@@ -9,7 +9,7 @@ import secrets
 import time
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from db import get_client
 from security import current_user, hash_password, issue_token, verify_password
@@ -33,6 +33,8 @@ class SignupRequest(BaseModel):
     gender: str = ""
     blood: str = ""
     emergency_contact: str = ""
+    department: str = ""
+    details: dict = Field(default_factory=dict)
 
 
 class ResetRequest(BaseModel):
@@ -110,6 +112,7 @@ def signup(req: SignupRequest):
             "password_hash": hash_password(req.password), "role": role,
             "phone": req.phone, "dob": req.dob, "gender": req.gender,
             "blood": req.blood, "emergency_contact": req.emergency_contact,
+            "department": req.department, "details": req.details or {},
             "status": "active",
         }
         resp = client.table("users").insert(row).execute()

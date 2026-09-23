@@ -27,12 +27,12 @@
 <div class="panel-grid cols-2">
   <section class="card">
     <h3 class="mb-1">Fingerprint Check-in</h3>
-    <p class="text-sm mb-3" style="color:#6B7280">Attendance is captured <strong>automatically</strong> by the fingerprint device when you enter the facility — no manual entry needed. Touch the scanner to see it live.</p>
+    <p class="text-sm mb-3" style="color:#6B7280">Touch the scanner to check in when you arrive, and touch it again to check out. The record is saved to attendance.</p>
     <div class="fp-panel">
       <div class="fp-scanner" id="fpScanner" title="Touch to scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg></div>
       <div class="fp-status">
-        <div class="fp-main" id="fpMain">Present</div>
-        <div class="fp-sub" id="fpSub">Checked in at 06:58 via fingerprint</div>
+        <div class="fp-main" id="fpMain">Not checked in</div>
+        <div class="fp-sub" id="fpSub">Touch the scanner to check in</div>
       </div>
       <div class="fp-meta">
         <span class="fp-m-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 11a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg> Device: <strong>FP-01 · Main Entrance</strong></span>
@@ -183,8 +183,7 @@ function loadPageData() {
 }
 
 function myToday() {
-  return ATT.find(a => a.staff === STAFF_NAME && a.date === TODAY) ||
-    { staff: STAFF_NAME, date: TODAY, shift: "Morning", check_in: "06:58", check_out: null, status: "present", source: "fingerprint", device: "FP-01" };
+  return (ATT || []).find(a => a.staff === STAFF_NAME && a.date === TODAY) || null;
 }
 
 // ---------- Fingerprint scanner ----------
@@ -193,46 +192,83 @@ function renderMyPanel() {
   const scanner = document.getElementById("fpScanner");
   const main = document.getElementById("fpMain");
   const sub = document.getElementById("fpSub");
+  if (!scanner || !main || !sub) return;
   scanner.classList.remove("ok");
-  if (t.status === "absent") {
+  if (!t || !t.check_in || t.status === "absent") {
     main.textContent = "Not checked in";
-    sub.textContent = "Place your finger — device will capture automatically";
+    sub.textContent = "Touch the scanner to check in";
     scanner.title = "Touch to check in";
   } else if (t.check_out) {
     scanner.classList.add("ok");
     main.textContent = "Checked out · " + t.check_out;
-    sub.textContent = "Shift complete — auto-captured by fingerprint device";
+    sub.textContent = "Saved to attendance";
     scanner.title = "Day complete";
   } else {
     scanner.classList.add("ok");
     main.textContent = "Present · " + t.check_in;
-    sub.textContent = "Auto-captured by " + (t.device || "FP-01") + " at " + t.check_in;
+    sub.textContent = "Checked in at " + t.check_in + " · touch again to check out";
     scanner.title = "Touch to check out";
   }
 }
 function fpScan() {
   const scanner = document.getElementById("fpScanner");
-  if (scanner.classList.contains("scanning")) return;
-  const t = myToday();
-  if (t.status === "absent" || (t.status === "present" && t.check_out)) return;
+  if (!scanner || scanner.classList.contains("scanning")) return;
+  const existing = myToday();
+  if (existing && existing.check_out) {
+    showToast("You already checked out today.", "info");
+    return;
+  }
   scanner.classList.add("scanning");
   const now = new Date().toTimeString().slice(0, 5);
-  setTimeout(() => {
+  setTimeout(function () {
     scanner.classList.remove("scanning");
-    scanner.classList.add("ok");
-    if (t.status === "absent") {
-      t.status = "present"; t.check_in = now; t.source = "fingerprint"; t.device = "FP-01";
-      document.getElementById("fpMain").textContent = "Present · " + now;
-      document.getElementById("fpSub").textContent = "Fingerprint verified — checked in at " + now;
-      showToast("✓ Fingerprint matched — checked in at " + now, "success");
-    } else if (!t.check_out) {
-      t.check_out = now;
-      document.getElementById("fpMain").textContent = "Checked out · " + now;
-      document.getElementById("fpSub").textContent = "Checked out at " + now + " — see you tomorrow";
-      showToast("✓ Checked out at " + now, "success");
+    const hour = new Date().getHours();
+    const shift = hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Night";
+    let row = myToday();
+    if (!row || !row.check_in || row.status === "absent") {
+      if (!row) {
+        row = {
+          id: uid("AT"),
+          staff: STAFF_NAME,
+          dept: (typeof getRoleLabel === "function" && getRoleLabel(getUserRole())) || "",
+          date: TODAY,
+          shift: shift,
+          check_in: now,
+          check_out: "",
+          status: "present",
+          source: "fingerprint",
+          device: "FP-01"
+        };
+        if (!Array.isArray(ATT)) ATT = [];
+        ATT.unshift(row);
+        persistInsert(CONFIG.ENDPOINTS.ATTENDANCE, row).then(function (res) {
+          if (res && res.ok) {
+            showToast("Checked in at " + now, "success");
+          } else {
+            ATT = ATT.filter(function (a) { return a.id !== row.id; });
+            renderMyPanel();
+            renderMyStats();
+            if (typeof renderMyHistory === "function") renderMyHistory();
+          }
+        });
+      } else {
+        row.status = "present";
+        row.check_in = now;
+        row.check_out = "";
+        row.source = "fingerprint";
+        row.device = row.device || "FP-01";
+        saveRow(CONFIG.ENDPOINTS.ATTENDANCE, row, "Checked in at " + now);
+      }
+    } else {
+      row.check_out = now;
+      row.source = "fingerprint";
+      saveRow(CONFIG.ENDPOINTS.ATTENDANCE, row, "Checked out at " + now);
     }
+    renderMyPanel();
     renderMyStats();
-  }, 1200);
+    if (typeof renderMyHistory === "function") renderMyHistory();
+    if (window.__renderMgmt) window.__renderMgmt();
+  }, 900);
 }
 document.addEventListener("click", (e) => { if (e.target.closest("#fpScanner")) fpScan(); });
 
