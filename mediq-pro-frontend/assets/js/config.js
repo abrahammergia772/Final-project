@@ -92,6 +92,7 @@ const CONFIG = {
     CHANGE_PASSWORD:"/auth/change-password",
     ME:             "/auth/me",
     PROFILE:        "/auth/profile",
+    HEALTH_CARD:    "/auth/health-card",
     MESSAGE_DIRECTORY: "/messages/directory",
     APP_SETTINGS:   "/app_settings",
 

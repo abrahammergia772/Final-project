@@ -29,6 +29,7 @@
     <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="ptSearch" placeholder="Search name or ID…"></div>
     <div class="filters">
       <select class="form-control" id="ptFilter" style="width:170px"><option value="">All conditions</option><option>Hypertension</option><option>Diabetes Type 2</option><option>Asthma</option><option>Heart Disease</option><option>Chronic Kidney Disease</option><option>Thyroid Disorder</option></select>
+      <button class="btn btn-primary" type="button" id="btnFilePatient">File patient information</button>
       <span class="badge badge-info" id="ptCount">0 patients</span>
     </div>
   </div>
@@ -132,6 +133,8 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("doctor"); initLayout(); loadPageData();
+  const fileBtn = document.getElementById("btnFilePatient");
+  if (fileBtn) fileBtn.onclick = () => filePatient();
 });
 let PATIENTS = [];
 function loadPageData() {
@@ -156,7 +159,71 @@ function renderPatients() {
     <td>${p.age}</td><td>${esc(p.gender)}</td><td><span class="badge badge-primary">${esc(p.blood)}</span></td>
     <td>${esc(p.condition || "—")}</td><td>${formatDate(p.last_visit)}</td>
     <td><div class="actions"><button class="btn-icon primary" title="View" onclick="viewPatient('${p.id}')">${ICONS.eye}</button>
+    <button class="btn-icon" title="File / update" onclick="filePatient('${p.id}')">${ICONS.edit}</button>
     <a class="btn-icon success" title="Consult" href="consultation.html?patient=${p.id}">${ICONS.stethoscope}</a></div></td></tr>`).join("") : emptyRow(8);
+}
+function filePatient(id) {
+  const p = id ? PATIENTS.find(x => x.id === id) : null;
+  openModal({
+    title: p ? "Update patient file" : "File patient information",
+    body: `<div class="form-row">
+        <div class="form-group"><label>First name <span class="req">*</span></label><input class="form-control" id="pfFirst" value="${p ? esc(p.first_name) : ""}"></div>
+        <div class="form-group"><label>Last name <span class="req">*</span></label><input class="form-control" id="pfLast" value="${p ? esc(p.last_name) : ""}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Age</label><input class="form-control" type="number" id="pfAge" value="${p && p.age != null ? esc(String(p.age)) : ""}"></div>
+        <div class="form-group"><label>Gender</label><select class="form-control" id="pfGender"><option>Male</option><option>Female</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone</label><input class="form-control" id="pfPhone" value="${p ? esc(p.phone || "") : ""}"></div>
+        <div class="form-group"><label>Email</label><input class="form-control" id="pfEmail" value="${p ? esc(p.email || "") : ""}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Blood type</label><select class="form-control" id="pfBlood"><option>Unknown</option><option>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select></div>
+        <div class="form-group"><label>Condition</label><input class="form-control" id="pfCond" value="${p ? esc(p.condition || "") : ""}" placeholder="e.g. Hypertension"></div>
+      </div>
+      <div class="form-group"><label>Address</label><input class="form-control" id="pfAddr" value="${p ? esc(p.address || "") : ""}"></div>
+      <div class="form-group"><label>Emergency contact</label><input class="form-control" id="pfEc" value="${p ? esc(p.emergency || "") : ""}"></div>
+      <div class="form-group"><label>Clinical notes</label><textarea class="form-control" id="pfNotes" rows="3">${p && p.details && p.details.notes ? esc(p.details.notes) : ""}</textarea></div>`,
+    footer: `<button class="btn btn-secondary" data-close type="button">Cancel</button><button class="btn btn-primary" id="pfSave" type="button">Save to patient file</button>`,
+    size: "lg",
+    onMount: (ov) => {
+      if (p && p.gender) ov.querySelector("#pfGender").value = p.gender;
+      if (p && p.blood) ov.querySelector("#pfBlood").value = p.blood;
+      ov.querySelector("#pfSave").onclick = () => {
+        const first = ov.querySelector("#pfFirst").value.trim();
+        const last = ov.querySelector("#pfLast").value.trim();
+        if (!first || !last) { showToast("First and last name are required", "error"); return; }
+        const row = {
+          id: p ? p.id : uid("P"),
+          first_name: first,
+          last_name: last,
+          age: Number(ov.querySelector("#pfAge").value) || null,
+          gender: ov.querySelector("#pfGender").value,
+          phone: ov.querySelector("#pfPhone").value.trim(),
+          email: ov.querySelector("#pfEmail").value.trim(),
+          blood: ov.querySelector("#pfBlood").value,
+          address: ov.querySelector("#pfAddr").value.trim(),
+          emergency: ov.querySelector("#pfEc").value.trim(),
+          condition: ov.querySelector("#pfCond").value.trim(),
+          last_visit: p && p.last_visit ? p.last_visit : todayStr(),
+          status: "active",
+          notes: ov.querySelector("#pfNotes").value.trim(),
+          filed_by: getUserName()
+        };
+        const done = (res) => {
+          if (!res || !res.ok) return;
+          if (p) Object.assign(p, row);
+          else PATIENTS.unshift(row);
+          renderPatients();
+          ov.remove();
+          showToast("Patient file saved", "success");
+        };
+        if (p) saveRow(CONFIG.ENDPOINTS.PATIENTS, row, "").then(done);
+        else persistInsert(CONFIG.ENDPOINTS.PATIENTS, row).then(done);
+      };
+    }
+  });
 }
 function viewPatient(id) {
   const p = PATIENTS.find(x => x.id === id);

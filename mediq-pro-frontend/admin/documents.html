@@ -32,7 +32,7 @@
   <div class="filters" style="display:flex;gap:10px;flex-wrap:wrap">
     <select class="form-control" id="docType" style="width:180px"><option value="">All types</option><option>Lab Report</option><option>Prescription</option><option>Consent Form</option><option>Referral Letter</option><option>Insurance</option><option>ID Copy</option><option>Other</option></select>
     <select class="form-control" id="docPatient" style="width:220px"><option value="">All patients</option></select>
-    <button class="btn btn-primary" id="btnUpload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Upload Document</button>
+    <button class="btn btn-primary" id="btnUpload" type="button" onclick="uploadModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Upload Document</button>
   </div>
 </div>
 <div class="doc-grid" id="docGrid"></div>
@@ -147,7 +147,10 @@ function loadPageData() {
     renderDocs();
   });
   const up = document.getElementById("btnUpload");
-  if (up) up.style.display = DOC_PERMS.upload ? "" : "none";
+  if (up) {
+    up.style.display = DOC_PERMS.upload ? "" : "none";
+    up.onclick = function (e) { e.preventDefault(); uploadModal(); };
+  }
   document.getElementById("docSearch").addEventListener("input", debounce(() => renderDocs(), 200));
   document.getElementById("docType").addEventListener("change", renderDocs);
   document.getElementById("docPatient").addEventListener("change", renderDocs);
@@ -259,7 +262,8 @@ function uploadModal() {
   openModal({
     title: "Upload Document",
     body: `<div class="form-group"><label>Patient <span class="req">*</span></label>
-      <select class="form-control" id="uPat">${PATIENTS.map(p => `<option value="${esc(p.id)}">${esc(p.first_name + " " + p.last_name)} (${esc(p.id)})</option>`).join("") || "<option>Abel Mekonnen (P-1001)</option>"}</select></div>
+      <select class="form-control" id="uPat">${PATIENTS.map(p => `<option value="${esc(p.id)}">${esc(p.first_name + " " + p.last_name)} (${esc(p.id)})</option>`).join("") || "<option value=\"\">No saved patient yet</option>"}</select>
+      <input class="form-control mt-2" id="uPatName" placeholder="Or type the patient name"></div>
       <div class="form-group"><label>Document Type</label><select class="form-control" id="uType"><option>Lab Report</option><option>Prescription</option><option>Consent Form</option><option>Referral Letter</option><option>Insurance</option><option>ID Copy</option><option>Other</option></select></div>
       <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="uTitle" placeholder="e.g. Lab Report — 11/08"></div>
       <div class="form-group"><label>File <span class="req">*</span></label><input class="form-control" type="file" id="uFile"></div>
@@ -274,9 +278,12 @@ function uploadModal() {
         if (!title) { showToast("Title is required", "error"); return; }
         if (!file) { showToast("Choose a file to upload", "error"); return; }
         const pSel = PATIENTS.find(p => p.id === ov.querySelector("#uPat").value);
+        const typed = (ov.querySelector("#uPatName").value || "").trim();
+        const patientName = pSel ? (pSel.first_name + " " + pSel.last_name) : typed;
+        if (!patientName) { showToast("Choose or type the patient name", "error"); return; }
         const row = {
-          id: uid("DOC"), patient: pSel ? pSel.first_name + " " + pSel.last_name : "Patient",
-          patient_id: pSel ? pSel.id : ov.querySelector("#uPat").value,
+          id: uid("DOC"), patient: patientName,
+          patient_id: pSel ? pSel.id : "",
           type: ov.querySelector("#uType").value, title,
           date: todayStr(), size: "—", uploaded_by: getUserName(),
           summary: ov.querySelector("#uSum").value.trim() || "Uploaded file."

@@ -31,7 +31,7 @@
     <div id="hcCard"></div>
     <div class="flex gap-3 wrap" style="justify-content:center">
       <button class="btn btn-primary" id="hcPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Card</button>
-      <button class="btn btn-secondary" onclick="showToast('A digital copy was sent to your email','success')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg> Email Copy</button>
+      <button class="btn btn-secondary" onclick="showToast('Print the card or show it on this page at the desk','info')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg> Email Copy</button>
     </div>
   </section>
   <div>
@@ -145,16 +145,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let ME = null;
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.PATIENTS).then(r => {
-    if (!r.ok) return;
-    const who = getUserName();
-    ME = r.data.items.find(p => p.first_name + " " + p.last_name === who) || r.data.items[0];
+  apiFetch(CONFIG.ENDPOINTS.HEALTH_CARD).then(r => {
+    if (!r.ok || !r.data || !r.data.card) {
+      document.getElementById("hcCard").innerHTML = '<div class="empty-state">Your health card is not ready yet. Sign out and sign in again, or ask reception.</div>';
+      return;
+    }
+    ME = r.data.card;
     renderCard();
   });
-  document.getElementById("hcPrint").addEventListener("click", () => { if (ME) printCard(ME); });
+  document.getElementById("hcPrint").addEventListener("click", () => { if (ME) printIdCard(ME); });
 }
 function renderCard() {
   const p = ME;
+  if (!p) return;
   document.getElementById("hcCard").innerHTML = `<div class="id-card">${cardBody(p)}</div>`;
   document.getElementById("hcInfo").innerHTML = `
     <div class="info-box"><div class="ib-label">Patient ID</div><div class="ib-value">${esc(p.id)}</div></div>
@@ -185,7 +188,7 @@ function cardBody(p) {
     </div>
     <div class="idc-emerg">🚨 <b>Emergency:</b> ${esc(p.emergency)}</div>
     <div class="idc-barcode">${bars}<div class="idc-num">${esc(p.id)} · WOLAITA SODO HOSPITAL</div></div>
-    <div class="idc-foot"><span>Issued: 01/01/2026</span><span>Valid: 2028</span><span>WSUH · Wolaita Sodo Hospital</span></div>`;
+    <div class="idc-foot"><span>Issued: ${esc((p.details && p.details.health_card && p.details.health_card.issued) || p.issued || "today")}</span><span>Valid until: ${esc((p.details && p.details.health_card && p.details.health_card.valid_until) || "2 years")}</span><span>WSUH · Wolaita Sodo Hospital</span></div>`;
 }
 function calcDob(p) { const d = new Date(); d.setFullYear(d.getFullYear() - p.age); return d.toISOString().slice(0, 10); }
 function barcode(text) {
@@ -203,11 +206,11 @@ function barcode(text) {
     `<rect x="0" y="0" width="2" height="44" fill="#111827"/><rect x="5" y="0" width="1" height="44" fill="#111827"/><rect x="8" y="0" width="2" height="44" fill="#111827"/>` +
     bars + `</svg>`;
 }
-function printCard(id) {
-  const list = (typeof PATS !== "undefined") ? PATS : (typeof patients !== "undefined" ? patients : []);
-  const p = list && list.find ? list.find(x => x.id === id) : null;
-  if (p) printIdCard(p);
-  else if (id && typeof id === "object") printIdCard(id);
+function printIdCard(p) {
+  const win = window.open("", "_blank");
+  if (!win) { showToast("Allow pop-ups to print the card", "info"); return; }
+  win.document.write("<!DOCTYPE html><html><head><title>Health card</title><style>body{font-family:sans-serif;padding:24px} .id-card{border:1px solid #ccc;border-radius:12px;padding:16px;max-width:420px}</style></head><body>" + document.getElementById("hcCard").innerHTML + "<script>window.print()<\/script></body></html>");
+  win.document.close();
 }
 
 </script>

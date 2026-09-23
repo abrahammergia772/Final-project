@@ -326,3 +326,4 @@ function sendHospitalMessage(fields) {
     return { res: res, row: row };
   });
 }
+

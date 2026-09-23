@@ -5,6 +5,7 @@
 # falls back to built-in demo accounts so the whole system stays usable.
 # =============================================================================
 import logging
+from datetime import date
 from typing import Optional
 import secrets
 import time
@@ -120,12 +121,101 @@ def signup(req: SignupRequest):
         resp = client.table("users").insert(row).execute()
         created = dict((resp.data or [row])[0])
         created.pop("password_hash", None)
-        return {"ok": True, "user": created}
+        card = None
+        if role == "patient":
+            created["dob"] = req.dob
+            created["gender"] = req.gender
+            created["blood"] = req.blood
+            created["emergency_contact"] = req.emergency_contact
+            created["details"] = req.details or {}
+            try:
+                card = issue_health_card(client, created)
+            except Exception as exc:  # noqa: BLE001
+                log.error("health card after signup failed: %s", type(exc).__name__)
+                card = None
+        return {"ok": True, "user": created, "health_card": card}
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
         log.error("supabase signup failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Registration service unavailable")
+
+
+
+def _card_number() -> str:
+    return "HC-" + date.today().strftime("%y") + secrets.token_hex(3).upper()
+
+
+def _age_from_dob(dob: str):
+    try:
+        year, month, day = [int(part) for part in str(dob)[:10].split("-")]
+        today = date.today()
+        return today.year - year - ((today.month, today.day) < (month, day))
+    except (TypeError, ValueError):
+        return None
+
+
+def issue_health_card(client, user_row: dict) -> dict:
+    """Create the patient's file and health card if they do not already have one."""
+    email = str(user_row.get("email") or "").strip().lower()
+    name = str(user_row.get("name") or "").strip()
+    parts = name.split()
+    first = parts[0] if parts else name or "Patient"
+    last = " ".join(parts[1:]) if len(parts) > 1 else ""
+    details = user_row.get("details") if isinstance(user_row.get("details"), dict) else {}
+    if email:
+        found = client.table("patients").select("*").eq("email", email).limit(1).execute()
+        if found.data:
+            row = found.data[0]
+            details = row.get("details") if isinstance(row.get("details"), dict) else {}
+            if not isinstance(details.get("health_card"), dict):
+                issued = date.today().isoformat()
+                try:
+                    valid_on = date(date.today().year + 2, date.today().month, date.today().day)
+                except ValueError:
+                    valid_on = date(date.today().year + 2, date.today().month, 28)
+                details = dict(details)
+                details["health_card"] = {"id": row.get("id"), "issued": issued, "valid_until": valid_on.isoformat(), "user_id": str(user_row.get("id") or "")}
+                client.table("patients").update({"details": details}).eq("id", row.get("id")).execute()
+                row["details"] = details
+            return row
+    card_id = _card_number()
+    for _ in range(5):
+        clash = client.table("patients").select("id").eq("id", card_id).limit(1).execute()
+        if not clash.data:
+            break
+        card_id = _card_number()
+    issued = date.today().isoformat()
+    try:
+        valid_on = date(date.today().year + 2, date.today().month, date.today().day)
+    except ValueError:
+        valid_on = date(date.today().year + 2, date.today().month, 28)
+    valid = valid_on.isoformat()
+    dob = user_row.get("dob") or details.get("dob") or ""
+    address = ", ".join(part for part in [details.get("address"), details.get("city"), details.get("region")] if part)
+    card = {"id": card_id, "issued": issued, "valid_until": valid, "user_id": str(user_row.get("id") or "")}
+    row = {
+        "id": card_id,
+        "first_name": first,
+        "last_name": last,
+        "age": _age_from_dob(dob),
+        "gender": user_row.get("gender") or "",
+        "phone": user_row.get("phone") or "",
+        "email": email,
+        "blood": user_row.get("blood") or "",
+        "address": address,
+        "emergency": user_row.get("emergency_contact") or "",
+        "condition": "",
+        "last_visit": "",
+        "status": "active",
+        "details": {"health_card": card, "dob": dob, "user_id": str(user_row.get("id") or ""), "insurance": details.get("insurance") or "", "policy": details.get("policy") or ""},
+    }
+    client.table("patients").insert(row).execute()
+    merged = dict(details)
+    merged["health_card"] = card
+    if user_row.get("id"):
+        client.table("users").update({"details": merged}).eq("id", user_row.get("id")).execute()
+    return row
 
 
 class ChangePasswordRequest(BaseModel):
@@ -206,6 +296,31 @@ def update_profile(req: ProfileUpdate, user=Depends(current_user)):
     row = (saved.data or [payload])[0]
     row.pop("password_hash", None)
     return {"ok": True, "user": row}
+
+
+
+@router.get("/auth/health-card")
+def health_card(user=Depends(current_user)):
+    if user.get("role") != "patient":
+        raise HTTPException(status_code=403, detail="Health cards are issued to patient accounts")
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=503, detail="Supabase is not configured")
+    uid = str(user.get("sub") or "")
+    try:
+        resp = client.table("users").select("id,email,name,role,phone,dob,gender,blood,emergency_contact,details").eq("id", uid).limit(1).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("health card lookup failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Health card service unavailable")
+    rows = resp.data or []
+    if not rows:
+        raise HTTPException(status_code=404, detail="Account not found")
+    try:
+        card = issue_health_card(client, rows[0])
+    except Exception as exc:  # noqa: BLE001
+        log.error("health card issue failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Could not create the health card")
+    return {"ok": True, "card": card}
 
 
 @router.get("/auth/me")
