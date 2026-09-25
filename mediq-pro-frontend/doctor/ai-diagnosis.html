@@ -43,6 +43,7 @@
       </div></div>
     <div class="form-group"><label>Patient History</label>
       <div class="chip-group" id="histChips"></div></div>
+    <div class="form-group"><label>Patient name <span class="req">*</span></label><input class="form-control" id="dxPatient" placeholder="Patient full name"></div>
     <button class="btn btn-primary btn-lg btn-block" id="btnAnalyze"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg> Analyze with AI</button>
   </section>
   <div>
@@ -173,6 +174,7 @@ function analyze() {
     }, history }, renderResult);
 }
 function renderResult(res) {
+  LAST_DX = res;
   const panel = document.getElementById("aiResultPanel");
   const cards = res.predictions.map(p => {
     const cls = confidenceColor(p.confidence);
@@ -192,7 +194,41 @@ function renderResult(res) {
     <div class="disclaimer"><span>${ICONS.info}</span><div>AI suggestions only. Final diagnosis by doctor. This output should not replace clinical judgment.</div></div>
     <div class="form-actions mt-4"><button class="btn btn-secondary" id="saveDx">${ICONS.download} Save to Patient Record</button>
     <button class="btn btn-primary" onclick="analyze()">${ICONS.refresh} Re-run</button></div></section>`;
-  document.getElementById("saveDx").addEventListener("click", () => showToast("Prediction saved to patient record", "success"));
+  document.getElementById("saveDx").addEventListener("click", saveDxToDocuments);
+}
+let LAST_DX = null;
+function saveDxToDocuments() {
+  const res = LAST_DX;
+  const patient = (document.getElementById("dxPatient").value || "").trim();
+  if (!patient) { showToast("Enter the patient name before saving", "error"); return; }
+  if (!res || !res.predictions || !res.predictions.length) { showToast("Run the analysis first", "error"); return; }
+  const symptoms = document.getElementById("symText").value.trim();
+  const history = Array.from(document.querySelectorAll("#histChips .selected")).map(c => c.dataset.sym);
+  const top = res.predictions[0];
+  const lines = [
+    "AI diagnosis",
+    "Patient: " + patient,
+    "Symptoms: " + symptoms,
+    "History: " + (history.join(", ") || "—"),
+    "Model: " + (res.model || ""),
+    ""
+  ].concat(res.predictions.map(p => p.disease + " — " + p.confidence + "% — " + (p.description || "") + " — " + (p.urgency || "")));
+  const file = new File([lines.join("\n")], "ai-diagnosis.txt", { type: "text/plain" });
+  const btn = document.getElementById("saveDx");
+  if (btn) btn.disabled = true;
+  saveUploadedDocument({
+    patient: patient,
+    type: "AI Diagnosis",
+    title: (top.disease || "AI diagnosis") + " — " + patient,
+    summary: (top.disease || "AI diagnosis") + " (" + top.confidence + "%). Saved from AI Diagnosis."
+  }, file).then(function (saved) {
+    if (btn) btn.disabled = false;
+    if (!saved || !saved.ok) return;
+    showToast("Saved to Documents", "success");
+  }).catch(function (err) {
+    if (btn) btn.disabled = false;
+    showToast((err && err.message) || "Could not save the record", "error");
+  });
 }
 
 </script>

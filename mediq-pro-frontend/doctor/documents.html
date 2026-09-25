@@ -30,7 +30,7 @@
 <div class="flex-between mb-4 wrap" style="gap:12px">
   <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="docSearch" placeholder="Search patient, title or type…"></div>
   <div class="filters" style="display:flex;gap:10px;flex-wrap:wrap">
-    <select class="form-control" id="docType" style="width:180px"><option value="">All types</option><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option></select>
+    <select class="form-control" id="docType" style="width:180px"><option value="">All types</option><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option><option>AI Diagnosis</option></select>
     <select class="form-control" id="docPatient" style="width:220px"><option value="">All patients</option></select>
     <button class="btn btn-primary" id="btnUpload" type="button" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Upload Document</button>
   </div>
@@ -40,7 +40,7 @@
   <p class="text-sm mb-3" style="color:#6B7280">Choose the file here, then press Save uploaded file. Files under 1.2 MB are stored in Supabase.</p>
   <div class="form-row">
     <div class="form-group"><label>Patient name <span class="req">*</span></label><input class="form-control" id="upPatient" placeholder="Patient full name"></div>
-    <div class="form-group"><label>Type</label><select class="form-control" id="upType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option></select></div>
+    <div class="form-group"><label>Type</label><select class="form-control" id="upType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option><option>AI Diagnosis</option></select></div>
   </div>
   <div class="form-row">
     <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="upTitle" placeholder="e.g. Lab report"></div>
@@ -147,12 +147,12 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess(ROLE); initLayout(); loadPageData();
 });
 let DOCS = [], PATIENTS = [];
-const DOC_ICONS = {"Lab Report":"flask","Prescription":"file-text","Consent Form":"file-plus","Referral Letter":"share","Insurance":"shield","ID Copy":"card","Other":"file-text","Clinical Decision":"clipboard"};
+const DOC_ICONS = {"Lab Report":"flask","Prescription":"file-text","Consent Form":"file-plus","Referral Letter":"share","Insurance":"shield","ID Copy":"card","Other":"file-text","Clinical Decision":"clipboard","AI Diagnosis":"brain"};
 const DOC_TINTS = {"Lab Report":"#E0F4FA|#0891B2","Prescription":"#E3F9EF|#0F9D5C","Consent Form":"#FBF0D3|#B45309","Referral Letter":"#F5F3FF|#7C3AED","Insurance":"#E1EFFA|#1A6FA8","ID Copy":"#FEF2F2|#DC2626","Other":"#F3F4F6|#6B7280"};
 // Role-based document permissions (injected per role by the builder):
 //   can { upload, edit, delete } · allowed document types (scope)
 const DOC_PERMS = {"upload":1,"edit":1,"delete":1};
-const DOC_ALLOWED = ["Lab Report","Prescription","Referral Letter","Consent Form","Clinical Decision"]; // array of allowed types (empty = all)
+const DOC_ALLOWED = ["Lab Report","Prescription","Referral Letter","Consent Form","Clinical Decision","AI Diagnosis"]; // array of allowed types (empty = all)
 function allowed(d) { return !DOC_ALLOWED.length || DOC_ALLOWED.includes(d.type); }
 function loadPageData() {
   Promise.all([apiFetch(CONFIG.ENDPOINTS.DOCUMENTS), apiFetch(CONFIG.ENDPOINTS.PATIENTS)]).then(([d, p]) => {
@@ -252,7 +252,7 @@ function editDoc(id) {
   if (!d) return;
   openModal({
     title: "Edit Document",
-    body: `<div class="form-group"><label>Document Type</label><select class="form-control" id="eType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option></select></div>
+    body: `<div class="form-group"><label>Document Type</label><select class="form-control" id="eType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option><option>AI Diagnosis</option></select></div>
       <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="eTitle" value="${esc(d.title)}"></div>
       <div class="form-group"><label>Summary</label><textarea class="form-control" rows="3" id="eSum">${esc(d.summary)}</textarea></div>`,
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="eSave">${ICONS.check} Save Changes</button>`
@@ -279,7 +279,7 @@ function uploadModal() {
     body: `<div class="form-group"><label>Patient <span class="req">*</span></label>
       <select class="form-control" id="uPat">${PATIENTS.map(p => `<option value="${esc(p.id)}">${esc(p.first_name + " " + p.last_name)} (${esc(p.id)})</option>`).join("") || "<option value=\"\">No saved patient yet</option>"}</select>
       <input class="form-control mt-2" id="uPatName" placeholder="Or type the patient name"></div>
-      <div class="form-group"><label>Document Type</label><select class="form-control" id="uType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option></select></div>
+      <div class="form-group"><label>Document Type</label><select class="form-control" id="uType"><option>Lab Report</option><option>Prescription</option><option>Referral Letter</option><option>Consent Form</option><option>Clinical Decision</option><option>AI Diagnosis</option></select></div>
       <div class="form-group"><label>Title <span class="req">*</span></label><input class="form-control" id="uTitle" placeholder="e.g. Lab Report — 11/08"></div>
       <div class="form-group"><label>File <span class="req">*</span></label><input class="form-control" type="file" id="uFile"></div>
       <div class="form-group"><label>Summary</label><textarea class="form-control" rows="3" id="uSum" placeholder="Short note about the document…"></textarea></div>`,

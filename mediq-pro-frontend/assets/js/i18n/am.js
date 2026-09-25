@@ -892,4 +892,8 @@ window.I18N_AM = {
 "No known symptoms were found in that file. Include words such as fever, cough, or headache.": "በዚያ ፋይል ውስጥ የታወቀ ምልክት አልተገኘም። ትኩሳት፣ ሳል ወይም ራስ ምታት ያሉ ቃላትን ያካትቱ።",
 "Symptoms found in the file": "በፋይሉ ውስጥ የተገኙ ምልክቶች",
 "Low confidence": "ዝቅተኛ እምነት",
+"Enter the patient name before saving": "ከማስቀመጥዎ በፊት የታካሚውን ስም ያስገቡ",
+"Saved to Documents": "ወደ ሰነዶች ተቀምጧል",
+"AI Diagnosis": "የ AI ምርመራ",
+"Run the analysis first": "መጀመሪያ ትንታኔውን ያስኪዱ",
 };
