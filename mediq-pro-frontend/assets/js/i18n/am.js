@@ -889,4 +889,7 @@ window.I18N_AM = {
 "Run clinical decision": "ክሊኒካዊ ውሳኔ አስኪድ",
 "Patient name": "የታካሚ ስም",
 "The file is saved only after the model and Supabase both accept it.": "ፋይሉ የሚቀመጠው ሞዴሉ እና Supabase ሁለቱም ከተቀበሉ በኋላ ብቻ ነው።",
+"No known symptoms were found in that file. Include words such as fever, cough, or headache.": "በዚያ ፋይል ውስጥ የታወቀ ምልክት አልተገኘም። ትኩሳት፣ ሳል ወይም ራስ ምታት ያሉ ቃላትን ያካትቱ።",
+"Symptoms found in the file": "በፋይሉ ውስጥ የተገኙ ምልክቶች",
+"Low confidence": "ዝቅተኛ እምነት",
 };

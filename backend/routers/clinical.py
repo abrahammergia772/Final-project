@@ -5,10 +5,12 @@
 # =============================================================================
 import base64
 import io
+import json
 import logging
 import re
 import secrets
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Depends
@@ -72,9 +74,89 @@ def _extract_file_text(name: str, raw: bytes, mime: str) -> str:
     raise HTTPException(status_code=400, detail="Use a text, Word, or PDF file. A photo cannot be read as a clinical note.")
 
 
+_DOCTOR = {}
+
+
+def _doctor_bundle():
+    """Load the uploaded doctor model, label encoder, and symptom list once."""
+    if _DOCTOR.get("checked"):
+        return _DOCTOR.get("bundle")
+    _DOCTOR["checked"] = True
+    base = Path(__file__).resolve().parents[1] / "models" / "clinical_decision"
+    model_path = base / "doctor_ai_model.pkl"
+    encoder_path = next((base / name for name in ("label_encoder (1).pkl", "label_encoder.pkl") if (base / name).exists()), None)
+    vocab_path = next((base / name for name in ("symptom_vocab (1).json", "symptom_vocab.json") if (base / name).exists()), None)
+    if not model_path.exists() or encoder_path is None or vocab_path is None:
+        _DOCTOR["bundle"] = None
+        return None
+    import joblib
+    vocab = json.loads(vocab_path.read_text(encoding="utf-8"))
+    index = {str(key).lower(): int(value) for key, value in (vocab.get("symptom_to_idx") or {}).items()}
+    _DOCTOR["bundle"] = {
+        "model": joblib.load(model_path),
+        "encoder": joblib.load(encoder_path),
+        "index": index,
+    }
+    return _DOCTOR["bundle"]
+
+
+def _matched_symptoms(text: str, phrases) -> list:
+    hay = " " + re.sub(r"[^a-z0-9]+", " ", (text or "").lower()) + " "
+    found = []
+    for phrase in sorted(phrases, key=len, reverse=True):
+        needle = re.sub(r"[^a-z0-9]+", " ", phrase.lower()).strip()
+        if needle and f" {needle} " in hay:
+            found.append(phrase)
+    return found
+
+
+def _predict_doctor(text: str):
+    bundle = _doctor_bundle()
+    if not bundle:
+        return None
+    matched = _matched_symptoms(text, bundle["index"])
+    if not matched:
+        return {"predictions": [], "matched_symptoms": [], "model": "doctor_ai_model", "model_version": "uploaded", "source": "trained-model"}
+    model = bundle["model"]
+    width = int(getattr(model, "n_features_in_", len(bundle["index"])))
+    row = np.zeros((1, width), dtype=np.float32)
+    for phrase in matched:
+        pos = bundle["index"][phrase]
+        if 0 <= pos < width:
+            row[0, pos] = 1.0
+    proba = model.predict_proba(row)[0]
+    order = np.argsort(-proba)[:3]
+    encoder = bundle["encoder"]
+    predictions = []
+    for pos in order:
+        label_id = int(model.classes_[pos])
+        try:
+            name = str(encoder.inverse_transform([label_id])[0])
+        except Exception:  # noqa: BLE001
+            name = f"Condition {label_id + 1}"
+        confidence = round(float(proba[pos]) * 100.0, 1)
+        predictions.append({
+            "disease": name,
+            "confidence": confidence,
+            "description": "Suggested by the uploaded clinical model from symptoms found in the file.",
+            "urgency": "See doctor" if confidence >= 40 else "Low confidence",
+        })
+    return {
+        "predictions": predictions,
+        "matched_symptoms": matched[:24],
+        "model": "doctor_ai_model",
+        "model_version": "uploaded",
+        "source": "trained-model",
+    }
+
+
 def _predict_from_text(text: str) -> dict:
     models = load_module("clinical")
     cfg = load_config("clinical", "model_config.json") or {}
+
+    doctor = _predict_doctor(text)
+    if doctor and doctor.get("predictions"):
+        return doctor
 
     rf = models.get("rf_model.pkl")
     xgb = models.get("xgb_model.pkl")
@@ -144,9 +226,11 @@ async def clinical_decision_from_file(
     text = _extract_file_text(file.filename or "", raw, file.content_type or "").strip()
     if len(text) < 8:
         raise HTTPException(status_code=400, detail="No readable clinical text was found in that file.")
-    trained = _predict_from_text(text[:8000])
-    if not trained or not trained.get("predictions"):
+    trained = _predict_doctor(text[:8000])
+    if trained is None:
         raise HTTPException(status_code=503, detail="AI module unavailable")
+    if not trained.get("predictions"):
+        raise HTTPException(status_code=400, detail="No known symptoms were found in that file. Include words such as fever, cough, or headache.")
     top = trained["predictions"][0]
     mime = file.content_type or "application/octet-stream"
     row = {
@@ -181,5 +265,6 @@ async def clinical_decision_from_file(
         "model": trained.get("model"),
         "model_version": trained.get("model_version"),
         "source": trained.get("source"),
+        "matched_symptoms": trained.get("matched_symptoms") or [],
         "disclaimer": "This is an AI-assisted suggestion. Always consult a qualified medical professional before making clinical decisions.",
     }
