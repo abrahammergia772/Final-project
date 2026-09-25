@@ -24,7 +24,7 @@
 .stat-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.stat-card:hover { transform: none; box-shadow: none; }
+.stat-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .stat-icon:empty { display: none; }
 .stat-card::before { display: none; }
 .stat-card.color-danger::before { display: block; background: var(--danger); }
@@ -508,17 +508,17 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
 .pw-toggle .eye-off { display: none; }
 .pw-toggle.is-on .eye-on { display: none; }
 .pw-toggle.is-on .eye-off { display: block; }
-.pw-toggle:hover { background: var(--primary-light); color: var(--primary-dark); }
+.pw-toggle:hover { background: #E7F2FA; color: #0B3A5E; }
 .login-submit {
   height: 50px;
   margin-top: 6px;
   border: 0;
-  border-radius: 12px;
-  font-weight: 500;
-  background: var(--primary);
-  box-shadow: none;
+  border-radius: 14px;
+  font-weight: 650;
+  background: linear-gradient(180deg, #1C84C4 0%, #0F5F96 100%);
+  box-shadow: 0 12px 24px rgba(15, 79, 120, .24);
 }
-.login-submit:hover:not(:disabled) { background: var(--primary-dark); }
+.login-submit:hover:not(:disabled) { background: linear-gradient(180deg, #176FA6 0%, #0C4E7C 100%); }
 .login-submit .btn-spin {
   display: none;
   width: 18px;
@@ -538,7 +538,7 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
   font-size: 13px;
   font-weight: 600;
 }
-.login-links a { color: var(--primary); }
+.login-links a { color: #0F5F96; }
 .login-admin-link {
   display: inline-flex;
   align-items: center;

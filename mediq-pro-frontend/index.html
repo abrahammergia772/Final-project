@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Ethiopic:wght@400;500;600&display=swap" rel="stylesheet" />
-<meta name="theme-color" content="#2D7D6F" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
 
 <title>Wolaita Sodo Hospital — Login</title>
 <link rel="icon" type="image/png" href="assets/images/favicon.png" />
@@ -20,22 +20,44 @@
 <body>
 
 <!-- ============ LOGIN VIEW ============ -->
-<div class="login-page" id="loginView">
-  <aside class="login-brand" aria-label="Wolaita Sodo Hospital">
-    <p class="hospital-tag" data-i18n="Wolaita Sodo University">Wolaita Sodo University</p>
-    <h1 data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</h1>
-    <p class="tagline" data-i18n="Care | Compassion | Community">Care | Compassion | Community</p>
-    <p class="tagline" data-i18n="Wards, laboratory, pharmacy and the front desk — one system for the hospital day.">Wards, laboratory, pharmacy and the front desk — one system for the hospital day.</p>
-    <div class="login-stats">
-      <div class="login-stat"><strong>8</strong><span data-i18n="Roles">Roles</span></div>
-      <div class="login-stat"><strong>EN · አማ</strong><span data-i18n="Languages">Languages</span></div>
-      <div class="login-stat"><strong>ETB</strong><span data-i18n="Currency">Currency</span></div>
-    </div>
-  </aside>
-  <section class="login-form-panel">
-    <div class="login-form-inner">
-      <h2 data-i18n="Sign in">Sign in</h2>
-      <p class="subtitle" data-i18n="Use the email and password for your hospital account. Your role comes from that account.">Use the email and password for your hospital account. Your role comes from that account.</p>
+<div class="login-body login-split" id="loginView">
+  <div class="login-stage">
+    <aside class="login-hero" aria-label="Wolaita Sodo Hospital">
+      <div class="login-hero-inner">
+        <img class="login-mark" src="assets/images/logo-mark.png" alt="" />
+        <p class="login-kicker">Wolaita Sodo University</p>
+        <h1 class="wide"><span>Wolaita Sodo</span><br>Hospital</h1>
+        <p class="login-tag" data-i18n="Care | Compassion | Community">Care | Compassion | Community</p>
+        <p class="login-lead">Wards, laboratory, pharmacy and the front desk — one calm system for the hospital day.</p>
+        <svg class="login-ecg" viewBox="0 0 320 40" aria-hidden="true">
+          <path d="M0 22 H48 L62 22 L76 8 L92 34 L106 22 H150 L164 22 L178 6 L196 36 L210 22 H320"/>
+        </svg>
+        <ul class="login-points">
+          <li>
+            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20"/><path d="M6 8v9"/></svg></span>
+            <span><strong>Ward board</strong><small>See who is in each bed</small></span>
+          </li>
+          <li>
+            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></span>
+            <span><strong>Laboratory</strong><small>Samples, results and the blood bank</small></span>
+          </li>
+          <li>
+            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+            <span><strong>Front desk</strong><small>Queue, admissions and cashier</small></span>
+          </li>
+        </ul>
+        <p class="login-place">Wolaita Sodo, South Ethiopia</p>
+      </div>
+      <svg class="login-hills" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 150 L90 118 L160 142 L250 72 L330 128 L410 90 L500 146 L590 64 L680 130 L800 96 L800 200 L0 200 Z" fill="rgba(255,255,255,.06)"/>
+      <path d="M0 168 L120 136 L210 162 L300 104 L390 154 L500 86 L610 148 L720 112 L800 150 L800 200 L0 200 Z" fill="rgba(46,168,112,.22)"/>
+    </svg>
+    </aside>
+    <section class="login-panel">
+      <div class="login-card">
+        <p class="login-kicker login-kicker-form">Staff and patients</p>
+        <h2 class="login-title">Welcome back</h2>
+        <p class="login-sub">Use your hospital email to continue.</p>
 
         <div class="login-error" id="loginError">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -74,9 +96,10 @@
           </div>
         </form>
 
-        <p class="text-center text-sm login-foot" data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</p>
-    </div>
-  </section>
+        <p class="text-center text-sm login-foot">Wolaita Sodo Hospital</p>
+      </div>
+    </section>
+  </div>
 </div>
 
 <!-- ============ APP VIEW (SPA shell) ============ -->
