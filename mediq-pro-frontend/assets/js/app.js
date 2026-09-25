@@ -197,7 +197,7 @@ window.SPA = { mode: true, current: "" };
       });
       $$(".demo-role").forEach(b => b.addEventListener("click", () => {
         const role = b.dataset.role;
-        const acct = CONFIG.DEMO_ACCOUNTS[role] || {};
+        const acct = (CONFIG.DEMO_ACCOUNTS && CONFIG.DEMO_ACCOUNTS[role]) || {};
         login(role + "@wsh.et", acct.password).then(res => {
           if (res.ok) enterApp();
           else {

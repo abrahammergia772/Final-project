@@ -874,4 +874,12 @@ window.I18N_AM = {
 "Occupied beds": "የተያዙ አልጋዎች",
 "Register and approve a bed": "አልጋ ይመዝግቡ እና ያጽድቁ",
 "Demo mode active": "የሙከራ ሁነታ ንቁ",
+"Roles": "ሚናዎች",
+"Languages": "ቋንቋዎች",
+"Wards, laboratory, pharmacy and the front desk — one system for the hospital day.": "ዋርዶች፣ ላቦራቶሪ፣ ፋርማሲ እና የፊት ዴስክ — ለሆስፒታሉ ቀን አንድ ሥርዓት።",
+"Use the email and password for your hospital account. Your role comes from that account.": "የሆስፒታል መለያዎን ኢሜይል እና የይለፍ ቃል ይጠቀሙ። ሚናዎ ከመለያው ይመጣል።",
+"This is an AI-assisted suggestion. Always consult a qualified medical professional before making clinical decisions.": "ይህ በ AI የታገዘ ሀሳብ ነው። ክሊኒካዊ ውሳኔ ከማድረግዎ በፊት ብቁ የሕክምና ባለሙያ ያማክሩ።",
+"AI suggestion": "የ AI ሀሳብ",
+"Confidence": "እምነት",
+"AI module unavailable": "የ AI ሞጁል አይገኝም",
 };

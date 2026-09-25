@@ -19,16 +19,7 @@ const CONFIG = {
     return urlParams.get('api') || "https://final-project-bo4l.onrender.com";
   })(),
 
-  // Supabase (PostgreSQL) — replace with your project values before deploy
-  SUPABASE_URL: "",
-  SUPABASE_KEY: "",
-
-  // DEMO_MODE = true → the app runs with realistic mock data so the whole
-  // frontend is fully testable BEFORE the FastAPI backend + .pkl models are ready.
-  // Set to false once your backend is live AND redeployed with matching accounts.
-  DEMO_MODE: false,
-
-  DEMO_ACCOUNTS: {},
+  // Keys stay on the backend. The browser never calls Supabase directly.
 
   // All API endpoints used by the frontend (AI modules + core)
   ENDPOINTS: {

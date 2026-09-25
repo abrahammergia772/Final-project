@@ -2,28 +2,48 @@
    Wolaita Sodo Hospital — global.css
    Shared styles, CSS variables, typography, utilities & reset
    ============================================================ */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Ethiopic:wght@400;500;600&display=swap");
 
 /* ---------- 1. Design tokens ---------- */
 :root {
-  /* Colors — professional healthcare palette */
-  --primary: #1A6FA8;            /* Ocean blue — primary brand / buttons */
-  --primary-dark: #0F4D78;       /* Deep navy — hover / active */
-  --primary-deep: #0B3A5E;       /* Sidebar background (deepest navy) */
-  --primary-light: #E1EFFA;      /* Sky tint — hovers / light chips */
-  --success: #0F9D5C;            /* Teal green (text-safe) — success / Doctor */
-  --success-bg: #E3F9EF;
-  --warning: #B45309;            /* Amber (text-safe) — Nurse / temperature */
-  --warning-bg: #FBF0D3;
-  --danger: #DC2626;             /* Crimson — Lab / alerts / urgent */
-  --danger-bg: #FEF2F2;
-  --info: #0891B2;               /* Cyan — Reception / calendar */
-  --info-bg: #E0F4FA;
-  --dark: #1E293B;               /* Slate 900 — headings / primary text */
-  --gray: #64748B;               /* Slate 500 — secondary / labels */
-  --light-gray: #E8F4FF;         /* Sky tint — page background */
-  --white: #FFFFFF;              /* Card / modal surface */
-  --border: #E2E8F0;
+  /* Warm teal + amber. Every other color below is an alias of these. */
+  --primary: #2D7D6F;
+  --primary-dark: #1F5C52;
+  --primary-deep: #163F39;
+  --primary-light: #E6F4F2;
+  --accent: #C8792A;
+  --accent-light: #FDF0E3;
+  --accent-soft: rgba(200, 121, 42, 0.15);
+  --success: #2E8B5A;
+  --success-light: #E6F4ED;
+  --success-bg: #E6F4ED;
+  --warning: #D97706;
+  --warning-light: #FEF3C7;
+  --warning-bg: #FEF3C7;
+  --danger: #DC2626;
+  --danger-light: #FEE2E2;
+  --danger-bg: #FEE2E2;
+  --info: #0891B2;
+  --info-light: #E0F7FA;
+  --info-bg: #E0F7FA;
+  --dark: #1C2B2A;
+  --gray: #5F7370;
+  --surface: #F7F5F2;
+  --surface-card: #FFFFFF;
+  --on-brand: #FFFFFF;
+  --light-gray: #F7F5F2;
+  --white: #FFFFFF;
+  --border: #E4DDD5;
+  --sidebar-end: #0F2B27;
+  --scrollbar: #C9C0B6;
+  --role-admin: #2D7D6F;
+  --role-manager: #2D7D6F;
+  --role-doctor: #2E8B5A;
+  --role-nurse: #D97706;
+  --role-pharmacist: #7C3AED;
+  --role-laboratory: #DC2626;
+  --role-reception: #0891B2;
+  --role-patient: #2E8B5A;
   --table-stripe: #F8FAFC;
   --table-head: #F8FAFC;
   --text-strong: #374151;
@@ -49,7 +69,7 @@
   --shadow-lg: 0 10px 30px rgba(17, 24, 39, 0.14);
 
   /* Sidebar */
-  --sidebar-w: 260px;
+  --sidebar-w: 240px;
   --sidebar-w-collapsed: 72px;
   --topbar-h: 68px;
 }
@@ -64,11 +84,11 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: var(--font-main);
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: 'Inter', var(--font-main);
+  font-size: 15px;
+  line-height: 1.6;
   color: var(--dark);
-  background: var(--light-gray);
+  background: var(--surface);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -79,10 +99,14 @@ ul, ol { list-style: none; }
 button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; }
 
-h1, h2, h3, h4 { font-weight: 700; color: var(--dark); }
-h1 { font-size: 28px; }
-h2 { font-size: 22px; font-weight: 600; }
-h3 { font-size: 18px; font-weight: 600; }
+h1, h2, h3, h4 { font-weight: 500; color: var(--dark); }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+.page-title { font-size: 1.2rem; font-weight: 500; color: var(--dark); letter-spacing: -0.01em; }
+.section-label, .nav-section-label { letter-spacing: 0.07em; }
+.stat-number { font-size: 2rem; font-weight: 600; color: var(--dark); line-height: 1; }
+[lang="am"], .am, html.lang-am body { font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif; }
 
 /* ---------- 3. Utilities ---------- */
 .text-center { text-align: center; }
@@ -93,8 +117,8 @@ h3 { font-size: 18px; font-weight: 600; }
 .text-warning { color: var(--warning); }
 .text-gray { color: var(--gray); }
 .text-primary { color: var(--primary); }
-.text-bold { font-weight: 700; }
-.text-semibold { font-weight: 600; }
+.text-bold { font-weight: 500; }
+.text-semibold { font-weight: 500; }
 .text-sm { font-size: 12px; }
 .text-md { font-size: 14px; }
 .text-lg { font-size: 16px; }
@@ -133,8 +157,8 @@ h3 { font-size: 18px; font-weight: 600; }
 /* Scrollbar */
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray); }
 
 /* ---------- 4. Responsive helpers ---------- */
 @media (max-width: 1024px) {
@@ -158,27 +182,37 @@ body.compact .page-body { padding-top: var(--sp-4); }
    DARK MODE  —  activated by <html data-theme="dark"> (assets/js/theme.js)
    ============================================================================ */
 html[data-theme="dark"] {
-  /* Brand (brightened for dark surfaces) */
-  --primary: #4FA3D9;
-  --primary-dark: #6FB8E5;
-  --primary-deep: #0B2B47;          /* sidebar background */
-  --primary-light: #14324D;
-
-  /* Status colors */
-  --success: #2ECE8A;  --success-bg: #0D2B1F;
-  --warning: #F2C14E;  --warning-bg: #33270D;
-  --danger:  #F87171;  --danger-bg:  #3A161F;
-  --info:    #45B8DC;  --info-bg:    #0C3242;
-
-  /* Neutrals — surfaces & text */
-  --dark: #E2E8F0;                    /* main text        */
-  --gray: #94A3B8;
-  --light-gray: #16283E;              /* inputs / hover   */
-  --white: #10203A;                   /* surface (cards)  */
-  --border: #26364F;
-  --table-stripe: #14243A;
-  --table-head: #1B2E48;
-  --text-strong: #E2E8F0;
+  --primary: #3D9E8F;
+  --primary-dark: #2D7D6F;
+  --primary-deep: #0F2B27;
+  --primary-light: #1A3D38;
+  --accent: #D97706;
+  --accent-light: #3B2A14;
+  --accent-soft: rgba(217, 119, 6, 0.18);
+  --success: #3D9E8F;
+  --success-light: #14352A;
+  --success-bg: #14352A;
+  --warning: #D97706;
+  --warning-light: #3B2A14;
+  --warning-bg: #3B2A14;
+  --danger: #F87171;
+  --danger-light: #3A161F;
+  --danger-bg: #3A161F;
+  --info: #45B8DC;
+  --info-light: #0C3242;
+  --info-bg: #0C3242;
+  --dark: #E8F0EE;
+  --gray: #9BB5B0;
+  --surface: #111918;
+  --surface-card: #1A2422;
+  --on-brand: #FFFFFF;
+  --light-gray: #1A2422;
+  --white: #1A2422;
+  --border: #2A3B38;
+  --sidebar-end: #0A1C19;
+  --table-stripe: #15211F;
+  --table-head: #1A2422;
+  --text-strong: #E8F0EE;
   --purple: #C4B5FD;
   --purple-bg: #2E1065;
 
@@ -189,11 +223,11 @@ html[data-theme="dark"] {
 }
 
 /* Page / topbar / login surfaces with hardcoded light backgrounds */
-html[data-theme="dark"] body { background: #0C1726; }
+html[data-theme="dark"] body { background: var(--surface); }
 html[data-theme="dark"] .topbar { background: rgba(12, 23, 38, .92); }
 html[data-theme="dark"] .topbar-search .form-control:focus { background: #131E30; }
-html[data-theme="dark"] .login-card { background: rgba(14, 24, 38, .97); box-shadow: 0 24px 60px rgba(0, 0, 0, .6); }
-html[data-theme="dark"] .login-body { background: linear-gradient(135deg, #05101C 0%, #0A2B47 55%, #0F4066 100%); }
+html[data-theme="dark"] .login-form-panel { background: var(--surface); }
+html[data-theme="dark"] .login-page { background: var(--surface); }
 html[data-theme="dark"] .login-demo .demo-role { background: #16283E; border-color: var(--border); color: #C9D4E4; }
 html[data-theme="dark"] .dr-icon { background: #1B2E48 !important; color: #9DB8D4 !important; }
 html[data-theme="dark"] .login-error { background: var(--danger-bg); color: var(--danger); border-color: rgba(248,113,113,.35); }
@@ -297,4 +331,78 @@ html[data-theme="dark"] .app-controls-fixed { background: rgba(13, 19, 32, .92);
   .theme-switch { width: 32px; height: 32px; }
   .topbar-right .theme-switch { width: 36px; height: 36px; }
   .app-controls { gap: 5px; }
+}
+
+/* ---------- Login split ---------- */
+.login-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  background: var(--surface);
+}
+.login-brand {
+  background: linear-gradient(160deg, var(--primary-deep) 0%, var(--sidebar-end) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--on-brand);
+}
+.login-brand .hospital-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 1.5rem;
+}
+.login-brand h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+  color: var(--on-brand);
+}
+.login-brand .tagline {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+  max-width: 36rem;
+}
+.login-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 3rem;
+  flex-wrap: wrap;
+}
+.login-stat {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+.login-stat strong {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--on-brand);
+}
+.login-form-panel {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+.login-form-inner { width: 100%; max-width: 380px; }
+.login-form-inner h2 { font-size: 1.3rem; font-weight: 500; margin-bottom: 0.25rem; }
+.login-form-inner .subtitle { font-size: 0.875rem; color: var(--gray); margin-bottom: 2rem; }
+@media (max-width: 768px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-brand { padding: 2rem 1.5rem; min-height: auto; }
+  .login-brand h1 { font-size: 1.4rem; }
+  .login-stats { display: none; }
+  .login-form-panel { padding: 2rem 1.25rem 3rem; align-items: flex-start; }
 }
