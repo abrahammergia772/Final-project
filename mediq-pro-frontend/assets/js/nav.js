@@ -52,6 +52,7 @@ window.NAV_ROLES = {
       ["reports.html", "Reports", "chart"]
     ]], ["AI TOOLS", [
       ["ai-diagnosis.html", "AI Diagnosis", "brain"],
+      ["clinical-decision.html", "Clinical Decision", "clipboard"],
       ["videos.html", "Health Videos", "play"]
     ]]]
   },
@@ -151,7 +152,7 @@ window.NAV_PERM_MAP = {
   doctor: {
     "patients.html": "patients", "beds.html": "bedrequests", "consultation.html": "consultation", "prescriptions.html": "prescriptions",
     "appointments.html": "appointments", "referrals.html": "referrals", "shifts.html": "shifts",
-    "videos.html": "videos", "ai-diagnosis.html": "ai", "settings.html": "settings",
+    "videos.html": "videos", "ai-diagnosis.html": "ai", "clinical-decision.html": "ai", "settings.html": "settings",
     "documents.html": "documents", "theatre.html": "theatre", "imaging.html": "imaging",
     "reports.html": "reports"
   },

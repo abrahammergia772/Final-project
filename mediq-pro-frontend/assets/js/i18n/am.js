@@ -882,4 +882,11 @@ window.I18N_AM = {
 "AI suggestion": "የ AI ሀሳብ",
 "Confidence": "እምነት",
 "AI module unavailable": "የ AI ሞጁል አይገኝም",
+"Clinical Decision": "ክሊኒካዊ ውሳኔ",
+"Make a clinical decision from a new file": "ከአዲስ ፋይል ክሊኒካዊ ውሳኔ ያድርጉ",
+"Make a decision from a new file": "ከአዲስ ፋይል ውሳኔ ያድርጉ",
+"New clinical file": "አዲስ ክሊኒካዊ ፋይል",
+"Run clinical decision": "ክሊኒካዊ ውሳኔ አስኪድ",
+"Patient name": "የታካሚ ስም",
+"The file is saved only after the model and Supabase both accept it.": "ፋይሉ የሚቀመጠው ሞዴሉ እና Supabase ሁለቱም ከተቀበሉ በኋላ ብቻ ነው።",
 };

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta name="theme-color" content="#0B3A5E" />
+<title>Clinical Decision — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png" />
+<link rel="stylesheet" href="../assets/css/global.css" />
+<link rel="stylesheet" href="../assets/css/sidebar.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+<link rel="stylesheet" href="../assets/css/modules.css" />
+<script src="../assets/js/theme.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<main class="main-content" id="mainContent">
+<header class="topbar" id="topbar" data-title="Clinical Decision"></header>
+<section class="page-body">
+
+<div class="alert alert-warning mb-4"><span></span>
+  <div class="alert-body"><span class="alert-title">Disclaimer</span> — This is an AI-assisted suggestion. Always consult a qualified medical professional before making clinical decisions.</div>
+</div>
+
+<section class="card mb-4" id="clinicalFileForm">
+  <h3 class="mb-1">Make a clinical decision from a new file</h3>
+  <p class="text-sm mb-3" style="color:#6B7280">Upload a text, Word, or PDF note under 1.2 MB. The trained model reads it, then the file and decision are saved in Supabase.</p>
+  <div class="form-row">
+    <div class="form-group"><label>Patient name <span class="req">*</span></label><input class="form-control" id="cdPatient" placeholder="Patient full name"></div>
+    <div class="form-group"><label>Title</label><input class="form-control" id="cdTitle" placeholder="e.g. Ward note 25 Sep"></div>
+  </div>
+  <div class="form-group"><label>New clinical file <span class="req">*</span></label><input class="form-control" id="cdFile" type="file" accept=".txt,.csv,.md,.json,.pdf,.docx,text/plain,application/pdf"></div>
+  <button class="btn btn-primary" type="button" id="btnClinicalFile">Run clinical decision</button>
+  <p class="text-sm mt-2" id="cdStatus" style="color:#6B7280">The file is saved only after the model and Supabase both accept it.</p>
+</section>
+
+<div id="cdResult"></div>
+
+</section>
+</main>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/icons.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  checkSession();
+  checkRoleAccess("doctor");
+  initLayout();
+  var btn = document.getElementById("btnClinicalFile");
+  if (btn) btn.addEventListener("click", runClinicalFile);
+});
+
+function runClinicalFile() {
+  var patientEl = document.getElementById("cdPatient");
+  var titleEl = document.getElementById("cdTitle");
+  var fileEl = document.getElementById("cdFile");
+  var status = document.getElementById("cdStatus");
+  var btn = document.getElementById("btnClinicalFile");
+  var patient = patientEl ? patientEl.value.trim() : "";
+  var file = fileEl && fileEl.files ? fileEl.files[0] : null;
+  if (!patient) { showToast("Enter the patient name", "error"); return; }
+  if (!file) { showToast("Choose a new file", "error"); return; }
+  if (file.size > 1200000) { showToast("File is too large. Use a file under 1.2 MB.", "error"); return; }
+  var body = new FormData();
+  body.append("file", file, file.name);
+  body.append("patient", patient);
+  body.append("title", titleEl ? titleEl.value.trim() : "");
+  var headers = {};
+  var session = getSession();
+  if (session && session.token) headers.Authorization = "Bearer " + session.token;
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = "Reading the file and saving the decision…";
+  document.getElementById("cdResult").innerHTML = "";
+  fetch(CONFIG.API_BASE_URL + (CONFIG.ENDPOINTS.CLINICAL_DECISION_FILE || "/ai/clinical-decision/file"), {
+    method: "POST",
+    headers: headers,
+    body: body
+  }).then(function (res) {
+    return res.json().catch(function () { return {}; }).then(function (data) {
+      if (btn) btn.disabled = false;
+      if (!res.ok || !data || !data.saved) {
+        var detail = data && (data.detail || data.error);
+        var msg = typeof detail === "string" ? detail : "Could not save the clinical decision";
+        if (status) status.textContent = msg;
+        showToast(msg, "error");
+        return;
+      }
+      if (status) status.textContent = "Saved as " + (data.document_id || "a document") + ". It is also in Documents.";
+      renderClinicalDecision(data);
+      showToast("Clinical decision saved", "success");
+    });
+  }).catch(function () {
+    if (btn) btn.disabled = false;
+    if (status) status.textContent = "Network error — cannot reach the server.";
+    showToast("Network error — cannot reach the server.", "error");
+  });
+}
+
+function renderClinicalDecision(data) {
+  var list = data.predictions || [];
+  var cards = list.map(function (item) {
+    var width = Math.max(0, Math.min(100, Number(item.confidence) || 0));
+    return '<div class="card mb-3" style="box-shadow:none"><div class="flex-between wrap" style="gap:10px"><div><div style="font-weight:600;font-size:16px">' + esc(item.disease) + '</div><div class="text-sm" style="color:#6B7280;margin-top:2px">' + esc(item.description || "") + '</div></div><span class="badge badge-warning">' + esc(item.urgency || "See doctor") + '</span></div><div class="text-sm mt-2" style="color:#6B7280">Confidence ' + esc(String(item.confidence)) + '%</div><div class="progress mt-1"><div class="progress-bar ' + confidenceColor(item.confidence) + '" style="width:' + width + '%"></div></div></div>';
+  }).join("");
+  document.getElementById("cdResult").innerHTML = '<section class="card"><div class="flex-between wrap" style="gap:10px"><h3>Clinical decision</h3><span class="badge badge-neutral">' + esc(data.model || "trained model") + '</span></div><p class="text-sm mb-3" style="color:#6B7280">Saved document ' + esc(data.document_id || "") + '. Top suggestions from the uploaded file.</p>' + cards + '<div class="disclaimer mt-3"><div>' + esc(data.disclaimer || "This is an AI-assisted suggestion. Always consult a qualified medical professional before making clinical decisions.") + '</div></div></section>';
+}
+</script>
+<script src="../assets/js/i18n.js"></script>
+</body>
+</html>

@@ -27,6 +27,7 @@ const CONFIG = {
 
     // AI Modules
     PREDICT_DISEASE:      "/ai/predict-disease",
+    CLINICAL_DECISION_FILE: "/ai/clinical-decision/file",
     CHECK_INTERACTION:    "/ai/check-interaction",
     ANALYZE_LAB:          "/ai/analyze-lab",
     CHECK_VITALS:         "/ai/check-vitals",
