@@ -25,7 +25,7 @@
 <section class="page-body">
 
 <div class="alert alert-info mb-4"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
-  <div class="alert-body"><span class="alert-title">Module 2 — Drug Interaction</span> — check two drugs or up to five drugs for all pairwise combinations.</div></div>
+  <div class="alert-body"><span class="alert-title">Module 2 — Drug Interaction</span> — checks the uploaded severity model. A result is an estimate; known dangerous pairs are still flagged.</div></div>
 <div class="panel-grid cols-2">
   <section class="card">
     <h3 class="mb-3">Check Two Drugs</h3>
@@ -141,10 +141,25 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("pharmacist"); initLayout(); loadPageData();
 });
-const CATALOG = ["Paracetamol 500mg","Amlodipine 5mg","Metformin 500mg","Insulin Glargine","Amoxicillin 250mg","Salbutamol Inhaler","Atorvastatin 20mg","Bisoprolol 2.5mg","Enalapril 10mg","Aspirin 81mg","Furosemide 40mg","Warfarin 5mg","Digoxin 0.25mg","Ceftriaxone 1g","Hydrocortisone 100mg","Artemether/Lumefantrine"];
+const CATALOG = ["Acamprosate","Acyclovir","Alendronate","Allopurinol","Alogliptin","Alprazolam","Aminophylline","Amitriptyline","Amlodipine","Amoxicillin","Ampicillin","Apixaban","Aripiprazole","Aspirin","Atazanavir","Atenolol","Atorvastatin","Azathioprine","Azithromycin","Bisoprolol","Budesonide","Bupropion","Buspirone","Calcitriol","Canagliflozin","Candesartan","Capecitabine","Carbamazepine","Carvedilol","Ceftriaxone","Celecoxib","Cephalexin","Ciprofloxacin","Citalopram","Clarithromycin","Clindamycin","Clomipramine","Clonazepam","Clopidogrel","Clozapine","Codeine","Colchicine","Cyclophosphamide","Cyclosporine","Dabigatran","Dapagliflozin","Desvenlafaxine","Dexamethasone","Diazepam","Diclofenac","Digoxin","Diltiazem","Disulfiram","Domperidone","Donepezil","Doxorubicin","Doxycycline","Duloxetine","Dutasteride","Efavirenz","Empagliflozin","Enalapril","Enoxaparin","Eplerenone","Erlotinib","Erythromycin","Escitalopram","Everolimus","Exenatide","Felodipine","Fentanyl","Ferrous sulfate","Finasteride","Fluconazole","Fluorouracil","Fluoxetine","Fluticasone","Folic acid","Fondaparinux","Furosemide","Gabapentin","Ganciclovir","Gentamicin","Glibenclamide","Glimepiride","Glipizide","Haloperidol","Heparin","Hydrochlorothiazide","Hydrocodone","Hydroxychloroquine","Ibuprofen","Imatinib","Indapamide","Indomethacin","Insulin","Ipratropium","Irbesartan","Irinotecan","Itraconazole","Ketoconazole","Ketorolac","Lamivudine","Lamotrigine","Lansoprazole","Levetiracetam","Levofloxacin","Levothyroxine","Liraglutide","Lisinopril","Lithium","Loperamide","Lopinavir","Lorazepam","Losartan","Melatonin","Meloxicam","Memantine","Meropenem","Metformin","Methotrexate","Metoclopramide","Metoprolol","Metronidazole","Mirtazapine","Misoprostol","Montelukast","Morphine","Mycophenolate","Naloxone","Naltrexone","Naproxen","Nifedipine","Nitrofurantoin","Olanzapine","Olmesartan","Omeprazole","Ondansetron","Oseltamivir","Oxycodone","Pantoprazole","Paracetamol","Paroxetine","Phenobarbital","Phenytoin","Pioglitazone","Piperacillin","Piroxicam","Posaconazole","Pravastatin","Prednisolone","Pregabalin","Quetiapine","Raloxifene","Ramipril","Ranitidine","Repaglinide","Rifampicin","Risperidone","Ritonavir","Rivaroxaban","Roflumilast","Rosuvastatin","Salbutamol","Salmeterol","Saxagliptin","Sertraline","Sildenafil","Simvastatin","Sirolimus","Sitagliptin","Spironolactone","Sucralfate","Tacrolimus","Tadalafil","Tamoxifen","Telmisartan","Tenofovir","Terbinafine","Tetracycline","Theophylline","Ticagrelor","Tiotropium","Topiramate","Torsemide","Tramadol","Trimethoprim","Valproate","Valsartan","Vancomycin","Venlafaxine","Verapamil","Vincristine","Vitamin K","Voriconazole","Warfarin","Ziprasidone","Zolpidem"];
 let multiDrugs = [];
+function interactionTone(level) {
+  if (level === "severe" || level === "contraindicated") return { card: "severity-severe", badge: "danger", icon: ICONS.alert };
+  if (level === "moderate") return { card: "severity-moderate", badge: "warning", icon: ICONS.info };
+  if (level === "mild") return { card: "severity-mild", badge: "info", icon: ICONS.info };
+  if (level === "uncertain" || level === "unknown") return { card: "severity-uncertain", badge: "neutral", icon: ICONS.info };
+  return { card: "severity-safe", badge: "success", icon: ICONS.check };
+}
+function fillDrugList(names) {
+  document.getElementById("drugList").innerHTML = names.map(d => `<option value="${esc(d)}">`).join("");
+}
 function loadPageData() {
-  document.getElementById("drugList").innerHTML = CATALOG.map(d => `<option value="${d}">`).join("");
+  fillDrugList(CATALOG);
+  if (typeof apiFetch === "function" && CONFIG.ENDPOINTS.INTERACTION_DRUGS) {
+    apiFetch(CONFIG.ENDPOINTS.INTERACTION_DRUGS).then(res => {
+      if (res.ok && res.data && res.data.drugs && res.data.drugs.length) fillDrugList(res.data.drugs);
+    });
+  }
   addMultiInput();
   document.getElementById("btnCheckPair").addEventListener("click", checkPair);
   document.getElementById("btnAddDrug").addEventListener("click", () => {
@@ -169,18 +184,18 @@ function checkPair() {
   if (!a || !b) { showToast("Enter both drug names","error"); return; }
   document.getElementById("pairResult").innerHTML = `<section class="card"><div class="loading-area"><div class="spinner"></div><div>Checking interaction…</div></div></section>`;
   checkDrugInteraction({ drug_a: a, drug_b: b }, res => {
-    const cls = res.level === "severe" ? "severity-severe" : res.level === "moderate" ? "severity-moderate" : "severity-safe";
-    const ico = res.level === "severe" ? ICONS.alert : res.level === "moderate" ? ICONS.info : ICONS.check;
-    const title = res.level === "severe" ? "danger" : res.level === "moderate" ? "warning" : "success";
+    const tone = interactionTone(res.level);
+    const conf = res.confidence == null ? "Not scored" : res.confidence + "%";
     document.getElementById("pairResult").innerHTML = `<section class="card">
-      <div class="severity-card ${cls}"><div class="flex" style="gap:10px;align-items:flex-start"><span>${ico}</span>
-        <div><strong style="font-size:16px">${res.title}</strong><div style="font-size:13px;margin-top:2px">${esc(res.drug_a)} + ${esc(res.drug_b)}</div></div></div></div>
+      <div class="severity-card ${tone.card}"><div class="flex" style="gap:10px;align-items:flex-start"><span>${tone.icon}</span>
+        <div><strong style="font-size:16px">${esc(res.title)}</strong><div style="font-size:13px;margin-top:2px">${esc(res.drug_a)} + ${esc(res.drug_b)}</div></div></div></div>
       <div class="detail-list mt-4">
         <div class="detail-item"><span class="k">Mechanism</span><span class="v" style="max-width:340px">${esc(res.mechanism)}</span></div>
         <div class="detail-item"><span class="k">Clinical Effect</span><span class="v" style="max-width:340px">${esc(res.effect)}</span></div>
         <div class="detail-item"><span class="k">Recommended Action</span><span class="v" style="max-width:340px">${esc(res.action)}</span></div>
+        <div class="detail-item"><span class="k">Model confidence</span><span class="v">${esc(conf)}</span></div>
       </div>
-      <div class="disclaimer"><span>${ICONS.info}</span><div>AI suggestions only — model ${esc(res.model || "v1.1")}. Verify with a clinical reference.</div></div>
+      <div class="disclaimer"><span>${ICONS.info}</span><div>Estimate from the uploaded severity model. Verify with a clinical reference before dispensing.</div></div>
     </section>`;
   });
 }
@@ -197,9 +212,9 @@ function checkAll() {
         if (done === pairs.length) {
           hideLoading();
           const rows = results.map(r => {
-            const ico = r.res.level === "severe" ? "danger" : r.res.level === "moderate" ? "warning" : "success";
+            const tone = interactionTone(r.res.level);
             return `<tr><td><strong>${esc(r.a)}</strong> + <strong>${esc(r.b)}</strong></td>
-              <td><span class="badge badge-${ico}">${r.res.title}</span></td><td class="text-sm text-gray" style="color:#6B7280">${esc(r.res.action)}</td></tr>`;
+              <td><span class="badge badge-${tone.badge}">${esc(r.res.title)}</span></td><td class="text-sm text-gray" style="color:#6B7280">${esc(r.res.action)}</td></tr>`;
           }).join("");
           document.getElementById("multiResult").innerHTML = `<table class="data-table"><thead><tr><th>Combination</th><th>Result</th><th>Recommended Action</th></tr></thead><tbody>${rows}</tbody></table>`;
           showToast("Checked " + pairs.length + " combinations","success");

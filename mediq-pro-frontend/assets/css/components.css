@@ -574,7 +574,9 @@ input[type="range"] {
 .ai-confidence .pct { font-weight: 700; font-size: 14px; min-width: 44px; }
 .severity-card { border-radius: var(--radius-md); padding: var(--sp-5); border: 1px solid var(--border); }
 .severity-safe { background: var(--success-bg); border-color: #8FE8BF; color: var(--success); }
+.severity-mild { background: #EFF6FF; border-color: #BFDBFE; color: #1E3A8A; }
 .severity-moderate { background: var(--warning-bg); border-color: #F5D77E; color: #92400E; }
+.severity-uncertain { background: #F8FAFC; border-color: #CBD5E1; color: #334155; }
 .severity-severe { background: var(--danger-bg); border-color: #FECACA; color: #991B1B; }
 
 /* Disclaimer */

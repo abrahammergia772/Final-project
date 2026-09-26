@@ -29,6 +29,7 @@ const CONFIG = {
     PREDICT_DISEASE:      "/ai/predict-disease",
     CLINICAL_DECISION_FILE: "/ai/clinical-decision/file",
     CHECK_INTERACTION:    "/ai/check-interaction",
+    INTERACTION_DRUGS:    "/ai/interaction-drugs",
     ANALYZE_LAB:          "/ai/analyze-lab",
     CHECK_VITALS:         "/ai/check-vitals",
     FORECAST_INVENTORY:   "/ai/forecast-inventory",

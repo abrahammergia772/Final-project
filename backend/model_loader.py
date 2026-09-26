@@ -39,7 +39,7 @@ RF_FILES = {
 # Module -> subfolder + the files we expect
 EXPECTED = {
     "clinical": ("clinical_decision", ["rf_model.pkl", "xgb_model.pkl", "tfidf_vectorizer.pkl", "label_encoder.pkl", "model_config.json"]),
-    "drug":     ("drug_interaction", ["drug_interaction_rf.pkl", "drug_interaction_xgb.pkl", "drug_interaction_tfidf.pkl", "drug_interaction_label_encoder.pkl", "drug_interaction_config.json"]),
+    "drug":     ("drug_interaction", ["severity_classifier.pkl", "binary_classifier.pkl", "severity_label_encoder.pkl", "label_encoders.pkl", "feature_columns.pkl"]),
     "lab":      ("lab", ["lab_rf_model.pkl", "lab_xgb_model.pkl", "lab_scaler.pkl", "lab_imputer.pkl", "lab_label_encoder.pkl", "lab_feature_config.json"]),
     "inventory":("inventory", ["inventory_xgb_model.pkl", "inventory_scaler.pkl", "inventory_label_encoder.pkl", "inventory_config.json"]),
     "symptom":  ("symptom-checker", ["rf_model.pkl", "xgb_model.pkl", "tfidf_vectorizer.pkl", "label_encoder.pkl", "urgency_keywords.json", "response_templates.json", "model_config.json"]),

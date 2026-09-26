@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 const MODULES = [
   { id:"m1", name:"Clinical Decision Support", ep:"/ai/predict-disease", page:"doctor/ai-diagnosis.html", icon:"brain", on:true, conf:75, model:"rf_clinical_v1.2" },
-  { id:"m2", name:"Drug Interaction Checker", ep:"/ai/check-interaction", page:"pharmacist/ai-interaction.html", icon:"pill", on:true, conf:85, model:"drug_int_v1.1" },
+  { id:"m2", name:"Drug Interaction Checker", ep:"/ai/check-interaction", page:"pharmacist/ai-interaction.html", icon:"pill", on:true, conf:85, model:"severity_classifier" },
   { id:"m3", name:"Lab Result Analyzer", ep:"/ai/analyze-lab", page:"laboratory/ai-analyzer.html", icon:"flask", on:true, conf:80, model:"lab_analyzer_v2.0" },
   { id:"m4", name:"Vitals Alert System", ep:"/ai/check-vitals", page:"nurse/vitals.html", icon:"heart-pulse", on:true, conf:88, model:"vitals_alert_v1.3" },
   { id:"m5", name:"Inventory Forecasting", ep:"/ai/forecast-inventory", page:"pharmacist/ai-forecast.html", icon:"truck", on:true, conf:70, model:"inventory_forecast_v1.4" },

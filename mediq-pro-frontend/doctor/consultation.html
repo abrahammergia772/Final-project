@@ -236,8 +236,8 @@ document.getElementById("checkInteract").addEventListener("click", () => {
     pairs.forEach(([a, b]) => {
       checkDrugInteraction({ drug_a: a, drug_b: b }, res => {
         const lv = res.level;
-        const cls = lv === "severe" ? "severity-severe" : lv === "moderate" ? "severity-moderate" : "severity-safe";
-        const ico = lv === "severe" ? ICONS.alert : lv === "moderate" ? ICONS.info : ICONS.check;
+        const cls = (lv === "severe" || lv === "contraindicated") ? "severity-severe" : lv === "moderate" ? "severity-moderate" : lv === "mild" ? "severity-mild" : (lv === "uncertain" || lv === "unknown") ? "severity-uncertain" : "severity-safe";
+        const ico = (lv === "severe" || lv === "contraindicated") ? ICONS.alert : lv === "safe" ? ICONS.check : ICONS.info;
         html += `<div class="severity-card ${cls} mb-3"><div class="flex" style="gap:10px"><span>${ico}</span>
           <div><strong>${esc(a)}</strong> + <strong>${esc(b)}</strong> → <strong>${res.title}</strong><br>
           <span style="font-size:13px">${esc(res.mechanism)}</span></div></div></div>`;
