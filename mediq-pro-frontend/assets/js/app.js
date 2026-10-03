@@ -33,7 +33,7 @@ window.SPA = { mode: true, current: "" };
   // ---------- mark the active nav link ----------
   function markActive(path) {
     const file = path.split("/").pop();
-    $$(".nav-link").forEach(a => a.classList.toggle("active", a.getAttribute("href").split("?")[0].split("#")[0].split("/").pop() === file));
+    $$(".nav-link, .taskbar-link").forEach(a => a.classList.toggle("active", a.getAttribute("href").split("?")[0].split("#")[0].split("/").pop() === file));
   }
 
   // ---------- page script execution ----------

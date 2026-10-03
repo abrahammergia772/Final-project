@@ -255,4 +255,67 @@ body.mobile-menu-open .hamburger svg line:nth-child(3) { transform: translateY(-
   body.sidebar-collapsed .sidebar-footer { padding: 14px 12px; }
   .sidebar-toggle { display: none; }
   .hamburger { display: flex; }
+  .role-taskbar { left: 0; }
+}
+
+/* ---------- Bottom taskbar (daily actions for every role) ---------- */
+:root { --taskbar-h: 64px; }
+
+.role-taskbar {
+  position: fixed;
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  height: calc(var(--taskbar-h) + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 4px;
+  padding: 4px 8px env(safe-area-inset-bottom);
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(11, 58, 94, 0.08);
+}
+body.sidebar-collapsed .role-taskbar { left: var(--sidebar-w-collapsed); }
+.taskbar-link {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--gray);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.1;
+  border-radius: 10px;
+  padding: 4px 2px;
+  position: relative;
+}
+.taskbar-link svg { width: 22px; height: 22px; flex-shrink: 0; }
+.taskbar-link span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.taskbar-link:hover { color: var(--primary); background: var(--primary-light); text-decoration: none; }
+.taskbar-link.active { color: var(--primary-dark); background: var(--primary-light); }
+.taskbar-link.active::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 18%;
+  right: 18%;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--primary);
+}
+body.has-taskbar .main-content { padding-bottom: calc(var(--taskbar-h) + env(safe-area-inset-bottom)); }
+body.has-taskbar #toastContainer { bottom: calc(var(--taskbar-h) + 16px); }
+@media (max-width: 768px) {
+  .role-taskbar, body.sidebar-collapsed .role-taskbar { left: 0; }
 }

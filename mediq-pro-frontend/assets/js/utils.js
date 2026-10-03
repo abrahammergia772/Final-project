@@ -523,7 +523,7 @@ function applyPermissions() {
   const role = getUserRole();
   if (!role) return;
   seedPermissions();
-  document.querySelectorAll(".nav-link[data-perm]").forEach(a => {
+  document.querySelectorAll(".nav-link[data-perm], .taskbar-link[data-perm]").forEach(a => {
     if (!canAccess(role, a.dataset.perm)) a.classList.add("hidden");
   });
 }

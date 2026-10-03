@@ -186,3 +186,63 @@ window.NAV_PERM_MAP = {
     "settings.html": "settings", "health-card.html": "healthcard"
   }
 };
+
+/* Five daily actions pinned to the bottom taskbar. The sidebar keeps the rest. */
+window.NAV_TASKBAR = {
+  admin: [
+    ["dashboard.html", "Home", "grid"],
+    ["users.html", "Users", "users"],
+    ["patients.html", "Patients", "users"],
+    ["wards.html", "Wards", "bed"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  manager: [
+    ["dashboard.html", "Home", "grid"],
+    ["staff.html", "Staff", "briefcase"],
+    ["finance.html", "Finance", "wallet"],
+    ["reports.html", "Reports", "chart"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  doctor: [
+    ["dashboard.html", "Home", "grid"],
+    ["patients.html", "Patients", "users"],
+    ["consultation.html", "Consult", "stethoscope"],
+    ["prescriptions.html", "Rx", "file-text"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  nurse: [
+    ["dashboard.html", "Home", "grid"],
+    ["vitals.html", "Vitals", "thermometer"],
+    ["beds.html", "Beds", "bed"],
+    ["medications.html", "Meds", "pill"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  pharmacist: [
+    ["dashboard.html", "Home", "grid"],
+    ["prescriptions.html", "Rx", "file-text"],
+    ["inventory.html", "Stock", "package"],
+    ["ai-interaction.html", "Interact", "zap"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  laboratory: [
+    ["dashboard.html", "Home", "grid"],
+    ["test-requests.html", "Tests", "flask"],
+    ["samples.html", "Samples", "barcode"],
+    ["results.html", "Results", "file-text"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  reception: [
+    ["dashboard.html", "Home", "grid"],
+    ["registration.html", "Register", "users"],
+    ["appointments.html", "Appts", "calendar"],
+    ["queue.html", "Queue", "list"],
+    ["messages.html", "Messages", "mail"]
+  ],
+  patient: [
+    ["dashboard.html", "Home", "grid"],
+    ["appointments.html", "Appts", "calendar"],
+    ["records.html", "Records", "book"],
+    ["health-card.html", "Card", "card"],
+    ["messages.html", "Messages", "mail"]
+  ]
+};

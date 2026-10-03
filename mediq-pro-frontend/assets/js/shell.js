@@ -105,9 +105,38 @@
     tb.innerHTML = top;
     tb.setAttribute("data-title", title);
 
+    buildTaskbar(role, perm, spa, cur);
     ensurePalette();
     try { document.dispatchEvent(new CustomEvent("i18n:rescan")); } catch (e) {}
     if (typeof initAuthUI === "function") initAuthUI();
+  }
+
+  function buildTaskbar(role, perm, spa, cur) {
+    var items = (window.NAV_TASKBAR || {})[role] || [];
+    var bar = document.getElementById("roleTaskbar");
+    if (!items.length) {
+      if (bar) bar.remove();
+      document.body.classList.remove("has-taskbar");
+      return;
+    }
+    if (!bar) {
+      bar = document.createElement("nav");
+      bar.id = "roleTaskbar";
+      bar.className = "role-taskbar";
+      bar.setAttribute("aria-label", "Quick tasks");
+      var host = document.getElementById("appView") || document.body;
+      host.appendChild(bar);
+    }
+    bar.innerHTML = items.map(function (item) {
+      var href = item[0], label = item[1], ic = item[2];
+      var file = String(href).split("?")[0].split("/").pop();
+      var active = !spa && cur === file ? " active" : "";
+      var p = perm[href] || (href === "messages.html" ? "messages" : "");
+      return '<a class="taskbar-link' + active + '" href="' + href + '"' +
+        (p ? ' data-perm="' + p + '"' : "") + ' data-close-menu>' +
+        icon(ic) + '<span data-i18n="' + label + '">' + label + "</span></a>";
+    }).join("");
+    document.body.classList.add("has-taskbar");
   }
 
   window.buildShell = buildShell;
