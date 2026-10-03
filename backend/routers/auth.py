@@ -5,7 +5,6 @@
 # falls back to built-in demo accounts so the whole system stays usable.
 # =============================================================================
 import logging
-import re
 from datetime import date
 from typing import Optional
 import secrets
@@ -66,30 +65,6 @@ def _token_for(user_id, role, email, name):
     return issue_token(user_id, role, email=email, name=name)
 
 
-@router.get("/auth/status")
-def auth_status():
-    """Public check that does not reveal keys, URLs, or account rows."""
-    from config import SUPABASE_SERVICE_KEY, supabase_configured
-    client = get_client()
-    out = {
-        "configured": bool(supabase_configured()),
-        "service_key_set": bool(SUPABASE_SERVICE_KEY),
-        "client": client is not None,
-        "users": "unchecked",
-    }
-    if client is None:
-        out["users"] = "no-client"
-        return out
-    try:
-        client.table("users").select("id").limit(1).execute()
-        out["users"] = "ok"
-    except Exception as exc:  # noqa: BLE001
-        log.error("auth status probe failed: %s", _safe_exc(exc))
-        out["users"] = "failed"
-        out["error"] = _safe_exc(exc)
-    return out
-
-
 @router.post("/auth/login")
 def login(req: LoginRequest):
     email = req.email.strip().lower()
@@ -102,7 +77,7 @@ def login(req: LoginRequest):
         resp = client.table("users").select("id,email,name,role,status,password_hash").eq("email", email).limit(1).execute()
         rows = resp.data or []
     except Exception as exc:  # noqa: BLE001
-        log.error("supabase login failed: %s", _safe_exc(exc))
+        log.error("supabase login failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Sign-in service unavailable")
     if not rows or not verify_password(req.password, rows[0].get("password_hash") or ""):
         _note_failure(email)
@@ -175,10 +150,9 @@ def signup(req: SignupRequest):
 
 def _safe_exc(exc: Exception) -> str:
     text = str(exc).replace("\n", " ")
-    text = re.sub(r"https?://\S+", "[url]", text)
-    text = re.sub(r"eyJ[\w.-]+", "[jwt]", text, flags=re.I)
-    text = re.sub(r"(service_role|sb_secret_|sb_publishable_)[\w.-]*", "[key]", text, flags=re.I)
-    return f"{type(exc).__name__}: {text[:180]}"
+    if any(secret in text.lower() for secret in ("service_role", "supabase.co", "eyj")):
+        return type(exc).__name__
+    return text[:160]
 
 
 def _ensure_patient_card(client, user_id, role):
