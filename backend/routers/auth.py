@@ -66,45 +66,19 @@ def _token_for(user_id, role, email, name):
     return issue_token(user_id, role, email=email, name=name)
 
 
-@router.get("/auth/status")
-def auth_status():
-    """Public check that does not reveal keys, URLs, or account rows."""
-    from config import SUPABASE_SERVICE_KEY, SUPABASE_URL, supabase_configured
-    from urllib.parse import urlparse
-    raw = SUPABASE_URL or ""
-    parsed = urlparse(raw if "://" in raw else "https://" + raw)
-    host = (parsed.hostname or "").lower()
-    labels = host.split(".") if host else []
-    client = get_client()
-    out = {
-        "configured": bool(supabase_configured()),
-        "service_key_set": bool(SUPABASE_SERVICE_KEY),
-        "client": client is not None,
-        "users": "unchecked",
-        "url_shape": {
-            "scheme_ok": parsed.scheme in {"http", "https"},
-            "supabase_co": host.endswith(".supabase.co"),
-            "supabase_com": host.endswith("supabase.com"),
-            "placeholder": any(part in host for part in ("your", "example", "xxx", "placeholder", "todo", "changeme", "sample")),
-            "label_count": len(labels),
-            "ref_len": len(labels[0]) if labels else 0,
-            "ref_alnum": bool(labels) and labels[0].replace("-", "").isalnum(),
-            "extra_path": parsed.path not in ("", "/"),
-            "has_userinfo": "@" in raw.split("://", 1)[-1],
-            "odd_port": parsed.port not in (None, 80, 443),
-        },
-    }
-    if client is None:
-        out["users"] = "no-client"
-        return out
-    try:
-        client.table("users").select("id").limit(1).execute()
-        out["users"] = "ok"
-    except Exception as exc:  # noqa: BLE001
-        log.error("auth status probe failed: %s", _safe_exc(exc))
-        out["users"] = "failed"
-        out["error"] = _safe_exc(exc)
-    return out
+def _service_unavailable(exc: Exception, action: str) -> HTTPException:
+    """Turn a database connection failure into an action the operator can take."""
+    text = _safe_exc(exc).lower()
+    if any(mark in text for mark in ("name or service not known", "nodename nor servname", "nxdomain", "getaddrinfo", "name resolution")):
+        detail = (
+            "The hospital database address does not resolve. "
+            "Open the Supabase dashboard and resume the project if it is paused. "
+            "If the project was replaced, set SUPABASE_URL on the Render backend to the current Project URL. "
+            "Do not paste keys in chat."
+        )
+    else:
+        detail = action + " service unavailable"
+    return HTTPException(status_code=503, detail=detail)
 
 
 @router.post("/auth/login")
@@ -120,7 +94,7 @@ def login(req: LoginRequest):
         rows = resp.data or []
     except Exception as exc:  # noqa: BLE001
         log.error("supabase login failed: %s", _safe_exc(exc))
-        raise HTTPException(status_code=503, detail="Sign-in service unavailable")
+        raise _service_unavailable(exc, "Sign-in")
     if not rows or not verify_password(req.password, rows[0].get("password_hash") or ""):
         _note_failure(email)
         raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -184,8 +158,8 @@ def signup(req: SignupRequest):
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
-        log.error("supabase signup failed: %s", type(exc).__name__)
-        raise HTTPException(status_code=503, detail="Registration service unavailable")
+        log.error("supabase signup failed: %s", _safe_exc(exc))
+        raise _service_unavailable(exc, "Registration")
 
 
 
