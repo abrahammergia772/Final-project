@@ -241,11 +241,18 @@ function fillSettingsForm() {
     return res;
   });
 }
+let _profileAvatar = "";
 function applyProfilePhoto(url) {
+  if (!url) return;
+  _profileAvatar = url;
+  const safe = String(url).replace(/\\/g, "\\\\").replace(/"/g, "%22");
   document.querySelectorAll("[data-user-initials]").forEach(function (el) {
-    el.style.backgroundImage = "url(" + url + ")";
+    el.style.backgroundImage = "url(\"" + safe + "\")";
     el.style.backgroundSize = "cover";
+    el.style.backgroundPosition = "center";
+    el.style.backgroundRepeat = "no-repeat";
     el.style.color = "transparent";
+    el.style.overflow = "hidden";
   });
 }
 function onProfilePhoto(input) {
@@ -335,6 +342,8 @@ function loadMyPrefs(done) {
     const prefs = _userDetails.prefs || {};
     _userPrefs = prefs;
     _userDetails.prefs = _userPrefs;
+    const avatar = (_userDetails.profile && _userDetails.profile.avatar) || "";
+    if (avatar) applyProfilePhoto(avatar);
     if (prefs.theme && window.Theme) window.Theme.set(prefs.theme, false);
     if (prefs.lang && window.I18N) window.I18N.setLang(prefs.lang, true);
     applyNotifyPrefs();
@@ -365,6 +374,7 @@ function initAuthUI() {
   document.querySelectorAll("[data-user-initials]").forEach((el) => {
     el.textContent = getUserInitials();
   });
+  if (_profileAvatar) applyProfilePhoto(_profileAvatar);
 
   // --- One-time global delegated handlers ---
   if (_authUI_bound) return;
