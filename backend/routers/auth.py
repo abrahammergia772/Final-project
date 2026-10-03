@@ -69,30 +69,13 @@ def _token_for(user_id, role, email, name):
 @router.get("/auth/status")
 def auth_status():
     """Public check that does not reveal keys, URLs, or account rows."""
-    from config import SUPABASE_SERVICE_KEY, SUPABASE_URL, supabase_configured
-    from urllib.parse import urlparse
-    raw = SUPABASE_URL or ""
-    parsed = urlparse(raw if "://" in raw else "https://" + raw)
-    host = (parsed.hostname or "").lower()
-    labels = host.split(".") if host else []
+    from config import SUPABASE_SERVICE_KEY, supabase_configured
     client = get_client()
     out = {
         "configured": bool(supabase_configured()),
         "service_key_set": bool(SUPABASE_SERVICE_KEY),
         "client": client is not None,
         "users": "unchecked",
-        "url_shape": {
-            "scheme_ok": parsed.scheme in {"http", "https"},
-            "supabase_co": host.endswith(".supabase.co"),
-            "supabase_com": host.endswith("supabase.com"),
-            "placeholder": any(part in host for part in ("your", "example", "xxx", "placeholder", "todo", "changeme", "sample")),
-            "label_count": len(labels),
-            "ref_len": len(labels[0]) if labels else 0,
-            "ref_alnum": bool(labels) and labels[0].replace("-", "").isalnum(),
-            "extra_path": parsed.path not in ("", "/"),
-            "has_userinfo": "@" in raw.split("://", 1)[-1],
-            "odd_port": parsed.port not in (None, 80, 443),
-        },
     }
     if client is None:
         out["users"] = "no-client"
