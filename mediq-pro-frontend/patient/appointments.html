@@ -141,8 +141,9 @@ function renderMy() {
     <td>${esc(a.doctor)}</td><td>${esc(a.dept)}</td><td>${esc(a.type)}</td>
     <td>${a.status === "cancelled" ? badge("Cancelled","danger") : a.status === "completed" ? badge("Completed","neutral") : badge("Confirmed","success")}</td>
     <td><div class="actions">
-      ${a.status === "confirmed" ? `<button class="btn-icon warning" title="Reschedule" onclick="resched('${a.id}')">${ICONS.refresh}</button>
-      <button class="btn-icon danger" title="Cancel" onclick="cancelA('${a.id}')">${ICONS.x}</button>` : ""}
+      ${a.status === "cancelled" || a.status === "completed" || a.status === "attended" ? "" : `<button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
+      <button class="btn-icon warning" title="Reschedule to other appointment" onclick="resched('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
+      <button class="btn-icon danger" title="Cancel" onclick="cancelA('${a.id}')">${ICONS.x}</button>`}
     </div></td></tr>`).join("") : emptyRow(7);
 }
 function cancelA(id) {
@@ -152,20 +153,21 @@ function cancelA(id) {
   renderMy();
   saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment cancelled");
 }
+function apptById(id) { return MYAPPT.find(x => String(x.id) === decodeURIComponent(id)); }
+function saveEditedAppt(a, updated, message) {
+  Object.assign(a, updated);
+  renderMy();
+  saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, message);
+}
+function editAppt(id) {
+  const a = apptById(id);
+  if (!a) return;
+  openAppointmentEditor({ row: a, mode: "edit", others: MYAPPT, doctors: DOCS, canEditPatient: false, onSave: updated => saveEditedAppt(a, updated, "Appointment updated") });
+}
 function resched(id) {
-  const a = MYAPPT.find(x => x.id === id);
-  openModal({
-    title: "Reschedule Appointment",
-    body: `<div class="form-group"><label>New Date</label><input class="form-control" type="date" id="rDate" value="${a.date}"></div>
-      <div class="form-group"><label>New Time</label><input class="form-control" type="time" id="rTime" value="${a.time}"></div>`,
-    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveR">Confirm</button>`
-  }, { onMount: ov => {
-    ov.querySelector("[data-c]").onclick = () => ov.remove();
-    ov.querySelector("#saveR").onclick = () => {
-      a.date = ov.querySelector("#rDate").value; a.time = ov.querySelector("#rTime").value; a.status = "rescheduled";
-      renderMy(); ov.remove(); saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment rescheduled");
-    };
-  }});
+  const a = apptById(id);
+  if (!a) return;
+  openAppointmentEditor({ row: a, mode: "reschedule", others: MYAPPT, doctors: DOCS, onSave: updated => saveEditedAppt(a, updated, "Appointment rescheduled") });
 }
 function bookModal() {
   openModal({

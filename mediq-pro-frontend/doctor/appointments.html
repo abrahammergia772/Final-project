@@ -150,8 +150,9 @@ function renderAppts() {
     <td>${esc(a.dept)}</td><td>${apptBadge(a.status)}</td>
     <td>${a.no_show >= 30 ? `<span class="badge badge-danger">High (${a.no_show}%)</span>` : a.no_show >= 15 ? `<span class="badge badge-warning">Medium (${a.no_show}%)</span>` : `<span class="badge badge-success">Low (${a.no_show}%)</span>`}</td>
     <td><div class="actions">
+      <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setStatus('${a.id}','attended')">${ICONS.check}</button>
-      <button class="btn-icon warning" title="Reschedule" onclick="setStatus('${a.id}','rescheduled')">${ICONS.refresh}</button>
+      <button class="btn-icon warning" title="Reschedule to other appointment" onclick="moveAppt('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
       <button class="btn-icon danger" title="Cancel" onclick="setStatus('${a.id}','cancelled')">${ICONS.x}</button>
     </div></td></tr>`).join("") : emptyRow(7);
 }
@@ -165,6 +166,27 @@ function setStatus(id, s) {
   a.status = s === "rescheduled" ? "rescheduled" : s;
   renderAppts();
   saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment " + (s === "rescheduled" ? "rescheduled" : s));
+}
+function apptById(id) { return APPT.find(x => String(x.id) === decodeURIComponent(id)); }
+function doctorChoices() {
+  const names = APPT.map(a => a.doctor).filter(Boolean);
+  if (typeof getUserName === "function" && getUserName()) names.unshift(getUserName());
+  return Array.from(new Set(names));
+}
+function saveEditedAppt(a, updated, message) {
+  Object.assign(a, updated);
+  renderAppts();
+  saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, message);
+}
+function editAppt(id) {
+  const a = apptById(id);
+  if (!a) return;
+  openAppointmentEditor({ row: a, mode: "edit", others: APPT, doctors: doctorChoices(), onSave: updated => saveEditedAppt(a, updated, "Appointment updated") });
+}
+function moveAppt(id) {
+  const a = apptById(id);
+  if (!a) return;
+  openAppointmentEditor({ row: a, mode: "reschedule", others: APPT, doctors: doctorChoices(), onSave: updated => saveEditedAppt(a, updated, "Appointment rescheduled") });
 }
 function bookModal() {
   openModal({

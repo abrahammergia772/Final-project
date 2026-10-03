@@ -162,6 +162,100 @@ function openModal(html, opts) {
 
 function closeModal(overlay) { if (overlay) overlay.remove(); }
 
+function apptTimeValue(value) {
+  const match = String(value || "").trim().match(/^(\d{1,2}):(\d{2})/);
+  return match ? match[1].padStart(2, "0") + ":" + match[2] : "";
+}
+
+function optionList(values, current) {
+  const list = values.slice();
+  if (current && list.indexOf(current) < 0) list.unshift(current);
+  return list.map(value => `<option${value === current ? " selected" : ""}>${esc(value)}</option>`).join("");
+}
+
+// Edit an appointment, or move it onto another appointment's date, time, and doctor.
+function openAppointmentEditor(opts) {
+  opts = opts || {};
+  const row = opts.row;
+  if (!row) return;
+  const mode = opts.mode === "edit" ? "edit" : "reschedule";
+  const others = (opts.others || []).filter(item => item && String(item.id) !== String(row.id) && item.status !== "cancelled");
+  const doctors = opts.doctors && opts.doctors.length ? opts.doctors : [row.doctor || "Doctor"];
+  const departments = opts.departments || ["Internal Medicine", "Pediatrics", "Cardiology", "Maternity", "Orthopedics"];
+  const types = opts.types || ["Consultation", "Follow-up", "New patient"];
+  const details = row.details && typeof row.details === "object" ? row.details : {};
+  const otherOptions = ['<option value="">Keep a custom date and time</option>'].concat(others.map(item => {
+    const label = [item.date, item.time, item.doctor, item.dept, item.patient].filter(Boolean).join(" · ");
+    return `<option value="${esc(item.id)}">${esc(label)}</option>`;
+  })).join("");
+  openModal({
+    title: mode === "edit" ? "Edit appointment" : "Reschedule to other appointment",
+    body: `<div class="alert alert-info mb-3"><div class="alert-body">Current: <strong>${esc(row.patient || "")}</strong> · ${esc(row.date || "")} ${esc(row.time || "")} · ${esc(row.doctor || "")}</div></div>
+      ${mode === "reschedule" ? `<div class="form-group"><label>Reschedule to other appointment</label><select class="form-control" id="apptMove">${otherOptions}</select><div class="text-sm" id="apptMoveNote" style="margin-top:6px;color:#6B7280">Choose another appointment to take its date, time, and doctor, or set a new slot below.</div></div>` : ""}
+      ${mode === "edit" && opts.canEditPatient !== false ? `<div class="form-group"><label>Patient <span class="req">*</span></label><input class="form-control" id="apptPatient" value="${esc(row.patient || "")}"></div>` : ""}
+      <div class="form-group"><label>Doctor</label><select class="form-control" id="apptDoctor">${optionList(doctors, row.doctor || doctors[0])}</select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input class="form-control" type="date" id="apptDate" value="${esc(row.date || "")}"></div>
+        <div class="form-group"><label>Time</label><input class="form-control" type="time" id="apptTime" value="${esc(apptTimeValue(row.time))}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label><select class="form-control" id="apptType">${optionList(types, row.type || types[0])}</select></div>
+        <div class="form-group"><label>Department</label><select class="form-control" id="apptDept">${optionList(departments, row.dept || departments[0])}</select></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" rows="2" id="apptNotes">${esc(details.notes || "")}</textarea></div>`,
+    footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="apptSave">${mode === "edit" ? "Save changes" : "Reschedule"}</button>`
+  }, { onMount: ov => {
+    ov.querySelector("[data-c]").onclick = () => ov.remove();
+    const move = ov.querySelector("#apptMove");
+    if (move) move.addEventListener("change", () => {
+      const picked = others.find(item => String(item.id) === move.value);
+      const note = ov.querySelector("#apptMoveNote");
+      if (!picked) {
+        if (note) note.textContent = "Choose another appointment to take its date, time, and doctor, or set a new slot below.";
+        return;
+      }
+      ov.querySelector("#apptDate").value = picked.date || "";
+      ov.querySelector("#apptTime").value = apptTimeValue(picked.time);
+      ["apptDoctor", "apptDept"].forEach((id, index) => {
+        const value = index === 0 ? picked.doctor : picked.dept;
+        const select = ov.querySelector("#" + id);
+        if (value && !Array.from(select.options).some(option => option.textContent === value)) {
+          select.insertAdjacentHTML("afterbegin", `<option>${esc(value)}</option>`);
+        }
+        if (value) select.value = value;
+      });
+      if (note) note.textContent = "This appointment will move to " + (picked.patient || "that slot") + "'s date and time. The other booking is left as it is.";
+    });
+    ov.querySelector("#apptSave").onclick = () => {
+      const date = ov.querySelector("#apptDate").value;
+      const time = ov.querySelector("#apptTime").value;
+      if (!date || !time) { showToast("Choose a date and time", "error"); return; }
+      const patientInput = ov.querySelector("#apptPatient");
+      const patient = patientInput ? patientInput.value.trim() : row.patient;
+      if (mode === "edit" && !patient) { showToast("Patient is required", "error"); return; }
+      const doctor = ov.querySelector("#apptDoctor").value;
+      const slotChanged = date !== (row.date || "") || time !== apptTimeValue(row.time) || doctor !== (row.doctor || "");
+      const nextDetails = Object.assign({}, details, { notes: ov.querySelector("#apptNotes").value.trim() });
+      if (mode === "reschedule" || slotChanged) {
+        nextDetails.rescheduled_from = { date: row.date || "", time: row.time || "", doctor: row.doctor || "" };
+        if (move && move.value) nextDetails.moved_to_appointment = move.value;
+      }
+      const updated = Object.assign({}, row, {
+        patient: patient || row.patient,
+        doctor: doctor,
+        dept: ov.querySelector("#apptDept").value,
+        date: date,
+        time: time,
+        type: ov.querySelector("#apptType").value,
+        status: (mode === "reschedule" || slotChanged) ? "rescheduled" : (row.status || "confirmed"),
+        details: nextDetails
+      });
+      if (typeof opts.onSave === "function") opts.onSave(updated);
+      ov.remove();
+    };
+  }});
+}
+
 // ---------- Escaping ----------
 function escapeHtml(str) {
   return String(str == null ? "" : str)

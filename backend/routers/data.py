@@ -70,7 +70,7 @@ WRITE_ROLES = {
     "finance": {"manager", "admin"},
     "app_settings": {"admin"},
 }
-PATIENT_WRITE = {"complaints", "messages"}
+PATIENT_WRITE = {"complaints", "messages", "appointments"}
 
 
 def _authorize(resource: str, user, write: bool = False):
@@ -307,6 +307,8 @@ def _stamp_patient(resource: str, body: dict, user) -> dict:
     if resource == "messages":
         body["from"] = who
         body["from_role"] = "patient"
+    if resource == "appointments":
+        body["patient"] = who
     return body
 
 

@@ -166,8 +166,9 @@ function renderAppts() {
     <td>${esc(a.dept)}</td><td>${esc(a.type)}</td><td>${noShowBadge(a)}</td>
     <td>${apptBadge(a.status)}</td>
     <td><div class="actions">
+      <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setA('${a.id}','attended')">${ICONS.check}</button>
-      <button class="btn-icon warning" title="Reschedule" onclick="setA('${a.id}','rescheduled')">${ICONS.refresh}</button>
+      <button class="btn-icon warning" title="Reschedule to other appointment" onclick="moveAppt('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
       <button class="btn-icon danger" title="Cancel" onclick="setA('${a.id}','cancelled')">${ICONS.x}</button>
     </div></td></tr>`).join("") : emptyRow(8);
 }
@@ -176,6 +177,23 @@ function apptBadge(s) {
   const b = m[s] || ["neutral", s]; return `<span class="badge badge-${b[0]}">${b[1]}</span>`;
 }
 function setA(id, s) { const a = APPT.find(x => x.id === id); if (!a) return; a.status = s; renderAppts(); saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment " + s); }
+function apptById(id) { return APPT.find(x => String(x.id) === decodeURIComponent(id)); }
+function saveEditedAppt(a, updated, message) {
+  Object.assign(a, updated);
+  renderAppts();
+  if (!document.getElementById("calView").classList.contains("hidden")) renderCalendar();
+  saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, message);
+}
+function editAppt(id) {
+  const a = apptById(id);
+  if (!a) return;
+  openAppointmentEditor({ row: a, mode: "edit", others: APPT, doctors: DOCTORS, onSave: updated => saveEditedAppt(a, updated, "Appointment updated") });
+}
+function moveAppt(id) {
+  const a = apptById(id);
+  if (!a) return;
+  openAppointmentEditor({ row: a, mode: "reschedule", others: APPT, doctors: DOCTORS, onSave: updated => saveEditedAppt(a, updated, "Appointment rescheduled") });
+}
 function bookModal() {
   openModal({
     title: "Book Appointment",
