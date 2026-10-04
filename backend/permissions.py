@@ -72,12 +72,51 @@ UNLOCKS = {
 }
 
 DENIED = "An administrator has not given your role permission for this."
+_ROW_ID = "permissions"
+_FALLBACK_ID = "__permissions"
 
 _cache: Dict[str, object] = {"at": 0.0, "value": {}}
 
 
 def _on(value) -> bool:
     return value in (1, True, "1")
+
+
+def _object(raw):
+    guard = 0
+    while isinstance(raw, str) and guard < 3:
+        try:
+            raw = json.loads(raw)
+        except json.JSONDecodeError:
+            return None
+        guard += 1
+    return raw if isinstance(raw, dict) else None
+
+
+def _extract(row: dict) -> dict:
+    if not isinstance(row, dict):
+        return {}
+    raw = _object(row.get("value"))
+    if raw:
+        wrapped = raw.get("permissions") if isinstance(raw.get("permissions"), dict) else None
+        if wrapped and not any(key in raw for key in ("admin", "doctor", "nurse", "patient")):
+            return wrapped
+        return raw
+    details = _object(row.get("details")) or {}
+    inner = details.get("permissions") if isinstance(details.get("permissions"), dict) else None
+    return inner or {}
+
+
+def _read_primary(client) -> dict:
+    resp = client.table("app_settings").select("id,value").eq("id", _ROW_ID).limit(1).execute()
+    rows = resp.data or []
+    return _extract(rows[0]) if rows else {}
+
+
+def _read_fallback(client) -> dict:
+    resp = client.table("announcements").select("id,details").eq("id", _FALLBACK_ID).limit(1).execute()
+    rows = resp.data or []
+    return _extract(rows[0]) if rows else {}
 
 
 def load_saved(force: bool = False) -> dict:
@@ -89,20 +128,99 @@ def load_saved(force: bool = False) -> dict:
     client = get_client()
     if client is not None:
         try:
-            resp = client.table("app_settings").select("id,value").eq("id", "permissions").limit(1).execute()
-            rows = resp.data or []
-            if rows:
-                raw = rows[0].get("value")
-                if isinstance(raw, str):
-                    raw = json.loads(raw)
-                if isinstance(raw, dict):
-                    value = raw
+            value = _read_primary(client)
         except Exception as exc:  # noqa: BLE001
             log.warning("permission load failed: %s", type(exc).__name__)
             value = {}
+        if not value:
+            try:
+                value = _read_fallback(client)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("permission fallback load failed: %s", type(exc).__name__)
     _cache["at"] = now
     _cache["value"] = value
     return value
+
+
+def normalize_map(role_map: dict) -> dict:
+    out = {}
+    if not isinstance(role_map, dict):
+        return out
+    for key, value in role_map.items():
+        name = str(key or "").strip()
+        if not name or len(name) > 40:
+            continue
+        out[name] = 1 if value in (1, True, "1") else 0
+    return out
+
+
+def _confirm(client, reader, role: str, expected: dict) -> dict:
+    stored = reader(client)
+    role_saved = stored.get(role) if isinstance(stored, dict) else None
+    if not isinstance(role_saved, dict):
+        raise RuntimeError("saved row was not readable")
+    for key, value in expected.items():
+        if (1 if role_saved.get(key) in (1, True, "1") else 0) != value:
+            raise RuntimeError("saved permissions did not match")
+    return stored
+
+
+def _write_primary(client, value: dict) -> None:
+    existing = client.table("app_settings").select("id").eq("id", _ROW_ID).limit(1).execute()
+    if existing.data:
+        client.table("app_settings").update({"value": value}).eq("id", _ROW_ID).execute()
+        return
+    client.table("app_settings").insert({"id": _ROW_ID, "value": value}).execute()
+
+
+def _write_fallback(client, value: dict) -> None:
+    row = {
+        "id": _FALLBACK_ID,
+        "title": "System permissions",
+        "message": "Do not edit",
+        "audience": "system",
+        "status": "draft",
+        "details": {"permissions": value},
+    }
+    existing = client.table("announcements").select("id").eq("id", _FALLBACK_ID).limit(1).execute()
+    if existing.data:
+        client.table("announcements").update({"details": row["details"], "status": "draft"}).eq("id", _FALLBACK_ID).execute()
+        return
+    client.table("announcements").insert(row).execute()
+
+
+def save_role_map(role: str, role_map: dict) -> dict:
+    """Merge one role's switches into the saved permissions and confirm the write."""
+    role = str(role or "").strip().lower()
+    if not role or len(role) > 40:
+        raise ValueError("role required")
+    cleaned = normalize_map(role_map)
+    if role == "admin":
+        cleaned["roles"] = 1
+    client = get_client()
+    if client is None:
+        raise RuntimeError("Supabase is not configured")
+    current = load_saved(force=True)
+    if not isinstance(current, dict):
+        current = {}
+    current = dict(current)
+    current[role] = cleaned
+    primary_error = None
+    try:
+        _write_primary(client, current)
+        stored = _confirm(client, _read_primary, role, cleaned)
+    except Exception as exc:  # noqa: BLE001
+        primary_error = exc
+        log.warning("app_settings permission save failed: %s", type(exc).__name__)
+        try:
+            _write_fallback(client, current)
+            stored = _confirm(client, _read_fallback, role, cleaned)
+        except Exception as fallback_exc:  # noqa: BLE001
+            log.warning("permission fallback save failed: %s", type(fallback_exc).__name__)
+            raise RuntimeError("Could not save permissions") from primary_error
+    _cache["at"] = time.monotonic()
+    _cache["value"] = stored
+    return stored
 
 
 def granted(role: str, key: str, saved: dict | None = None) -> bool:

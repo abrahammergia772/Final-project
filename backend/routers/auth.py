@@ -46,6 +46,11 @@ class ResetRequest(BaseModel):
     new_password: str = ""
 
 
+class PermissionsBody(BaseModel):
+    role: str
+    permissions: dict = Field(default_factory=dict)
+
+
 _RESET_CODES = {}
 _ALLOWED_ROLES = {"patient", "doctor", "nurse", "pharmacist", "laboratory", "reception"}
 _FAILS = {}
@@ -64,6 +69,29 @@ def _note_failure(email: str) -> None:
 
 def _token_for(user_id, role, email, name):
     return issue_token(user_id, role, email=email, name=name)
+
+
+@router.get("/auth/permissions")
+def read_permissions(user=Depends(current_user)):
+    """Saved role switches. Any signed-in role may read them."""
+    from permissions import load_saved
+    return {"value": load_saved(force=True)}
+
+
+@router.post("/auth/permissions")
+def write_permissions(body: PermissionsBody, user=Depends(current_user)):
+    """Save or reset one role. Only an administrator can change the switches."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Only an administrator can change permissions")
+    from permissions import save_role_map
+    try:
+        saved = save_role_map(body.role, body.permissions or {})
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        log.error("permission save failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Could not save permissions") from exc
+    return {"ok": True, "value": saved}
 
 
 @router.post("/auth/login")

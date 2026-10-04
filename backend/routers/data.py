@@ -282,7 +282,11 @@ def read_all(resource: str, limit: int = 500, user=Depends(current_user)):
         raise HTTPException(status_code=404, detail="Unknown resource")
     if resource == "messages":
         return _message_view(user, "inbox")
-    return _scope(resource, _fail_if_down(list_rows(resource, limit)), user)
+    result = _scope(resource, _fail_if_down(list_rows(resource, limit)), user)
+    if resource == "announcements":
+        items = [row for row in result.get("items", []) if str(row.get("id") or "") != "__permissions"]
+        result = {**result, "items": items, "total": len(items)}
+    return result
 
 
 @router.post("/{resource}")

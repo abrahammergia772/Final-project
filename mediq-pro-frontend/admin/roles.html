@@ -135,7 +135,7 @@ const ROLE_ICONS = { admin:"shield", manager:"chart", doctor:"stethoscope", nurs
 function loadPageData() {
   const grid = document.getElementById("rolesGrid");
   if (grid) grid.innerHTML = '<p class="text-sm" style="color:#6B7280">Loading saved permissions…</p>';
-  const ready = (typeof seedPermissions === "function") ? seedPermissions() : Promise.resolve();
+  const ready = (typeof seedPermissions === "function") ? seedPermissions(true) : Promise.resolve();
   ready.then(function () { renderRoles(); });
 }
 function roleList() {
@@ -173,9 +173,23 @@ function defaultMap(role) {
   if (role === "admin") map.roles = 1;
   return map;
 }
+function collectMap(role) {
+  const map = {};
+  document.querySelectorAll('input[data-role="' + role + '"]').forEach(function (cb) {
+    map[cb.dataset.perm] = cb.checked ? 1 : 0;
+  });
+  if (role === "admin") map.roles = 1;
+  return map;
+}
+function paintMap(role, map) {
+  document.querySelectorAll('input[data-role="' + role + '"]').forEach(function (cb) {
+    if (map && Object.prototype.hasOwnProperty.call(map, cb.dataset.perm)) cb.checked = !!map[cb.dataset.perm];
+  });
+}
 function renderRoles() {
-  const blocked = (typeof _permState !== "undefined" && _permState === "error");
-  document.getElementById("rolesGrid").innerHTML = (blocked ? '<div class="alert alert-danger mb-3"><div class="alert-body"><strong>Saved permissions could not be loaded.</strong> Saving is locked so the current rules are not overwritten.</div></div>' : '') + `<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+  const grid = document.getElementById("rolesGrid");
+  if (!grid) return;
+  grid.innerHTML = `<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
     ${roleList().map(role => {
       const perms = permsOf(role);
       const toggles = Object.keys(perms).map(key => {
@@ -196,35 +210,40 @@ function renderRoles() {
         <div class="divider" style="margin:6px 0"></div>
         <div>${toggles}</div>
         <div class="flex gap-3 mt-3" style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" data-save="${role}" ${blocked ? "disabled" : ""}>${ICONS.check} Save Permissions</button>
-          <button class="btn btn-secondary btn-sm" data-reset="${role}" ${blocked ? "disabled" : ""}>Reset</button>
+          <button class="btn btn-primary btn-sm" type="button" data-save="${role}">${ICONS.check} Save Permissions</button>
+          <button class="btn btn-secondary btn-sm" type="button" data-reset="${role}">Reset</button>
         </div>
       </div>`;
     }).join("")}
   </div>`;
-  document.querySelectorAll("[data-save]").forEach(b => b.addEventListener("click", () => {
-    const role = b.dataset.save;
-    const map = {};
-    document.querySelectorAll(`input[data-role="${role}"]`).forEach(cb => { map[cb.dataset.perm] = cb.checked ? 1 : 0; });
-    if (role === "admin") map.roles = 1;
-    b.disabled = true;
-    savePermissions(role, map).then(function (res) {
-      b.disabled = false;
-      if (!res || !res.ok) { showToast((res && res.error) || "Could not save permissions", "error"); return; }
-      renderRoles();
-      showToast("Permissions saved. " + (ROLE_NAMES[role] || role) + " can use only the granted pages.", "success");
+  if (!window.__permButtonsBound) {
+    window.__permButtonsBound = true;
+    document.addEventListener("click", function (e) {
+      const node = e.target && e.target.closest ? e.target : (e.target && e.target.parentElement);
+      if (!node || !node.closest) return;
+      const saveBtn = node.closest("[data-save]");
+      const resetBtn = node.closest("[data-reset]");
+      const btn = saveBtn || resetBtn;
+      if (!btn || btn.disabled) return;
+      const role = saveBtn ? saveBtn.dataset.save : resetBtn.dataset.reset;
+      const previous = collectMap(role);
+      const map = saveBtn ? previous : defaultMap(role);
+      if (resetBtn) paintMap(role, map);
+      btn.disabled = true;
+      savePermissions(role, map).then(function (res) {
+        btn.disabled = false;
+        if (!res || !res.ok) {
+          if (resetBtn) paintMap(role, previous);
+          showToast((res && res.error) || (saveBtn ? "Could not save permissions" : "Could not reset permissions"), "error");
+          return;
+        }
+        renderRoles();
+        showToast(saveBtn
+          ? "Permissions saved. " + (ROLE_NAMES[role] || role) + " can use only the granted pages."
+          : "Permissions reset to defaults for " + (ROLE_NAMES[role] || role), saveBtn ? "success" : "info");
+      });
     });
-  }));
-  document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click", () => {
-    const role = b.dataset.reset;
-    b.disabled = true;
-    savePermissions(role, defaultMap(role)).then(function (res) {
-      b.disabled = false;
-      if (!res || !res.ok) { showToast((res && res.error) || "Could not reset permissions", "error"); return; }
-      renderRoles();
-      showToast("Permissions reset to defaults for " + (ROLE_NAMES[role] || role), "info");
-    });
-  }));
+  }
 }
 document.getElementById("btnAddRole").addEventListener("click", () => {
   openModal({

@@ -170,6 +170,7 @@ let _permCache = null;
 let _permReady = false;
 let _permState = "";
 let _permPromise = null;
+let _permGen = 0;
 const PERM_UNLOCKS = {
   users: ["users"], announcements: ["announcements"], audit: ["audit_logs"],
   shifts: ["shifts", "roster", "attendance"], documents: ["documents"], records: ["documents"],
@@ -184,41 +185,47 @@ const PERM_UNLOCKS = {
   bills: ["bills", "cashier_invoices"]
 };
 
-function seedPermissions() {
-  if (_permPromise) return _permPromise;
+function asPermObject(value) {
+  let guard = 0;
+  while (typeof value === "string" && guard < 3) {
+    try { value = JSON.parse(value); } catch (e) { return null; }
+    guard += 1;
+  }
+  if (!value || typeof value !== "object") return null;
+  if (value.permissions && typeof value.permissions === "object" && !value.admin && !value.doctor && !value.patient) {
+    return value.permissions;
+  }
+  return value;
+}
+function seedPermissions(force) {
+  if (_permPromise && !force) return _permPromise;
   if (typeof apiFetch !== "function") {
     _permReady = true;
     _permState = "defaults";
-    return Promise.resolve(loadPermissions());
+    _permPromise = Promise.resolve(loadPermissions());
+    return _permPromise;
   }
-  _permPromise = apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS).then(function (res) {
-    if (res && res.ok) {
-      const items = (res.data && res.data.items) || [];
-      const row = items.find(function (item) { return item && item.id === "permissions"; });
-      let value = row && row.value;
-      if (typeof value === "string") {
-        try { value = JSON.parse(value); } catch (e) { value = null; }
-      }
-      if (value && typeof value === "object") {
-        _permCache = value;
-        _permState = "saved";
-        if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
-      } else {
-        _permCache = null;
-        _permState = "defaults";
-      }
-    } else {
+  const gen = ++_permGen;
+  _permPromise = apiFetch("/auth/permissions").then(function (res) {
+    if (gen !== _permGen) return loadPermissions();
+    const value = asPermObject(res && res.ok && res.data && res.data.value);
+    if (value && Object.keys(value).length) {
+      _permCache = value;
+      _permState = "saved";
+    } else if (res && res.ok) {
       _permCache = null;
-      _permState = "error";
+      _permState = "defaults";
+    } else {
+      _permCache = _permCache || null;
+      _permState = _permCache ? "saved" : "defaults";
     }
     _permReady = true;
     if (typeof applyPermissions === "function") applyPermissions();
     if (typeof enforceCurrentPage === "function") enforceCurrentPage();
     return loadPermissions();
   }).catch(function () {
-    _permCache = null;
-    _permState = "error";
     _permReady = true;
+    _permState = _permCache ? "saved" : "defaults";
     if (typeof applyPermissions === "function") applyPermissions();
     return loadPermissions();
   });
@@ -233,7 +240,7 @@ function granted(role, key) {
   if (role === "admin" && key === "roles") return true;
   const savedRole = _permCache && _permCache[role];
   if (savedRole && Object.prototype.hasOwnProperty.call(savedRole, key)) {
-    return savedRole[key] === 1 || savedRole[key] === true;
+    return savedRole[key] === 1 || savedRole[key] === true || savedRole[key] === "1";
   }
   const defaults = (CONFIG.PERMISSIONS && CONFIG.PERMISSIONS[role]) || {};
   return defaults[key] === 1;
@@ -299,25 +306,23 @@ function permissionDeniedHtml() {
 }
 
 function savePermissions(role, map) {
-  if (_permState === "error") {
-    return Promise.resolve({ ok: false, error: "Could not load saved permissions, so nothing was changed." });
-  }
-  const all = JSON.parse(JSON.stringify(loadPermissions()));
-  all[role] = map;
-  const row = { id: "permissions", value: all };
-  function finish(res) {
-    if (res && res.ok) {
-      _permCache = all;
+  const clean = {};
+  Object.keys(map || {}).forEach(function (key) { clean[key] = map[key] ? 1 : 0; });
+  if (role === "admin") clean.roles = 1;
+  const gen = ++_permGen;
+  return apiFetch("/auth/permissions", "POST", { role: role, permissions: clean }).then(function (res) {
+    if (gen !== _permGen) return res || { ok: false, error: "Could not save permissions" };
+    const value = asPermObject(res && res.ok && res.data && res.data.value);
+    if (res && res.ok && value) {
+      _permCache = value;
       _permReady = true;
       _permState = "saved";
-      if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
+      _permPromise = Promise.resolve(loadPermissions());
       if (typeof applyPermissions === "function") applyPermissions();
     }
     return res || { ok: false, error: "Could not save permissions" };
-  }
-  return apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS, "POST", row).then(function (res) {
-    if (res && res.ok) return finish(res);
-    return apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS + "/permissions", "PUT", row).then(finish);
+  }).catch(function () {
+    return { ok: false, error: "Could not save permissions" };
   });
 }
 
