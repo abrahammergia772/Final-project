@@ -125,7 +125,7 @@ def complete(messages: list, max_tokens: int = 400, temperature: float = 0.3, js
     for model in models_to_try():
         body = _payload(model, messages, max_tokens, temperature, json_mode)
         try:
-            with httpx.Client(timeout=12.0) as client:
+            with httpx.Client(timeout=8.0) as client:
                 resp = _post(client, key, body)
                 if resp.status_code == 400 and (json_mode or "reasoning_effort" in body):
                     plain = {

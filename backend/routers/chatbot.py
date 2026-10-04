@@ -11,7 +11,7 @@ from typing import Optional
 
 import numpy as np
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from model_loader import load_module, load_config, blend, MODELS_DIR
 
