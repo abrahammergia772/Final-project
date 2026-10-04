@@ -17,11 +17,18 @@
 <link rel="stylesheet" href="../assets/css/modules.css" />
 <style>
 .pay-tabs { display: flex; gap: 8px; margin: 12px 0; }
-.pay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; max-height: 260px; overflow: auto; padding: 2px; }
-.pay-choice { display: flex; align-items: center; gap: 8px; width: 100%; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 12px; padding: 8px 10px; text-align: left; cursor: pointer; font: inherit; }
-.pay-choice small { display: block; color: var(--gray); font-size: 11px; font-weight: 500; }
+.pay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; max-height: 440px; overflow: auto; padding: 2px; align-items: stretch; }
+.pay-choice { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 8px; width: 100%; height: 100%; min-height: 136px; margin: 0; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; font: inherit; }
+.pay-choice strong { display: flex; align-items: center; justify-content: center; min-height: 2.5em; color: var(--text-strong); font-size: 12px; line-height: 1.25; font-weight: 650; }
+.pay-choice small { display: block; min-height: 1.2em; color: var(--gray); font-size: 11px; font-weight: 500; line-height: 1.2; }
 .pay-choice.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
-.pay-mark { width: 32px; height: 32px; border-radius: 50%; background: #0B3A5E; color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.pay-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 64px; flex: 0 0 64px; box-sizing: border-box; padding: 6px 8px; border-radius: 8px; background: #ffffff; color: #06141B; border: 1px solid #E4E7EA; overflow: hidden; }
+.pay-logo img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center center; }
+.pay-copy { display: flex; flex-direction: column; gap: 2px; min-height: 46px; }
+html[data-theme="dark"] .pay-choice,
+html[data-theme="dark"] .pay-choice strong { color: var(--text-strong); background: transparent; }
+html[data-theme="dark"] .pay-choice { background: var(--white); }
+html[data-theme="dark"] .pay-logo { background: #ffffff; border-color: rgba(204, 208, 207, 0.28); }
 .pay-note { color: var(--gray); font-size: 12px; margin: 0 0 10px; }
 </style>
 
@@ -196,6 +203,55 @@ function payInitials(name) {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
+const PAY_LOGOS = {
+  "Telebirr": "../assets/images/payments/telebirr.png",
+  "CBE Birr": "../assets/images/payments/cbe-birr.png",
+  "M-Pesa": "../assets/images/payments/mpesa.png",
+  "Amole": "../assets/images/payments/amole.png",
+  "HelloCash": "../assets/images/payments/hellocash.png",
+  "Awash Birr": "../assets/images/payments/awash.png",
+  "Coopay": "../assets/images/payments/coop.png",
+  "E-Birr": "../assets/images/payments/ebirr.png",
+  "Kacha": "../assets/images/payments/kacha.png",
+  "YenePay": "../assets/images/payments/yenepay.png",
+  "M-Birr": "../assets/images/payments/mbirr.png",
+  "Other wallet": "../assets/images/payments/other-wallet.png",
+  "Commercial Bank of Ethiopia": "../assets/images/payments/cbe.png",
+  "Awash Bank": "../assets/images/payments/awash.png",
+  "Dashen Bank": "../assets/images/payments/dashen.png",
+  "Bank of Abyssinia": "../assets/images/payments/boa.png",
+  "Wegagen Bank": "../assets/images/payments/wegagen.png",
+  "Hibret Bank": "../assets/images/payments/hibret.png",
+  "Nib International Bank": "../assets/images/payments/nib.png",
+  "Cooperative Bank of Oromia": "../assets/images/payments/coop.png",
+  "Lion International Bank": "../assets/images/payments/lion.png",
+  "Zemen Bank": "../assets/images/payments/zemen.png",
+  "Oromia Bank": "../assets/images/payments/oromia.png",
+  "Berhan Bank": "../assets/images/payments/berhan.png",
+  "Bunna Bank": "../assets/images/payments/bunna.png",
+  "Abay Bank": "../assets/images/payments/abay.png",
+  "Addis International Bank": "../assets/images/payments/addis.png",
+  "Enat Bank": "../assets/images/payments/enat.png",
+  "ZamZam Bank": "../assets/images/payments/zamzam.png",
+  "Hijra Bank": "../assets/images/payments/hijra.png",
+  "Shabelle Bank": "../assets/images/payments/shabelle.png",
+  "Siinqee Bank": "../assets/images/payments/siinqee.png",
+  "Amhara Bank": "../assets/images/payments/amhara.png",
+  "Ahadu Bank": "../assets/images/payments/ahadu.png",
+  "Tsedey Bank": "../assets/images/payments/tsedey.png",
+  "Gadaa Bank": "../assets/images/payments/gadaa.png",
+  "Goh Betoch Bank": "../assets/images/payments/goh.png",
+  "Global Bank Ethiopia": "../assets/images/payments/global.png",
+  "Sidama Bank": "../assets/images/payments/sidama.png",
+  "Omo Bank": "../assets/images/payments/omo.png",
+  "CBE Noor": "../assets/images/payments/cbe.png",
+  "Other bank": "../assets/images/payments/other-bank.png"
+};
+function payLogo(name) {
+  const src = PAY_LOGOS[name];
+  if (!src) return `<span class="pay-logo">${esc(payInitials(name))}</span>`;
+  return `<span class="pay-logo"><img src="${src}" alt=""></span>`;
+}
 function renderBills() {
   const out = BILLS.reduce((s, b) => s + (b.status === "paid" ? 0 : billBalance(b) || Number(b.amount) || 0), 0);
   document.getElementById("outTotal").textContent = formatCurrency(out);
@@ -248,7 +304,7 @@ function payBill(id) {
         <button class="btn btn-secondary btn-sm" type="button" id="payBanks">Banks</button>
       </div>
       <div class="form-group"><label>Search</label><input class="form-control" id="paySearch" placeholder="Search Telebirr, CBE, Awash…" data-patient-suggest="off"></div>
-      <div class="pay-grid" id="payGrid"></div>
+      <div class="pay-grid" id="payGrid" data-pay-logos="1"></div>
       <div class="form-group" id="payOtherWrap" hidden style="margin-top:12px"><label id="payOtherLabel">Name</label><input class="form-control" id="payOther" data-patient-suggest="off"></div>
       <div class="form-row">
         <div class="form-group"><label id="payPhoneLabel">Wallet phone</label><input class="form-control" id="payPhone" type="tel" placeholder="09xxxxxxxx" data-patient-suggest="off"></div>
@@ -267,7 +323,7 @@ function payBill(id) {
         return !q || (item.name + " " + (item.note || "")).toLowerCase().indexOf(q) >= 0;
       });
       ov.querySelector("#payGrid").innerHTML = rows.map(function (item) {
-        return `<button type="button" class="pay-choice${item.name === selected ? " selected" : ""}" data-method="${esc(item.name)}"><span class="pay-mark">${esc(payInitials(item.name))}</span><span><strong>${esc(item.name)}</strong><small>${esc(item.note || "")}</small></span></button>`;
+        return `<button type="button" class="pay-choice${item.name === selected ? " selected" : ""}" data-method="${esc(item.name)}">${payLogo(item.name)}<span class="pay-copy"><strong>${esc(item.name)}</strong><small>${esc(item.note || "")}</small></span></button>`;
       }).join("") || `<p class="pay-note">No match. Try another name, or choose Other.</p>`;
       ov.querySelectorAll(".pay-choice").forEach(function (button) {
         button.onclick = function () {
