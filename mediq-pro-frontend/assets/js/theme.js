@@ -17,8 +17,21 @@
   var btn = null;
   var cur = "light";
 
-  function sGet(k) { return memory[k] || null; }
-  function sSet(k, v) { memory[k] = v; if (window.saveUserPref) window.saveUserPref(k, v); }
+  function sGet(k) {
+    try {
+      var stored = localStorage.getItem(k);
+      if (stored === "dark" || stored === "light") {
+        memory[k] = stored;
+        return stored;
+      }
+    } catch (e) { /* sandboxed pages have no localStorage */ }
+    return memory[k] || null;
+  }
+  function sSet(k, v) {
+    memory[k] = v;
+    try { localStorage.setItem(k, v); } catch (e) { /* keep the memory copy */ }
+    if (window.saveUserPref) window.saveUserPref(k, v);
+  }
 
   function preferred() {
     var saved = sGet(LS_KEY);
@@ -36,6 +49,8 @@
     cur = t === "dark" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", cur);
     document.documentElement.classList.toggle("dark", cur === "dark");
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", cur === "dark" ? "#06141B" : "#11212D");
   }
 
   var SUN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
@@ -48,10 +63,10 @@
   function updateBtn() {
     if (!btn) return;
     var dark = cur === "dark";
-    btn.innerHTML = dark ? SUN : MOON;
+    btn.innerHTML = (dark ? MOON : SUN) + '<span class="theme-switch-label">' + (dark ? "Night" : "Day") + "</span>";
     btn.setAttribute("aria-pressed", dark ? "true" : "false");
-    btn.setAttribute("aria-label", "Theme / መልክ");
-    btn.title = (window.t && window.t(label())) || label();
+    btn.setAttribute("aria-label", label());
+    btn.title = label();
   }
 
   function emit() {

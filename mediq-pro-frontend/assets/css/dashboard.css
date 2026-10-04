@@ -18,7 +18,7 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
   top: 0;
   z-index: 50;
   height: var(--topbar-h);
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--white);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -152,7 +152,7 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
 
 /* ---------- Welcome banner (patient etc.) ---------- */
 .welcome-banner {
-  background: linear-gradient(120deg, var(--primary-deep) 0%, var(--primary) 100%);
+  background: #11212D;
   border-radius: var(--radius-md);
   color: #fff;
   padding: var(--sp-6) var(--sp-8);
@@ -266,7 +266,7 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0A3355 0%, var(--primary-dark) 55%, var(--primary) 100%);
+  background: linear-gradient(135deg, #06141B 0%, #11212D 55%, #253745 100%);
   padding: var(--sp-5);
   position: relative;
   overflow: hidden;

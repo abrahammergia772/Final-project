@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<meta name="theme-color" content="#0B3A5E" />
+<meta name="theme-color" content="#11212D" />
 
 <title>Settings — Wolaita Sodo Hospital</title>
 <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
@@ -75,14 +75,8 @@
     </section>
     <section class="card">
       <h3 class="mb-3">Appearance</h3>
-      <div class="form-group"><label>Accent Color</label>
-        <select class="form-control" id="stAccent">
-          <option value="blue">Blue (default)</option>
-          <option value="teal">Teal</option>
-          <option value="purple">Purple</option>
-          <option value="green">Green</option>
-          <option value="rose">Rose</option>
-        </select></div>
+      <div class="form-group"><label>Day and night</label>
+        <p class="text-sm text-gray">Use the Day / Night button at the top of every page. The choice stays on this device.</p></div>
       <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Compact density</div><div class="text-sm" style="color:#6B7280">Tighter spacing on tables and cards</div></div><label class="toggle"><input type="checkbox" id="stCompact"><span class="track"></span></label></div>
       <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div><div style="font-weight:600">Date format</div><div class="text-sm" style="color:#6B7280">Ethiopian standard</div></div><select class="form-control" style="width:150px"><option selected>DD/MM/YYYY</option><option>DD/MM/YYYY (Ethiopian)</option></select></div>
       <div class="form-actions"><button class="btn btn-primary" onclick="saveAppearance()">Save Appearance</button></div>
@@ -201,11 +195,8 @@ function loadPageData() {
     if (prefs && prefs.compact) document.getElementById("stCompact").checked = true;
   });
 }
-function applyAccent(name) {
-  const map = { blue: "#1A6FA8", teal: "#0F766E", purple: "#7C3AED", green: "#0F9D5C", rose: "#BE123C" };
-  const c = map[name] || map.blue;
-  document.documentElement.style.setProperty("--primary", c);
-  document.documentElement.style.setProperty("--primary-dark", c);
+function applyAccent() {
+  /* The hospital palette is fixed so day and night mode stay readable. */
 }
 function saveProfile() { saveProfileForm(); }
 function saveSecurity() {

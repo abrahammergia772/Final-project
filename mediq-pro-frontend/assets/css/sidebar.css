@@ -9,8 +9,8 @@
   left: 0;
   bottom: 0;
   width: var(--sidebar-w);
-  background: var(--primary-deep);
-  color: var(--white);
+  background: var(--nav-bg, #11212D);
+  color: var(--nav-text, #CCD0CF);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -94,9 +94,9 @@
   text-decoration: none;
 }
 .nav-link.active {
-  background: var(--primary);
-  color: var(--white);
-  box-shadow: 0 4px 10px rgba(26, 86, 219, 0.45);
+  background: var(--nav-active, #4A5C6A);
+  color: #CCD0CF;
+  box-shadow: none;
 }
 .nav-link.active::before {
   content: "";

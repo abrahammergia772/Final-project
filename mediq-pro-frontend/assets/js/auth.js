@@ -479,7 +479,11 @@ function loadMyPrefs(done) {
     _userDetails.prefs = _userPrefs;
     const avatar = (_userDetails.profile && _userDetails.profile.avatar) || "";
     if (avatar) applyProfilePhoto(avatar);
-    if (prefs.theme && window.Theme) window.Theme.set(prefs.theme, false);
+    if (prefs.theme && window.Theme) {
+      var localTheme = null;
+      try { localTheme = localStorage.getItem("mediq_theme"); } catch (e) { localTheme = null; }
+      if (localTheme !== "dark" && localTheme !== "light") window.Theme.set(prefs.theme, true);
+    }
     if (prefs.lang && window.I18N) window.I18N.setLang(prefs.lang, true);
     applyNotifyPrefs();
     if (done) done(prefs);

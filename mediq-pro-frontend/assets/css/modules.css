@@ -277,10 +277,7 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
 
 /* ---------- Login stage ---------- */
 .login-body {
-  background:
-    radial-gradient(720px 420px at 8% -8%, rgba(255, 214, 140, .18), transparent 58%),
-    radial-gradient(560px 380px at 100% 110%, rgba(46, 168, 112, .22), transparent 52%),
-    linear-gradient(165deg, #07263F 0%, #0B3A5E 52%, #14608F 100%);
+  background: linear-gradient(165deg, #06141B 0%, #11212D 58%, #253745 100%);
 }
 .login-card {
   border-radius: 28px;
@@ -306,10 +303,7 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
   padding: 64px 64px 120px;
   display: flex;
   align-items: center;
-  background:
-    radial-gradient(520px 320px at 82% 12%, rgba(255, 214, 140, .28), transparent 62%),
-    radial-gradient(420px 300px at 8% 86%, rgba(46, 168, 112, .22), transparent 58%),
-    linear-gradient(180deg, #08304F 0%, #0B3A5E 46%, #0E4F78 100%);
+  background: linear-gradient(180deg, #06141B 0%, #11212D 55%, #253745 100%);
 }
 .login-hero-inner {
   position: relative;
@@ -431,9 +425,7 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
   align-items: center;
   justify-content: center;
   padding: 72px 36px 40px;
-  background:
-    radial-gradient(480px 220px at 50% 0%, rgba(26, 111, 168, .08), transparent 70%),
-    #F4F8FB;
+  background: #CCD0CF;
 }
 .login-split .login-card {
   width: 100%;
@@ -475,20 +467,21 @@ button.bed-card { width: 100%; cursor: pointer; font: inherit; }
   width: 18px;
   height: 18px;
   transform: translateY(-50%);
-  color: #64748B;
+  color: #4A5C6A;
   pointer-events: none;
 }
 .login-input .form-control {
   height: 50px;
   padding-left: 42px;
   border-radius: 14px;
-  background: #fff;
-  border-color: #D7E3EE;
+  background: #F7F8F8;
+  border-color: #9BA8AB;
+  color: #06141B;
 }
 .login-input .form-control.has-toggle { padding-right: 48px; }
 .login-input .form-control:focus {
-  border-color: #1A6FA8;
-  box-shadow: 0 0 0 4px rgba(26, 111, 168, .16);
+  border-color: #253745;
+  box-shadow: 0 0 0 3px rgba(37, 55, 69, .2);
 }
 .pw-toggle {
   position: absolute;
@@ -581,16 +574,18 @@ html.lang-am .login-split .login-logo h1 {
   max-width: none;
 }
 html[data-theme="dark"] .login-panel {
-  background: #0C1726;
+  background: #06141B;
 }
 html[data-theme="dark"] .login-split .login-card {
   background: transparent;
   box-shadow: none;
 }
-html[data-theme="dark"] .login-input .form-control { background: #10203A; border-color: #26364F; }
+html[data-theme="dark"] .login-input .form-control { background: #11212D; border-color: #4A5C6A; color: #CCD0CF; }
+html[data-theme="dark"] .login-split .login-panel .btn-primary.btn-block { background: #CCD0CF; color: #06141B; }
+html[data-theme="dark"] .login-split .login-panel .btn-primary.btn-block:hover:not(:disabled) { background: #9BA8AB; color: #06141B; }
 html[data-theme="dark"] .login-split .login-demo {
-  background: rgba(16, 32, 58, .72);
-  border-color: #26364F;
+  background: #11212D;
+  border-color: #4A5C6A;
 }
 html[data-theme="dark"] .pw-toggle:hover { background: #14324D; color: #E2E8F0; }
 @media (max-width: 980px) {
@@ -611,9 +606,9 @@ html[data-theme="dark"] .pw-toggle:hover { background: #14324D; color: #E2E8F0; 
 @keyframes loginEcg { to { stroke-dashoffset: -350; } }
 
 .login-panel .login-kicker,
-.login-kicker-form { color: #0F5F96; }
+.login-kicker-form { color: #253745; }
 html[data-theme="dark"] .login-panel .login-kicker,
-html[data-theme="dark"] .login-kicker-form { color: #8EC8EE; }
+html[data-theme="dark"] .login-kicker-form { color: #9BA8AB; }
 
 .login-split .login-panel .login-logo img { display: none; }
 .login-split .login-panel .login-logo { text-align: left; margin-bottom: 4px; }
@@ -632,17 +627,19 @@ html[data-theme="dark"] .login-kicker-form { color: #8EC8EE; }
 .login-split .login-panel .form-control {
   height: 50px;
   border-radius: 14px;
-  border-color: #D7E3EE;
+  border-color: #9BA8AB;
 }
 .login-split .login-panel .btn-primary.btn-block {
-  height: 50px;
+  height: 52px;
   border: 0;
   border-radius: 14px;
-  background: linear-gradient(180deg, #1C84C4 0%, #0F5F96 100%);
-  box-shadow: 0 12px 24px rgba(15, 79, 120, .24);
+  background: #11212D;
+  color: #CCD0CF;
+  box-shadow: none;
+  font-size: 16px;
 }
 .login-split .login-panel .btn-primary.btn-block:hover:not(:disabled) {
-  background: linear-gradient(180deg, #176FA6 0%, #0C4E7C 100%);
+  background: #06141B;
 }
 html.lang-am .login-kicker { letter-spacing: 0; text-transform: none; }
 @media (max-height: 820px) and (min-width: 981px) {
