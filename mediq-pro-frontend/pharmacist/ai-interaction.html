@@ -195,6 +195,7 @@ function checkPair() {
         <div class="detail-item"><span class="k">Recommended Action</span><span class="v" style="max-width:340px">${esc(res.action)}</span></div>
         <div class="detail-item"><span class="k">Model confidence</span><span class="v">${esc(conf)}</span></div>
       </div>
+      ${aiExplanationHtml(res)}
       <div class="disclaimer"><span>${ICONS.info}</span><div>Estimate from the uploaded severity model. Verify with a clinical reference before dispensing.</div></div>
     </section>`;
   });
@@ -207,7 +208,7 @@ function checkAll() {
   let results = [], done = 0;
   setTimeout(() => {
     pairs.forEach(([a, b]) => {
-      checkDrugInteraction({ drug_a: a, drug_b: b }, res => {
+      checkDrugInteraction({ drug_a: a, drug_b: b, explain: false }, res => {
         results.push({ a, b, res }); done++;
         if (done === pairs.length) {
           hideLoading();

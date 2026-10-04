@@ -24,6 +24,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from groq_client import with_explanation
 from model_loader import load_module
 
 router = APIRouter(tags=["AI · Drug Interaction"])
@@ -214,6 +215,7 @@ class InteractionRequest(BaseModel):
     documented_cases: Optional[float] = None
     contraindicated: Optional[int] = None
     requires_monitoring: Optional[int] = None
+    explain: bool = True
 
 
 def _normalize(name: str) -> str:
@@ -502,4 +504,15 @@ def check_interaction(req: InteractionRequest):
         "contraindicated": req.contraindicated,
         "requires_monitoring": req.requires_monitoring,
     }
-    return predict_interaction(req.drug_a, req.drug_b, supplied)
+    result = predict_interaction(req.drug_a, req.drug_b, supplied)
+    if req.explain is False:
+        return result
+    facts = (
+        "Drugs: " + str(result.get("drug_a") or req.drug_a) + " and " + str(result.get("drug_b") or req.drug_b) + ". "
+        "Level is fixed as " + str(result.get("level") or "unknown") + ". "
+        "Title: " + str(result.get("title") or "") + ". "
+        "Effect: " + str(result.get("effect") or "") + ". "
+        "Action: " + str(result.get("action") or "") + "."
+    )
+    fallback = str(result.get("title") or "Interaction checked") + ". " + str(result.get("action") or "Verify before dispensing.") + " A pharmacist or doctor must confirm this."
+    return with_explanation(result, "drug interaction", facts, fallback)

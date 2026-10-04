@@ -28,7 +28,8 @@ from config import CORS_ORIGINS, CORS_ALLOW_ALL, MODEL_DOWNLOAD_URLS, LAZY_LOAD,
 import model_loader
 from permissions import require_permission
 from security import current_user
-from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data
+from groq_client import configured as groq_configured, model_name as groq_model_name
+from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, reports
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("mediq")
@@ -57,6 +58,10 @@ async def lifespan(app: FastAPI):
         log.warning("SECRET_KEY is the development default. Set a long random value before production.")
     if not os.getenv("SUPABASE_URL"):
         log.info("Supabase is not configured. Core data routes will use demo data.")
+    if groq_configured():
+        log.info("Groq explanations enabled (%s)", groq_model_name())
+    else:
+        log.info("GROQ_API_KEY is not set. AI results will use the local explanation.")
 
     # 1) In eager mode, try to fetch any missing >25 MB model files.
     #    In lazy/low-mem mode we skip this: we won't load the RF anyway.
@@ -76,7 +81,7 @@ async def lifespan(app: FastAPI):
     _log_memory("shutdown")
 
 
-app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.2", lifespan=lifespan)
+app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.3", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -92,7 +97,8 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.1",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.3",
+            "groq": groq_configured(),
             "low_memory": LOW_MEMORY,
             "lazy_load": LAZY_LOAD,
             "skip_rf_models": SKIP_RF_MODELS,
@@ -101,7 +107,8 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "models": {m: model_loader.module_loaded(m) for m in MODULES}}
+    return {"status": "ok", "version": "2.0.3", "groq": groq_configured(),
+            "models": {m: model_loader.module_loaded(m) for m in MODULES}}
 
 
 @app.get("/debug/memory")
@@ -120,6 +127,8 @@ def debug_memory(_user=Depends(current_user)):
         "lazy_load": LAZY_LOAD,
         "skip_rf_models": SKIP_RF_MODELS,
         "loaded_modules": {m: model_loader.module_loaded(m) for m in MODULES},
+        "groq": groq_configured(),
+        "groq_model": groq_model_name() if groq_configured() else "",
     }
 
 
@@ -135,4 +144,7 @@ app.include_router(vitals.router, **protected)
 app.include_router(inventory.router, **protected)
 app.include_router(appointment.router, **protected)
 app.include_router(chatbot.router, **protected)
+# Report writing is not an AI-only route. Nurse and reception can open reports
+# without the AI permission; the route checks reports or AI itself.
+app.include_router(reports.router, dependencies=[Depends(current_user)])
 app.include_router(data.router)

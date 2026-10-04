@@ -222,7 +222,8 @@ function bookModal() {
           date: ov.querySelector("#bDate").value, time: ov.querySelector("#bTime").value,
           type: ov.querySelector("#bType").value, status: "confirmed", no_show: res.no_show_percent };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
         renderAppts(); ov.remove();
-        showToast("Appointment booked — AI no-show risk " + res.no_show_percent + "%", "success");
+        var note = res.explanation ? " " + String(res.explanation).slice(0, 180) : "";
+        showToast("Appointment booked — AI no-show risk " + res.no_show_percent + "%." + note, "success", note ? 8000 : 4000);
       });
     };
   }});

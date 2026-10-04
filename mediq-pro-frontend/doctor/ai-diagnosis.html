@@ -191,6 +191,7 @@ function renderResult(res) {
       <span class="badge badge-neutral">Model ${esc(res.model || "v1")}</span></div>
     <p class="text-sm text-gray mb-4" style="color:#6B7280">Top ${res.predictions.length} conditions ranked by confidence.</p>
     ${cards}
+    ${aiExplanationHtml(res)}
     <div class="disclaimer"><span>${ICONS.info}</span><div>AI suggestions only. Final diagnosis by doctor. This output should not replace clinical judgment.</div></div>
     <div class="form-actions mt-4"><button class="btn btn-secondary" id="saveDx">${ICONS.download} Save to Patient Record</button>
     <button class="btn btn-primary" onclick="analyze()">${ICONS.refresh} Re-run</button></div></section>`;

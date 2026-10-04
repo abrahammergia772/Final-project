@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
 
 from db import insert_row
+from groq_client import with_explanation
 from model_loader import load_module, load_config, module_loaded, blend
 from security import current_user
 
@@ -185,24 +186,44 @@ def _predict_from_text(text: str) -> dict:
     return None
 
 
+def _prediction_facts(result: dict) -> str:
+    bits = []
+    for item in (result.get("predictions") or [])[:3]:
+        bits.append(
+            str(item.get("disease") or "condition")
+            + ", confidence " + str(item.get("confidence") or "")
+            + ", urgency " + str(item.get("urgency") or "")
+            + ". " + str(item.get("description") or "")
+        )
+    return "Predictions: " + (" | ".join(bits) if bits else "none")
+
+
 @router.post("/ai/predict-disease")
 def predict_disease(req: DiseaseRequest):
     trained = _predict_from_text(req.symptoms or "")
     if trained:
-        return trained
-
-    # ---- fallback rules (same shape the frontend expects) ----
-    syms = (req.symptoms or "").lower()
-    preds = [
-        {"disease": "Malaria", "confidence": 82, "description": "Common in the region — fever, chills and headache. Confirm with blood film / RDT.", "urgency": "See doctor"},
-        {"disease": "Typhoid Fever", "confidence": 61, "description": "Prolonged fever with abdominal discomfort. Widal test and blood culture recommended.", "urgency": "See doctor"},
-        {"disease": "Upper Respiratory Infection", "confidence": 47, "description": "Cough, sore throat and mild fever. Usually viral and self-limiting.", "urgency": "Self-care"},
-    ]
-    if "cough" in syms or "throat" in syms:
-        preds.insert(0, {"disease": "Upper Respiratory Infection", "confidence": 74, "description": "Cough, sore throat and mild fever. Usually viral and self-limiting.", "urgency": "Self-care"})
-    if "chest" in syms or "breath" in syms:
-        preds.insert(0, {"disease": "Pneumonia (suspected)", "confidence": 79, "description": "Fever with productive cough and breathing difficulty. Chest X-ray advised.", "urgency": "See doctor"})
-    return {"predictions": preds[:3], "model": "rule-based", "model_version": "1.0.0", "source": "rules"}
+        result = trained
+    else:
+        # ---- fallback rules (same shape the frontend expects) ----
+        syms = (req.symptoms or "").lower()
+        preds = [
+            {"disease": "Malaria", "confidence": 82, "description": "Common in the region — fever, chills and headache. Confirm with blood film / RDT.", "urgency": "See doctor"},
+            {"disease": "Typhoid Fever", "confidence": 61, "description": "Prolonged fever with abdominal discomfort. Widal test and blood culture recommended.", "urgency": "See doctor"},
+            {"disease": "Upper Respiratory Infection", "confidence": 47, "description": "Cough, sore throat and mild fever. Usually viral and self-limiting.", "urgency": "Self-care"},
+        ]
+        if "cough" in syms or "throat" in syms:
+            preds.insert(0, {"disease": "Upper Respiratory Infection", "confidence": 74, "description": "Cough, sore throat and mild fever. Usually viral and self-limiting.", "urgency": "Self-care"})
+        if "chest" in syms or "breath" in syms:
+            preds.insert(0, {"disease": "Pneumonia (suspected)", "confidence": 79, "description": "Fever with productive cough and breathing difficulty. Chest X-ray advised.", "urgency": "See doctor"})
+        result = {"predictions": preds[:3], "model": "rule-based", "model_version": "1.0.0", "source": "rules"}
+    top = (result.get("predictions") or [{}])[0]
+    fallback = (
+        "The hospital model suggests "
+        + str(top.get("disease") or "a condition")
+        + " at about " + str(top.get("confidence") or "an unstated")
+        + " percent confidence. This is a suggestion, not a diagnosis. A qualified clinician must confirm this."
+    )
+    return with_explanation(result, "disease prediction", _prediction_facts(result), fallback)
 
 
 @router.post("/ai/clinical-decision/file")
@@ -232,6 +253,13 @@ async def clinical_decision_from_file(
     if not trained.get("predictions"):
         raise HTTPException(status_code=400, detail="No known symptoms were found in that file. Include words such as fever, cough, or headache.")
     top = trained["predictions"][0]
+    explained = with_explanation(
+        trained,
+        "clinical decision from an uploaded file",
+        _prediction_facts(trained) + " Symptoms found: " + ", ".join(trained.get("matched_symptoms") or []),
+        "The file suggests " + str(top.get("disease") or "a condition")
+        + ". This is an AI suggestion, not a diagnosis. A qualified clinician must confirm this.",
+    )
     mime = file.content_type or "application/octet-stream"
     row = {
         "id": "CD-" + secrets.token_hex(4).upper(),
@@ -251,6 +279,7 @@ async def clinical_decision_from_file(
         "predictions": trained.get("predictions") or [],
         "model": trained.get("model") or "",
         "model_version": trained.get("model_version") or "",
+        "explanation": explained.get("explanation") or "",
     }
     saved = insert_row("documents", row)
     if saved.get("ok") is False:
@@ -266,5 +295,7 @@ async def clinical_decision_from_file(
         "model_version": trained.get("model_version"),
         "source": trained.get("source"),
         "matched_symptoms": trained.get("matched_symptoms") or [],
+        "explanation": explained.get("explanation") or "",
+        "explained_by": explained.get("explained_by") or "local",
         "disclaimer": "This is an AI-assisted suggestion. Always consult a qualified medical professional before making clinical decisions.",
     }

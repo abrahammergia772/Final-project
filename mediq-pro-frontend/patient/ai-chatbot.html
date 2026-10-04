@@ -147,20 +147,26 @@ function loadPageData() {
   // Intro message
   addMsg("ai", "Hello! I'm your hospital health assistant. Describe your symptoms and I'll suggest possible conditions, urgency and next steps. Remember — this is not a diagnosis.");
 }
+let CHAT_TURNS = [];
 function sendMsg() {
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
   if (!text) return;
   addMsg("user", text);
   input.value = "";
+  const history = CHAT_TURNS.slice(-6);
+  CHAT_TURNS.push({ role: "user", content: text });
   const typing = document.createElement("div");
   typing.className = "chat-msg ai"; typing.id = "typing";
   typing.innerHTML = '<div class="flex" style="gap:6px"><span class="spinner sm" style="border-color:#C7DBFE;border-top-color:#1A6FA8"></span> AI is thinking…</div>';
   document.getElementById("chatArea").appendChild(typing);
   document.getElementById("chatArea").scrollTop = document.getElementById("chatArea").scrollHeight;
-  symptomChat({ message: text, session_id: getUserRole() }, res => {
-    typing.remove();
+  symptomChat({ message: text, session_id: getUserRole(), history: history }, res => {
+    CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
     renderAIResponse(res);
+  }).finally(() => {
+    const node = document.getElementById("typing");
+    if (node) node.remove();
   });
 }
 function renderAIResponse(res) {

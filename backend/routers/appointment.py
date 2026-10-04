@@ -13,6 +13,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 
+from groq_client import with_explanation
 from model_loader import load_module, load_config, module_loaded, list_missing
 
 router = APIRouter(tags=["AI · Appointment"])
@@ -152,7 +153,7 @@ def predict_appointment(req: AppointmentRequest):
         risk, overbook, reminder = "Low", 0, "2 hours before"
 
     load = "Busy" if (8 <= (req.patient_age or 30) % 5 + 8) else "Moderate"
-    return {
+    result = {
         "no_show_percent": pct,
         "show_prediction": "Will Not Show" if pct >= 40 else "Will Show",
         "risk_level": risk,
@@ -166,3 +167,12 @@ def predict_appointment(req: AppointmentRequest):
         "source": "trained-model" if xgb is not None else "rules",
         "missing_models": list_missing("appointment"),
     }
+    facts = (
+        "No-show risk is " + str(pct) + " percent (" + risk + "). "
+        "Prediction: " + result["show_prediction"] + ". "
+        "Suggested reminder: " + reminder + ". "
+        "Extra overbooking slots: " + str(overbook) + ". "
+        "Do not include a patient name."
+    )
+    fallback = "The no-show risk is " + str(pct) + " percent, which is " + risk.lower() + ". " + reminder + ". A receptionist should confirm the booking."
+    return with_explanation(result, "appointment no-show prediction", facts, fallback)

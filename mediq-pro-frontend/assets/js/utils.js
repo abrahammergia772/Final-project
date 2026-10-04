@@ -720,6 +720,68 @@ function openNotificationDetail(n) {
   });
 }
 
+function aiExplanationHtml(res) {
+  var text = res && res.explanation;
+  if (!text) return "";
+  var icon = (typeof ICONS !== "undefined" && ICONS.info) ? ICONS.info : "";
+  return '<div class="alert alert-info mt-3"><span>' + icon + '</span><div class="alert-body"><strong>Explanation</strong><div class="mt-1" style="font-size:14px;line-height:1.55;white-space:pre-wrap">' + esc(text) + '</div></div></div>';
+}
+
+function compactReportRows(rows) {
+  return (rows || []).slice(0, 40).map(function (row) {
+    var item = row.drug || row.test || row.department || row.category || row.subject || row.type || "record";
+    return {
+      item: String(item || "record").slice(0, 80),
+      detail: String(row.detail || row.subject || row.category || row.type || "").slice(0, 80),
+      status: String(row.status || "").slice(0, 30),
+      date: String(row.date || "").slice(0, 20)
+    };
+  });
+}
+
+function requestHospitalNarrative(title, period, rows) {
+  if (typeof apiFetch !== "function" || !CONFIG.ENDPOINTS.REPORT_GENERATE) {
+    return Promise.resolve({ narrative: "", error: "Report writing is not available" });
+  }
+  return apiFetch(CONFIG.ENDPOINTS.REPORT_GENERATE, "POST", {
+    title: title,
+    period: period,
+    rows: compactReportRows(rows)
+  }).then(function (res) {
+    if (!res.ok) return { narrative: "", saved: false, error: res.error || "Could not write the report" };
+    return res.data || {};
+  });
+}
+
+function reportNarrativeBlock(text) {
+  if (!text) return "";
+  return '<div class="alert alert-info mb-4"><div class="alert-body"><strong>Written report</strong><div class="mt-2" style="font-size:14px;line-height:1.6;white-space:pre-wrap">' + esc(text) + '</div></div></div>';
+}
+
+function loadSavedHospitalReports(apply) {
+  if (typeof apiFetch !== "function") return;
+  apiFetch(CONFIG.ENDPOINTS.DOCUMENTS).then(function (res) {
+    if (!res.ok || !res.data || !res.data.items) return;
+    var saved = res.data.items.filter(function (row) {
+      return row && row.type === "Hospital Report";
+    }).map(function (row) {
+      return {
+        id: row.id,
+        name: row.title || "Report",
+        title: row.title || "Report",
+        period: row.period || "",
+        date: row.date || "",
+        generated: row.date || "",
+        by: row.uploaded_by || "",
+        narrative: row.narrative || row.summary || "",
+        format: row.format || "Narrative",
+        status: "ready"
+      };
+    });
+    apply(saved);
+  });
+}
+
 // Auto-close alerts
 document.addEventListener("click", (e) => {
   if (e.target.closest(".alert-close")) e.target.closest(".alert").remove();

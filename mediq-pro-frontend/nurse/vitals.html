@@ -193,6 +193,7 @@ function renderVitalsResult(res) {
     ${res.flags.length ? `<table class="data-table mt-4"><thead><tr><th>Vital</th><th>Value</th><th>Normal Range</th><th>Severity</th><th>Deviation</th></tr></thead><tbody>${rows}</tbody></table>` : ""}
     <h3 class="mt-4 mb-2" style="font-size:15px">Recommended Actions</h3>
     <ul style="list-style:disc;padding-left:20px;color:#374151">${res.actions.map(a => `<li style="margin-bottom:6px">${esc(a)}</li>`).join("")}</ul>
+    ${aiExplanationHtml(res)}
     <div class="disclaimer"><span>${ICONS.info}</span><div>AI suggestions only. Clinical decisions are made by the responsible nurse or doctor.</div></div>
   </section>`;
 }

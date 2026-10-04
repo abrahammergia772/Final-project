@@ -36,6 +36,7 @@
     </table>
   </div>
 </div>
+<div id="repResult" class="mt-4"></div>
 
 </section>
 </main>
@@ -129,24 +130,28 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("manager"); initLayout(); loadPageData();
 });
-let REPORTS = [
-  { id:"R-1", name:"Monthly Revenue Summary", period:"July 2026", generated:"01/08/2026", format:"PDF", status:"ready" },
-  { id:"R-2", name:"Patient Admissions Report", period:"30 days", generated:"10/08/2026", format:"CSV", status:"ready" },
-  { id:"R-3", name:"Inventory Consumption", period:"Q3 2026", generated:"05/08/2026", format:"PDF", status:"ready" },
-  { id:"R-4", name:"AI Module Usage", period:"July 2026", generated:"02/08/2026", format:"CSV", status:"ready" }
-];
+let REPORTS = [];
 function loadPageData() {
   renderReps();
   document.getElementById("btnGenReport").addEventListener("click", genModal);
+  loadSavedHospitalReports(function (saved) {
+    REPORTS = saved;
+    renderReps();
+  });
 }
 function renderReps() {
   document.getElementById("repCount").textContent = REPORTS.length + " reports";
-  document.getElementById("repBody").innerHTML = REPORTS.length ? REPORTS.map(r => `<tr>
-    <td><strong>${esc(r.name)}</strong></td><td>${esc(r.period)}</td><td>${esc(r.generated)}</td>
-    <td><span class="badge badge-primary">${esc(r.format)}</span></td>
+  document.getElementById("repBody").innerHTML = REPORTS.length ? REPORTS.map((r, i) => `<tr>
+    <td><strong>${esc(r.name)}</strong></td><td>${esc(r.period)}</td><td>${esc(r.generated || r.date)}</td>
+    <td><span class="badge badge-primary">${esc(r.format || "Narrative")}</span></td>
     <td>${r.status === "ready" ? badge("Ready","success") : badge("Generating","warning")}</td>
-    <td><div class="actions"><button class="btn-icon primary" title="Download" onclick="showToast('Downloading ' + '${r.name}','info')">${ICONS.download}</button>
-    <button class="btn-icon" title="Print" onclick="showToast('Sending to printer','info')">${ICONS.printer}</button></div></td></tr>`).join("") : emptyRow(6);
+    <td><div class="actions"><button class="btn-icon primary" title="View" onclick="viewSavedReport(${i})">${ICONS.eye}</button>
+    <button class="btn-icon" title="Print" onclick="window.print()">${ICONS.printer}</button></div></td></tr>`).join("") : emptyRow(6, "No saved reports yet.");
+}
+function viewSavedReport(i) {
+  const r = REPORTS[i];
+  if (!r) return;
+  document.getElementById("repResult").innerHTML = '<section class="card"><div class="flex-between wrap" style="gap:10px"><h3>' + esc(r.name) + '</h3><span class="badge badge-info">' + esc(r.period || "") + '</span></div>' + reportNarrativeBlock(r.narrative || r.summary || "This saved report has no written narrative.") + '</section>';
 }
 function genModal() {
   openModal({
@@ -154,19 +159,28 @@ function genModal() {
     body: `<div class="form-group"><label>Report Type</label><select class="form-control" id="gType">
       <option>Revenue Summary</option><option>Patient Admissions</option><option>Staff Attendance</option><option>Inventory Consumption</option><option>AI Module Usage</option><option>Department Performance</option></select></div>
       <div class="form-group"><label>Period</label><select class="form-control" id="gPeriod"><option>Last 7 days</option><option selected>Last 30 days</option><option>Last 90 days</option><option>This year</option></select></div>
-      <div class="form-group"><label>Format</label><select class="form-control" id="gFormat"><option>PDF</option><option>CSV</option><option>Excel</option></select></div>`,
+      <div class="form-group"><label>Format</label><select class="form-control" id="gFormat"><option>Narrative</option><option>PDF</option><option>CSV</option></select></div>`,
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="gGo">Generate</button>`
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     ov.querySelector("#gGo").onclick = () => {
-      const name = ov.querySelector("#gType").value, fmt = ov.querySelector("#gFormat").value;
-      showLoading("Generating report…");
-      setTimeout(() => {
+      const name = ov.querySelector("#gType").value;
+      const period = ov.querySelector("#gPeriod").value;
+      const fmt = ov.querySelector("#gFormat").value;
+      showLoading("Writing " + name + "…");
+      requestHospitalNarrative(name, period, []).then(function (written) {
         hideLoading();
-        REPORTS.unshift({ id: uid("R"), name, period: ov.querySelector("#gPeriod").value, generated: formatDate(todayStr()), format: fmt, status: "ready" });
-        renderReps(); ov.remove();
-        showToast(name + " generated successfully", "success");
-      }, 1400);
+        if (!written || (!written.narrative && written.error)) {
+          showToast((written && written.error) || "Could not write the report", "error");
+          return;
+        }
+        const row = { id: written.document_id || uid("R"), name: name, period: period, generated: formatDate(todayStr()), format: fmt, status: "ready", narrative: written.narrative };
+        REPORTS.unshift(row);
+        renderReps();
+        viewSavedReport(0);
+        ov.remove();
+        showToast(written.saved ? name + " saved" : (written.error || name + " written, but not saved"), written.saved ? "success" : "warning");
+      });
     };
   }});
 }

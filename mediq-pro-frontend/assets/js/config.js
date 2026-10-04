@@ -35,6 +35,7 @@ const CONFIG = {
     FORECAST_INVENTORY:   "/ai/forecast-inventory",
     PREDICT_APPOINTMENT:  "/ai/predict-appointment",
     SYMPTOM_CHAT:         "/ai/symptom-chat",
+    REPORT_GENERATE:      "/reports/generate",
 
     // Core data
     USERS:          "/users",

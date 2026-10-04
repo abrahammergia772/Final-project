@@ -14,6 +14,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from groq_client import with_explanation
 from model_loader import load_module, load_config, prophet_files
 
 router = APIRouter(tags=["AI · Inventory"])
@@ -131,12 +132,22 @@ def forecast_inventory(req: ForecastRequest):
 
     runs_out = projected >= current_stock
     suggested = max(0, int(projected - current_stock)) + int(daily_base * lead * 1.25) + int(safety * daily_base)
-    return {
+    runs_out_in = max(1, int(current_stock / max(daily_base, 1))) if runs_out else None
+    result = {
         "drug_name": drug_key, "days": days, "current_stock": int(current_stock),
         "historical": [{"label": f"D-{60 - i}", "value": round(v, 1)} for i, v in enumerate(hist[-12:])],
         "forecast": forecast, "daily_use": round(daily_base, 1),
-        "runs_out_in_days": max(1, int(current_stock / max(daily_base, 1))) if runs_out else None,
+        "runs_out_in_days": runs_out_in,
         "suggested_order_qty": suggested,
         "model": "inventory_xgb+prophet", "model_version": cfg.get("version", "1.0.0"),
         "source": "trained-model" if xgb is not None else "rules",
     }
+    facts = (
+        "Drug: " + drug_key + ". Current stock: " + str(int(current_stock))
+        + ". Average daily use: " + str(round(daily_base, 1))
+        + ". Forecast days: " + str(days)
+        + ". Estimated stock-out day: " + (str(runs_out_in) if runs_out_in else "not within this forecast")
+        + ". Suggested order quantity: " + str(suggested) + "."
+    )
+    fallback = facts + " This is a forecast, not an order. A pharmacist should confirm it before purchasing."
+    return with_explanation(result, "inventory forecast", facts, fallback)

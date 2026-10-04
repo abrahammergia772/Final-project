@@ -168,6 +168,7 @@ function renderForecast(res) {
     <div class="chart-legend">
       <span class="lg-item"><span class="lg-swatch" style="background:#1A6FA8"></span> Historical + predicted demand (units/day)</span>
     </div>
+    ${aiExplanationHtml(res)}
     <div class="disclaimer"><span>${ICONS.info}</span><div>AI forecast — model ${esc(res.model || "v1.4")}. Actual demand may vary with season, supply and prescriber behaviour.</div></div>
   </section>`;
 }

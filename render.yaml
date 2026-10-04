@@ -42,6 +42,11 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
+      # Already set on the live service. Never put the key value in this file.
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        sync: false
 
   # ============================================================
   # Frontend — static site (HTML/CSS/JS) on Render free tier

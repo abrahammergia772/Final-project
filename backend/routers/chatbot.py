@@ -19,9 +19,15 @@ router = APIRouter(tags=["AI · Chatbot"])
 log = logging.getLogger("mediq.chatbot")
 
 
+class ChatTurn(BaseModel):
+    role: str = "user"
+    content: str = ""
+
+
 class ChatRequest(BaseModel):
     message: str
     session_id: str = ""
+    history: list[ChatTurn] = Field(default_factory=list)
 
 
 URGENCY_KEYWORDS = {
@@ -93,28 +99,36 @@ def symptom_chat(req: ChatRequest):
         else:
             conditions = ["General Health Query"]
 
-    # urgency — map the model's own label set to the frontend's green/orange/red
+    # urgency — the most severe matching keyword wins. Groq must not lower it.
     URGENCY_MAP = {"emergency": "red", "critical": "red", "see_doctor": "orange", "warning": "orange",
                    "self_care": "green", "mild": "green", "red": "red", "orange": "orange", "green": "green"}
+    rank = {"green": 0, "orange": 1, "red": 2}
     urgency = "green"
     for level, kws in urgency_kw.items():
-        if any(k in msg for k in kws):
-            urgency = URGENCY_MAP.get(level, "orange")
-            break
-    if urgency not in ("red", "orange", "green"):
-        urgency = "orange"
+        mapped = URGENCY_MAP.get(level, "orange")
+        if mapped not in rank:
+            mapped = "orange"
+        if any(k in msg for k in kws) and rank[mapped] > rank[urgency]:
+            urgency = mapped
 
     action = {"red": "Seek emergency care", "orange": "See a doctor", "green": "Self-care"}[urgency]
     follow = templates.get("follow_up", {}).get(urgency, "Can you describe when the symptoms started?")
     if isinstance(follow, dict):
         follow = list(follow.values())[0]
+    fallback_reply = "Based on the symptoms you described, I found some possible conditions. This is not a medical diagnosis — please consult a clinician."
+    history = [{"role": turn.role, "content": turn.content} for turn in (req.history or [])]
+    reply, follow_up, explained_by = chat_reply(
+        req.message, conditions[:3], urgency, action, history, fallback_reply, str(follow)
+    )
 
     return {
-        "reply": "Based on the symptoms you described, I found some possible conditions. This is not a medical diagnosis — please consult a clinician.",
+        "reply": reply,
+        "explanation": reply,
+        "explained_by": explained_by,
         "conditions": conditions[:3],
         "urgency": urgency,
         "action": action,
-        "follow_up": str(follow),
+        "follow_up": follow_up,
         "disclaimer": "AI suggestions only. Final diagnosis by doctor.",
         "model": "symptom_ensemble", "model_version": cfg.get("version", "1.0.0"),
         "source": source,

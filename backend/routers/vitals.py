@@ -11,6 +11,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from groq_client import with_explanation
 from model_loader import load_module, load_config, blend
 
 router = APIRouter(tags=["AI · Vitals"])
@@ -156,6 +157,13 @@ def check_vitals(req: VitalsRequest):
         "normal": ["Continue routine monitoring."],
     }[level]
 
-    return {"level": level, "flags": flags, "actions": actions,
-            "model": "vitals_ensemble", "model_version": cfg.get("version", "1.0.0"),
-            "source": "trained-model" if pred_label else "rules"}
+    result = {"level": level, "flags": flags, "actions": actions,
+              "model": "vitals_ensemble", "model_version": cfg.get("version", "1.0.0"),
+              "source": "trained-model" if pred_label else "rules"}
+    flag_text = "; ".join(
+        str(flag.get("vital")) + " " + str(flag.get("value")) + " (" + str(flag.get("severity")) + ")"
+        for flag in flags[:8]
+    ) or "no vital is outside the listed range"
+    facts = "Alert level is fixed as " + level + ". Flags: " + flag_text + ". Actions: " + "; ".join(actions)
+    fallback = "The vital-sign check is " + level + ". " + (actions[0] if actions else "Continue monitoring.") + " A qualified clinician must confirm this."
+    return with_explanation(result, "vital signs check", facts, fallback)

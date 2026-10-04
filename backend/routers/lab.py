@@ -10,6 +10,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from groq_client import with_explanation
 from model_loader import load_module, load_config, blend
 
 router = APIRouter(tags=["AI · Lab Analyzer"])
@@ -126,6 +127,10 @@ def analyze_lab(req: LabRequest):
         if not conditions:
             conditions = ["All measured values within reference ranges."]
 
-    return {"overall": "abnormal" if abnormal else "normal", "rows": rows, "conditions": conditions,
-            "model": "lab_ensemble", "model_version": cfg.get("model_version", "1.0.0"),
-            "source": "trained-model" if pred_idx is not None else "rules"}
+    result = {"overall": "abnormal" if abnormal else "normal", "rows": rows, "conditions": conditions,
+              "model": "lab_ensemble", "model_version": cfg.get("model_version", "1.0.0"),
+              "source": "trained-model" if pred_idx is not None else "rules"}
+    flagged = [str(row.get("name")) + " " + str(row.get("status")) for row in rows if row.get("status") != "normal"]
+    facts = "Overall: " + result["overall"] + ". Conditions: " + "; ".join(conditions) + ". Flagged values: " + ", ".join(flagged[:12])
+    fallback = "The laboratory result is " + result["overall"] + ". " + " ".join(conditions[:2]) + " A qualified clinician must confirm this."
+    return with_explanation(result, "laboratory analysis", facts, fallback)
