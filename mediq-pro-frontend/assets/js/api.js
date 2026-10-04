@@ -40,14 +40,14 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
       return { ok: false, status: 401, error: d401.detail || "Invalid email or password" };
     }
     if (res.status === 500) {
-      showToast("Server error. Please try again.", "error");
+      if (!opts.quiet) showToast("Server error. Please try again.", "error");
       return { ok: false, status: 500, error: "Server error" };
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) return { ok: false, status: res.status, error: data.detail || "Request failed" };
     return { ok: true, data };
   } catch (err) {
-    showToast("Network error — cannot reach the server.", "error");
+    if (!opts.quiet) showToast("Network error — cannot reach the server.", "error");
     return { ok: false, error: "Network error" };
   }
 }

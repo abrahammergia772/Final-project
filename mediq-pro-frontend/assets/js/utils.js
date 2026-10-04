@@ -602,12 +602,8 @@ function initLayout() {
   // Attach global delegated listeners once — they keep working across SPA
   // page swaps and across login/logout shell rebuilds.
   _bindLayoutDelegation();
-  // Live notifications bell (safe to call; only runs if #notifMenu exists).
-  // Guard so we don't refetch on every SPA page swap.
-  if (!window.__notifsBound) {
-    initNotifications();
-    window.__notifsBound = true;
-  }
+  // The shell rebuilds the bell, so refresh whenever the layout is ready.
+  if (typeof refreshNotifications === "function") refreshNotifications();
 }
 
 // ---------- Permission-based tabs ----------
@@ -639,83 +635,291 @@ function enforceCurrentPage() {
 }
 
 // ---------- Live notifications (topbar bell) ----------
-// Fills the notifications dropdown with real data: low stock, abnormal
-// results, today's appointments — instead of static placeholders.
-// Clicking a notification opens a full-detail popup.
-function initNotifications() {
-  const menu = document.getElementById("notifMenu");
-  if (!menu) return;
-  const items = [];
-  const now = new Date().toTimeString().slice(0, 5);
-  Promise.all([
-    apiFetch(CONFIG.ENDPOINTS.INVENTORY),
-    apiFetch(CONFIG.ENDPOINTS.LAB_RESULTS),
-    apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS)
-  ]).then(([inv, lab, appt]) => {
-    if (inv.ok) {
-      inv.data.items.filter(i => i.status === "low-stock" || i.status === "out-of-stock")
-        .slice(0, 2).forEach(i => items.push({
-          icon: "package", tint: "#FBF0D3", color: "#B45309",
-          category: "Inventory", time: now,
-          title: i.name + " — " + i.status.replace("-", " "),
-          sub: i.stock + " " + i.unit + " remaining",
-          detail: i.name + " has only " + i.stock + " " + i.unit + " left (" + i.status.replace("-", " ") + "). Recommended action: create a purchase order for at least " + (i.stock * 3) + " " + i.unit + " to cover the next 30 days.",
-          link: "pharmacist/inventory.html"
-        }));
+// Real rows only: unread messages, upcoming appointments, unpaid bills,
+// abnormal results, and low stock. Fake sample alerts are not shown.
+var _notifTimer = null;
+var _notifGen = 0;
+var _notifItems = [];
+
+function notifPrefOn(key) {
+  if (typeof _userPrefs === "undefined" || !_userPrefs) return true;
+  var value = _userPrefs["notify_" + key];
+  if (value == null) return true;
+  return value === 1 || value === true || value === "1";
+}
+function notifSeen() {
+  var saved = (typeof _userPrefs !== "undefined" && _userPrefs && _userPrefs.notify_seen) || [];
+  var local = window.__notifSeen || [];
+  var out = [];
+  (Array.isArray(saved) ? saved : []).concat(local).forEach(function (id) {
+    if (id && out.indexOf(id) < 0) out.push(String(id));
+  });
+  return out;
+}
+function notifIcon(name) {
+  var icons = window.ICONS || (typeof ICONS !== "undefined" ? ICONS : {});
+  return icons[name] || "";
+}
+function notifHref(key) {
+  var role = typeof getUserRole === "function" ? getUserRole() : "";
+  var pages = {
+    patient: { appointments: "appointments.html", messages: "messages.html", bills: "bills.html", settings: "settings.html" },
+    doctor: { appointments: "appointments.html", messages: "messages.html", settings: "settings.html" },
+    nurse: { messages: "messages.html", medications: "medications.html", settings: "settings.html" },
+    pharmacist: { inventory: "inventory.html", messages: "messages.html", settings: "settings.html" },
+    laboratory: { results: "results.html", messages: "messages.html", settings: "settings.html" },
+    reception: { appointments: "appointments.html", queue: "queue.html", messages: "messages.html", settings: "settings.html" },
+    manager: { messages: "messages.html", settings: "settings.html" },
+    admin: { messages: "messages.html", settings: "settings.html" }
+  };
+  var file = (pages[role] || {})[key];
+  if (!file) return "";
+  if (typeof inRoleFolder === "function" && inRoleFolder()) return file;
+  return role ? role + "/" + file : file;
+}
+function quietFetch(endpoint) {
+  if (!endpoint) return Promise.resolve({ ok: false, skipped: true });
+  if (typeof endpointAllowed === "function" && !endpointAllowed(endpoint)) {
+    return Promise.resolve({ ok: false, skipped: true });
+  }
+  return apiFetch(endpoint, "GET", null, { quiet: true });
+}
+function notifDate(value) {
+  return String(value || "").slice(0, 10);
+}
+function notifUnread(row) {
+  var read = row && row.read;
+  return read !== true && read !== 1 && read !== "1" && read !== "true";
+}
+function nameHits(value, me) {
+  var a = String(value || "").trim().toLowerCase();
+  var b = String(me || "").trim().toLowerCase();
+  if (!a || !b) return false;
+  return a === b || a.indexOf(b) >= 0 || b.indexOf(a) >= 0;
+}
+function setNotifDot(count) {
+  document.querySelectorAll(".notif-dot").forEach(function (dot) {
+    if (count > 0) {
+      dot.hidden = false;
+      dot.setAttribute("aria-label", count + " unread");
+    } else {
+      dot.hidden = true;
+      dot.removeAttribute("aria-label");
     }
-    if (lab.ok) {
-      lab.data.items.filter(r => r.ai_flag === "abnormal").slice(0, 1).forEach(r => items.push({
-        icon: "alert", tint: "#FEF2F2", color: "#DC2626",
-        category: "Laboratory", time: formatDateTime(r.date),
-        title: "Abnormal result: " + r.test,
-        sub: r.patient + " · AI flagged",
-        detail: "The AI analyzer flagged the " + r.test + " result for " + r.patient + " as abnormal. Please review the values and confirm the interpretation before releasing.",
-        link: "laboratory/results.html"
-      }));
-    }
-    if (appt.ok) {
-      const today = appt.data.items.filter(a => a.date === todayStr() && a.status === "confirmed").length;
-      if (today) items.push({
-        icon: "calendar", tint: "#E1EFFA", color: "#1A6FA8",
-        category: "Appointments", time: todayStr(),
-        title: today + " confirmed appointment" + (today > 1 ? "s" : "") + " today",
-        sub: "Review today's schedule",
-        detail: "There " + (today > 1 ? "are" : "is") + " " + today + " confirmed appointment" + (today > 1 ? "s" : "") + " scheduled for today. Ensure patients are checked in on time and doctors are aware of their queue.",
-        link: getUserRole() === "patient" ? "patient/appointments.html" : "reception/appointments.html"
-      });
-    }
-    renderNotifItems(menu, items);
   });
 }
-function renderNotifItems(menu, items) {
-  menu.innerHTML = '<div class="dd-header">Notifications</div>' +
-    (items.length
-      ? items.map((i, idx) => `<div class="dd-item" data-notif="${idx}"><div class="feed-icon" style="background:${i.tint};color:${i.color}">${ICONS[i.icon]}</div><div class="feed-text"><div class="dd-title">${esc(i.title)}</div><div class="dd-sub">${esc(i.sub)}</div></div></div>`).join("")
-      : '<div class="empty-state" style="padding:22px;color:#64748B">You\'re all caught up ✅</div>') +
-    '<div class="dd-footer"><a href="#" onclick="event.preventDefault();showToast(\'All notifications shown\',\'info\')">View all</a></div>';
-  menu.querySelectorAll("[data-notif]").forEach(el => {
-    el.addEventListener("click", (e) => {
+function markNotifRead(id) {
+  if (!id) return;
+  window.__notifSeen = window.__notifSeen || [];
+  if (window.__notifSeen.indexOf(id) < 0) window.__notifSeen.push(id);
+  if (typeof _userPrefs !== "undefined" && _userPrefs) {
+    var seen = notifSeen().slice(-80);
+    _userPrefs.notify_seen = seen;
+    if (typeof _userDetails !== "undefined" && _userDetails) _userDetails.prefs = _userPrefs;
+    if (typeof apiFetch === "function" && CONFIG.ENDPOINTS.PROFILE) {
+      apiFetch(CONFIG.ENDPOINTS.PROFILE, "POST", { details_patch: { prefs: { notify_seen: seen } } }, { quiet: true });
+    }
+  }
+  _notifItems.forEach(function (item) { if (item.id === id) item.read = true; });
+  var menu = document.getElementById("notifMenu");
+  if (menu) renderNotifItems(menu, _notifItems);
+}
+function refreshNotifications() {
+  clearTimeout(_notifTimer);
+  _notifTimer = setTimeout(loadNotifications, 40);
+}
+window.refreshNotifications = refreshNotifications;
+function initNotifications() { refreshNotifications(); }
+
+function loadNotifications() {
+  var menu = document.getElementById("notifMenu");
+  if (!menu || typeof apiFetch !== "function" || !CONFIG || !CONFIG.ENDPOINTS) return;
+  if (!getSession || !getSession()) {
+    renderNotifItems(menu, [], "Sign in to see notifications.");
+    return;
+  }
+  if (!notifPrefOn("inapp")) {
+    _notifItems = [];
+    renderNotifItems(menu, [], "In-app notifications are turned off in Settings.", notifHref("settings"));
+    return;
+  }
+  var gen = ++_notifGen;
+  var role = typeof getUserRole === "function" ? getUserRole() : "";
+  var me = typeof getUserName === "function" ? getUserName() : "";
+  var today = typeof todayStr === "function" ? todayStr() : "";
+  Promise.all([
+    quietFetch(CONFIG.ENDPOINTS.MESSAGES),
+    quietFetch(CONFIG.ENDPOINTS.APPOINTMENTS),
+    quietFetch(CONFIG.ENDPOINTS.LAB_RESULTS),
+    quietFetch(CONFIG.ENDPOINTS.INVENTORY),
+    quietFetch(CONFIG.ENDPOINTS.BILLS)
+  ]).then(function (rows) {
+    if (gen !== _notifGen) return;
+    var live = document.getElementById("notifMenu");
+    if (!live) return;
+    var items = [];
+    var seen = notifSeen();
+    function add(item) {
+      if (!item || !item.id || items.some(function (x) { return x.id === item.id; })) return;
+      item.read = seen.indexOf(item.id) >= 0;
+      items.push(item);
+    }
+    var messages = rows[0];
+    if (messages.ok && messages.data && Array.isArray(messages.data.items)) {
+      messages.data.items.filter(notifUnread).slice(0, 5).forEach(function (m) {
+        add({
+          id: "msg:" + (m.id || m.subject || m.date),
+          icon: "mail", tint: "#D5DCDF", color: "#253745",
+          category: "Message", time: typeof formatDateTime === "function" ? formatDateTime(m.date) : (m.date || ""),
+          title: m.subject || "New message",
+          sub: "From " + (m.from || "the hospital"),
+          detail: m.body || m.subject || "You have an unread message.",
+          link: notifHref("messages")
+        });
+      });
+    }
+    var appts = rows[1];
+    if (appts.ok && appts.data && Array.isArray(appts.data.items)) {
+      appts.data.items.filter(function (a) {
+        var when = notifDate(a.date);
+        var status = String(a.status || "").toLowerCase();
+        if (!when || when < today) return false;
+        if (status && status !== "confirmed" && status !== "scheduled" && status !== "booked") return false;
+        if (role === "doctor") return nameHits(a.doctor, me);
+        return true;
+      }).slice(0, 4).forEach(function (a) {
+        add({
+          id: "appt:" + (a.id || a.date + a.time + a.patient),
+          icon: "calendar", tint: "#D5DCDF", color: "#253745",
+          category: "Appointment", time: (a.date || "") + (a.time ? " " + a.time : ""),
+          title: (a.patient || a.doctor || "Appointment") + (a.time ? " at " + a.time : ""),
+          sub: (a.dept || a.type || "Appointment") + " · " + (a.status || "scheduled"),
+          detail: (a.patient || "A patient") + " has an appointment" + (a.doctor ? " with " + a.doctor : "") + (a.dept ? " in " + a.dept : "") + " on " + (a.date || "the scheduled day") + (a.time ? " at " + a.time : "") + ".",
+          link: notifHref("appointments")
+        });
+      });
+    }
+    var labs = rows[2];
+    if (notifPrefOn("ai") && labs.ok && labs.data && Array.isArray(labs.data.items)) {
+      labs.data.items.filter(function (r) {
+        return String(r.ai_flag || "").toLowerCase() === "abnormal";
+      }).slice(0, 3).forEach(function (r) {
+        add({
+          id: "lab:" + (r.id || r.test + r.patient + r.date),
+          icon: "alert", tint: "#E8DCDC", color: "#9B2C2C",
+          category: "Laboratory", time: typeof formatDateTime === "function" ? formatDateTime(r.date) : (r.date || ""),
+          title: "Abnormal result: " + (r.test || "lab test"),
+          sub: (r.patient || "Patient") + " · AI flagged",
+          detail: "The AI analyzer flagged the " + (r.test || "lab") + " result for " + (r.patient || "the patient") + " as abnormal. Review the values before releasing them.",
+          link: notifHref("results")
+        });
+      });
+    }
+    var stock = rows[3];
+    if (stock.ok && stock.data && Array.isArray(stock.data.items)) {
+      stock.data.items.filter(function (i) {
+        var status = String(i.status || "").toLowerCase();
+        return status === "low-stock" || status === "out-of-stock" || status === "low";
+      }).slice(0, 3).forEach(function (i) {
+        add({
+          id: "stock:" + (i.id || i.name),
+          icon: "package", tint: "#E7E2D6", color: "#8A5A12",
+          category: "Inventory", time: "Now",
+          title: (i.name || "Item") + " is " + String(i.status || "low").replace(/-/g, " "),
+          sub: (i.stock != null ? i.stock : "0") + " " + (i.unit || "units") + " remaining",
+          detail: (i.name || "An item") + " has " + (i.stock != null ? i.stock : "0") + " " + (i.unit || "units") + " left. Reorder before the ward runs out.",
+          link: notifHref("inventory")
+        });
+      });
+    }
+    var bills = rows[4];
+    if (role === "patient" && bills.ok && bills.data && Array.isArray(bills.data.items)) {
+      bills.data.items.filter(function (b) {
+        var status = String(b.status || "").toLowerCase();
+        if (status === "paid" || status === "cancelled" || status === "void") return false;
+        if (status === "unpaid" || status === "pending" || status === "due" || status === "outstanding" || status === "partial") return true;
+        return (Number(b.amount) || 0) > (Number(b.paid) || 0);
+      }).slice(0, 3).forEach(function (b) {
+        add({
+          id: "bill:" + (b.id || b.date + b.description),
+          icon: "alert", tint: "#E8DCDC", color: "#9B2C2C",
+          category: "Bill", time: b.date || "",
+          title: b.description || b.service || "Unpaid bill",
+          sub: (typeof formatCurrency === "function" ? formatCurrency(b.amount) : (b.amount || "")) + " · " + (b.status || "unpaid"),
+          detail: "This bill is still open. Open Bills to review the amount and payment status.",
+          link: notifHref("bills")
+        });
+      });
+    }
+    _notifItems = items;
+    renderNotifItems(live, items);
+  });
+}
+function renderNotifItems(menu, items, emptyText, emptyLink) {
+  var unread = (items || []).filter(function (i) { return !i.read; }).length;
+  setNotifDot(unread);
+  var shown = (items || []).slice(0, 6);
+  var body = shown.length
+    ? '<div class="notif-list">' + shown.map(function (i, idx) {
+        return '<div class="dd-item' + (i.read ? " is-read" : "") + '" data-notif="' + idx + '"><div class="feed-icon" style="background:' + i.tint + ";color:" + i.color + '">' + notifIcon(i.icon) + '</div><div class="feed-text"><div class="dd-title">' + esc(i.title) + '</div><div class="dd-sub">' + esc(i.sub) + "</div></div></div>";
+      }).join("") + "</div>"
+    : '<div class="empty-state" style="padding:22px">' + esc(emptyText || "You're all caught up") + (emptyLink ? ' <a href="' + esc(emptyLink) + '">Open Settings</a>' : "") + "</div>";
+  menu.innerHTML = '<div class="dd-header"><span>Notifications</span>' + (unread ? "<span> (" + unread + ")</span>" : "") + "</div>" + body +
+    ((items && items.length) ? '<div class="dd-footer"><a href="#" id="notifViewAll">View all</a></div>' : "");
+  menu.querySelectorAll("[data-notif]").forEach(function (el) {
+    el.addEventListener("click", function (e) {
       e.stopPropagation();
-      openNotificationDetail(items[+el.dataset.notif]);
-      const dot = document.querySelector(".notif-dot");
-      if (dot) dot.style.display = "none";
+      var item = shown[+el.getAttribute("data-notif")];
+      if (!item) return;
+      markNotifRead(item.id);
+      openNotificationDetail(item);
     });
+  });
+  var all = menu.querySelector("#notifViewAll");
+  if (all) all.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    openAllNotifications(items);
+  });
+}
+function openAllNotifications(items) {
+  var list = items || [];
+  var body = list.length
+    ? list.map(function (n, idx) {
+        return '<button type="button" class="dd-item" data-all="' + idx + '" style="width:100%;background:transparent;border:0;border-bottom:1px solid var(--border);text-align:left"><div class="feed-icon" style="background:' + n.tint + ";color:" + n.color + '">' + notifIcon(n.icon) + '</div><div class="feed-text"><div class="dd-title">' + esc(n.title) + '</div><div class="dd-sub">' + esc(n.sub) + "</div></div></button>";
+      }).join("")
+    : "<p>You're all caught up</p>";
+  openModal({
+    title: "All notifications",
+    body: body,
+    size: "lg",
+    onMount: function (ov) {
+      ov.querySelectorAll("[data-all]").forEach(function (el) {
+        el.onclick = function () {
+          var item = list[+el.getAttribute("data-all")];
+          if (!item) return;
+          markNotifRead(item.id);
+          openNotificationDetail(item);
+        };
+      });
+    }
   });
 }
 
 // ---------- Notification detail popup ----------
 function openNotificationDetail(n) {
+  if (!n) return;
   openModal({
     title: n.title,
     body: `<div class="detail-list">
       <div class="detail-item"><span class="k">Category</span><span class="v">${esc(n.category || "System")}</span></div>
       <div class="detail-item"><span class="k">Time</span><span class="v">${esc(n.time || "Just now")}</span></div>
-      <div class="detail-item"><span class="k">Status</span><span class="v"><span class="badge badge-warning">Active</span></span></div>
+      <div class="detail-item"><span class="k">Status</span><span class="v"><span class="badge ${n.read ? "badge-neutral" : "badge-warning"}">${n.read ? "Read" : "Unread"}</span></span></div>
     </div>
-    <div class="alert alert-info mt-4 mb-0"><span>${ICONS[n.icon]}</span>
-      <div class="alert-body"><strong>${esc(n.title)}</strong><div class="mt-2" style="font-size:13px;color:#374151">${esc(n.detail || n.sub || "")}</div></div>
+    <div class="alert alert-info mt-4 mb-0"><span>${notifIcon(n.icon)}</span>
+      <div class="alert-body"><strong>${esc(n.title)}</strong><div class="mt-2" style="font-size:13px">${esc(n.detail || n.sub || "")}</div></div>
     </div>
-    ${n.link ? `<div class="form-actions mt-4"><a class="btn btn-primary" href="${esc(n.link)}">${ICONS.eye} Open related page</a></div>` : ""}`,
+    ${n.link ? `<div class="form-actions mt-4"><a class="btn btn-primary" href="${esc(n.link)}">${notifIcon("eye")} Open related page</a></div>` : ""}`,
     size: "lg"
   });
 }

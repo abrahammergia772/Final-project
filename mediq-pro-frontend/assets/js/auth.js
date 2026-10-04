@@ -446,7 +446,10 @@ function savePrefsForm() {
   _userPrefs = prefs;
   _userDetails.prefs = prefs;
   return apiFetch(CONFIG.ENDPOINTS.PROFILE, "POST", { details_patch: { prefs: prefs } }).then(function (res) {
-    if (res.ok) showToast("Notification preferences saved", "success");
+    if (res.ok) {
+      showToast("Notification preferences saved", "success");
+      if (typeof refreshNotifications === "function") refreshNotifications();
+    }
     else showToast(res.error || "Could not save settings", "error");
     return res;
   });
@@ -491,6 +494,12 @@ function loadMyPrefs(done) {
     }
     if (prefs.lang && window.I18N) window.I18N.setLang(prefs.lang, true);
     applyNotifyPrefs();
+    if (window.__notifSeen && window.__notifSeen.length) {
+      var seen = Array.isArray(_userPrefs.notify_seen) ? _userPrefs.notify_seen.slice() : [];
+      window.__notifSeen.forEach(function (id) { if (seen.indexOf(id) < 0) seen.push(id); });
+      _userPrefs.notify_seen = seen;
+    }
+    if (typeof refreshNotifications === "function") refreshNotifications();
     if (done) done(prefs);
   });
 }

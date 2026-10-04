@@ -40,19 +40,6 @@
     return !!(lv && !lv.classList.contains("hidden"));
   }
 
-  var DEMO_NOTIFS = [
-    { icon: "alert", cls: "tile-danger", title: "3 critical patient alerts", sub: "Flagged by the vitals AI" },
-    { icon: "package", cls: "tile-warning", title: "4 items low in stock", sub: "Pharmacy reorder suggested" },
-    { icon: "check", cls: "tile-success", title: "AI modules online", sub: "All 7 modules passed health check" }
-  ];
-
-  function notifHtml() {
-    return DEMO_NOTIFS.map(function (n) {
-      return '<div class="dd-item"><div class="feed-icon ' + n.cls + '">' + icon(n.icon) +
-        '</div><div class="feed-text"><div class="dd-title">' + n.title + '</div><div class="dd-sub">' + n.sub + "</div></div></div>";
-    }).join("");
-  }
-
   function buildShell(role) {
     role = role || roleFromPath() || "";
     var cfg = (window.NAV_ROLES || {})[role] || { label: role, nav: [] };
@@ -95,8 +82,8 @@
     top += '<div class="topbar-search"><button type="button" class="search-trigger" id="searchTrigger" aria-label="Search pages">' +
       icon("search") + "<span>Search pages</span><kbd>Ctrl K</kbd></button></div>";
     top += '<div class="dropdown"><button class="icon-btn" type="button" data-dropdown-toggle="#notifMenu" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">' +
-      icon("bell") + '<span class="notif-dot"></span></button><div class="dropdown-menu" id="notifMenu" role="menu"><div class="dd-header">Notifications</div>' +
-      notifHtml() + '<div class="dd-footer"><a href="#" onclick="event.preventDefault();if(window.showToast)showToast(\'All notifications shown\',\'info\')">View all</a></div></div></div>';
+      icon("bell") + '<span class="notif-dot" hidden></span></button><div class="dropdown-menu" id="notifMenu" role="menu"><div class="dd-header">Notifications</div>' +
+      '<div class="empty-state" style="padding:22px">Loading notifications…</div></div></div>';
     top += '<div class="dropdown"><button class="topbar-avatar" type="button" data-dropdown-toggle="#profileMenu" aria-label="Account menu" aria-haspopup="true">' +
       '<span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button>' +
       '<div class="dropdown-menu" id="profileMenu" role="menu"><div class="dd-header">Account</div><div class="dd-item" data-logout>' +
@@ -109,6 +96,7 @@
     ensurePalette();
     try { document.dispatchEvent(new CustomEvent("i18n:rescan")); } catch (e) {}
     if (typeof initAuthUI === "function") initAuthUI();
+    if (typeof window.refreshNotifications === "function") window.refreshNotifications();
   }
 
   function buildTaskbar(role, perm, spa, cur) {
