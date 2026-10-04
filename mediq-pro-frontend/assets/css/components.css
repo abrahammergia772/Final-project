@@ -317,14 +317,13 @@ select.form-control { appearance: auto; }
 .patient-suggest {
   position: fixed;
   z-index: 400;
-  background: var(--white);
-  color: var(--dark);
-  border: 1px solid var(--border);
+  background: #fff;
+  color: #111827;
+  border: 1px solid #E5E7EB;
   border-radius: 12px;
-  max-height: 260px;
+  max-height: 240px;
   overflow: auto;
-  box-shadow: var(--shadow-lg);
-  min-width: 240px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
 }
 .patient-suggest button {
   display: flex;
@@ -334,19 +333,19 @@ select.form-control { appearance: auto; }
   text-align: left;
   padding: 8px 10px;
   border: 0;
-  background: transparent;
-  color: inherit;
+  background: #fff;
+  color: #111827;
   cursor: pointer;
   font: inherit;
 }
 .patient-suggest button.is-active,
-.patient-suggest button:hover { background: var(--light-gray); }
+.patient-suggest button:hover { background: #F3F4F6; }
 .patient-suggest .ps-avatar {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--primary);
-  color: var(--on-primary);
+  background: #0B3A5E;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -355,9 +354,9 @@ select.form-control { appearance: auto; }
   flex: none;
 }
 .patient-suggest .ps-copy { min-width: 0; }
-.patient-suggest .ps-copy strong { display: block; }
-.patient-suggest .ps-meta { color: var(--gray); font-size: 12px; display: block; word-break: break-all; }
-.patient-suggest .ps-empty { padding: 12px; color: var(--gray); font-size: 13px; }
+.patient-suggest .ps-copy strong { display: block; font-weight: 700; }
+.patient-suggest .ps-meta { color: #6B7280; font-size: 12px; display: block; }
+.patient-suggest .ps-empty { padding: 12px; color: #6B7280; font-size: 13px; }
 
 .modal-overlay {
   position: fixed;

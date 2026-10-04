@@ -1153,9 +1153,9 @@ function hidePatientSuggest() {
 function placePatientSuggest(input) {
   if (!_suggestEl) return;
   var rect = input.getBoundingClientRect();
-  var width = Math.max(rect.width, 260);
-  var left = Math.min(rect.left, window.innerWidth - width - 8);
-  if (left < 8) left = 8;
+  var width = Math.max(rect.width, 220);
+  var left = rect.left;
+  if (left + width > window.innerWidth - 8) left = Math.max(8, window.innerWidth - width - 8);
   _suggestEl.style.width = width + "px";
   _suggestEl.style.left = left + "px";
   var top = rect.bottom + 4;
