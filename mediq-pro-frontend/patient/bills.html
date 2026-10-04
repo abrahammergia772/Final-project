@@ -25,9 +25,23 @@
 .pay-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 28px; flex: 0 0 28px; box-sizing: border-box; padding: 2px 4px; border-radius: 6px; background: #ffffff; color: #06141B; border: 1px solid #E4E7EA; overflow: hidden; }
 .pay-logo img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center center; }
 .pay-copy { display: flex; flex-direction: column; gap: 1px; min-height: 0; }
+.pay-picked { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 8px 10px; border: 1px solid var(--primary); border-radius: 12px; background: var(--white); color: var(--text-strong); }
+.pay-picked[hidden] { display: none; }
+.pay-picked .pay-logo { width: 88px; height: 32px; flex: 0 0 88px; }
+.pay-picked strong { display: block; color: var(--text-strong); font-size: 14px; line-height: 1.25; }
+.pay-picked small { display: block; color: var(--gray); font-size: 11px; }
+.pay-form { margin: 0 0 12px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--white); color: var(--text-strong); }
+.pay-form[hidden] { display: none; }
+.pay-form label { color: var(--text-strong); }
 html[data-theme="dark"] .pay-choice,
-html[data-theme="dark"] .pay-choice strong { color: var(--text-strong); background: transparent; }
-html[data-theme="dark"] .pay-choice { background: var(--white); }
+html[data-theme="dark"] .pay-choice strong,
+html[data-theme="dark"] .pay-picked,
+html[data-theme="dark"] .pay-picked strong,
+html[data-theme="dark"] .pay-form,
+html[data-theme="dark"] .pay-form label { color: var(--text-strong); }
+html[data-theme="dark"] .pay-choice,
+html[data-theme="dark"] .pay-picked,
+html[data-theme="dark"] .pay-form { background: var(--white); }
 html[data-theme="dark"] .pay-logo { background: #ffffff; border-color: rgba(204, 208, 207, 0.28); }
 .pay-note { color: var(--gray); font-size: 12px; margin: 0 0 10px; }
 </style>
@@ -304,43 +318,76 @@ function payBill(id) {
         <button class="btn btn-secondary btn-sm" type="button" id="payBanks">Banks</button>
       </div>
       <div class="form-group"><label>Search</label><input class="form-control" id="paySearch" placeholder="Search Telebirr, CBE, Awash…" data-patient-suggest="off"></div>
-      <div class="pay-grid" id="payGrid" data-pay-logos="2"></div>
-      <div class="form-group" id="payOtherWrap" hidden style="margin-top:12px"><label id="payOtherLabel">Name</label><input class="form-control" id="payOther" data-patient-suggest="off"></div>
-      <div class="form-row">
-        <div class="form-group"><label id="payPhoneLabel">Wallet phone</label><input class="form-control" id="payPhone" type="tel" placeholder="09xxxxxxxx" data-patient-suggest="off"></div>
-        <div class="form-group"><label>Account name</label><input class="form-control" id="payAccount" placeholder="Name on the account" value="${esc(session && session.name || bill.patient || "")}" data-patient-suggest="off"></div>
+      <div class="pay-picked" id="payPicked" hidden>
+        <span id="payPickedLogo"></span>
+        <span class="pay-copy"><strong id="payPickedName"></strong><small id="payPickedNote"></small></span>
       </div>
-      <p class="pay-note">Choose a wallet or bank. The hospital records this payment on your bill. No PIN or card number is asked.</p>`,
+      <div class="pay-form" id="payForm" hidden>
+        <div class="form-group" id="payOtherWrap" hidden><label id="payOtherLabel">Name</label><input class="form-control" id="payOther" data-patient-suggest="off"></div>
+        <div class="form-group" id="payPhoneWrap"><label id="payPhoneLabel">Wallet phone</label><input class="form-control" id="payPhone" type="tel" inputmode="tel" placeholder="09xxxxxxxx" autocomplete="tel" data-patient-suggest="off"></div>
+        <div class="form-group" id="payAccountWrap" hidden><label id="payAccountLabel">Account number</label><input class="form-control" id="payAccount" inputmode="numeric" placeholder="Account number" autocomplete="off" data-patient-suggest="off"></div>
+      </div>
+      <div class="pay-grid" id="payGrid" data-pay-logos="3"></div>
+      <p class="pay-note">Click a logo. The choice stays on top, then enter the phone or account number. No PIN or card number is asked.</p>`,
     footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="payNow">Pay now</button>`
   }, { onMount: function (ov) {
     let catalog = payCatalog(null);
     let channel = "wallet";
-    let selected = "Telebirr";
+    let selected = "";
     function methods() { return channel === "bank" ? catalog.banks : catalog.wallets; }
+    function showPicked() {
+      const item = methods().find(function (row) { return row.name === selected; });
+      const picked = ov.querySelector("#payPicked");
+      const form = ov.querySelector("#payForm");
+      if (!item) {
+        picked.hidden = true;
+        form.hidden = true;
+        return;
+      }
+      picked.hidden = false;
+      form.hidden = false;
+      ov.querySelector("#payPickedLogo").innerHTML = payLogo(item.name);
+      ov.querySelector("#payPickedName").textContent = item.name;
+      ov.querySelector("#payPickedNote").textContent = item.note || "";
+      const other = selected === "Other wallet" || selected === "Other bank";
+      ov.querySelector("#payOtherWrap").hidden = !other;
+      ov.querySelector("#payOtherLabel").textContent = selected === "Other bank" ? "Bank name" : "Wallet name";
+      const bank = channel === "bank";
+      ov.querySelector("#payPhoneWrap").hidden = bank;
+      ov.querySelector("#payAccountWrap").hidden = !bank;
+      ov.querySelector("#payPhoneLabel").textContent = "Wallet phone";
+      ov.querySelector("#payAccountLabel").textContent = "Account number";
+    }
     function paint() {
       const q = (ov.querySelector("#paySearch").value || "").trim().toLowerCase();
       const rows = methods().filter(function (item) {
         return !q || (item.name + " " + (item.note || "")).toLowerCase().indexOf(q) >= 0;
       });
+      rows.sort(function (a, b) {
+        if (a.name === selected) return -1;
+        if (b.name === selected) return 1;
+        return 0;
+      });
       ov.querySelector("#payGrid").innerHTML = rows.map(function (item) {
         return `<button type="button" class="pay-choice${item.name === selected ? " selected" : ""}" data-method="${esc(item.name)}">${payLogo(item.name)}<span class="pay-copy"><strong>${esc(item.name)}</strong><small>${esc(item.note || "")}</small></span></button>`;
       }).join("") || `<p class="pay-note">No match. Try another name, or choose Other.</p>`;
+      showPicked();
       ov.querySelectorAll(".pay-choice").forEach(function (button) {
         button.onclick = function () {
           selected = button.getAttribute("data-method") || "";
-          const other = selected === "Other wallet" || selected === "Other bank";
-          ov.querySelector("#payOtherWrap").hidden = !other;
-          ov.querySelector("#payOtherLabel").textContent = selected === "Other bank" ? "Bank name" : "Wallet name";
           paint();
+          const picked = ov.querySelector("#payPicked");
+          if (picked && picked.scrollIntoView) picked.scrollIntoView({ block: "nearest" });
+          const focus = ov.querySelector(channel === "bank" ? "#payAccount" : "#payPhone");
+          if (focus) focus.focus();
         };
       });
     }
     function setChannel(next) {
       channel = next;
+      selected = "";
       ov.querySelector("#payWallets").className = "btn btn-sm " + (next === "wallet" ? "btn-primary" : "btn-secondary");
       ov.querySelector("#payBanks").className = "btn btn-sm " + (next === "bank" ? "btn-primary" : "btn-secondary");
-      ov.querySelector("#payPhoneLabel").textContent = next === "bank" ? "Contact phone" : "Wallet phone";
-      if (!methods().some(function (item) { return item.name === selected; })) selected = (methods()[0] || {}).name || "";
       paint();
     }
     ov.querySelector("#payWallets").onclick = function () { setChannel("wallet"); };
@@ -353,13 +400,15 @@ function payBill(id) {
     });
     ov.querySelector("#payNow").onclick = function () {
       const amount = Number(ov.querySelector("#payAmount").value);
-      const phone = ov.querySelector("#payPhone").value.trim();
-      const account = ov.querySelector("#payAccount").value.trim();
+      const phone = channel === "wallet" ? ov.querySelector("#payPhone").value.trim() : "";
+      const accountNumber = channel === "bank" ? ov.querySelector("#payAccount").value.trim() : "";
       const other = ov.querySelector("#payOther").value.trim();
+      const holder = (session && session.name) || bill.patient || "";
       if (!selected) { showToast("Choose a wallet or bank", "warning"); return; }
       if (!amount || amount <= 0 || amount > due + 0.001) { showToast("Enter an amount up to the balance", "warning"); return; }
+      if ((selected === "Other wallet" || selected === "Other bank") && other.length < 2) { showToast("Type the bank or wallet name", "warning"); return; }
       if (channel === "wallet" && !phone) { showToast("Enter the wallet phone number", "warning"); return; }
-      if (channel === "bank" && account.length < 2) { showToast("Enter the name on the bank account", "warning"); return; }
+      if (channel === "bank" && accountNumber.replace(/\D/g, "").length < 8) { showToast("Enter the bank account number", "warning"); return; }
       const button = ov.querySelector("#payNow");
       button.disabled = true;
       apiFetch("/bills/" + encodeURIComponent(bill.id) + "/pay", "POST", {
@@ -367,7 +416,8 @@ function payBill(id) {
         channel: channel,
         amount: amount,
         phone: phone,
-        account_name: account,
+        account_name: holder,
+        account_number: accountNumber,
         other_name: other
       }).then(function (res) {
         button.disabled = false;
@@ -386,6 +436,7 @@ function payBill(id) {
             <div class="detail-item"><span class="k">Receipt</span><span class="v">${esc(data.receipt || "")}</span></div>
             <div class="detail-item"><span class="k">Invoice</span><span class="v">${esc(bill.id)}</span></div>
             <div class="detail-item"><span class="k">Paid with</span><span class="v">${esc(data.method || selected)}</span></div>
+            <div class="detail-item"><span class="k">${channel === "bank" ? "Account" : "Phone"}</span><span class="v">${esc(channel === "bank" ? (data.account_number || accountNumber) : (data.phone || phone))}</span></div>
             <div class="detail-item"><span class="k">Amount</span><span class="v">${formatCurrency(data.amount || amount)}</span></div>
             <div class="detail-item"><span class="k">Balance</span><span class="v">${formatCurrency(data.balance || 0)}</span></div>
           </div>`

@@ -71,6 +71,7 @@ class PayBody(BaseModel):
     amount: float = 0
     phone: str = ""
     account_name: str = ""
+    account_number: str = ""
     other_name: str = ""
     note: str = Field(default="", max_length=160)
 
@@ -125,6 +126,11 @@ def _phone(value: str) -> str:
     elif len(digits) == 9 and digits[0] in "79":
         digits = "0" + digits
     return digits if re.fullmatch(r"0[79]\d{8}", digits) else ""
+
+
+def _account_number(value: str) -> str:
+    digits = re.sub(r"\D", "", value or "")
+    return digits if re.fullmatch(r"\d{8,20}", digits) else ""
 
 
 def _clean_name(value: str) -> str:
@@ -186,12 +192,13 @@ def pay_bill(bill_id: str, body: PayBody, user=Depends(current_user)):
     if paying <= 0 or paying > due + 0.001:
         raise HTTPException(status_code=400, detail="Enter an amount up to the balance")
     method, channel = _method(body)
-    phone = _phone(body.phone)
+    phone = _phone(body.phone) if channel == "wallet" else ""
     account = _clean_name(body.account_name)
+    account_number = _account_number(body.account_number) if channel == "bank" else ""
     if channel == "wallet" and not phone:
         raise HTTPException(status_code=400, detail="Enter the wallet phone number, like 09xxxxxxxx")
-    if channel == "bank" and len(account) < 2:
-        raise HTTPException(status_code=400, detail="Enter the name on the bank account")
+    if channel == "bank" and not account_number:
+        raise HTTPException(status_code=400, detail="Enter the bank account number")
 
     paid = round(already + paying, 2)
     status = "paid" if paid + 0.001 >= amount and amount else "pending"
@@ -205,6 +212,7 @@ def pay_bill(bill_id: str, body: PayBody, user=Depends(current_user)):
         "amount": paying,
         "phone": phone,
         "account_name": account,
+        "account_number": account_number,
         "by": str(user.get("email") or user.get("name") or ""),
         "note": _clean_name(body.note)[:160],
     }
@@ -285,4 +293,5 @@ def pay_bill(bill_id: str, body: PayBody, user=Depends(current_user)):
         "patient": patient,
         "phone": phone,
         "account_name": account,
+        "account_number": account_number,
     }
