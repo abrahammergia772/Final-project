@@ -1005,33 +1005,76 @@ var _suggestIndex = -1;
 
 var _regPatientError = "";
 var _regPatientAt = 0;
+function patientRowsFrom(res) {
+  if (!res || !res.ok || !res.data) return [];
+  var items = res.data.items || res.data;
+  return Array.isArray(items) ? items : [];
+}
+function fetchSavedNames(path) {
+  if (!window.CONFIG || !CONFIG.API_BASE_URL || typeof fetch !== "function") {
+    return Promise.resolve({ ok: false, error: "Could not read names from the hospital database" });
+  }
+  var headers = { "Accept": "application/json" };
+  var session = typeof getSession === "function" ? getSession() : null;
+  if (session && session.token) headers.Authorization = "Bearer " + session.token;
+  return fetch(CONFIG.API_BASE_URL + path, { method: "GET", headers: headers, cache: "no-store" }).then(function (res) {
+    return res.json().catch(function () { return {}; }).then(function (data) {
+      return { ok: res.ok, status: res.status, data: data, error: (data && (data.detail || data.error)) || "" };
+    });
+  }).catch(function () {
+    return { ok: false, error: "Could not read names from the hospital database" };
+  });
+}
+function mergePatientRows(lists) {
+  var byName = {};
+  (lists || []).forEach(function (rows) {
+    (rows || []).forEach(function (row) {
+      if (!row || typeof row !== "object") return;
+      var name = patientFullName(row);
+      if (!name) return;
+      var key = name.toLowerCase();
+      var current = byName[key] || {};
+      var mail = patientEmail(row) || current.email || "";
+      byName[key] = {
+        id: row.id || current.id || "",
+        name: name,
+        first_name: row.first_name || current.first_name || name.split(" ")[0] || "",
+        last_name: row.last_name || current.last_name || name.split(" ").slice(1).join(" "),
+        phone: row.phone || current.phone || "",
+        email: mail
+      };
+    });
+  });
+  return Object.keys(byName).map(function (key) { return byName[key]; });
+}
 function loadRegisteredPatients() {
   if (typeof getUserRole === "function" && getUserRole() === "patient") return Promise.resolve([]);
   if (_regPatients && (Date.now() - _regPatientAt) < 20000) return Promise.resolve(_regPatients);
   if (_regPatientJob) return _regPatientJob;
-  if (typeof apiFetch !== "function" || !window.CONFIG || !CONFIG.ENDPOINTS) {
-    _regPatientError = "Could not read names from the hospital database";
-    return Promise.resolve([]);
-  }
-  var lookup = CONFIG.ENDPOINTS.PATIENT_LOOKUP || "/patients/lookup";
-  _regPatientJob = apiFetch(lookup, "GET", null, { quiet: true }).then(function (res) {
-    var found = res && res.ok && res.data && res.data.items && res.data.items.length;
-    if (found || !CONFIG.ENDPOINTS.PATIENTS) return res;
-    return apiFetch(CONFIG.ENDPOINTS.PATIENTS, "GET", null, { quiet: true }).then(function (fallback) {
-      if (fallback && fallback.ok && fallback.data && fallback.data.items) return fallback;
-      return res && res.ok ? res : (fallback || res);
-    });
-  }).then(function (res) {
+  var patientsPath = (window.CONFIG && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.PATIENTS) || "/patients";
+  var lookupPath = (window.CONFIG && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.PATIENT_LOOKUP) || "/patients/lookup";
+  _regPatientJob = Promise.all([
+    fetchSavedNames(patientsPath + "?limit=500"),
+    fetchSavedNames(lookupPath)
+  ]).then(function (results) {
     _regPatientJob = null;
-    if (!res || !res.ok) {
+    var rows = mergePatientRows(results.map(patientRowsFrom));
+    if (rows.length) {
+      _regPatientError = "";
+      _regPatients = rows;
+      _regPatientAt = Date.now();
+      return rows;
+    }
+    var failed = (results || []).filter(function (res) { return !res || !res.ok; });
+    if (failed.length) {
       _regPatients = null;
-      _regPatientError = (res && res.error) || "Could not read names from the hospital database";
+      _regPatientError = (failed[0] && failed[0].error) || "Could not read names from the hospital database";
       return [];
     }
     _regPatientError = "";
-    _regPatients = (res.data && res.data.items) || [];
+    _regPatients = [];
     _regPatientAt = Date.now();
-    return _regPatients;
+    return [];
   });
   return _regPatientJob;
 }
@@ -1226,6 +1269,13 @@ function initPatientSuggest() {
   if (window.__patientSuggestBound) return;
   window.__patientSuggestBound = true;
   document.addEventListener("focusin", function (e) {
+    if (e.target && e.target.tagName === "SELECT" && needsPatientNames(e.target)) {
+      if ((e.target.textContent || "").indexOf("Could not read names") >= 0) {
+        _regPatients = null;
+        _regPatientAt = 0;
+      }
+      fillRegisteredPatientSelects(e.target);
+    }
     if (isPatientNameField(e.target)) showPatientSuggest(e.target);
   });
   document.addEventListener("input", function (e) {
@@ -1242,10 +1292,18 @@ function initPatientSuggest() {
     if (_suggestInput && _suggestEl && !_suggestEl.hidden) placePatientSuggest(_suggestInput);
   }, true);
 }
+function needsPatientNames(sel) {
+  if (!sel || sel.tagName !== "SELECT") return false;
+  if (sel.dataset.patientSelect === "1") return true;
+  var text = sel.textContent || "";
+  return text.indexOf("Abel Mekonnen") >= 0 || text.indexOf("Could not read names") >= 0 || text.indexOf("No registered patients") >= 0;
+}
 function fillRegisteredPatientSelects(root) {
-  var scope = root || document;
-  scope.querySelectorAll("select").forEach(function (sel) {
-    if ((sel.textContent || "").indexOf("Abel Mekonnen") < 0) return;
+  var scope = root && root.tagName === "SELECT" ? null : (root || document);
+  var selects = scope ? scope.querySelectorAll("select") : [root];
+  Array.prototype.forEach.call(selects, function (sel) {
+    if (!needsPatientNames(sel)) return;
+    sel.dataset.patientSelect = "1";
     loadRegisteredPatients().then(function (rows) {
       var html = (rows || []).map(function (p) {
         var name = patientFullName(p);

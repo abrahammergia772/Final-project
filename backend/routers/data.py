@@ -14,6 +14,7 @@ import secrets
 from datetime import date
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Depends, UploadFile
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from youtube_search import search_youtube
@@ -364,11 +365,26 @@ def patient_lookup(user=Depends(current_user)):
             for row in _saved_name_rows(endpoint):
                 _absorb_saved_row(people, row, prefer_row_id=False)
         items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
-        return {"ok": True, "items": items, "total": len(items), "source": "supabase"}
+        return JSONResponse(
+            {"ok": True, "items": items, "total": len(items), "source": "supabase"},
+            headers={"Cache-Control": "no-store"},
+        )
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
         log.error("patient lookup failed: %s", type(exc).__name__)
+        people = {}
+        for row in _saved_name_rows("patients"):
+            try:
+                _absorb_saved_row(people, row, prefer_row_id=True)
+            except Exception:  # noqa: BLE001
+                continue
+        items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
+        if items:
+            return JSONResponse(
+                {"ok": True, "items": items, "total": len(items), "source": "supabase"},
+                headers={"Cache-Control": "no-store"},
+            )
         raise HTTPException(status_code=503, detail="Could not read names from the hospital database") from exc
 
 
