@@ -202,31 +202,70 @@ function renderAIResponse(res) {
 // ---------- AI chatbot → related health videos (plays inline) ----------
 let VIDS = [], LIVE_VIDS = [];
 const VHAS_YT = !!CONFIG.YOUTUBE_API_KEY;
+function videoMatchesCondition(video, name) {
+  const target = String(name || "").toLowerCase();
+  return (video.conditions || []).some(tag => {
+    const label = String(tag || "").toLowerCase();
+    return label && (target.includes(label) || label.includes(target));
+  });
+}
 function suggestVideosFor(conds) {
-  const lower = conds.map(c => String(c).toLowerCase());
-  const matched = VIDS.filter(v => v.conditions.some(t => lower.some(c => c.includes(t) || t.includes(c)))).slice(0, 3);
-  const render = (list) => {
-    if (!list.length) return;
-    const rows = list.map(v => `
-      <div class="ai-vid-row" onclick="playChatVideo('${v.id}')">
-        <div class="ai-vid-thumb">${v.video_id ? `<img src="https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg" alt="" onerror="this.style.display='none'">` : ICONS.play}</div>
-        <div class="ai-vid-info"><div class="ai-vid-title">${esc(v.title)}</div>
-        <div class="ai-vid-sub">${esc(v.channel)} · ${esc(v.duration)}</div></div>
-        <span class="ai-vid-play">${ICONS.play}</span>
-      </div>`).join("");
-    addMsg("ai", `<strong>🎬 Videos related to your results</strong> — play right here:
-      <div class="mt-2">${rows}</div>
-      <div class="text-sm" style="color:#6B7280;margin-top:6px">Educational content only — not medical advice.</div>`);
-  };
-  if (matched.length) render(matched);
-  if (VHAS_YT) {
-    const top = lower[0];
-    if (top) {
-      searchYouTube(top + " patient education", 4).then(items => {
-        if (items.length) { LIVE_VIDS = items; render(items.slice(0, 3)); }
-      }).catch(() => {});
+  const names = [];
+  (conds || []).forEach(item => {
+    const name = String(item || "").trim();
+    if (name && !names.some(existing => existing.toLowerCase() === name.toLowerCase())) names.push(name);
+  });
+  const picked = names.slice(0, 3);
+  if (!picked.length) return;
+  const used = {};
+  const curatedFor = name => (VIDS || []).find(video => {
+    const key = video.id || video.video_id;
+    return key && !used[key] && videoMatchesCondition(video, name);
+  });
+  const jobs = picked.map(name => {
+    const curated = curatedFor(name);
+    if (curated) {
+      used[curated.id || curated.video_id] = 1;
+      return Promise.resolve({ name: name, video: curated });
     }
-  }
+    return searchYouTube(name + " patient education", 4).then(items => {
+      const video = (items || []).find(item => item.video_id && !used[item.video_id]);
+      if (video) used[video.video_id] = 1;
+      return { name: name, video: video || null };
+    }).catch(() => ({ name: name, video: null }));
+  });
+  const area = document.getElementById("chatArea");
+  const holder = document.createElement("div");
+  holder.className = "chat-msg ai";
+  holder.innerHTML = "<div>Finding one video for each predicted condition…</div>";
+  area.appendChild(holder);
+  area.scrollTop = area.scrollHeight;
+  Promise.all(jobs).then(rows => {
+    LIVE_VIDS = rows.map(row => row.video).filter(Boolean);
+    const cards = rows.map(row => {
+      const video = row.video;
+      if (!video) {
+        return `<div class="ai-vid-row" onclick="openChatYouTube({title:'${esc(row.name)} patient education'})">
+          <div class="ai-vid-thumb">${ICONS.play}</div>
+          <div class="ai-vid-info"><div class="ai-vid-title">${esc(row.name)}</div>
+          <div class="ai-vid-sub">Open a YouTube search for this condition</div></div>
+          <span class="ai-vid-play">${ICONS.play}</span>
+        </div>`;
+      }
+      const key = video.id || video.video_id;
+      return `<div class="ai-vid-row" onclick="playChatVideo('${esc(key)}')">
+        <div class="ai-vid-thumb">${video.video_id ? `<img src="https://i.ytimg.com/vi/${esc(video.video_id)}/hqdefault.jpg" alt="" onerror="this.style.display='none'">` : ICONS.play}</div>
+        <div class="ai-vid-info"><div class="ai-vid-title">${esc(row.name)}</div>
+        <div class="ai-vid-sub">${esc(video.title)} · ${esc(video.channel || "YouTube")}</div></div>
+        <span class="ai-vid-play">${ICONS.play}</span>
+      </div>`;
+    }).join("");
+    holder.innerHTML = `<strong>Videos for all ${rows.length} predicted conditions</strong>
+      <div class="mt-2">${cards}</div>
+      <div class="text-sm" style="color:#6B7280;margin-top:6px">One educational video for each condition. Not medical advice.</div>
+      <span class="msg-time">${new Date().toTimeString().slice(0, 5)}</span>`;
+    area.scrollTop = area.scrollHeight;
+  });
 }
 function playChatVideo(id) {
   const v = VIDS.find(x => x.id === id) || LIVE_VIDS.find(x => x.id === id);
