@@ -32,7 +32,6 @@ window.I18N_AM = {
 "Samples, results and the blood bank": "ናሙናዎች፣ ውጤቶች እና የደም ባንክ",
 "Front desk": "የፊት ዴስክ",
 "Queue, admissions and cashier": "ወረፋ፣ መግቢያ እና ገንዘብ ተቀባይ",
-"Wards, laboratory, pharmacy and the front desk — one calm system for the hospital day.": "ዋርዶች፣ ላቦራቶሪ፣ ፋርማሲ እና የፊት ዴስክ — ለሆስፒታሉ ቀን አንድ የተረጋጋ ሥርዓት።",
 "Wolaita Sodo, South Ethiopia": "ወላይታ ሶዶ፣ ደቡብ ኢትዮጵያ",
 "Wolaita Sodo University": "ወላይታ ሶዶ ዩኒቨርሲቲ",
 "Administrator portal": "የአስተዳዳሪ መግቢያ",
