@@ -40,10 +40,11 @@
     <div class="panel-header"><div><h3>New invoice</h3></div></div>
     <div class="panel-body">
       <div class="form-group"><label>Patient</label><input class="form-control" id="invPatient" placeholder="Full name"></div>
+      <div class="form-group"><label>Email</label><input class="form-control" id="invEmail" type="email" placeholder="name@mail.com"></div>
       <div class="form-group"><label>Service</label><input class="form-control" id="invService" placeholder="e.g. Consultation + lab"></div>
       <div class="form-group"><label>Amount (ETB)</label><input class="form-control" id="invAmount" type="number" min="1" step="0.01" placeholder="0.00"></div>
       <button class="btn btn-primary" id="newInv" type="button">Create invoice</button>
-      <p class="module-note">Demo cashier. A live deployment would post to finance and the patient's bill.</p>
+      <p class="module-note">The invoice is saved and shown on that patient's bill.</p>
     </div>
   </section>
 </div>
@@ -57,7 +58,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/utils.js?v=5"></script>
+<script src="../assets/js/utils.js?v=6"></script>
 <script src="../assets/js/shell.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -79,7 +80,24 @@ function loadB() {
   });
 }
 function saveB() { bills.forEach(function (b) { persistUpsert(CONFIG.ENDPOINTS.CASHIER_INVOICES, b); }); }
-function due(b) { return Math.max(0, b.amount - b.paid); }
+function due(b) { return Math.max(0, Number(b.amount) - (Number(b.paid) || 0)); }
+function patientBillFromInvoice(invoice) {
+  const paid = Number(invoice.paid) || 0;
+  const amount = Number(invoice.amount) || 0;
+  return {
+    id: invoice.id,
+    date: invoice.date || (typeof todayStr === "function" ? todayStr() : ""),
+    description: invoice.service,
+    amount: amount,
+    status: paid >= amount && amount ? "paid" : "pending",
+    patient: invoice.patient,
+    service: invoice.service,
+    method: invoice.method || "",
+    paid: paid,
+    email: invoice.email || "",
+    patient_id: invoice.patient_id || ""
+  };
+}
 function billStatus(b) {
   if (due(b) === 0) return badge("paid", "success");
   if (b.paid > 0) return badge("partial", "warning");
@@ -87,16 +105,16 @@ function billStatus(b) {
 }
 function renderBills() {
   const outstanding = bills.reduce((s, b) => s + due(b), 0);
-  const collected = bills.reduce((s, b) => s + b.paid, 0);
+  const collected = bills.reduce((s, b) => s + (Number(b.paid) || 0), 0);
   document.getElementById("billStats").innerHTML = `
     <div class="stat-card"><div class="stat-icon tile-primary">${ICONS.receipt}</div><div><div class="stat-value">${bills.length}</div><div class="stat-label">Open invoices</div></div></div>
     <div class="stat-card color-danger"><div class="stat-icon">${ICONS.alert}</div><div><div class="stat-value">${formatCurrency(outstanding, false)}</div><div class="stat-label">Outstanding ETB</div></div></div>
     <div class="stat-card color-success"><div class="stat-icon">${ICONS.check}</div><div><div class="stat-value">${formatCurrency(collected, false)}</div><div class="stat-label">Collected ETB</div></div></div>
     <div class="stat-card color-info"><div class="stat-icon">${ICONS.wallet}</div><div><div class="stat-value">${bills.filter(b => due(b) === 0).length}</div><div class="stat-label">Fully paid</div></div></div>`;
   const q = (document.getElementById("billSearch").value || "").toLowerCase();
-  const rows = bills.filter(b => !q || (b.id + b.patient + b.service).toLowerCase().includes(q));
+  const rows = bills.filter(b => !q || (b.id + b.patient + (b.email || "") + b.service).toLowerCase().includes(q));
   document.querySelector("#billTable tbody").innerHTML = rows.map(b => `<tr>
-    <td>${esc(b.id)}</td><td>${esc(b.patient)}</td><td>${esc(b.service)}</td>
+    <td>${esc(b.id)}</td><td>${esc(b.patient)}${b.email ? `<div style="color:var(--gray);font-size:12px">${esc(b.email)}</div>` : ""}</td><td>${esc(b.service)}</td>
     <td>${formatCurrency(b.amount)}</td><td>${formatCurrency(due(b))}</td><td>${billStatus(b)}</td>
     <td class="actions">
       ${due(b) ? `<button class="btn btn-primary btn-sm" data-pay="${esc(b.id)}">Collect</button>` : ""}
@@ -120,10 +138,21 @@ function collect(id) {
       const amt = Number(ov.querySelector("#payAmt").value);
       const method = (ov.querySelector("input[name=paym]:checked") || {}).value || "Cash";
       if (!amt || amt <= 0) { showToast("Enter an amount", "warning"); return; }
-      b.paid = Math.min(b.amount, b.paid + amt);
+      b.paid = Math.min(Number(b.amount) || 0, (Number(b.paid) || 0) + amt);
       b.method = method;
-      saveB(); closeModal(ov); renderBills();
-      showToast("Payment recorded · " + method, "success");
+      b.status = due(b) === 0 ? "paid" : "pending";
+      const payBtn = ov.querySelector("#payOk");
+      payBtn.disabled = true;
+      Promise.all([
+        persistUpdate(CONFIG.ENDPOINTS.CASHIER_INVOICES, b.id, b),
+        persistUpdate(CONFIG.ENDPOINTS.BILLS, b.id, patientBillFromInvoice(b))
+      ]).then(function (saved) {
+        payBtn.disabled = false;
+        if (!saved[0] || !saved[0].ok) return;
+        closeModal(ov);
+        renderBills();
+        showToast(saved[1] && saved[1].ok ? "Payment recorded · " + method : "Payment saved on the invoice", "success");
+      });
     };
   }});
 }
@@ -139,6 +168,7 @@ function receipt(id) {
     <h1>Wolaita Sodo Hospital</h1><div class="sub">Cashier receipt · ${esc(b.id)} · ${esc(todayStr())}</div>
     <table>
       <tr><td>Patient</td><td>${esc(b.patient)}</td></tr>
+      ${b.email ? `<tr><td>Email</td><td>${esc(b.email)}</td></tr>` : ""}
       <tr><td>Service</td><td>${esc(b.service)}</td></tr>
       <tr><td>Amount</td><td>${formatCurrency(b.amount)}</td></tr>
       <tr><td>Paid</td><td>${formatCurrency(b.paid)} ${b.method ? "(" + esc(b.method) + ")" : ""}</td></tr>
@@ -156,18 +186,50 @@ function bootPage() {
   document.getElementById("billSearch").oninput = debounce(renderBills, 200);
   document.getElementById("newInv").onclick = () => {
     const patientInput = document.getElementById("invPatient");
+    const emailInput = document.getElementById("invEmail");
     const patient = patientInput.value.trim();
+    const email = (emailInput.value || patientInput.dataset.email || "").trim();
     const service = document.getElementById("invService").value.trim();
     const amount = Number(document.getElementById("invAmount").value);
     if (!patient || !service || !amount) { showToast("Patient, service and amount are required", "warning"); return; }
-    bills.unshift({ id: "INV-" + (2500 + bills.length), patient, patient_id: patientInput.dataset.patientId || "", service, amount, paid: 0, method: "" });
-    saveB(); renderBills();
-    showToast("Invoice created", "success");
-    patientInput.value = "";
-    patientInput.dataset.patientId = "";
-    patientInput.dataset.patientName = "";
-    document.getElementById("invService").value = "";
-    document.getElementById("invAmount").value = "";
+    const invoice = {
+      id: "INV-" + Date.now().toString(36).toUpperCase(),
+      patient: patient,
+      patient_id: patientInput.dataset.patientId || "",
+      email: email,
+      service: service,
+      amount: amount,
+      paid: 0,
+      method: "",
+      status: "pending",
+      date: typeof todayStr === "function" ? todayStr() : new Date().toISOString().slice(0, 10)
+    };
+    const button = document.getElementById("newInv");
+    const bill = patientBillFromInvoice(invoice);
+    button.disabled = true;
+    apiFetch(CONFIG.ENDPOINTS.CASHIER_INVOICES, "POST", invoice).then(function (invRes) {
+      if (!invRes.ok) {
+        button.disabled = false;
+        showToast(invRes.error || "Could not save the invoice", "error");
+        return;
+      }
+      apiFetch(CONFIG.ENDPOINTS.BILLS, "POST", bill).then(function (billRes) {
+        button.disabled = false;
+        bills.unshift(invoice);
+        markKnown(CONFIG.ENDPOINTS.CASHIER_INVOICES, [invoice]);
+        if (billRes.ok) markKnown(CONFIG.ENDPOINTS.BILLS, [bill]);
+        renderBills();
+        patientInput.value = "";
+        patientInput.dataset.patientId = "";
+        patientInput.dataset.patientName = "";
+        patientInput.dataset.email = "";
+        emailInput.value = "";
+        emailInput.dataset.filledFromPatient = "";
+        document.getElementById("invService").value = "";
+        document.getElementById("invAmount").value = "";
+        showToast(billRes.ok ? "Invoice added to the patient bill" : "Invoice saved. It will still show on the patient bill.", billRes.ok ? "success" : "warning");
+      });
+    });
   };
   renderBills();
 }

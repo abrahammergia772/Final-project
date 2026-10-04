@@ -46,7 +46,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/utils.js?v=5"></script>
+<script src="../assets/js/utils.js?v=6"></script>
 <script src="../assets/js/shell.js"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -130,35 +130,73 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("patient"); initLayout(); loadPageData();
 });
 let BILLS = [];
+function billBalance(b) { return Math.max(0, (Number(b.amount) || 0) - (Number(b.paid) || 0)); }
+function asPatientBill(row) {
+  const amount = Number(row.amount) || 0;
+  const paid = Number(row.paid) || 0;
+  const raw = String(row.status || "").toLowerCase();
+  let status = "pending";
+  if ((amount && paid >= amount) || raw === "paid") status = "paid";
+  else if (raw === "overdue") status = "overdue";
+  if (amount && paid > 0 && paid < amount) status = "pending";
+  return {
+    id: row.id,
+    date: row.date || String(row.created_at || "").slice(0, 10),
+    description: row.description || row.service || "Invoice",
+    service: row.service || row.description || "Invoice",
+    amount: amount,
+    paid: paid,
+    status: status,
+    patient: row.patient || "",
+    email: row.email || "",
+    method: row.method || ""
+  };
+}
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.BILLS).then(r => {
-    if (!r.ok) return; BILLS = r.data.items; renderBills();
+  Promise.all([
+    apiFetch(CONFIG.ENDPOINTS.BILLS, "GET", null, { quiet: true }),
+    apiFetch(CONFIG.ENDPOINTS.CASHIER_INVOICES, "GET", null, { quiet: true })
+  ]).then(function (results) {
+    const merged = {};
+    results.forEach(function (res) {
+      if (!res || !res.ok || !res.data) return;
+      (res.data.items || []).forEach(function (row) {
+        const bill = asPatientBill(row);
+        if (!bill.id) return;
+        const current = merged[bill.id];
+        if (!current || bill.paid > current.paid || (bill.paid === current.paid && bill.email && !current.email)) merged[bill.id] = bill;
+      });
+    });
+    BILLS = Object.keys(merged).map(function (id) { return merged[id]; });
+    BILLS.sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); });
+    renderBills();
   });
 }
 function renderBills() {
-  const out = BILLS.filter(b => b.status !== "paid").reduce((s, b) => s + b.amount, 0);
+  const out = BILLS.reduce((s, b) => s + (b.status === "paid" ? 0 : billBalance(b) || Number(b.amount) || 0), 0);
   document.getElementById("outTotal").textContent = formatCurrency(out);
   document.getElementById("billBody").innerHTML = BILLS.map(b => `<tr>
-    <td>${formatDate(b.date)}</td><td>${esc(b.description)}</td>
+    <td>${formatDate(b.date)}</td><td>${esc(b.id)} · ${esc(b.description)}${b.email ? `<div style="color:var(--gray);font-size:12px">${esc(b.email)}</div>` : ""}</td>
     <td><strong>${formatCurrency(b.amount)}</strong></td>
-    <td>${b.status === "paid" ? badge("Paid","success") : b.status === "pending" ? badge("Pending","warning") : badge("Overdue","danger")}</td>
-    <td><div class="actions"><button class="btn-icon primary" title="View detail" onclick="viewBill('${b.id}')">${ICONS.eye}</button>
+    <td>${b.status === "paid" ? badge("Paid","success") : b.status === "overdue" ? badge("Overdue","danger") : badge("Pending","warning")}</td>
+    <td><div class="actions"><button class="btn-icon primary" title="View invoice" onclick="viewBill('${b.id}')">${ICONS.eye}</button>
     ${b.status === "paid" ? `<button class="btn-icon" title="Print receipt" onclick="printBill('${b.id}')">${ICONS.printer}</button>` : ""}</div></td></tr>`).join("") || emptyRow(5);
 }
 function viewBill(id) {
   const b = BILLS.find(x => x.id === id);
+  const due = billBalance(b);
   openModal({
-    title: "Bill Detail — " + b.id,
+    title: "Invoice — " + b.id,
     body: `<div class="detail-list">
       <div class="detail-item"><span class="k">Date</span><span class="v">${formatDate(b.date)}</span></div>
-      <div class="detail-item"><span class="k">Description</span><span class="v">${esc(b.description)}</span></div>
+      <div class="detail-item"><span class="k">Patient</span><span class="v">${esc(b.patient || "")}</span></div>
+      <div class="detail-item"><span class="k">Email</span><span class="v">${esc(b.email || "—")}</span></div>
       <div class="detail-item"><span class="k">Status</span><span class="v">${esc(b.status)}</span></div></div>
-      <h3 class="mt-4 mb-2" style="font-size:15px">Itemized Breakdown</h3>
+      <h3 class="mt-4 mb-2" style="font-size:15px">Invoice</h3>
       <div class="receipt">
-        <div class="r-row"><span>Service charge</span><span>${formatCurrency(b.amount * 0.7)}</span></div>
-        <div class="r-row"><span>Pharmacy / consumables</span><span>${formatCurrency(b.amount * 0.25)}</span></div>
-        <div class="r-row"><span>Administrative fee</span><span>${formatCurrency(b.amount * 0.05)}</span></div>
-        <div class="r-row r-total"><span>Total</span><span>${formatCurrency(b.amount)}</span></div>
+        <div class="r-row"><span>${esc(b.service || b.description)}</span><span>${formatCurrency(b.amount)}</span></div>
+        <div class="r-row"><span>Paid${b.method ? " · " + esc(b.method) : ""}</span><span>${formatCurrency(b.paid || 0)}</span></div>
+        <div class="r-row r-total"><span>Balance</span><span>${formatCurrency(due)}</span></div>
       </div>`
   });
 }
@@ -169,7 +207,7 @@ function printBill(id) {
 </head><body>
     <div class="h"><h2>Wolaita Sodo University Hospital</h2><p>Official Receipt</p></div>
     <p><strong>Receipt No:</strong> ${b.id}</p><p><strong>Date:</strong> ${formatDate(b.date)}</p>
-    <p><strong>Description:</strong> ${b.description}</p><p><strong>Amount Paid:</strong> ${formatCurrency(b.amount)}</p>
+    <p><strong>Description:</strong> ${b.description}</p><p><strong>Amount Paid:</strong> ${formatCurrency(b.paid || b.amount)}</p>
     <p><strong>Status:</strong> PAID ✓</p><p style="margin-top:24px">Thank you! ______</p>
 </body></html>`);
   w.document.close(); w.print();

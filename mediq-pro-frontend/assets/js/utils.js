@@ -1182,7 +1182,7 @@ function applyPatientPick(input, patient) {
   input.dataset.patientId = patient.id || "";
   input.dataset.patientName = full;
   input.dataset.email = patientEmail(patient);
-  ["rE", "fileEmail", "pfEmail"].forEach(function (id) {
+  ["rE", "fileEmail", "pfEmail", "invEmail"].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
     if (!el.value || el.dataset.filledFromPatient === "1") {
