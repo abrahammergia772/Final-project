@@ -341,7 +341,22 @@ select.form-control { appearance: auto; }
 }
 .patient-suggest button.is-active,
 .patient-suggest button:hover { background: var(--light-gray); }
-.patient-suggest .ps-meta { color: var(--gray); font-size: 12px; display: block; }
+.patient-suggest .ps-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex: none;
+}
+.patient-suggest .ps-copy { min-width: 0; }
+.patient-suggest .ps-copy strong { display: block; }
+.patient-suggest .ps-meta { color: var(--gray); font-size: 12px; display: block; word-break: break-all; }
 .patient-suggest .ps-empty { padding: 12px; color: var(--gray); font-size: 13px; }
 
 .modal-overlay {

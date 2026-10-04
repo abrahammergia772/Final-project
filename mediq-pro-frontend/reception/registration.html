@@ -166,11 +166,11 @@ function loadPageData() {
     ready.then(function (rows) {
       const hits = (rows || []).filter(function (p) {
         const name = [p.first_name, p.last_name].filter(Boolean).join(" ");
-        return (name + " " + (p.id || "") + " " + (p.phone || "")).toLowerCase().indexOf(q) >= 0;
+        return (name + " " + (p.id || "") + " " + (p.phone || "") + " " + (p.email || "")).toLowerCase().indexOf(q) >= 0;
       }).slice(0, 8);
       box.innerHTML = hits.length ? '<div class="feed">' + hits.map(function (p) {
         const name = [p.first_name, p.last_name].filter(Boolean).join(" ");
-        return '<div class="feed-item"><div class="tile-primary feed-icon">' + ICONS.users + '</div><div class="feed-text"><strong>' + esc(name) + '</strong> — ' + esc(p.id || "registered") + (p.phone ? " · " + esc(p.phone) : "") + '<div class="feed-time"><a href="#" data-use-patient="' + esc(p.id || "") + '">Use this patient</a></div></div></div>';
+        return '<div class="feed-item"><div class="tile-primary feed-icon">' + ICONS.users + '</div><div class="feed-text"><strong>' + esc(name) + '</strong><div class="feed-time">Patient · ' + esc(p.email || "No email") + '</div><div class="feed-time"><a href="#" data-use-patient="' + esc(p.id || "") + '">Use this patient</a></div></div></div>';
       }).join("") + "</div>"
         : '<div class="alert alert-warning mb-0">No existing record — complete the form to register a new patient.</div>';
       box.querySelectorAll("[data-use-patient]").forEach(function (link) {
@@ -181,6 +181,8 @@ function loadPageData() {
           document.getElementById("rF").value = row.first_name || "";
           document.getElementById("rL").value = row.last_name || "";
           if (row.phone) document.getElementById("rP").value = row.phone;
+          var emailBox = document.getElementById("rE");
+          if (emailBox) emailBox.value = row.email || "";
           showToast("Registered patient filled in", "info");
         };
       });

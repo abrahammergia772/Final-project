@@ -1077,21 +1077,26 @@ function isPatientNameField(input) {
   if (input.getAttribute("list") && /pat/.test(input.getAttribute("list"))) return true;
   return false;
 }
+function patientEmail(p) {
+  return String((p && p.email) || "").trim();
+}
 function patientMatches(p, query) {
   var q = String(query || "").trim().toLowerCase();
   if (!q) return false;
   var full = patientFullName(p).toLowerCase();
   var id = String(p.id || "").toLowerCase();
   var phone = String(p.phone || "").toLowerCase();
-  if (full.indexOf(q) >= 0 || id.indexOf(q) >= 0 || phone.indexOf(q) >= 0) return true;
+  var mail = patientEmail(p).toLowerCase();
+  if (full.indexOf(q) >= 0 || id.indexOf(q) >= 0 || phone.indexOf(q) >= 0 || mail.indexOf(q) >= 0) return true;
   var parts = q.split(/\s+/).filter(Boolean);
-  return parts.length > 1 && parts.every(function (part) { return full.indexOf(part) >= 0; });
+  return parts.length > 1 && parts.every(function (part) { return full.indexOf(part) >= 0 || mail.indexOf(part) >= 0; });
 }
 function rankPatient(p, query) {
   var q = String(query || "").trim().toLowerCase();
   var full = patientFullName(p).toLowerCase();
-  if (full === q) return 0;
-  if (full.indexOf(q) === 0) return 1;
+  var mail = patientEmail(p).toLowerCase();
+  if (full === q || mail === q) return 0;
+  if (full.indexOf(q) === 0 || mail.indexOf(q) === 0) return 1;
   if (full.indexOf(" " + q) >= 0) return 2;
   if (String(p.id || "").toLowerCase().indexOf(q) >= 0) return 3;
   return 4;
@@ -1133,6 +1138,15 @@ function applyPatientPick(input, patient) {
   }
   input.dataset.patientId = patient.id || "";
   input.dataset.patientName = full;
+  input.dataset.email = patientEmail(patient);
+  ["rE", "fileEmail", "pfEmail"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (!el.value || el.dataset.filledFromPatient === "1") {
+      el.value = patientEmail(patient);
+      el.dataset.filledFromPatient = "1";
+    }
+  });
   input.dispatchEvent(new Event("input", { bubbles: true }));
   input.dispatchEvent(new Event("change", { bubbles: true }));
   hidePatientSuggest();
@@ -1152,8 +1166,11 @@ function paintPatientSuggest(input, hits, note) {
   } else {
     _suggestEl.innerHTML = hits.map(function (p, i) {
       var name = patientFullName(p);
-      var meta = [p.id, p.phone].filter(Boolean).join(" · ");
-      return '<button type="button" role="option" data-i="' + i + '" class="' + (i === _suggestIndex ? "is-active" : "") + '"><span><strong>' + esc(name) + '</strong><span class="ps-meta">' + esc(meta || "Registered patient") + "</span></span></button>";
+      var mail = patientEmail(p);
+      var initials = typeof initialsOf === "function" ? initialsOf(name) : name.slice(0, 2).toUpperCase();
+      return '<button type="button" role="option" data-i="' + i + '" class="' + (i === _suggestIndex ? "is-active" : "") + '">' +
+        '<span class="ps-avatar">' + esc(initials) + "</span>" +
+        '<span class="ps-copy"><strong>' + esc(name) + '</strong><span class="ps-meta">Patient · ' + esc(mail || "No email") + "</span></span></button>";
     }).join("");
     _suggestEl.querySelectorAll("button").forEach(function (btn) {
       btn.onmousedown = function (e) { e.preventDefault(); };
@@ -1233,7 +1250,7 @@ function fillRegisteredPatientSelects(root) {
       var html = (rows || []).map(function (p) {
         var name = patientFullName(p);
         if (!name) return "";
-        var label = name + (p.id ? " (" + p.id + ")" : "");
+        var label = name + (patientEmail(p) ? " · " + patientEmail(p) : "");
         return '<option value="' + esc(name) + '">' + esc(label) + "</option>";
       }).filter(Boolean).join("");
       sel.innerHTML = html || '<option value="">' + esc(_regPatientError || "No registered patients") + "</option>";

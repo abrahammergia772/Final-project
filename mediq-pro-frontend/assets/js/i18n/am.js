@@ -57,6 +57,7 @@ window.I18N_AM = {
 "Loading registered patients…": "የተመዘገቡ ታካሚዎች በመጫን ላይ…",
 "No registered patient with that name": "በዚህ ስም የተመዘገበ ታካሚ የለም",
 "Registered patient": "የተመዘገበ ታካሚ",
+"No email": "ኢሜይል የለም",
 "No registered patients": "የተመዘገበ ታካሚ የለም",
 "Could not read names from the hospital database": "የታካሚ ስሞችን ከሆስፒታል ዳታቤዝ ማንበብ አልተቻለም",
 "Use this patient": "ይህን ታካሚ ተጠቀም",
