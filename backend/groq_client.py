@@ -14,9 +14,22 @@ import httpx
 log = logging.getLogger("mediq.groq")
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-PRIMARY_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip() or "llama-3.3-70b-versatile"
-FALLBACK_MODEL = os.getenv("GROQ_FALLBACK_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant"
-
+# llama-3.3-70b-versatile and llama-3.1-8b-instant were shut down for
+# developer keys on 16 August 2026. qwen3.6-27b followed on 14 September 2026.
+# These are the live developer models as of October 2026.
+_RETIRED = {
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+    "llama3-70b-8192",
+    "llama3-8b-8192",
+    "qwen/qwen3-32b",
+    "qwen/qwen3.6-27b",
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "groq/compound",
+    "groq/compound-mini",
+}
+_DEFAULT_MODELS = ("qwen/qwen3.8-27b", "openai/gpt-oss-20b")
+_CONTROL = re.compile(r"<\|[^|>]{1,40}\|>")
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
 
 
@@ -24,14 +37,64 @@ def configured() -> bool:
     return bool(os.getenv("GROQ_API_KEY", "").strip())
 
 
+def models_to_try() -> list:
+    chosen = os.getenv("GROQ_MODEL", "").strip()
+    models = []
+    if chosen and chosen not in _RETIRED:
+        models.append(chosen)
+    for name in _DEFAULT_MODELS:
+        if name not in models:
+            models.append(name)
+    extra = os.getenv("GROQ_FALLBACK_MODEL", "").strip()
+    if extra and extra not in _RETIRED and extra not in models:
+        models.append(extra)
+    return models[:2]
+
+
 def model_name() -> str:
-    return PRIMARY_MODEL
+    models = models_to_try()
+    return models[0] if models else _DEFAULT_MODELS[0]
 
 
 def _clean(text: str) -> str:
     raw = (text or "").strip()
     raw = _FENCE.sub("", raw).strip()
+    raw = _CONTROL.sub("", raw).strip()
     return raw
+
+
+def _message_text(message: dict) -> str:
+    content = message.get("content")
+    if isinstance(content, list):
+        bits = []
+        for part in content:
+            if isinstance(part, dict):
+                bits.append(str(part.get("text") or part.get("content") or ""))
+            else:
+                bits.append(str(part))
+        content = " ".join(bits)
+    return _clean(str(content or ""))
+
+
+def _payload(model: str, messages: list, max_tokens: int, temperature: float, json_mode: bool) -> dict:
+    # Reasoning models spend the first tokens thinking. Give them room, and
+    # ask Qwen not to think so a short explanation comes back in content.
+    limit = max(int(max_tokens or 400), 512)
+    body = {
+        "model": model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": limit,
+        "include_reasoning": False,
+    }
+    if model.startswith("qwen/"):
+        body["reasoning_effort"] = "none"
+    elif model.startswith("openai/gpt-oss"):
+        body["reasoning_effort"] = "low"
+        body["max_tokens"] = max(limit, 1536)
+    if json_mode:
+        body["response_format"] = {"type": "json_object"}
+    return body
 
 
 def _json_obj(text: str):
@@ -46,30 +109,32 @@ def _json_obj(text: str):
         return None
 
 
-def complete(messages: list, max_tokens: int = 400, temperature: float = 0.3) -> tuple:
+def _post(client, key: str, body: dict):
+    return client.post(
+        GROQ_URL,
+        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+        json=body,
+    )
+
+
+def complete(messages: list, max_tokens: int = 400, temperature: float = 0.3, json_mode: bool = False) -> tuple:
     """Return (text, source). Source is 'local' when Groq is not used."""
     key = os.getenv("GROQ_API_KEY", "").strip()
     if not key:
         return "", "missing-key"
-    models = [PRIMARY_MODEL]
-    if FALLBACK_MODEL and FALLBACK_MODEL not in models:
-        models.append(FALLBACK_MODEL)
-    for model in models:
+    for model in models_to_try():
+        body = _payload(model, messages, max_tokens, temperature, json_mode)
         try:
-            with httpx.Client(timeout=16.0) as client:
-                resp = client.post(
-                    GROQ_URL,
-                    headers={
-                        "Authorization": "Bearer " + key,
-                        "Content-Type": "application/json",
-                    },
-                    json={
+            with httpx.Client(timeout=12.0) as client:
+                resp = _post(client, key, body)
+                if resp.status_code == 400 and (json_mode or "reasoning_effort" in body):
+                    plain = {
                         "model": model,
                         "messages": messages,
                         "temperature": temperature,
-                        "max_tokens": max_tokens,
-                    },
-                )
+                        "max_tokens": body["max_tokens"],
+                    }
+                    resp = _post(client, key, plain)
         except Exception as exc:  # noqa: BLE001
             log.warning("Groq call failed: %s", type(exc).__name__)
             continue
@@ -84,9 +149,11 @@ def complete(messages: list, max_tokens: int = 400, temperature: float = 0.3) ->
         except Exception:  # noqa: BLE001
             log.warning("Groq model %s returned a non-JSON body", model)
             continue
-        text = (((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
+        message = ((data.get("choices") or [{}])[0].get("message") or {})
+        text = _message_text(message)
         if text:
-            return _clean(text), "groq"
+            return text, "groq"
+        log.warning("Groq model %s returned an empty answer", model)
     return "", "unavailable"
 
 
@@ -157,14 +224,17 @@ def chat_reply(message: str, conditions: list, urgency: str, action: str, histor
         if content:
             messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": facts})
-    text, source = complete(messages, max_tokens=380, temperature=0.3)
+    text, source = complete(messages, max_tokens=700, temperature=0.3, json_mode=True)
     reply, follow = fallback_reply, fallback_follow
     parsed = _json_obj(text) if text else None
     if isinstance(parsed, dict) and str(parsed.get("reply") or "").strip():
         reply = str(parsed.get("reply") or "").strip()
         if str(parsed.get("follow_up") or "").strip():
             follow = str(parsed.get("follow_up") or "").strip()
-        source = source or "groq"
+        source = "groq"
+    elif text and not text.lstrip().startswith("{"):
+        reply = text
+        source = "groq"
     else:
         source = "local"
     if urgency == "red":
