@@ -58,6 +58,7 @@ window.I18N_AM = {
 "No registered patient with that name": "በዚህ ስም የተመዘገበ ታካሚ የለም",
 "Registered patient": "የተመዘገበ ታካሚ",
 "No registered patients": "የተመዘገበ ታካሚ የለም",
+"Could not read names from the hospital database": "የታካሚ ስሞችን ከሆስፒታል ዳታቤዝ ማንበብ አልተቻለም",
 "Use this patient": "ይህን ታካሚ ተጠቀም",
 "Sign in to see notifications.": "ማሳወቂያዎችን ለማየት ይግቡ።",
 "Unread": "ያልተነበበ",

@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 from youtube_search import search_youtube
 
-from db import list_rows, insert_row, update_row, delete_row, get_row
+from db import list_rows, insert_row, update_row, delete_row, get_row, get_client
 from permissions import assert_resource
 from security import current_user
 
@@ -272,6 +272,98 @@ def document_file(doc_id: str, user=Depends(current_user)):
 def sent_messages(user=Depends(current_user)):
     _authorize("messages", user)
     return _message_view(user, "sent")
+
+
+def _clean_name(*parts) -> str:
+    return " ".join(str(part or "").split())
+
+
+def _remember_person(people: dict, row_id, name, phone, email) -> None:
+    full = _clean_name(name)
+    if not full:
+        return
+    mail = str(email or "").strip().lower()
+    key = full.lower()
+    first, _, last = full.partition(" ")
+    current = people.get(key) or {}
+    kept_id = str(current.get("id") or "")
+    new_id = str(row_id or "")
+    if kept_id.startswith("HC-") and new_id and not new_id.startswith("HC-"):
+        new_id = kept_id
+    people[key] = {
+        "id": new_id or kept_id,
+        "name": full,
+        "first_name": first,
+        "last_name": last,
+        "phone": str(phone or current.get("phone") or ""),
+        "email": mail or str(current.get("email") or ""),
+    }
+
+
+@router.get("/patients/lookup")
+def patient_lookup(user=Depends(current_user)):
+    """Names of people already saved in Supabase, for invoice and form suggestions."""
+    role = str(user.get("role") or "")
+    if role not in {"admin", "manager", "doctor", "nurse", "pharmacist", "laboratory", "reception"}:
+        raise HTTPException(status_code=403, detail="You do not have access to patient names")
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=503, detail="Supabase is not configured")
+    people = {}
+    failed = []
+    try:
+        try:
+            resp = client.table("patients").select("id,first_name,last_name,phone,email,details").limit(500).execute()
+        except Exception:  # noqa: BLE001
+            resp = client.table("patients").select("*").limit(500).execute()
+        for row in resp.data or []:
+            details = row.get("details") if isinstance(row.get("details"), dict) else {}
+            name = _clean_name(row.get("first_name"), row.get("last_name")) or _clean_name(
+                row.get("name") or details.get("name") or details.get("patient_name")
+            )
+            _remember_person(people, row.get("id"), name, row.get("phone") or details.get("phone"), row.get("email") or details.get("email"))
+    except Exception as exc:  # noqa: BLE001
+        log.error("patient name read failed: %s", type(exc).__name__)
+        failed.append("patients")
+    try:
+        try:
+            resp = client.table("users").select("id,name,email,phone,role").eq("role", "patient").limit(500).execute()
+        except Exception:  # noqa: BLE001
+            resp = client.table("users").select("id,name,email,role").eq("role", "patient").limit(500).execute()
+        for row in resp.data or []:
+            _remember_person(people, row.get("id"), row.get("name"), row.get("phone"), row.get("email"))
+    except Exception as exc:  # noqa: BLE001
+        log.error("patient account name read failed: %s", type(exc).__name__)
+        failed.append("users")
+    for table, field in (
+        ("appointments", "patient"),
+        ("cashier_invoices", "patient"),
+        ("bills", "patient"),
+        ("insurance", "patient"),
+        ("documents", "patient"),
+    ):
+        try:
+            resp = client.table(table).select("id,details," + field).limit(500).execute()
+        except Exception:  # noqa: BLE001
+            try:
+                resp = client.table(table).select("*").limit(500).execute()
+            except Exception as exc:  # noqa: BLE001
+                log.error("saved name read %s failed: %s", table, type(exc).__name__)
+                failed.append(table)
+                continue
+        for row in resp.data or []:
+            details = row.get("details") if isinstance(row.get("details"), dict) else {}
+            _remember_person(
+                people,
+                details.get("patient_id") or details.get("patientId") or "",
+                row.get(field) or details.get("patient_name") or details.get("name"),
+                details.get("phone"),
+                details.get("email"),
+            )
+    if not people and len(failed) >= 2:
+        raise HTTPException(status_code=503, detail="Could not read patient names from the hospital database")
+    items = sorted(people.values(), key=lambda person: person["name"].lower())
+    return {"ok": True, "items": items, "total": len(items), "source": "supabase"}
 
 
 @router.get("/{resource}")

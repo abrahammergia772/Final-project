@@ -276,6 +276,7 @@ function endpointAllowed(endpoint) {
     return true;
   }
   if (path.indexOf("/ai/") === 0) return canAccess(role, "ai");
+  if (path === "/patients/lookup") return role !== "patient";
   const resource = path.replace(/^\//, "").split("/")[0];
   return resourceAllowed(role, resource);
 }

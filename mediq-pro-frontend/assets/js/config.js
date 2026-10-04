@@ -40,6 +40,7 @@ const CONFIG = {
     // Core data
     USERS:          "/users",
     PATIENTS:       "/patients",
+    PATIENT_LOOKUP: "/patients/lookup",
     DOCTORS:        "/staff",
     DEPARTMENTS:    "/departments",
     STAFF:          "/staff",

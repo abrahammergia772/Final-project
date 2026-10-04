@@ -1003,18 +1003,32 @@ var _suggestInput = null;
 var _suggestHits = [];
 var _suggestIndex = -1;
 
+var _regPatientError = "";
+var _regPatientAt = 0;
 function loadRegisteredPatients() {
-  if (_regPatients) return Promise.resolve(_regPatients);
+  if (typeof getUserRole === "function" && getUserRole() === "patient") return Promise.resolve([]);
+  if (_regPatients && (Date.now() - _regPatientAt) < 20000) return Promise.resolve(_regPatients);
   if (_regPatientJob) return _regPatientJob;
-  if (typeof apiFetch !== "function" || !window.CONFIG || !CONFIG.ENDPOINTS || !CONFIG.ENDPOINTS.PATIENTS) {
+  if (typeof apiFetch !== "function" || !window.CONFIG || !CONFIG.ENDPOINTS) {
+    _regPatientError = "Could not read names from the hospital database";
     return Promise.resolve([]);
   }
-  if (typeof endpointAllowed === "function" && !endpointAllowed(CONFIG.ENDPOINTS.PATIENTS)) {
-    return Promise.resolve([]);
-  }
-  _regPatientJob = apiFetch(CONFIG.ENDPOINTS.PATIENTS, "GET", null, { quiet: true }).then(function (res) {
-    _regPatients = (res.ok && res.data && res.data.items) || [];
+  var lookup = CONFIG.ENDPOINTS.PATIENT_LOOKUP || "/patients/lookup";
+  _regPatientJob = apiFetch(lookup, "GET", null, { quiet: true }).then(function (res) {
+    if (!res.ok && (res.status === 404 || res.status === 405) && CONFIG.ENDPOINTS.PATIENTS) {
+      return apiFetch(CONFIG.ENDPOINTS.PATIENTS, "GET", null, { quiet: true });
+    }
+    return res;
+  }).then(function (res) {
     _regPatientJob = null;
+    if (!res || !res.ok) {
+      _regPatients = null;
+      _regPatientError = (res && res.error) || "Could not read names from the hospital database";
+      return [];
+    }
+    _regPatientError = "";
+    _regPatients = (res.data && res.data.items) || [];
+    _regPatientAt = Date.now();
     return _regPatients;
   });
   return _regPatientJob;
@@ -1169,8 +1183,9 @@ function showPatientSuggest(input) {
     hits.sort(function (a, b) { return rankPatient(a, query) - rankPatient(b, query); });
     hits = hits.slice(0, 8);
     _suggestIndex = hits.length ? 0 : -1;
-    if (!hits.length) paintPatientSuggest(input, [], "No registered patient with that name");
-    else paintPatientSuggest(input, hits);
+    if (!hits.length) {
+      paintPatientSuggest(input, [], _regPatientError || (_regPatients && _regPatients.length ? "No registered patient with that name" : "No registered patients"));
+    } else paintPatientSuggest(input, hits);
   });
 }
 function onPatientSuggestKey(e) {
@@ -1219,7 +1234,7 @@ function fillRegisteredPatientSelects(root) {
         var label = name + (p.id ? " (" + p.id + ")" : "");
         return '<option value="' + esc(name) + '">' + esc(label) + "</option>";
       }).filter(Boolean).join("");
-      sel.innerHTML = html || '<option value="">No registered patients</option>';
+      sel.innerHTML = html || '<option value="">' + esc(_regPatientError || "No registered patients") + "</option>";
     });
   });
 }
