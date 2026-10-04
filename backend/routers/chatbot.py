@@ -42,13 +42,66 @@ SYMPTOM_HINTS = (
     "ትኩሳት", "ሳል", "ራስ ምታት",
 )
 ASSISTANT_FALLBACK = (
-    "I am the Wolaita Sodo Hospital assistant. I can help with appointments, "
-    "departments, the laboratory, pharmacy, bills, your health card, and messages. "
-    "Open Appointments to book. Open Messages to reach Front Desk, Pharmacy, or Laboratory. "
-    "If you feel unwell, describe your symptoms and I will check possible conditions. "
-    "I only answer questions about this hospital."
+    "I am the Wolaita Sodo Hospital assistant. I can explain the system and how to use it: "
+    "sign-in, the dashboard, appointments, medical records, bills, complaints, the health card, "
+    "messages, settings, and health videos. I can also say what each page or role means. "
+    "If you feel unwell, describe your own symptoms and I will check possible conditions."
 )
-ASSISTANT_FOLLOW = "Would you like help with an appointment, a department, or your symptoms?"
+ASSISTANT_FOLLOW = "Which page or word should I explain, or do you want the steps to use it?"
+SYSTEM_GUIDE = (
+    "Wolaita Sodo University Hospital system, Wolaita Sodo, South Ethiopia. "
+    "Patients and staff sign in on the main login page. A new patient uses Create Account. "
+    "A health card is created automatically after the account is created. Forgot password is on the login page. "
+    "Administrators sign in only through the Administrator portal. Other roles must use the main login. "
+    "The left menu is the sidebar. The bottom bar is the taskbar. Settings and Messages are in the sidebar. "
+    "If a page is missing, the administrator has not granted that permission. "
+    "Patient Dashboard, also called Home, shows the welcome page, upcoming appointments, recent complaints, and the outstanding bill summary. "
+    "Appointments: open Appointments, choose Book Appointment, then department, doctor from the list, date, time, and reason, then Request Booking. "
+    "Bookable departments are Internal Medicine, Pediatrics, Cardiology, Maternity, and Orthopedics. "
+    "An open appointment can be edited, rescheduled, or cancelled. A cancelled, completed, or attended appointment cannot be changed here. This chat cannot book. "
+    "Medical Records is a timeline of saved visits, prescriptions, and laboratory notes. The patient reads them; a doctor files the clinical note. "
+    "Bills shows billing history and the outstanding balance. Status means Paid, Pending, or Overdue. View a bill for the itemized breakdown. Print a receipt only for a paid bill. The page does not take payment; settle an unpaid bill at the hospital cashier. Do not invent an amount. "
+    "Complaints: open Complaints, choose a category, subject, priority, and description, then Submit. The General Manager reviews it and can write a solution. Status means pending, in-review, or resolved. "
+    "Health Card is the hospital identity card. Open Health Card to see it, print it, or show it at the front desk for check-in. The barcode links the file to pharmacy and laboratory. If it is not ready, sign out and sign in again. "
+    "Messages: open Messages, choose Compose, type a name or email, subject, and message, then Send. The search shows the person's profile and email. A sent message appears for the receiver. Known contacts are Front Desk, Pharmacy, Laboratory, and Dr. Daniel Alemu in Internal Medicine. "
+    "Health Videos are educational only, not medical advice. Search a topic or play a suggestion. "
+    "Settings saves the profile, profile photo, password of at least 8 characters, notification preferences, and appearance. "
+    "This AI Chatbot explains the hospital and the system. It checks possible conditions only when the person describes their own symptoms. It is not a diagnosis. "
+    "Role meanings: Reception registers patients, admissions, appointments, the queue, ambulance, cashier, and insurance. "
+    "A doctor sees patients, consultations, prescriptions, referrals, and bed requests. "
+    "A nurse records vitals, observations, medications, care plans, and beds. "
+    "A pharmacist handles prescriptions and medicine stock. "
+    "Laboratory handles test requests, samples, results, and the blood bank. "
+    "The General Manager handles departments, staff, finance, reports, and complaints. "
+    "The Administrator handles users, roles and permissions, wards, announcements, and audit logs. "
+    "Emergency care is the Emergency Department, or call 907 in Ethiopia. Do not invent a phone number, price, or opening hours."
+)
+SYSTEM_TOPICS = (
+    (("sign in", "sign up", "login", "log in", "password", "account", "create account"),
+     "Sign in on the main login page. Create a patient account from Create Account. A health card is made automatically. Use Forgot password on the login page if needed. Administrators use only the Administrator portal."),
+    (("dashboard", "home", "taskbar", "sidebar", "menu", "system", "how can i use", "how do i use", "how to use"),
+     "The Dashboard is the home page. It shows upcoming appointments, complaints, and the bill summary. The sidebar is the left menu. The bottom taskbar has Home, Appointments, Records, Health Card, and Messages. Settings and Messages are also in the sidebar."),
+    (("appointment", "book", "reschedule"),
+     "Open Appointments, then Book Appointment. Choose a department, a doctor from the list, a date, a time, and a reason, then Request Booking. You can edit, reschedule, or cancel an open appointment. This chat cannot book one for you."),
+    (("record", "medical record", "timeline"),
+     "Medical Records means the saved timeline of visits, prescriptions, and laboratory notes. You read them there. A doctor files the clinical note."),
+    (("bill", "payment", "cashier", "receipt"),
+     "Bills means your billing history and outstanding balance. Paid, Pending, and Overdue are the statuses. You can view a bill and print a receipt only when it is paid. The page does not take payment; settle an unpaid bill at the cashier."),
+    (("complaint",),
+     "A complaint is a report for the General Manager. Open Complaints, enter category, subject, priority, and description, then Submit. Status means pending, in-review, or resolved."),
+    (("health card", "card"),
+     "The health card is your hospital identity card. It is created with your account. Open Health Card to view or print it, and show it at the front desk. The barcode links your file to pharmacy and laboratory."),
+    (("message", "front desk", "pharmacy"),
+     "Open Messages, then Compose. Type a name or email, a subject, and the message, then Send. The search shows that person's profile and email. Front Desk, Pharmacy, Laboratory, and Dr. Daniel Alemu can be contacted there."),
+    (("video",),
+     "Health Videos are for learning only. They are not medical advice. Search a topic or play a suggestion."),
+    (("setting", "profile", "photo"),
+     "Settings is where you save your profile, photo, password, notifications, and appearance. A new password must be at least 8 characters."),
+    (("role", "permission", "doctor", "nurse", "reception", "admin", "manager", "laboratory", "pharmacist"),
+     "Reception registers patients and handles the queue, cashier, and ambulance. A doctor consults and prescribes. A nurse records vitals and care. Pharmacy handles medicines. Laboratory handles tests and the blood bank. The manager reviews complaints, finance, and reports. The administrator controls users and permissions. A missing page means that permission was not granted."),
+    (("emergency", "907"),
+     "For an emergency, go to the Emergency Department or call 907 in Ethiopia."),
+)
 
 
 def _has_symptom(text: str) -> bool:
@@ -66,9 +119,39 @@ def _has_symptom(text: str) -> bool:
     return False
 
 
-def is_symptom_request(message: str, history: list) -> bool:
-    """Disease prediction only when the person describes symptoms."""
+def _is_system_question(msg: str) -> bool:
+    marks = (
+        "how do i", "how can i", "how to", "how does", "what does", "what is", "what are",
+        "what mean", "means", "explain", "guide", "help me", "where is", "where can",
+        "sign in", "sign up", "log in", "password", "dashboard", "taskbar", "sidebar",
+        "permission", "use the system", "use this", "page", "menu",
+    )
+    return any(mark in msg for mark in marks)
+
+
+def _reports_own_symptoms(msg: str) -> bool:
+    personal = bool(re.search(r"\b(i have|i feel|i am having|i'm having|i've got|i got)\b", msg))
+    if personal and (_has_symptom(msg) or any(keyword in msg for keyword in URGENCY_KEYWORDS["red"])):
+        return True
+    if re.search(r"\b(hurts|painful)\b", msg) and not _is_system_question(msg):
+        return True
+    return False
+
+
+def local_system_reply(message: str) -> tuple:
     msg = (message or "").lower()
+    hits = [text for keys, text in SYSTEM_TOPICS if any(key in msg for key in keys)]
+    if not hits:
+        return ASSISTANT_FALLBACK, ASSISTANT_FOLLOW
+    reply = " ".join(hits[:2])
+    return reply[:1200], "What else should I explain about the system?"
+
+
+def is_symptom_request(message: str, history: list) -> bool:
+    """Disease prediction only when the person describes their own symptoms."""
+    msg = (message or "").lower()
+    if _is_system_question(msg) and not _reports_own_symptoms(msg):
+        return False
     red = URGENCY_KEYWORDS["red"]
     if any(keyword in msg for keyword in red):
         return True
@@ -106,12 +189,13 @@ def _load_json(rel: str):
 def _assistant(req: ChatRequest) -> dict:
     history = [{"role": turn.role, "content": turn.content} for turn in (req.history or [])]
     try:
+        local_reply, local_follow = local_system_reply(req.message)
         reply, follow_up, explained_by = assistant_reply(
-            req.message, history, ASSISTANT_FALLBACK, ASSISTANT_FOLLOW
+            req.message, history, local_reply, local_follow, SYSTEM_GUIDE
         )
     except Exception as exc:  # noqa: BLE001
         log.warning("hospital assistant failed: %s", type(exc).__name__)
-        reply, follow_up, explained_by = ASSISTANT_FALLBACK, ASSISTANT_FOLLOW, "local"
+        reply, follow_up, explained_by = local_system_reply(req.message) + ("local",)
     return {
         "mode": "assistant",
         "reply": reply,

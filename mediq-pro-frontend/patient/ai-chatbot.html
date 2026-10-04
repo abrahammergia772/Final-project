@@ -27,7 +27,7 @@
 <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 140px);min-height:520px;padding:0">
   <div class="panel-header">
     <div class="flex" style="gap:12px"><div class="stat-icon" style="background:#F5F3FF;color:#7C3AED;width:40px;height:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg></div>
-      <div><h3 style="font-size:16px">Hospital AI Assistant</h3><div class="text-sm" style="color:#6B7280">Hospital questions, or a symptom check when you feel unwell</div></div></div>
+      <div><h3 style="font-size:16px">Hospital AI Assistant</h3><div class="text-sm" style="color:#6B7280">How to use the system, what it means, or a symptom check</div></div></div>
     <div class="flex" style="gap:8px">
       <button class="btn btn-secondary btn-sm" id="btnClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 6L6 18M6 6l12 12"/></svg> Clear</button>
       <button class="btn btn-secondary btn-sm" id="btnSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg> Save</button>
@@ -36,7 +36,7 @@
   <div id="chatArea" class="chat-area" style="flex:1;overflow-y:auto;background:#F9FAFB"></div>
   <div class="panel-header" style="border-top:1px solid #E5E7EB;border-bottom:none">
     <div class="flex" style="gap:10px;width:100%">
-      <input class="form-control" id="chatInput" placeholder="Ask about the hospital, or describe your symptoms…">
+      <input class="form-control" id="chatInput" placeholder="Ask how to use the system, what a page means, or describe symptoms…">
       <button class="btn btn-primary" id="btnSend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> Send</button>
     </div>
   </div>
@@ -140,13 +140,13 @@ function loadPageData() {
   document.getElementById("btnClear").addEventListener("click", () => {
     CHAT_TURNS = [];
     document.getElementById("chatArea").innerHTML = "";
-    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital assistant. Ask about appointments, departments, the laboratory, pharmacy, bills, or your health card. Describe symptoms only if you feel unwell. This is not a diagnosis.");
+    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital assistant. Ask how to use the system, what a page or word means, or about appointments, records, bills, your health card, and messages. Describe your own symptoms only if you feel unwell. This is not a diagnosis.");
   });
   document.getElementById("btnSave").addEventListener("click", () => showToast("Conversation saved to your records","success"));
   // Load curated videos so the AI can suggest related educational videos
   apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) VIDS = r.data.items; });
   // Intro message
-  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital assistant. Ask about appointments, departments, the laboratory, pharmacy, bills, or your health card. Describe symptoms only if you feel unwell. This is not a diagnosis.");
+  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital assistant. Ask how to use the system, what a page or word means, or about appointments, records, bills, your health card, and messages. Describe your own symptoms only if you feel unwell. This is not a diagnosis.");
 }
 let CHAT_TURNS = [];
 function sendMsg() {
