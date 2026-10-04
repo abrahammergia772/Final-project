@@ -15,6 +15,15 @@
 <link rel="stylesheet" href="../assets/css/components.css?v=5" />
 <link rel="stylesheet" href="../assets/css/dashboard.css" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
+<style>
+.pay-tabs { display: flex; gap: 8px; margin: 12px 0; }
+.pay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; max-height: 260px; overflow: auto; padding: 2px; }
+.pay-choice { display: flex; align-items: center; gap: 8px; width: 100%; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 12px; padding: 8px 10px; text-align: left; cursor: pointer; font: inherit; }
+.pay-choice small { display: block; color: var(--gray); font-size: 11px; font-weight: 500; }
+.pay-choice.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+.pay-mark { width: 32px; height: 32px; border-radius: 50%; background: #0B3A5E; color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.pay-note { color: var(--gray); font-size: 12px; margin: 0 0 10px; }
+</style>
 
   <script src="../assets/js/theme.js"></script></head>
 <body>
@@ -25,7 +34,7 @@
 <section class="page-body">
 
 <div class="alert alert-warning mb-4" id="outstandingBanner"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span>
-  <div class="alert-body"><span class="alert-title">Outstanding balance: </span><strong id="outTotal" style="font-size:16px">ETB 0.00</strong> — please settle to continue receiving services.</div></div>
+  <div class="alert-body"><span class="alert-title">Outstanding balance: </span><strong id="outTotal" style="font-size:16px">ETB 0.00</strong> — pay an open bill with a wallet or bank.</div></div>
 <div class="card" style="padding:0">
   <div class="table-toolbar"><h3 style="font-size:16px">Billing History</h3>
     <button class="btn btn-secondary" onclick="printAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Receipts</button></div>
@@ -172,6 +181,21 @@ function loadPageData() {
     renderBills();
   });
 }
+const PAY_FALLBACK = {
+  wallets: [["Telebirr","Ethio Telecom"],["CBE Birr","Commercial Bank of Ethiopia"],["M-Pesa","Safaricom Ethiopia"],["Amole","Dashen Bank"],["HelloCash","Lion International Bank"],["Awash Birr","Awash Bank"],["Coopay","Cooperative Bank of Oromia"],["E-Birr","E-Birr wallet"],["Kacha","Kacha"],["YenePay","YenePay"],["M-Birr","M-Birr"],["Other wallet","Type the wallet name"]],
+  banks: [["Commercial Bank of Ethiopia","CBE"],["Awash Bank","Awash"],["Dashen Bank","Dashen"],["Bank of Abyssinia","Abyssinia"],["Wegagen Bank","Wegagen"],["Hibret Bank","Hibret"],["Nib International Bank","NIB"],["Cooperative Bank of Oromia","Coop"],["Lion International Bank","Anbesa"],["Zemen Bank","Zemen"],["Oromia Bank","Oromia"],["Berhan Bank","Berhan"],["Bunna Bank","Bunna"],["Abay Bank","Abay"],["Addis International Bank","Addis"],["Enat Bank","Enat"],["ZamZam Bank","Interest-free"],["Hijra Bank","Interest-free"],["Shabelle Bank","Interest-free"],["Siinqee Bank","Siinqee"],["Amhara Bank","Amhara"],["Ahadu Bank","Ahadu"],["Tsedey Bank","Tsedey"],["Gadaa Bank","Gadaa"],["Goh Betoch Bank","Goh Betoch"],["Global Bank Ethiopia","Global"],["Sidama Bank","Sidama"],["Omo Bank","Omo"],["CBE Noor","CBE interest-free"],["Other bank","Type the bank name"]]
+};
+function payCatalog(raw) {
+  const wallets = (raw && raw.wallets) || PAY_FALLBACK.wallets.map(function (item) { return { name: item[0], note: item[1] }; });
+  const banks = (raw && raw.banks) || PAY_FALLBACK.banks.map(function (item) { return { name: item[0], note: item[1] }; });
+  return { wallets: wallets, banks: banks };
+}
+function payInitials(name) {
+  const parts = String(name || "").replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  if (!parts.length) return "•";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
 function renderBills() {
   const out = BILLS.reduce((s, b) => s + (b.status === "paid" ? 0 : billBalance(b) || Number(b.amount) || 0), 0);
   document.getElementById("outTotal").textContent = formatCurrency(out);
@@ -180,10 +204,12 @@ function renderBills() {
     <td><strong>${formatCurrency(b.amount)}</strong></td>
     <td>${b.status === "paid" ? badge("Paid","success") : b.status === "overdue" ? badge("Overdue","danger") : badge("Pending","warning")}</td>
     <td><div class="actions"><button class="btn-icon primary" title="View invoice" onclick="viewBill('${b.id}')">${ICONS.eye}</button>
+    ${billBalance(b) > 0 ? `<button class="btn btn-primary btn-sm" type="button" onclick="payBill('${b.id}')">Pay</button>` : ""}
     ${b.status === "paid" ? `<button class="btn-icon" title="Print receipt" onclick="printBill('${b.id}')">${ICONS.printer}</button>` : ""}</div></td></tr>`).join("") || emptyRow(5);
 }
 function viewBill(id) {
   const b = BILLS.find(x => x.id === id);
+  if (!b) return;
   const due = billBalance(b);
   openModal({
     title: "Invoice — " + b.id,
@@ -197,8 +223,120 @@ function viewBill(id) {
         <div class="r-row"><span>${esc(b.service || b.description)}</span><span>${formatCurrency(b.amount)}</span></div>
         <div class="r-row"><span>Paid${b.method ? " · " + esc(b.method) : ""}</span><span>${formatCurrency(b.paid || 0)}</span></div>
         <div class="r-row r-total"><span>Balance</span><span>${formatCurrency(due)}</span></div>
-      </div>`
-  });
+      </div>`,
+    footer: due > 0
+      ? `<button class="btn btn-secondary" data-close>Close</button><button class="btn btn-primary" id="viewPay">Pay bill</button>`
+      : `<button class="btn btn-secondary" data-close>Close</button>`
+  }, { onMount: function (ov) {
+    const button = ov.querySelector("#viewPay");
+    if (button) button.onclick = function () { closeModal(ov); payBill(id); };
+  }});
+}
+function payBill(id) {
+  const bill = BILLS.find(function (item) { return item.id === id; });
+  if (!bill) return;
+  const due = billBalance(bill);
+  if (due <= 0) { showToast("This bill is already paid", "info"); return; }
+  const session = typeof getSession === "function" ? getSession() : null;
+  openModal({
+    title: "Pay bill",
+    size: "lg",
+    body: `<p class="pay-note">${esc(bill.id)} · ${esc(bill.service || bill.description)}. Balance due <strong>${formatCurrency(due)}</strong>.</p>
+      <div class="form-group"><label>Amount (ETB)</label><input class="form-control" id="payAmount" type="number" min="1" step="0.01" value="${due}" data-patient-suggest="off"></div>
+      <div class="pay-tabs">
+        <button class="btn btn-primary btn-sm" type="button" id="payWallets">Wallets</button>
+        <button class="btn btn-secondary btn-sm" type="button" id="payBanks">Banks</button>
+      </div>
+      <div class="form-group"><label>Search</label><input class="form-control" id="paySearch" placeholder="Search Telebirr, CBE, Awash…" data-patient-suggest="off"></div>
+      <div class="pay-grid" id="payGrid"></div>
+      <div class="form-group" id="payOtherWrap" hidden style="margin-top:12px"><label id="payOtherLabel">Name</label><input class="form-control" id="payOther" data-patient-suggest="off"></div>
+      <div class="form-row">
+        <div class="form-group"><label id="payPhoneLabel">Wallet phone</label><input class="form-control" id="payPhone" type="tel" placeholder="09xxxxxxxx" data-patient-suggest="off"></div>
+        <div class="form-group"><label>Account name</label><input class="form-control" id="payAccount" placeholder="Name on the account" value="${esc(session && session.name || bill.patient || "")}" data-patient-suggest="off"></div>
+      </div>
+      <p class="pay-note">Choose a wallet or bank. The hospital records this payment on your bill. No PIN or card number is asked.</p>`,
+    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="payNow">Pay now</button>`
+  }, { onMount: function (ov) {
+    let catalog = payCatalog(null);
+    let channel = "wallet";
+    let selected = "Telebirr";
+    function methods() { return channel === "bank" ? catalog.banks : catalog.wallets; }
+    function paint() {
+      const q = (ov.querySelector("#paySearch").value || "").trim().toLowerCase();
+      const rows = methods().filter(function (item) {
+        return !q || (item.name + " " + (item.note || "")).toLowerCase().indexOf(q) >= 0;
+      });
+      ov.querySelector("#payGrid").innerHTML = rows.map(function (item) {
+        return `<button type="button" class="pay-choice${item.name === selected ? " selected" : ""}" data-method="${esc(item.name)}"><span class="pay-mark">${esc(payInitials(item.name))}</span><span><strong>${esc(item.name)}</strong><small>${esc(item.note || "")}</small></span></button>`;
+      }).join("") || `<p class="pay-note">No match. Try another name, or choose Other.</p>`;
+      ov.querySelectorAll(".pay-choice").forEach(function (button) {
+        button.onclick = function () {
+          selected = button.getAttribute("data-method") || "";
+          const other = selected === "Other wallet" || selected === "Other bank";
+          ov.querySelector("#payOtherWrap").hidden = !other;
+          ov.querySelector("#payOtherLabel").textContent = selected === "Other bank" ? "Bank name" : "Wallet name";
+          paint();
+        };
+      });
+    }
+    function setChannel(next) {
+      channel = next;
+      ov.querySelector("#payWallets").className = "btn btn-sm " + (next === "wallet" ? "btn-primary" : "btn-secondary");
+      ov.querySelector("#payBanks").className = "btn btn-sm " + (next === "bank" ? "btn-primary" : "btn-secondary");
+      ov.querySelector("#payPhoneLabel").textContent = next === "bank" ? "Contact phone" : "Wallet phone";
+      if (!methods().some(function (item) { return item.name === selected; })) selected = (methods()[0] || {}).name || "";
+      paint();
+    }
+    ov.querySelector("#payWallets").onclick = function () { setChannel("wallet"); };
+    ov.querySelector("#payBanks").onclick = function () { setChannel("bank"); };
+    ov.querySelector("#paySearch").oninput = paint;
+    paint();
+    apiFetch("/bills/payment-methods", "GET", null, { quiet: true }).then(function (res) {
+      if (res && res.ok && res.data) catalog = payCatalog(res.data);
+      paint();
+    });
+    ov.querySelector("#payNow").onclick = function () {
+      const amount = Number(ov.querySelector("#payAmount").value);
+      const phone = ov.querySelector("#payPhone").value.trim();
+      const account = ov.querySelector("#payAccount").value.trim();
+      const other = ov.querySelector("#payOther").value.trim();
+      if (!selected) { showToast("Choose a wallet or bank", "warning"); return; }
+      if (!amount || amount <= 0 || amount > due + 0.001) { showToast("Enter an amount up to the balance", "warning"); return; }
+      if (channel === "wallet" && !phone) { showToast("Enter the wallet phone number", "warning"); return; }
+      if (channel === "bank" && account.length < 2) { showToast("Enter the name on the bank account", "warning"); return; }
+      const button = ov.querySelector("#payNow");
+      button.disabled = true;
+      apiFetch("/bills/" + encodeURIComponent(bill.id) + "/pay", "POST", {
+        method: selected,
+        channel: channel,
+        amount: amount,
+        phone: phone,
+        account_name: account,
+        other_name: other
+      }).then(function (res) {
+        button.disabled = false;
+        if (!res.ok) { showToast(res.error || "Payment was not recorded", "error"); return; }
+        const data = res.data || {};
+        bill.paid = data.paid;
+        bill.status = data.status || (data.balance ? "pending" : "paid");
+        bill.method = data.method || selected;
+        closeModal(ov);
+        renderBills();
+        loadPageData();
+        showToast(data.balance ? "Payment recorded · " + bill.method : "Bill paid · " + bill.method, "success");
+        openModal({
+          title: "Payment receipt",
+          body: `<div class="detail-list">
+            <div class="detail-item"><span class="k">Receipt</span><span class="v">${esc(data.receipt || "")}</span></div>
+            <div class="detail-item"><span class="k">Invoice</span><span class="v">${esc(bill.id)}</span></div>
+            <div class="detail-item"><span class="k">Paid with</span><span class="v">${esc(data.method || selected)}</span></div>
+            <div class="detail-item"><span class="k">Amount</span><span class="v">${formatCurrency(data.amount || amount)}</span></div>
+            <div class="detail-item"><span class="k">Balance</span><span class="v">${formatCurrency(data.balance || 0)}</span></div>
+          </div>`
+        });
+      });
+    };
+  }});
 }
 function printBill(id) {
   const b = BILLS.find(x => x.id === id);

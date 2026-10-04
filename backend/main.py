@@ -29,7 +29,7 @@ import model_loader
 from permissions import require_permission
 from security import current_user
 from groq_client import configured as groq_configured, model_name as groq_model_name
-from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, reports
+from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, payments, reports
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("mediq")
@@ -81,7 +81,7 @@ async def lifespan(app: FastAPI):
     _log_memory("shutdown")
 
 
-app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.13", lifespan=lifespan)
+app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.14", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -97,7 +97,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.13",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.14",
             "groq": groq_configured(),
             "low_memory": LOW_MEMORY,
             "lazy_load": LAZY_LOAD,
@@ -107,7 +107,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.13", "groq": groq_configured(),
+    return {"status": "ok", "version": "2.0.14", "groq": groq_configured(),
             "groq_model": groq_model_name() if groq_configured() else "",
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}
 
@@ -148,4 +148,5 @@ app.include_router(chatbot.router, **protected)
 # Report writing is not an AI-only route. Nurse and reception can open reports
 # without the AI permission; the route checks reports or AI itself.
 app.include_router(reports.router, dependencies=[Depends(current_user)])
+app.include_router(payments.router, dependencies=[Depends(current_user)])
 app.include_router(data.router)
