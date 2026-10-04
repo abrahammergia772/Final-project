@@ -300,70 +300,76 @@ def _remember_person(people: dict, row_id, name, phone, email) -> None:
     }
 
 
+def _row_name(row: dict) -> str:
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    named = _clean_name(row.get("first_name"), row.get("last_name"))
+    if named:
+        return named
+    for value in (row.get("name"), row.get("patient"), details.get("patient_name"), details.get("name")):
+        cleaned = _clean_name(value)
+        if cleaned:
+            return cleaned
+    return ""
+
+
+def _absorb_saved_row(people: dict, row: dict, prefer_row_id: bool = False) -> None:
+    if not isinstance(row, dict):
+        return
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    name = _row_name(row)
+    if not name:
+        return
+    linked = details.get("patient_id") or details.get("patientId") or row.get("patient_id") or ""
+    row_id = row.get("id") if prefer_row_id else linked
+    _remember_person(
+        people,
+        row_id,
+        name,
+        row.get("phone") or details.get("phone"),
+        row.get("email") or details.get("email"),
+    )
+
+
+def _saved_name_rows(endpoint: str) -> list:
+    """Same Supabase read the rest of the hospital uses. Never raises."""
+    try:
+        result = list_rows(endpoint, 500)
+    except Exception as exc:  # noqa: BLE001
+        log.error("name source %s failed: %s", endpoint, type(exc).__name__)
+        return []
+    if not isinstance(result, dict) or result.get("ok") is False:
+        log.error("name source %s unavailable", endpoint)
+        return []
+    items = result.get("items") or []
+    return items if isinstance(items, list) else []
+
+
 @router.get("/patients/lookup")
 def patient_lookup(user=Depends(current_user)):
-    """Names of people already saved in Supabase, for invoice and form suggestions."""
+    """Names already saved in Supabase, for invoice and form suggestions."""
     role = str(user.get("role") or "")
     if role not in {"admin", "manager", "doctor", "nurse", "pharmacist", "laboratory", "reception"}:
         raise HTTPException(status_code=403, detail="You do not have access to patient names")
-    client = get_client()
-    if client is None:
+    if get_client() is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
-    people = {}
-    failed = []
     try:
-        try:
-            resp = client.table("patients").select("id,first_name,last_name,phone,email,details").limit(500).execute()
-        except Exception:  # noqa: BLE001
-            resp = client.table("patients").select("*").limit(500).execute()
-        for row in resp.data or []:
-            details = row.get("details") if isinstance(row.get("details"), dict) else {}
-            name = _clean_name(row.get("first_name"), row.get("last_name")) or _clean_name(
-                row.get("name") or details.get("name") or details.get("patient_name")
-            )
-            _remember_person(people, row.get("id"), name, row.get("phone") or details.get("phone"), row.get("email") or details.get("email"))
-    except Exception as exc:  # noqa: BLE001
-        log.error("patient name read failed: %s", type(exc).__name__)
-        failed.append("patients")
-    try:
-        try:
-            resp = client.table("users").select("id,name,email,phone,role").eq("role", "patient").limit(500).execute()
-        except Exception:  # noqa: BLE001
-            resp = client.table("users").select("id,name,email,role").eq("role", "patient").limit(500).execute()
-        for row in resp.data or []:
-            _remember_person(people, row.get("id"), row.get("name"), row.get("phone"), row.get("email"))
-    except Exception as exc:  # noqa: BLE001
-        log.error("patient account name read failed: %s", type(exc).__name__)
-        failed.append("users")
-    for table, field in (
-        ("appointments", "patient"),
-        ("cashier_invoices", "patient"),
-        ("bills", "patient"),
-        ("insurance", "patient"),
-        ("documents", "patient"),
-    ):
-        try:
-            resp = client.table(table).select("id,details," + field).limit(500).execute()
-        except Exception:  # noqa: BLE001
-            try:
-                resp = client.table(table).select("*").limit(500).execute()
-            except Exception as exc:  # noqa: BLE001
-                log.error("saved name read %s failed: %s", table, type(exc).__name__)
-                failed.append(table)
+        people = {}
+        for row in _saved_name_rows("patients"):
+            _absorb_saved_row(people, row, prefer_row_id=True)
+        for row in _saved_name_rows("users"):
+            if str(row.get("role") or "").lower() != "patient":
                 continue
-        for row in resp.data or []:
-            details = row.get("details") if isinstance(row.get("details"), dict) else {}
-            _remember_person(
-                people,
-                details.get("patient_id") or details.get("patientId") or "",
-                row.get(field) or details.get("patient_name") or details.get("name"),
-                details.get("phone"),
-                details.get("email"),
-            )
-    if not people and len(failed) >= 2:
-        raise HTTPException(status_code=503, detail="Could not read patient names from the hospital database")
-    items = sorted(people.values(), key=lambda person: person["name"].lower())
-    return {"ok": True, "items": items, "total": len(items), "source": "supabase"}
+            _absorb_saved_row(people, row, prefer_row_id=not people)
+        for endpoint in ("appointments", "cashier_invoices", "bills", "insurance"):
+            for row in _saved_name_rows(endpoint):
+                _absorb_saved_row(people, row, prefer_row_id=False)
+        items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
+        return {"ok": True, "items": items, "total": len(items), "source": "supabase"}
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        log.error("patient lookup failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Could not read names from the hospital database") from exc
 
 
 @router.get("/{resource}")

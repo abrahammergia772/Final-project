@@ -1015,10 +1015,12 @@ function loadRegisteredPatients() {
   }
   var lookup = CONFIG.ENDPOINTS.PATIENT_LOOKUP || "/patients/lookup";
   _regPatientJob = apiFetch(lookup, "GET", null, { quiet: true }).then(function (res) {
-    if (!res.ok && (res.status === 404 || res.status === 405) && CONFIG.ENDPOINTS.PATIENTS) {
-      return apiFetch(CONFIG.ENDPOINTS.PATIENTS, "GET", null, { quiet: true });
-    }
-    return res;
+    var found = res && res.ok && res.data && res.data.items && res.data.items.length;
+    if (found || !CONFIG.ENDPOINTS.PATIENTS) return res;
+    return apiFetch(CONFIG.ENDPOINTS.PATIENTS, "GET", null, { quiet: true }).then(function (fallback) {
+      if (fallback && fallback.ok && fallback.data && fallback.data.items) return fallback;
+      return res && res.ok ? res : (fallback || res);
+    });
   }).then(function (res) {
     _regPatientJob = null;
     if (!res || !res.ok) {
