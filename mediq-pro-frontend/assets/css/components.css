@@ -314,6 +314,36 @@ select.form-control { appearance: auto; }
 .alert .alert-body { flex: 1; }
 
 /* ---------- Modals ---------- */
+.patient-suggest {
+  position: fixed;
+  z-index: 400;
+  background: var(--white);
+  color: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-height: 260px;
+  overflow: auto;
+  box-shadow: var(--shadow-lg);
+  min-width: 240px;
+}
+.patient-suggest button {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+.patient-suggest button.is-active,
+.patient-suggest button:hover { background: var(--light-gray); }
+.patient-suggest .ps-meta { color: var(--gray); font-size: 12px; display: block; }
+.patient-suggest .ps-empty { padding: 12px; color: var(--gray); font-size: 13px; }
+
 .modal-overlay {
   position: fixed;
   inset: 0;

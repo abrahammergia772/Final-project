@@ -157,6 +157,7 @@ function openModal(html, opts) {
       showToast("This button could not finish opening. Refresh the page and try again.", "error");
     }
   }
+  fillRegisteredPatientSelects(overlay);
   return overlay;
 }
 
@@ -604,6 +605,8 @@ function initLayout() {
   _bindLayoutDelegation();
   // The shell rebuilds the bell, so refresh whenever the layout is ready.
   if (typeof refreshNotifications === "function") refreshNotifications();
+  initPatientSuggest();
+  fillRegisteredPatientSelects(document);
 }
 
 // ---------- Permission-based tabs ----------
@@ -990,3 +993,233 @@ function loadSavedHospitalReports(apply) {
 document.addEventListener("click", (e) => {
   if (e.target.closest(".alert-close")) e.target.closest(".alert").remove();
 });
+
+// ---------- Registered patient name suggestions ----------
+// Wherever a patient name is typed, show similar people already saved in Supabase.
+var _regPatients = null;
+var _regPatientJob = null;
+var _suggestEl = null;
+var _suggestInput = null;
+var _suggestHits = [];
+var _suggestIndex = -1;
+
+function loadRegisteredPatients() {
+  if (_regPatients) return Promise.resolve(_regPatients);
+  if (_regPatientJob) return _regPatientJob;
+  if (typeof apiFetch !== "function" || !window.CONFIG || !CONFIG.ENDPOINTS || !CONFIG.ENDPOINTS.PATIENTS) {
+    return Promise.resolve([]);
+  }
+  if (typeof endpointAllowed === "function" && !endpointAllowed(CONFIG.ENDPOINTS.PATIENTS)) {
+    return Promise.resolve([]);
+  }
+  _regPatientJob = apiFetch(CONFIG.ENDPOINTS.PATIENTS, "GET", null, { quiet: true }).then(function (res) {
+    _regPatients = (res.ok && res.data && res.data.items) || [];
+    _regPatientJob = null;
+    return _regPatients;
+  });
+  return _regPatientJob;
+}
+window.loadRegisteredPatients = loadRegisteredPatients;
+window.refreshRegisteredPatients = function () {
+  _regPatients = null;
+  _regPatientJob = null;
+  return loadRegisteredPatients();
+};
+
+function patientFullName(p) {
+  if (!p) return "";
+  var full = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+  return full || p.name || "";
+}
+function patientFieldBlob(input) {
+  var label = "";
+  var group = input.closest && input.closest(".form-group");
+  if (group) {
+    var lab = group.querySelector("label");
+    if (lab) label = lab.textContent || "";
+  }
+  if (input.id) {
+    var linked = document.querySelector('label[for="' + input.id + '"]');
+    if (linked) label += " " + (linked.textContent || "");
+  }
+  return ((input.id || "") + " " + (input.name || "") + " " + (input.placeholder || "") + " " + label + " " + (input.getAttribute("list") || "")).toLowerCase();
+}
+function isPatientNameField(input) {
+  if (!input || input.tagName !== "INPUT" || input.disabled || input.readOnly) return false;
+  var type = (input.type || "text").toLowerCase();
+  if (type !== "text" && type !== "search") return false;
+  if (input.dataset.patientSuggest === "off") return false;
+  var id = (input.id || "").toLowerCase();
+  if (id === "cmdinput" || id === "cto" || id === "stname" || id === "billsearch" || id === "retsearch") return false;
+  if (input.closest(".search-box") || input.closest(".topbar-search")) return false;
+  var blob = patientFieldBlob(input);
+  if (/hospital name|drug name|department name|role name|shift name|supplier|email|password/.test(blob)) return false;
+  if (/surgeon|refer to|dr\. name/.test(blob)) return false;
+  if (/patient history|patient vitals/.test(blob)) return false;
+  if (/patient|donor name|patient name/.test(blob)) return true;
+  if (/^(rf|rl|filefirst|filelast|pffirst|pflast|qname|rqname|bedpatient|invpatient|uppatient|upatname|dxpatient|cdpatient|imgpatient|otpatient|donname)$/.test(id)) return true;
+  if (input.getAttribute("list") && /pat/.test(input.getAttribute("list"))) return true;
+  return false;
+}
+function patientMatches(p, query) {
+  var q = String(query || "").trim().toLowerCase();
+  if (!q) return false;
+  var full = patientFullName(p).toLowerCase();
+  var id = String(p.id || "").toLowerCase();
+  var phone = String(p.phone || "").toLowerCase();
+  if (full.indexOf(q) >= 0 || id.indexOf(q) >= 0 || phone.indexOf(q) >= 0) return true;
+  var parts = q.split(/\s+/).filter(Boolean);
+  return parts.length > 1 && parts.every(function (part) { return full.indexOf(part) >= 0; });
+}
+function rankPatient(p, query) {
+  var q = String(query || "").trim().toLowerCase();
+  var full = patientFullName(p).toLowerCase();
+  if (full === q) return 0;
+  if (full.indexOf(q) === 0) return 1;
+  if (full.indexOf(" " + q) >= 0) return 2;
+  if (String(p.id || "").toLowerCase().indexOf(q) >= 0) return 3;
+  return 4;
+}
+function hidePatientSuggest() {
+  if (_suggestEl) _suggestEl.hidden = true;
+  _suggestInput = null;
+  _suggestHits = [];
+  _suggestIndex = -1;
+}
+function placePatientSuggest(input) {
+  if (!_suggestEl) return;
+  var rect = input.getBoundingClientRect();
+  var width = Math.max(rect.width, 260);
+  var left = Math.min(rect.left, window.innerWidth - width - 8);
+  if (left < 8) left = 8;
+  _suggestEl.style.width = width + "px";
+  _suggestEl.style.left = left + "px";
+  var top = rect.bottom + 4;
+  _suggestEl.style.top = top + "px";
+  _suggestEl.hidden = false;
+  var box = _suggestEl.getBoundingClientRect();
+  if (box.bottom > window.innerHeight - 8) {
+    _suggestEl.style.top = Math.max(8, rect.top - box.height - 4) + "px";
+  }
+}
+function applyPatientPick(input, patient) {
+  var full = patientFullName(patient);
+  var first = patient.first_name || full.split(" ")[0] || "";
+  var rest = patient.last_name || full.split(" ").slice(1).join(" ");
+  var id = (input.id || "").toLowerCase();
+  var pair = { rf: "rL", filefirst: "fileLast", pffirst: "pfLast", rl: "rF", filelast: "fileFirst", pflast: "pfFirst" };
+  if (pair[id]) {
+    input.value = (id === "rl" || id === "filelast" || id === "pflast") ? rest : first;
+    var other = document.getElementById(pair[id]);
+    if (other) other.value = (id === "rl" || id === "filelast" || id === "pflast") ? first : rest;
+  } else {
+    input.value = full;
+  }
+  input.dataset.patientId = patient.id || "";
+  input.dataset.patientName = full;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+  hidePatientSuggest();
+}
+function paintPatientSuggest(input, hits, note) {
+  if (!_suggestEl) {
+    _suggestEl = document.createElement("div");
+    _suggestEl.className = "patient-suggest";
+    _suggestEl.hidden = true;
+    _suggestEl.setAttribute("role", "listbox");
+    document.body.appendChild(_suggestEl);
+  }
+  _suggestInput = input;
+  _suggestHits = hits || [];
+  if (note) {
+    _suggestEl.innerHTML = '<div class="ps-empty">' + esc(note) + "</div>";
+  } else {
+    _suggestEl.innerHTML = hits.map(function (p, i) {
+      var name = patientFullName(p);
+      var meta = [p.id, p.phone].filter(Boolean).join(" · ");
+      return '<button type="button" role="option" data-i="' + i + '" class="' + (i === _suggestIndex ? "is-active" : "") + '"><span><strong>' + esc(name) + '</strong><span class="ps-meta">' + esc(meta || "Registered patient") + "</span></span></button>";
+    }).join("");
+    _suggestEl.querySelectorAll("button").forEach(function (btn) {
+      btn.onmousedown = function (e) { e.preventDefault(); };
+      btn.onclick = function () {
+        var picked = hits[Number(btn.getAttribute("data-i"))];
+        if (picked && _suggestInput) applyPatientPick(_suggestInput, picked);
+      };
+    });
+  }
+  placePatientSuggest(input);
+}
+function showPatientSuggest(input) {
+  if (!isPatientNameField(input)) return;
+  if (input.getAttribute("list")) input.removeAttribute("list");
+  var query = input.value.trim();
+  if (query.length < 1) { hidePatientSuggest(); return; }
+  if (input.dataset.patientName && query === input.dataset.patientName) {
+    hidePatientSuggest();
+    return;
+  }
+  if (input.dataset.patientName && query !== input.dataset.patientName) {
+    input.dataset.patientId = "";
+    input.dataset.patientName = "";
+  }
+  if (!_regPatients) paintPatientSuggest(input, [], "Loading registered patients…");
+  loadRegisteredPatients().then(function (rows) {
+    if (_suggestInput !== input || input.value.trim() !== query) return;
+    var hits = (rows || []).filter(function (p) { return patientMatches(p, query) && patientFullName(p); });
+    hits.sort(function (a, b) { return rankPatient(a, query) - rankPatient(b, query); });
+    hits = hits.slice(0, 8);
+    _suggestIndex = hits.length ? 0 : -1;
+    if (!hits.length) paintPatientSuggest(input, [], "No registered patient with that name");
+    else paintPatientSuggest(input, hits);
+  });
+}
+function onPatientSuggestKey(e) {
+  if (!_suggestEl || _suggestEl.hidden || !_suggestHits.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    _suggestIndex += e.key === "ArrowDown" ? 1 : -1;
+    if (_suggestIndex < 0) _suggestIndex = _suggestHits.length - 1;
+    if (_suggestIndex >= _suggestHits.length) _suggestIndex = 0;
+    paintPatientSuggest(_suggestInput, _suggestHits);
+  } else if (e.key === "Enter" && _suggestIndex >= 0) {
+    e.preventDefault();
+    applyPatientPick(_suggestInput, _suggestHits[_suggestIndex]);
+  } else if (e.key === "Escape") {
+    hidePatientSuggest();
+  }
+}
+function initPatientSuggest() {
+  if (window.__patientSuggestBound) return;
+  window.__patientSuggestBound = true;
+  document.addEventListener("focusin", function (e) {
+    if (isPatientNameField(e.target)) showPatientSuggest(e.target);
+  });
+  document.addEventListener("input", function (e) {
+    if (isPatientNameField(e.target)) showPatientSuggest(e.target);
+  });
+  document.addEventListener("keydown", onPatientSuggestKey, true);
+  document.addEventListener("click", function (e) {
+    if (e.target.closest && e.target.closest(".patient-suggest")) return;
+    if (isPatientNameField(e.target)) return;
+    hidePatientSuggest();
+  });
+  window.addEventListener("resize", hidePatientSuggest);
+  window.addEventListener("scroll", function () {
+    if (_suggestInput && _suggestEl && !_suggestEl.hidden) placePatientSuggest(_suggestInput);
+  }, true);
+}
+function fillRegisteredPatientSelects(root) {
+  var scope = root || document;
+  scope.querySelectorAll("select").forEach(function (sel) {
+    if ((sel.textContent || "").indexOf("Abel Mekonnen") < 0) return;
+    loadRegisteredPatients().then(function (rows) {
+      var html = (rows || []).map(function (p) {
+        var name = patientFullName(p);
+        if (!name) return "";
+        var label = name + (p.id ? " (" + p.id + ")" : "");
+        return '<option value="' + esc(name) + '">' + esc(label) + "</option>";
+      }).filter(Boolean).join("");
+      sel.innerHTML = html || '<option value="">No registered patients</option>';
+    });
+  });
+}

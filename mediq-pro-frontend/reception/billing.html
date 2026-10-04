@@ -155,14 +155,17 @@ function bootPage() {
   loadB();
   document.getElementById("billSearch").oninput = debounce(renderBills, 200);
   document.getElementById("newInv").onclick = () => {
-    const patient = document.getElementById("invPatient").value.trim();
+    const patientInput = document.getElementById("invPatient");
+    const patient = patientInput.value.trim();
     const service = document.getElementById("invService").value.trim();
     const amount = Number(document.getElementById("invAmount").value);
     if (!patient || !service || !amount) { showToast("Patient, service and amount are required", "warning"); return; }
-    bills.unshift({ id: "INV-" + (2500 + bills.length), patient, service, amount, paid: 0, method: "" });
+    bills.unshift({ id: "INV-" + (2500 + bills.length), patient, patient_id: patientInput.dataset.patientId || "", service, amount, paid: 0, method: "" });
     saveB(); renderBills();
     showToast("Invoice created", "success");
-    document.getElementById("invPatient").value = "";
+    patientInput.value = "";
+    patientInput.dataset.patientId = "";
+    patientInput.dataset.patientName = "";
     document.getElementById("invService").value = "";
     document.getElementById("invAmount").value = "";
   };

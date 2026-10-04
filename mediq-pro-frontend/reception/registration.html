@@ -157,16 +157,34 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("reception"); initLayout(); loadPageData();
 });
-const EXISTING = ["Abel Mekonnen (P-1001)","Hana Wolde (P-1002)","Dawit Kebede (P-1003)","Selam Tadesse (P-1004)","Biruk Ayele (P-1005)","Ruth Gebre (P-1006)","Tewodros Haile (P-1007)","Mahlet Shiferaw (P-1008)","Yohannes Mamo (P-1009)","Kidist Assefa (P-1010)"];
 function loadPageData() {
   document.getElementById("retSearch").addEventListener("input", debounce(e => {
     const q = e.target.value.trim().toLowerCase();
     const box = document.getElementById("retResult");
     if (!q) { box.innerHTML = ""; return; }
-    const hits = EXISTING.filter(n => n.toLowerCase().includes(q));
-    box.innerHTML = hits.length ? `<div class="feed">${hits.map(h => `<div class="feed-item"><div class="tile-primary feed-icon">${ICONS.users}</div>
-      <div class="feed-text"><strong>${esc(h)}</strong> — returning patient record found<div class="feed-time"><a href="#" onclick="event.preventDefault();showToast('Opened existing record','info')">View record</a></div></div></div>`).join("")}</div>`
-      : '<div class="alert alert-warning mb-0">No existing record — complete the form to register a new patient.</div>';
+    const ready = (typeof loadRegisteredPatients === "function") ? loadRegisteredPatients() : Promise.resolve([]);
+    ready.then(function (rows) {
+      const hits = (rows || []).filter(function (p) {
+        const name = [p.first_name, p.last_name].filter(Boolean).join(" ");
+        return (name + " " + (p.id || "") + " " + (p.phone || "")).toLowerCase().indexOf(q) >= 0;
+      }).slice(0, 8);
+      box.innerHTML = hits.length ? '<div class="feed">' + hits.map(function (p) {
+        const name = [p.first_name, p.last_name].filter(Boolean).join(" ");
+        return '<div class="feed-item"><div class="tile-primary feed-icon">' + ICONS.users + '</div><div class="feed-text"><strong>' + esc(name) + '</strong> — ' + esc(p.id || "registered") + (p.phone ? " · " + esc(p.phone) : "") + '<div class="feed-time"><a href="#" data-use-patient="' + esc(p.id || "") + '">Use this patient</a></div></div></div>';
+      }).join("") + "</div>"
+        : '<div class="alert alert-warning mb-0">No existing record — complete the form to register a new patient.</div>';
+      box.querySelectorAll("[data-use-patient]").forEach(function (link) {
+        link.onclick = function (ev) {
+          ev.preventDefault();
+          const row = hits.find(function (p) { return String(p.id) === link.getAttribute("data-use-patient"); });
+          if (!row) return;
+          document.getElementById("rF").value = row.first_name || "";
+          document.getElementById("rL").value = row.last_name || "";
+          if (row.phone) document.getElementById("rP").value = row.phone;
+          showToast("Registered patient filled in", "info");
+        };
+      });
+    });
   }, 250));
   document.getElementById("btnReg").addEventListener("click", register);
 }
@@ -186,7 +204,9 @@ function register() {
     emergency: document.getElementById("rEc").value.trim(),
     status: "active"
   };
-  persistInsert(CONFIG.ENDPOINTS.PATIENTS, row);
+  persistInsert(CONFIG.ENDPOINTS.PATIENTS, row).then(function () {
+    if (window.refreshRegisteredPatients) window.refreshRegisteredPatients();
+  });
   document.getElementById("regResult").innerHTML = `<section class="card mt-4">
     <div class="severity-card severity-safe"><div class="flex" style="gap:10px"><span>${ICONS.check}</span>
       <div><strong style="font-size:16px">Patient registered successfully!</strong></div></div></div>
