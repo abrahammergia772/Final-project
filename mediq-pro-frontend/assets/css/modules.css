@@ -8,10 +8,14 @@
 /* ---------- Calmer data tables ---------- */
 .data-table thead th {
   background: var(--table-head);
-  color: var(--text-strong);
+  color: #CCD0CF;
   border-bottom: 2px solid var(--border);
   letter-spacing: 0.04em;
   font-weight: 700;
+}
+.data-table thead th a,
+.data-table thead th button {
+  color: inherit;
 }
 .data-table thead th.sortable:hover,
 .data-table thead th.sorted {

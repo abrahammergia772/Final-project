@@ -90,7 +90,7 @@
 }
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.09);
-  color: var(--white);
+  color: #CCD0CF;
   text-decoration: none;
 }
 .nav-link.active {

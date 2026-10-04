@@ -93,6 +93,38 @@ button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; }
 
 h1, h2, h3, h4 { font-weight: 700; color: var(--dark); }
+
+/* Day mode: dark bars use light writing. Never near-black text on a near-black surface. */
+html:not([data-theme="dark"]) .sidebar,
+html:not([data-theme="dark"]) .welcome-banner,
+html:not([data-theme="dark"]) .login-hero,
+html:not([data-theme="dark"]) .queue-now,
+html:not([data-theme="dark"]) .id-card .idc-top,
+html:not([data-theme="dark"]) .chat-msg.user,
+html:not([data-theme="dark"]) .btn-primary,
+html:not([data-theme="dark"]) .lang-opt.active,
+html:not([data-theme="dark"]) .chip.selected,
+html:not([data-theme="dark"]) .pagination .page-btn.active,
+html:not([data-theme="dark"]) .data-table thead th {
+  --dark: #CCD0CF;
+  --text-strong: #CCD0CF;
+}
+html:not([data-theme="dark"]) .sidebar a,
+html:not([data-theme="dark"]) .login-hero a,
+html:not([data-theme="dark"]) .queue-now a,
+html:not([data-theme="dark"]) .chat-msg.user a,
+html:not([data-theme="dark"]) .welcome-banner h1,
+html:not([data-theme="dark"]) .welcome-banner h2,
+html:not([data-theme="dark"]) .welcome-banner h3,
+html:not([data-theme="dark"]) .welcome-banner p,
+html:not([data-theme="dark"]) .welcome-banner a:not(.btn),
+html:not([data-theme="dark"]) .login-hero h1,
+html:not([data-theme="dark"]) .login-hero h2,
+html:not([data-theme="dark"]) .login-hero p,
+html:not([data-theme="dark"]) .btn-primary,
+html:not([data-theme="dark"]) .btn-primary:hover {
+  color: #CCD0CF;
+}
 h1 { font-size: 28px; }
 h2 { font-size: 22px; font-weight: 600; }
 h3 { font-size: 18px; font-weight: 600; }
