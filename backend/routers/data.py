@@ -275,7 +275,7 @@ def sent_messages(user=Depends(current_user)):
 
 
 def _clean_name(*parts) -> str:
-    return " ".join(str(part or "").split())
+    return " ".join(" ".join(str(part or "") for part in parts).split())
 
 
 def _remember_person(people: dict, row_id, name, phone, email) -> None:
