@@ -44,6 +44,7 @@ SYMPTOM_HINTS = (
 ASSISTANT_FALLBACK = (
     "I am the Wolaita Sodo Hospital assistant. I can help with appointments, "
     "departments, the laboratory, pharmacy, bills, your health card, and messages. "
+    "Open Appointments to book. Open Messages to reach Front Desk, Pharmacy, or Laboratory. "
     "If you feel unwell, describe your symptoms and I will check possible conditions. "
     "I only answer questions about this hospital."
 )

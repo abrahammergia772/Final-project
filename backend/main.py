@@ -81,7 +81,7 @@ async def lifespan(app: FastAPI):
     _log_memory("shutdown")
 
 
-app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.7", lifespan=lifespan)
+app = FastAPI(title="Wolaita Sodo Hospital API", version="2.0.8", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -97,7 +97,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.7",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.8",
             "groq": groq_configured(),
             "low_memory": LOW_MEMORY,
             "lazy_load": LAZY_LOAD,
@@ -107,7 +107,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.7", "groq": groq_configured(),
+    return {"status": "ok", "version": "2.0.8", "groq": groq_configured(),
             "groq_model": groq_model_name() if groq_configured() else "",
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}
 
