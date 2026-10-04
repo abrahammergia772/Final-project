@@ -35,7 +35,8 @@ function saveSession(data) {
     user_id: data.user_id,
     name: data.name,
     email: data.email || "",
-    health_card: data.health_card || ""
+    health_card: data.health_card || "",
+    portal: data.portal || ""
   }));
 }
 
@@ -90,13 +91,20 @@ function getRoleLabel(role) {
 }
 
 // ---------- Login ----------
-async function login(email, password) {
-  const res = await apiFetch(CONFIG.ENDPOINTS.LOGIN, "POST", { email, password }, { skipAuth: true });
-  if (res.ok) {
-    saveSession({ token: res.data.token, role: res.data.role, user_id: res.data.user_id, name: res.data.name, email: res.data.email || email, health_card: res.data.health_card && res.data.health_card.id });
-    return { ok: true, session: getSession() };
+async function login(email, password, portal) {
+  const body = { email: email, password: password };
+  if (portal) body.portal = portal;
+  const res = await apiFetch(CONFIG.ENDPOINTS.LOGIN, "POST", body, { skipAuth: true });
+  if (!res.ok) return { ok: false, error: res.error || "Invalid email or password." };
+  const role = res.data && res.data.role;
+  if (portal === "admin" && role !== "admin") {
+    return { ok: false, error: "This portal is for administrators only. Use the main login for other roles." };
   }
-  return { ok: false, error: res.error || "Invalid email or password." };
+  if (portal !== "admin" && role === "admin") {
+    return { ok: false, error: "Administrators sign in only through the administrator portal." };
+  }
+  saveSession({ token: res.data.token, role: role, user_id: res.data.user_id, name: res.data.name, email: res.data.email || email, health_card: res.data.health_card && res.data.health_card.id, portal: portal || "" });
+  return { ok: true, session: getSession() };
 }
 
 // ---------- Session protection ----------
@@ -126,6 +134,11 @@ function checkRoleAccess(requiredRole) {
     window.location.href = basePath() + "index.html";
     return false;
   }
+  if (role === "admin" && getSession().portal !== "admin") {
+    clearSession();
+    window.location.href = basePath() + "admin-login.html";
+    return false;
+  }
   if (role !== requiredRole) {
     showToast("Access denied — redirecting to your dashboard", "error");
     if (window.SPA && window.SPA.mode) {
@@ -139,55 +152,172 @@ function checkRoleAccess(requiredRole) {
 }
 
 function logout() {
+  const role = getUserRole();
   clearSession();
   showToast("Logged out successfully", "info");
-  if (window.SPA && window.SPA.mode) {
+  const dest = basePath() + (role === "admin" ? "admin-login.html" : "index.html");
+  if (window.SPA && window.SPA.mode && role !== "admin") {
     setTimeout(() => window.SPA.showLogin(), 400);
   } else {
-    setTimeout(() => { window.location.href = basePath() + "index.html"; }, 400);
+    setTimeout(() => { window.location.href = dest; }, 400);
   }
 }
 
 // ---------- Permissions (tab access per role) ----------
-// Admin grants/revokes from Roles & Permissions; changes are stored here and
-// each role page applies them when the sidebar renders — so a granted tab
-// appears automatically, a revoked one disappears.
+// Saved by the administrator in Supabase. A turned-off permission hides the
+// page and the API refuses the related action. Defaults apply until a row exists.
 let _permCache = null;
-let _permRequested = false;
+let _permReady = false;
+let _permState = "";
+let _permPromise = null;
+const PERM_UNLOCKS = {
+  users: ["users"], announcements: ["announcements"], audit: ["audit_logs"],
+  shifts: ["shifts", "roster", "attendance"], documents: ["documents"], records: ["documents"],
+  patients: ["patients"], registration: ["patients"], wards: ["beds"], beds: ["beds"], admissions: ["beds"],
+  bedrequests: ["bed_requests"], messages: ["messages"], departments: ["departments"], staff: ["staff"],
+  finance: ["finance"], complaints: ["complaints"], prescriptions: ["prescriptions"], appointments: ["appointments"],
+  referrals: ["referrals"], theatre: ["theatre_cases"], imaging: ["imaging_studies"], videos: ["videos"],
+  vitals: ["vitals"], observations: ["observations"], medications: ["medications"], careplans: ["care_plans"],
+  inventory: ["inventory"], suppliers: ["suppliers", "purchase_orders"], testrequests: ["lab_requests"],
+  samples: ["samples"], bloodbank: ["blood_units"], results: ["lab_results"], insurance: ["insurance"],
+  queue: ["queue"], ambulance: ["ambulances", "ambulance_missions"], billing: ["cashier_invoices", "bills"],
+  bills: ["bills", "cashier_invoices"]
+};
+
 function seedPermissions() {
-  if (!_permCache) _permCache = JSON.parse(JSON.stringify(CONFIG.PERMISSIONS));
-  if (_permRequested || typeof apiFetch !== "function") return;
-  _permRequested = true;
-  apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS).then(function (res) {
-    if (!res.ok) return;
-    const row = (res.data.items || []).find(function (item) { return item.id === "permissions"; });
-    if (row && row.value) {
-      _permCache = row.value;
-      markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
-      applyPermissions();
+  if (_permPromise) return _permPromise;
+  if (typeof apiFetch !== "function") {
+    _permReady = true;
+    _permState = "defaults";
+    return Promise.resolve(loadPermissions());
+  }
+  _permPromise = apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS).then(function (res) {
+    if (res && res.ok) {
+      const items = (res.data && res.data.items) || [];
+      const row = items.find(function (item) { return item && item.id === "permissions"; });
+      let value = row && row.value;
+      if (typeof value === "string") {
+        try { value = JSON.parse(value); } catch (e) { value = null; }
+      }
+      if (value && typeof value === "object") {
+        _permCache = value;
+        _permState = "saved";
+        if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
+      } else {
+        _permCache = null;
+        _permState = "defaults";
+      }
+    } else {
+      _permCache = null;
+      _permState = "error";
     }
+    _permReady = true;
+    if (typeof applyPermissions === "function") applyPermissions();
+    if (typeof enforceCurrentPage === "function") enforceCurrentPage();
+    return loadPermissions();
+  }).catch(function () {
+    _permCache = null;
+    _permState = "error";
+    _permReady = true;
+    if (typeof applyPermissions === "function") applyPermissions();
+    return loadPermissions();
   });
+  return _permPromise;
 }
 
 function loadPermissions() {
-  return _permCache || CONFIG.PERMISSIONS;
+  return (_permCache && typeof _permCache === "object") ? _permCache : CONFIG.PERMISSIONS;
 }
 
-// canAccess(role, permKey) — true when the tab should be visible
+function granted(role, key) {
+  if (role === "admin" && key === "roles") return true;
+  const savedRole = _permCache && _permCache[role];
+  if (savedRole && Object.prototype.hasOwnProperty.call(savedRole, key)) {
+    return savedRole[key] === 1 || savedRole[key] === true;
+  }
+  const defaults = (CONFIG.PERMISSIONS && CONFIG.PERMISSIONS[role]) || {};
+  return defaults[key] === 1;
+}
+
 function canAccess(role, permKey) {
-  if (!permKey || !role) return true;
-  const map = loadPermissions()[role] || CONFIG.PERMISSIONS[role] || {};
-  return map[permKey] === 1;
+  if (!permKey) return true;
+  if (!role) return false;
+  if (!_permReady) return false;
+  return granted(role, permKey);
+}
+
+function resourceAllowed(role, resource) {
+  if (!resource || resource === "app_settings" || resource === "notifications") return true;
+  const defaults = (CONFIG.PERMISSIONS && CONFIG.PERMISSIONS[role]) || {};
+  const savedRole = _permCache && _permCache[role];
+  const known = {};
+  Object.keys(defaults).forEach(function (key) { known[key] = 1; });
+  if (savedRole) Object.keys(savedRole).forEach(function (key) { known[key] = 1; });
+  const governors = Object.keys(known).filter(function (key) {
+    return (PERM_UNLOCKS[key] || []).indexOf(resource) >= 0;
+  });
+  if (!governors.length) return true;
+  return governors.some(function (key) { return granted(role, key); });
+}
+
+function endpointAllowed(endpoint) {
+  if (!_permReady || !getUserRole()) return true;
+  const role = getUserRole();
+  const path = String(endpoint || "").split("?")[0];
+  if (path.indexOf("/auth/") === 0) {
+    if (path.indexOf("/auth/health-card") === 0) return canAccess(role, "healthcard");
+    return true;
+  }
+  if (path.indexOf("/ai/") === 0) return canAccess(role, "ai");
+  const resource = path.replace(/^\//, "").split("/")[0];
+  return resourceAllowed(role, resource);
+}
+
+function pageFileOf(path) {
+  return String(path || "").split("?")[0].split("#")[0].split("/").pop();
+}
+
+function permKeyFor(path) {
+  const file = pageFileOf(path);
+  if (!file || file === "dashboard.html" || file === "index.html") return "";
+  const role = getUserRole();
+  const map = (window.NAV_PERM_MAP || {})[role] || {};
+  if (map[file]) return map[file];
+  if (file === "messages.html") return "messages";
+  if (file === "settings.html") return "settings";
+  return "";
+}
+
+function pageAllowed(path) {
+  const key = permKeyFor(path);
+  if (!key || !_permReady) return true;
+  return canAccess(getUserRole(), key);
+}
+
+function permissionDeniedHtml() {
+  return '<div class="alert alert-danger" style="margin:16px"><div class="alert-body"><strong>Permission required.</strong> An administrator has not given your role access to this page.</div></div>';
 }
 
 function savePermissions(role, map) {
-  const all = Object.assign({}, loadPermissions());
+  if (_permState === "error") {
+    return Promise.resolve({ ok: false, error: "Could not load saved permissions, so nothing was changed." });
+  }
+  const all = JSON.parse(JSON.stringify(loadPermissions()));
   all[role] = map;
-  _permCache = all;
   const row = { id: "permissions", value: all };
-  apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS, "POST", row).then(function (res) {
-    if (!res.ok) persistUpdate(CONFIG.ENDPOINTS.APP_SETTINGS, "permissions", { value: all });
-    else markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
+  function finish(res) {
+    if (res && res.ok) {
+      _permCache = all;
+      _permReady = true;
+      _permState = "saved";
+      if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.APP_SETTINGS, [row]);
+      if (typeof applyPermissions === "function") applyPermissions();
+    }
+    return res || { ok: false, error: "Could not save permissions" };
+  }
+  return apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS, "POST", row).then(function (res) {
+    if (res && res.ok) return finish(res);
+    return apiFetch(CONFIG.ENDPOINTS.APP_SETTINGS + "/permissions", "PUT", row).then(finish);
   });
 }
 

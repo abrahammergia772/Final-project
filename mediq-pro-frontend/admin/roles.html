@@ -24,7 +24,7 @@
 <header class="topbar" id="topbar" data-title="Roles & Permissions"></header>
 <section class="page-body">
 
-<div class="flex-between mb-4 wrap" style="gap:12px"><p class="page-intro" style="margin:0">Grant or revoke access to every tab per role. Changes apply <strong>automatically</strong> — the tab appears (or disappears) in that role's sidebar on their next load.</p>
+<div class="flex-between mb-4 wrap" style="gap:12px"><p class="page-intro" style="margin:0">Grant or revoke each page for a role. If you turn a permission off, that role cannot open the page or use it. Changes are saved to the hospital database.</p>
   <button class="btn btn-primary" id="btnAddRole"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg></span> Add Role</button></div>
 <div id="rolesGrid"></div>
 
@@ -127,25 +127,66 @@ const PAGE_LABELS = {
   patients:"Patient Records", consultation:"Consultation", prescriptions:"Prescriptions", appointments:"Appointments", referrals:"Referrals",
   vitals:"Vitals", observations:"Observations", medications:"Medications", careplans:"Care Plans",
   inventory:"Inventory", suppliers:"Suppliers & POs", testrequests:"Test Requests", samples:"Sample Tracking", results:"Lab Results",
-  registration:"Registration", insurance:"Insurance", queue:"Queue", records:"Medical Records", bills:"Bills", wards:"Wards & Beds", beds:"Wards & Beds", admissions:"Admissions & Beds", bloodbank:"Blood Bank", ambulance:"Ambulance Dispatch", billing:"Cashier", theatre:"Operating Theatre", imaging:"Imaging", bedrequests:"Bed requests"
+  registration:"Registration", insurance:"Insurance", queue:"Queue", records:"Medical Records", bills:"Bills", wards:"Wards & Beds", beds:"Wards & Beds", admissions:"Admissions & Beds", bloodbank:"Blood Bank", ambulance:"Ambulance Dispatch", billing:"Cashier", theatre:"Operating Theatre", imaging:"Imaging", bedrequests:"Bed requests",
+  shifts:"Shifts & Attendance", documents:"Documents", videos:"Health Videos", healthcard:"Health Card", complaints:"Complaints"
 };
 const ROLE_ICONS = { admin:"shield", manager:"chart", doctor:"stethoscope", nurse:"heart", pharmacist:"pill", laboratory:"flask", reception:"users", patient:"user-check" };
 
-function loadPageData() { renderRoles(); }
+function loadPageData() {
+  const grid = document.getElementById("rolesGrid");
+  if (grid) grid.innerHTML = '<p class="text-sm" style="color:#6B7280">Loading saved permissions…</p>';
+  const ready = (typeof seedPermissions === "function") ? seedPermissions() : Promise.resolve();
+  ready.then(function () { renderRoles(); });
+}
+function roleList() {
+  const names = Object.keys(CONFIG.PERMISSIONS);
+  if (typeof _permCache !== "undefined" && _permCache) {
+    Object.keys(_permCache).forEach(function (role) {
+      if (names.indexOf(role) < 0) names.push(role);
+    });
+  }
+  return names;
+}
+function roleKeys(role) {
+  const keys = {};
+  const defaults = CONFIG.PERMISSIONS[role] || {};
+  Object.keys(defaults).forEach(function (key) { keys[key] = 1; });
+  const nav = (window.NAV_PERM_MAP && window.NAV_PERM_MAP[role]) || {};
+  Object.keys(nav).forEach(function (file) { if (nav[file]) keys[nav[file]] = 1; });
+  keys.messages = 1;
+  keys.settings = 1;
+  if (role === "admin") keys.roles = 1;
+  return Object.keys(keys);
+}
 function permsOf(role) {
-  try { const all = JSON.parse(Store.get("mediq_pro_permissions") || "{}"); return all[role] || CONFIG.PERMISSIONS[role] || {}; }
-  catch (e) { return CONFIG.PERMISSIONS[role] || {}; }
+  const out = {};
+  roleKeys(role).forEach(function (key) {
+    out[key] = (typeof granted === "function" && granted(role, key)) ? 1 : 0;
+  });
+  return out;
+}
+function defaultMap(role) {
+  const map = {};
+  roleKeys(role).forEach(function (key) {
+    map[key] = (CONFIG.PERMISSIONS[role] && CONFIG.PERMISSIONS[role][key] === 1) ? 1 : 0;
+  });
+  if (role === "admin") map.roles = 1;
+  return map;
 }
 function renderRoles() {
-  document.getElementById("rolesGrid").innerHTML = `<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
-    ${Object.keys(CONFIG.PERMISSIONS).map(role => {
+  const blocked = (typeof _permState !== "undefined" && _permState === "error");
+  document.getElementById("rolesGrid").innerHTML = (blocked ? '<div class="alert alert-danger mb-3"><div class="alert-body"><strong>Saved permissions could not be loaded.</strong> Saving is locked so the current rules are not overwritten.</div></div>' : '') + `<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+    ${roleList().map(role => {
       const perms = permsOf(role);
-      const toggles = Object.keys(perms).map(key => `
+      const toggles = Object.keys(perms).map(key => {
+        const locked = role === "admin" && key === "roles";
+        return `
         <div class="flex-between" style="padding:8px 0;border-bottom:1px dashed #E5E7EB">
           <div><div style="font-weight:600;font-size:13px">${PAGE_LABELS[key] || key}</div>
-          <div class="text-sm" style="color:#9CA3AF;font-size:11px">${esc(key)}</div></div>
-          <label class="toggle"><input type="checkbox" data-role="${role}" data-perm="${key}" ${perms[key] ? "checked" : ""}><span class="track"></span></label>
-        </div>`).join("");
+          <div class="text-sm" style="color:#9CA3AF;font-size:11px">${locked ? "Always on for administrators" : esc(key)}</div></div>
+          <label class="toggle"><input type="checkbox" data-role="${role}" data-perm="${key}" ${perms[key] ? "checked" : ""} ${locked ? "disabled" : ""}><span class="track"></span></label>
+        </div>`;
+      }).join("");
       return `<div class="card" style="display:flex;flex-direction:column;gap:6px">
         <div class="flex-between">
           <div class="flex" style="gap:12px"><div class="stat-icon">${ICONS[ROLE_ICONS[role]]}</div>
@@ -155,8 +196,8 @@ function renderRoles() {
         <div class="divider" style="margin:6px 0"></div>
         <div>${toggles}</div>
         <div class="flex gap-3 mt-3" style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" data-save="${role}">${ICONS.check} Save Permissions</button>
-          <button class="btn btn-secondary btn-sm" data-reset="${role}">Reset</button>
+          <button class="btn btn-primary btn-sm" data-save="${role}" ${blocked ? "disabled" : ""}>${ICONS.check} Save Permissions</button>
+          <button class="btn btn-secondary btn-sm" data-reset="${role}" ${blocked ? "disabled" : ""}>Reset</button>
         </div>
       </div>`;
     }).join("")}
@@ -165,15 +206,24 @@ function renderRoles() {
     const role = b.dataset.save;
     const map = {};
     document.querySelectorAll(`input[data-role="${role}"]`).forEach(cb => { map[cb.dataset.perm] = cb.checked ? 1 : 0; });
-    savePermissions(role, map);
-    renderRoles();
-    showToast("Permissions saved — " + ROLE_NAMES[role] + " sees granted tabs automatically", "success");
+    if (role === "admin") map.roles = 1;
+    b.disabled = true;
+    savePermissions(role, map).then(function (res) {
+      b.disabled = false;
+      if (!res || !res.ok) { showToast((res && res.error) || "Could not save permissions", "error"); return; }
+      renderRoles();
+      showToast("Permissions saved. " + (ROLE_NAMES[role] || role) + " can use only the granted pages.", "success");
+    });
   }));
   document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click", () => {
     const role = b.dataset.reset;
-    savePermissions(role, JSON.parse(JSON.stringify(CONFIG.PERMISSIONS[role])));
-    renderRoles();
-    showToast("Permissions reset to defaults for " + ROLE_NAMES[role], "info");
+    b.disabled = true;
+    savePermissions(role, defaultMap(role)).then(function (res) {
+      b.disabled = false;
+      if (!res || !res.ok) { showToast((res && res.error) || "Could not reset permissions", "error"); return; }
+      renderRoles();
+      showToast("Permissions reset to defaults for " + (ROLE_NAMES[role] || role), "info");
+    });
   }));
 }
 document.getElementById("btnAddRole").addEventListener("click", () => {
@@ -191,8 +241,10 @@ document.getElementById("btnAddRole").addEventListener("click", () => {
       if (CONFIG.PERMISSIONS[n]) { showToast("Role already exists", "warning"); return; }
       CONFIG.PERMISSIONS[n] = {};
       ROLE_NAMES[n] = n; ROLE_ICONS[n] = "shield";
-      savePermissions(n, {});
-      renderRoles(); ov.remove(); showToast("Role created — grant tabs to enable access", "success");
+      savePermissions(n, {}).then(function (res) {
+        if (!res || !res.ok) { delete CONFIG.PERMISSIONS[n]; showToast((res && res.error) || "Could not create the role", "error"); return; }
+        renderRoles(); ov.remove(); showToast("Role created — grant pages to enable access", "success");
+      });
     };
   }});
 });

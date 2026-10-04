@@ -618,8 +618,24 @@ function applyPermissions() {
   if (!role) return;
   seedPermissions();
   document.querySelectorAll(".nav-link[data-perm], .taskbar-link[data-perm]").forEach(a => {
-    if (!canAccess(role, a.dataset.perm)) a.classList.add("hidden");
+    a.classList.toggle("hidden", !canAccess(role, a.dataset.perm));
   });
+  document.querySelectorAll(".nav-section-label").forEach(function (label) {
+    let sib = label.nextElementSibling;
+    let any = false;
+    while (sib && !sib.classList.contains("nav-section-label")) {
+      if (sib.classList.contains("nav-link") && !sib.classList.contains("hidden")) any = true;
+      sib = sib.nextElementSibling;
+    }
+    label.classList.toggle("hidden", !any);
+  });
+}
+
+function enforceCurrentPage() {
+  if (window.SPA && window.SPA.mode) return;
+  if (typeof pageAllowed !== "function" || pageAllowed(location.pathname)) return;
+  const body = document.querySelector(".page-body");
+  if (body) body.innerHTML = permissionDeniedHtml();
 }
 
 // ---------- Live notifications (topbar bell) ----------

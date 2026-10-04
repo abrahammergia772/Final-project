@@ -156,7 +156,9 @@
     });
     out.push({ href: "messages.html", label: "Messages", icon: "mail", section: "MESSAGES" });
     out.push({ href: "settings.html", label: "Settings", icon: "settings", section: "ACCOUNT" });
-    return out;
+    return out.filter(function (item) {
+      return typeof pageAllowed !== "function" || pageAllowed(item.href);
+    });
   }
 
   function ensurePalette() {

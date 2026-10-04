@@ -23,6 +23,7 @@ log = logging.getLogger("mediq.auth")
 class LoginRequest(BaseModel):
     email: str
     password: str
+    portal: str = ""
 
 
 class SignupRequest(BaseModel):
@@ -87,6 +88,11 @@ def login(req: LoginRequest):
         raise HTTPException(status_code=403, detail="Account is not active")
     _FAILS.pop(email, None)
     role = row.get("role", "patient")
+    portal = (req.portal or "").strip().lower()
+    if role == "admin" and portal != "admin":
+        raise HTTPException(status_code=403, detail="Administrators sign in only through the administrator portal.")
+    if portal == "admin" and role != "admin":
+        raise HTTPException(status_code=403, detail="This portal is for administrators only. Use the main login for other roles.")
     card = _ensure_patient_card(client, row.get("id"), role)
     out = {
         "token": _token_for(row.get("id"), role, email, row.get("name") or email),
@@ -341,6 +347,8 @@ def update_profile(req: ProfileUpdate, user=Depends(current_user)):
 def health_card(user=Depends(current_user)):
     if user.get("role") != "patient":
         raise HTTPException(status_code=403, detail="Health cards are issued to patient accounts")
+    from permissions import assert_key
+    assert_key(user, "healthcard")
     client = get_client()
     if client is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")

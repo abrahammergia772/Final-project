@@ -84,6 +84,15 @@ window.SPA = { mode: true, current: "" };
     SPA.loading = path;
     showLoading("Loading…");
     try {
+      if (typeof seedPermissions === "function") await seedPermissions();
+      if (typeof pageAllowed === "function" && !pageAllowed(path)) {
+        SPA.current = path.split("?")[0].split("#")[0];
+        markActive(SPA.current);
+        const tt = $("#topbarTitle");
+        if (tt) tt.textContent = "Permission required";
+        $("#spaBody").innerHTML = typeof permissionDeniedHtml === "function" ? permissionDeniedHtml() : "Permission required.";
+        return;
+      }
       const res = await fetch(path, { cache: "no-store" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const html = await res.text();
@@ -122,6 +131,11 @@ window.SPA = { mode: true, current: "" };
   function enterApp() {
     const role = getUserRole();
     if (!role) return showLogin();
+    if (role === "admin" && (!getSession() || getSession().portal !== "admin")) {
+      clearSession();
+      window.location.replace("admin-login.html");
+      return;
+    }
     $("#loginView").classList.add("hidden");
     $("#appView").classList.remove("hidden");
     if (typeof window.buildShell === "function") window.buildShell(role);

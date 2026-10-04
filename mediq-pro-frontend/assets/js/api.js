@@ -11,6 +11,11 @@ async function apiFetch(endpoint, method = "GET", body = null, opts = {}) {
   if (!opts.skipAuth && session && session.token) {
     headers["Authorization"] = "Bearer " + session.token;
   }
+  if (!opts.skipAuth && typeof endpointAllowed === "function" && !endpointAllowed(endpoint)) {
+    const denied = "An administrator has not given your role permission for this.";
+    showToast(denied, "error");
+    return { ok: false, status: 403, error: denied };
+  }
 
   try {
     const res = await fetch(CONFIG.API_BASE_URL + endpoint, {

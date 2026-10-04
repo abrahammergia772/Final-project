@@ -26,6 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS, CORS_ALLOW_ALL, MODEL_DOWNLOAD_URLS, LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY, SECRET_KEY
 import model_loader
+from permissions import require_permission
 from security import current_user
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data
 
@@ -126,7 +127,7 @@ def debug_memory(_user=Depends(current_user)):
 app.include_router(auth.router)
 # All data and AI routes require a signed application token. Auth routes above
 # remain public so users can sign in or request registration/reset.
-protected = {"dependencies": [Depends(current_user)]}
+protected = {"dependencies": [Depends(require_permission("ai"))]}
 app.include_router(clinical.router, **protected)
 app.include_router(interaction.router, **protected)
 app.include_router(lab.router, **protected)

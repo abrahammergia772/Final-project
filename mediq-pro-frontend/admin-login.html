@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function doLogin(email, password) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner sm white"></span> Signing in…';
-    const res = await login(email, password);
+    const res = await login(email, password, "admin");
     if (res.ok) {
       const role = getUserRole();
       if (role !== "admin") {

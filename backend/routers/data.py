@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 from youtube_search import search_youtube
 
 from db import list_rows, insert_row, update_row, delete_row, get_row
+from permissions import assert_resource
 from security import current_user
 
 router = APIRouter(tags=["Data"])
@@ -81,6 +82,7 @@ def _authorize(resource: str, user, write: bool = False):
         raise HTTPException(status_code=403, detail="You cannot change this resource")
     if write and user["role"] == "patient" and resource not in PATIENT_WRITE:
         raise HTTPException(status_code=403, detail="You cannot change this resource")
+    assert_resource(user, resource)
 
 
 def _owns(row: dict, user) -> bool:
@@ -123,6 +125,8 @@ def search_health_videos(body: VideoSearchBody, user=Depends(current_user)):
     """Search YouTube for health-education videos. Does not write a hospital record."""
     if "videos" not in ROLE_RESOURCES.get(user.get("role"), set()):
         raise HTTPException(status_code=403, detail="You do not have access to health videos")
+    from permissions import assert_key
+    assert_key(user, "videos")
     query = " ".join((body.query or "").split())
     if not query and body.conditions:
         query = " ".join(str(item).strip() for item in body.conditions if str(item).strip())
