@@ -354,7 +354,7 @@ window.I18N_AM = {
 /* ---------- Settings / account ---------- */
 "Profile Information": "የመገለጫ መረጃ",
 "Change Photo": "ፎቶ ቀይር",
-"PNG or JPG, max 2 MB": "PNG ወይም JPG፣ ቢበዛ 2 MB",
+"PNG or JPG, under 15 MB": "PNG ወይም JPG፣ ከ15 MB በታች",
 "Save Profile": "መገለጫ አስቀምጥ",
 "Password & Security": "የይለፍ ቃል እና ደህንነት",
 "Current Password": "አሁን ያለው የይለፍ ቃል",

@@ -190,7 +190,11 @@ function readUploadFile(file, maxBytes) {
   maxBytes = maxBytes || 1200000;
   return new Promise(function (resolve, reject) {
     if (!file) { resolve(null); return; }
-    if (file.size > maxBytes) { reject(new Error("File is too large. Use a file under 1.2 MB.")); return; }
+    if (file.size > maxBytes) {
+      var label = maxBytes >= 15 * 1024 * 1024 ? "15 MB" : "1.2 MB";
+      reject(new Error("File is too large. Use a file under " + label + "."));
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function () { resolve({ name: file.name, mime: file.type || "application/octet-stream", data: reader.result, size: file.size }); };
     reader.onerror = function () { reject(new Error("Could not read the file")); };

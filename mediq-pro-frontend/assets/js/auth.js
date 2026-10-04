@@ -393,7 +393,12 @@ function applyProfilePhoto(url) {
 function onProfilePhoto(input) {
   const file = input.files && input.files[0];
   if (!file) return;
-  readUploadFile(file, 300000).then(function (packed) {
+  if (file.size >= 15 * 1024 * 1024) {
+    showToast("Profile photo must be under 15 MB.", "error");
+    input.value = "";
+    return;
+  }
+  readUploadFile(file, 15 * 1024 * 1024).then(function (packed) {
     return apiFetch(CONFIG.ENDPOINTS.PROFILE, "POST", { details_patch: { profile: { avatar: packed.data } } });
   }).then(function (res) {
     if (!res || !res.ok) { showToast((res && res.error) || "Could not save the photo", "error"); return; }

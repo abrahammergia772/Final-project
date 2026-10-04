@@ -306,6 +306,18 @@ def _merge_dict(base: dict, patch: dict) -> dict:
     return out
 
 
+def _avatar_bytes(avatar: str) -> int:
+    """Decoded size of a data-URL or raw base64 profile photo."""
+    if not avatar:
+        return 0
+    payload = avatar.split(",", 1)[1] if "," in avatar[:80] else avatar
+    payload = payload.strip()
+    if not payload:
+        return 0
+    pad = 2 if payload.endswith("==") else 1 if payload.endswith("=") else 0
+    return max(0, (len(payload) * 3) // 4 - pad)
+
+
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
@@ -336,8 +348,8 @@ def update_profile(req: ProfileUpdate, user=Depends(current_user)):
     profile = req.details_patch.get("profile") if isinstance(req.details_patch.get("profile"), dict) else {}
     if profile:
         avatar = str(profile.get("avatar") or "")
-    if len(avatar) > 500_000:
-        raise HTTPException(status_code=413, detail="Profile photo is too large. Use an image under 300 KB.")
+    if _avatar_bytes(avatar) >= 15 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Profile photo is too large. Use an image under 15 MB.")
     email = str(current.get("email") or "").strip().lower() if req.email is None else req.email.strip().lower()
     if email and email != str(current.get("email") or "").strip().lower():
         try:
