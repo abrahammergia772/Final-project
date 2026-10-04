@@ -13,6 +13,7 @@ import numpy as np
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
+from groq_client import chat_reply
 from model_loader import load_module, load_config, blend, MODELS_DIR
 
 router = APIRouter(tags=["AI · Chatbot"])
@@ -117,9 +118,13 @@ def symptom_chat(req: ChatRequest):
         follow = list(follow.values())[0]
     fallback_reply = "Based on the symptoms you described, I found some possible conditions. This is not a medical diagnosis — please consult a clinician."
     history = [{"role": turn.role, "content": turn.content} for turn in (req.history or [])]
-    reply, follow_up, explained_by = chat_reply(
-        req.message, conditions[:3], urgency, action, history, fallback_reply, str(follow)
-    )
+    try:
+        reply, follow_up, explained_by = chat_reply(
+            req.message, conditions[:3], urgency, action, history, fallback_reply, str(follow)
+        )
+    except Exception as exc:  # noqa: BLE001
+        log.warning("chatbot explanation failed: %s", type(exc).__name__)
+        reply, follow_up, explained_by = fallback_reply, str(follow), "local"
 
     return {
         "reply": reply,
