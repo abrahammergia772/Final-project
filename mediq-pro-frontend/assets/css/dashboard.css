@@ -11,6 +11,10 @@
   transition: margin-left 0.25s ease;
 }
 body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); }
+@media (min-width: 769px) {
+  body.nav-closed .main-content,
+  body.nav-closed.sidebar-collapsed .main-content { margin-left: 0; }
+}
 
 /* ---------- Topbar ---------- */
 .topbar {

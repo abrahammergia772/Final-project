@@ -529,6 +529,9 @@ function attachDataTable(table, opts = {}) {
 // work after the SPA shell rebuilds the sidebar/topbar on login. Safe to
 // call multiple times — the global listeners attach only once per page load.
 // Mobile menu open/close — keep body class + hamburger a11y state in sync
+function isMobileNav() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
 function syncNavToggle(open) {
   const h = document.getElementById("hamburger");
   const sidebar = document.getElementById("sidebar");
@@ -540,12 +543,26 @@ function syncNavToggle(open) {
   if (sidebar) sidebar.classList.toggle("sidebar--open", open);
 }
 function openMobileMenu() {
-  document.body.classList.add("mobile-menu-open");
+  document.body.classList.remove("nav-closed");
+  if (isMobileNav()) document.body.classList.add("mobile-menu-open");
+  else document.body.classList.remove("mobile-menu-open");
   syncNavToggle(true);
 }
 function closeMobileMenu() {
   document.body.classList.remove("mobile-menu-open");
+  if (!isMobileNav()) document.body.classList.add("nav-closed");
+  else document.body.classList.remove("nav-closed");
   syncNavToggle(false);
+}
+function initDesktopNav() {
+  if (!document.getElementById("sidebar")) return;
+  if (isMobileNav()) {
+    document.body.classList.remove("nav-closed");
+    return;
+  }
+  document.body.classList.remove("nav-closed");
+  document.body.classList.remove("mobile-menu-open");
+  syncNavToggle(true);
 }
 
 let _layoutDelegationDone = false;
@@ -558,7 +575,10 @@ function _bindLayoutDelegation() {
     const ham = e.target.closest("#hamburger");
     if (ham) {
       e.stopPropagation();
-      if (document.body.classList.contains("mobile-menu-open")) closeMobileMenu();
+      const open = isMobileNav()
+        ? document.body.classList.contains("mobile-menu-open")
+        : !document.body.classList.contains("nav-closed");
+      if (open) closeMobileMenu();
       else openMobileMenu();
       return;
     }
@@ -577,10 +597,10 @@ function _bindLayoutDelegation() {
     // Any link marked [data-close-menu] (e.g. sidebar nav items) → close mobile menu
     const closer = e.target.closest("[data-close-menu]");
     if (closer) {
-      closeMobileMenu();
+      if (isMobileNav()) closeMobileMenu();
       return;
     }
-    if (!document.body.classList.contains("mobile-menu-open")) return;
+    if (!isMobileNav() || !document.body.classList.contains("mobile-menu-open")) return;
     const sidebar = document.getElementById("sidebar");
     if (sidebar && sidebar.contains(e.target)) return;
     closeMobileMenu();
@@ -604,7 +624,11 @@ function _bindLayoutDelegation() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       document.querySelectorAll(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
-      closeMobileMenu();
+      if (isMobileNav()) closeMobileMenu();
+      else {
+        document.body.classList.add("nav-closed");
+        syncNavToggle(false);
+      }
     }
   });
 }
@@ -617,6 +641,24 @@ function initLayout() {
   // Attach global delegated listeners once — they keep working across SPA
   // page swaps and across login/logout shell rebuilds.
   _bindLayoutDelegation();
+  initDesktopNav();
+  if (!window._navResizeBound) {
+    window._navResizeBound = true;
+    let wasMobile = isMobileNav();
+    window.addEventListener("resize", function () {
+      const mobile = isMobileNav();
+      if (mobile === wasMobile) return;
+      wasMobile = mobile;
+      if (mobile) {
+        document.body.classList.remove("nav-closed");
+        closeMobileMenu();
+      } else {
+        document.body.classList.remove("mobile-menu-open");
+        document.body.classList.remove("nav-closed");
+        syncNavToggle(true);
+      }
+    });
+  }
   // The shell rebuilds the bell, so refresh whenever the layout is ready.
   if (typeof refreshNotifications === "function") refreshNotifications();
   initPatientSuggest();

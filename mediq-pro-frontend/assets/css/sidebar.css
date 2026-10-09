@@ -208,7 +208,7 @@ body.mobile-menu-open .mobile-overlay { opacity: 1; pointer-events: auto; }
 
 .hamburger,
 .nav-toggle {
-  display: none;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 40px;
@@ -286,6 +286,14 @@ body.mobile-menu-open .hamburger .bar:nth-child(3) {
   .sidebar.sidebar--open,
   body.mobile-menu-open .sidebar { transform: translateX(0); }
   .role-taskbar { left: 0; }
+}
+
+@media (min-width: 769px) {
+  body.nav-closed .sidebar { transform: translateX(-100%); }
+  body.nav-closed .role-taskbar,
+  body.nav-closed.sidebar-collapsed .role-taskbar { left: 0; }
+  body.nav-closed .mobile-overlay,
+  body.mobile-menu-open .mobile-overlay { opacity: 0; pointer-events: none; }
 }
 
 /* ---------- Bottom taskbar (daily actions for every role) ---------- */
