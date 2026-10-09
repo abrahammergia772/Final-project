@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=9" />
 <link rel="stylesheet" href="../assets/css/components.css?v=5" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=7" />
-<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=1" />
+<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=2" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
 
   <script src="../assets/js/theme.js"></script></head>
@@ -24,7 +24,241 @@
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Admin Dashboard"></header>
 <section class="page-body">
-<div id="flowDashboard" data-flow-role="admin"></div>
+<style>
+/* Timeline-first dashboard. Flat surfaces, no glass, no glow cards. */
+.flow-dash { display: flex; flex-direction: column; gap: 12px; max-width: 920px; }
+.flow-dash .section-label {
+  margin: 0 0 8px;
+  color: var(--gray);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+}
+.identity-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--white);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.identity-bar .hosp-name {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 16px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.identity-bar .hosp-name svg { width: 18px; height: 18px; flex-shrink: 0; }
+.identity-bar .hosp-sub { margin: 2px 0 0; color: var(--gray); font-size: 13px; }
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-strong);
+  font-size: 13px;
+  font-weight: 650;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #18BF75;
+  animation: flow-pulse 1.5s ease-out infinite;
+}
+@keyframes flow-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(24, 191, 117, 0.55); }
+  100% { box-shadow: 0 0 0 8px rgba(24, 191, 117, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+.flow-section, .timeline-section, .shift-card, .ai-card {
+  background: var(--white);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.flow-strip {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 2px 2px;
+}
+.flow-strip::-webkit-scrollbar { display: none; }
+.flow-strip::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  top: 26px;
+  height: 1px;
+  background: var(--border);
+}
+.flow-node:focus-visible, .ai-card:focus-visible {
+  outline: 2px solid var(--text-strong);
+  outline-offset: 2px;
+}
+.flow-node {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--text-strong);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+.flow-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 650;
+  position: relative;
+}
+.flow-node.done .flow-dot { background: #E1F5EE; color: #0F6E56; }
+.flow-node.active .flow-dot { background: #E1EFFA; color: #0F4D78; }
+.flow-node.urgent .flow-dot { background: #FCEBEB; color: #A32D2D; }
+.flow-node.wait .flow-dot { background: #EEF1F3; color: #4A5C6A; }
+.flow-name { font-size: 12px; line-height: 1.2; text-align: center; color: var(--text-strong); }
+.flow-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: #A32D2D;
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 700;
+}
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-tile {
+  background: #E8F4FF;
+  color: #1E293B;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat-val { font-size: 26px; font-weight: 500; line-height: 1.1; color: inherit; }
+.stat-lbl { color: #64748B; font-size: 13px; }
+.stat-delta { font-size: 12px; font-weight: 600; }
+.stat-delta.up { color: #0F6E56; }
+.stat-delta.dn { color: #A32D2D; }
+html[data-theme="dark"] .stat-tile { background: #253745; color: #CCD0CF; }
+html[data-theme="dark"] .stat-lbl { color: #9BA8AB; }
+html[data-theme="dark"] .stat-delta.up { color: #8FCBB0; }
+html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
+.timeline { display: flex; flex-direction: column; }
+.tl-item { position: relative; display: flex; gap: 10px; padding: 8px 0; }
+.tl-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 38px;
+  bottom: -8px;
+  width: 1px;
+  background: var(--border);
+}
+.tl-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.tl-dot svg { width: 16px; height: 16px; }
+.tl-dot.ai { background: #EEEDFE; color: #534AB7; }
+.tl-dot.ok { background: #E1F5EE; color: #0F6E56; }
+.tl-dot.warn { background: #FAEEDA; color: #854F0B; }
+.tl-dot.alert { background: #FCEBEB; color: #A32D2D; }
+.tl-body { flex: 1; min-width: 0; }
+.tl-top { display: flex; justify-content: space-between; gap: 8px; }
+.tl-title { color: var(--text-strong); font-weight: 650; font-size: 14px; }
+.tl-time { color: var(--gray); font-size: 11px; white-space: nowrap; }
+.tl-text { margin: 2px 0 6px; color: var(--gray); font-size: 13px; }
+.tl-chip {
+  display: inline-block;
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 650;
+}
+.tl-chip.urgent { background: #FAECE7; color: #993C1D; }
+.tl-chip.ai { background: #EEEDFE; color: #3C3489; }
+.tl-chip.normal { background: #E1F5EE; color: #085041; }
+.shift-header, .ai-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.shift-header span, .ai-name { color: var(--text-strong); font-weight: 650; font-size: 14px; }
+.shift-time { color: var(--gray); font-size: 12px; }
+.shift-track { display: flex; height: 28px; gap: 2px; margin-top: 10px; }
+.seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 650;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.seg-doctor { background: #E6F1FB; color: #185FA5; }
+.seg-nurse { background: #FAEEDA; color: #854F0B; }
+.seg-pharm { background: #EEEDFE; color: #3C3489; }
+.seg-off { background: #EEF1F3; color: #4A5C6A; }
+.shift-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; color: var(--gray); font-size: 12px; }
+.shift-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+.ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ai-card { text-align: left; cursor: pointer; font: inherit; width: 100%; }
+.ai-ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.ai-ico svg { width: 16px; height: 16px; }
+.ai-top { justify-content: flex-start; gap: 8px; }
+.ai-meta { margin-left: auto; text-align: right; }
+.ai-pct { color: var(--text-strong); font-weight: 700; font-size: 14px; }
+.ai-runs { color: var(--gray); font-size: 11px; }
+.ai-bar-track { height: 4px; background: #E8F4FF; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+html[data-theme="dark"] .ai-bar-track { background: #253745; }
+.ai-bar-fill { height: 100%; border-radius: 2px; }
+@media (max-width: 560px) {
+  .stat-row, .ai-grid { grid-template-columns: 1fr; }
+  .identity-bar { align-items: flex-start; }
+}
+
+</style>
+<div id="flowDashboard" data-flow-role="admin">
+<div class="flow-dash" data-flow-dash="1"><header class="identity-bar"><div><p class="hosp-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M12 7v4"/><path d="M10 9h4"/></svg><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p><p class="hosp-sub"><span data-i18n="Admin">Admin</span> · Friday, 9 Oct 2026 · <span data-i18n="Morning shift">Morning shift</span></p></div><span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></span></header><section aria-label="Today's patient flow"><p class="section-label" data-i18n="Hospital operations">Hospital operations</p><div class="flow-strip" role="list"><button type="button" class="flow-node done" role="listitem" data-prompt="Show Users patients" data-href="users.html"><span class="flow-dot">42</span><span class="flow-name" data-i18n="Users">Users</span></button><button type="button" class="flow-node active" role="listitem" data-prompt="Show Shifts patients" data-href="shifts.html"><span class="flow-dot">8</span><span class="flow-name" data-i18n="Shifts">Shifts</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Notices patients" data-href="announcements.html"><span class="flow-dot">3</span><span class="flow-name" data-i18n="Notices">Notices</span></button><button type="button" class="flow-node urgent" role="listitem" data-prompt="Show Audit patients" data-href="audit-logs.html"><span class="flow-dot">1<span class="flow-badge">1</span></span><span class="flow-name" data-i18n="Audit">Audit</span></button></div></section><div class="stat-row"><div class="stat-tile"><div class="stat-val">42</div><div class="stat-lbl" data-i18n="Staff accounts">Staff accounts</div><div class="stat-delta up" data-i18n="All roles active">All roles active</div></div><div class="stat-tile"><div class="stat-val">1</div><div class="stat-lbl" data-i18n="Audit flags">Audit flags</div><div class="stat-delta dn" data-i18n="Needs review">Needs review</div></div></div><section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed"><article class="tl-item"><div class="tl-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 4.3-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-2.7l-8-14a2 2 0 0 0-3.4 0z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Shift gap">Shift gap</div><time class="tl-time">5m ago</time></div><p class="tl-text">Evening pharmacy cover is still open</p><span class="tl-chip urgent" data-i18n="Shift">Shift</span></div></article><article class="tl-item"><div class="tl-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="User approved">User approved</div><time class="tl-time">16m ago</time></div><p class="tl-text">New nurse account is active</p><span class="tl-chip normal" data-i18n="Done">Done</span></div></article><article class="tl-item"><div class="tl-dot ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Module health">Module health</div><time class="tl-time">28m ago</time></div><p class="tl-text">All seven AI modules responded</p><span class="tl-chip ai" data-i18n="AI">AI</span></div></article></div></section><section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">08:00 – 16:00</span></div><div class="shift-track" role="img" aria-label="Shift coverage 3 Doctors, 2 Nurses, 2 Pharm, 1 Off"><div class="seg seg-doctor" style="flex:3">3 Doctors</div><div class="seg seg-nurse" style="flex:2">2 Nurses</div><div class="seg seg-pharm" style="flex:2">2 Pharm</div><div class="seg seg-off" style="flex:1">1 Off</div></div><div class="shift-legend"><span><i class="seg-doctor"></i>3 Doctors</span><span><i class="seg-nurse"></i>2 Nurses</span><span><i class="seg-pharm"></i>2 Pharm</span><span><i class="seg-off"></i>1 Off</span></div></section><section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid"><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Clinical decision details" data-href="ai-config.html"><div class="ai-top"><span class="ai-ico" style="background:#EEEDFE;color:#3C3489"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></span><span class="ai-name" data-i18n="Clinical decision">Clinical decision</span><span class="ai-meta"><span class="ai-pct">91%</span><div class="ai-runs">34 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:91%;background:#7F77DD"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Drug interaction details" data-href="ai-config.html"><div class="ai-top"><span class="ai-ico" style="background:#FAEEDA;color:#633806"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="m8.5 8.5 7 7"/></svg></span><span class="ai-name" data-i18n="Drug interaction">Drug interaction</span><span class="ai-meta"><span class="ai-pct">96%</span><div class="ai-runs">15 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:96%;background:#BA7517"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Lab analyzer details" data-href="ai-config.html"><div class="ai-top"><span class="ai-ico" style="background:#E1F5EE;color:#085041"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6"/><path d="M10 3v6.2L4.6 19a2 2 0 0 0 1.8 3h11.2a2 2 0 0 0 1.8-3L14 9.2V3"/></svg></span><span class="ai-name" data-i18n="Lab analyzer">Lab analyzer</span><span class="ai-meta"><span class="ai-pct">88%</span><div class="ai-runs">21 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:88%;background:#1D9E75"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Vitals alert details" data-href="ai-config.html"><div class="ai-top"><span class="ai-ico" style="background:#FCEBEB;color:#A32D2D"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></svg></span><span class="ai-name" data-i18n="Vitals alert">Vitals alert</span><span class="ai-meta"><span class="ai-pct">84%</span><div class="ai-runs">18 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:84%;background:#E24B4A"></div></div></button></div></section></div>
+</div>
 </section>
 </main>
 <div id="modalContainer"></div>
@@ -35,7 +269,7 @@
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/utils.js?v=9"></script>
-<script src="../assets/js/flow-dashboard.js?v=1"></script>
+<script src="../assets/js/flow-dashboard.js?v=2"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -119,7 +353,19 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("admin"); initLayout(); loadPageData();
 });
 function loadPageData() {
-  if (window.FlowDash) FlowDash.mount(document.getElementById("flowDashboard"));
+  var root = document.getElementById("flowDashboard");
+  if (window.FlowDash) {
+    FlowDash.mount(root);
+    return;
+  }
+  if (!root) return;
+  root.querySelectorAll("[data-prompt]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var text = el.getAttribute("data-prompt");
+      if (typeof sendPrompt === "function") sendPrompt(text);
+      else if (typeof showToast === "function") showToast(text, "info");
+    });
+  });
 }
 
 </script>

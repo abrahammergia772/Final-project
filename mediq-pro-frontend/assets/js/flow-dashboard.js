@@ -283,12 +283,26 @@
       '</div><div class="shift-legend">' + legend + "</div></section>" +
       '<section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid">' + ai + "</div></section></div>";
 
-    root.querySelectorAll("[data-prompt]").forEach(function (el) {
-      el.addEventListener("click", function () {
-        sendPrompt(el.getAttribute("data-prompt"));
+    if (root.querySelectorAll) {
+      root.querySelectorAll("[data-prompt]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          sendPrompt(el.getAttribute("data-prompt"));
+        });
       });
-    });
     }
+  }
 
-  window.FlowDash = { mount: mount, sendPrompt: sendPrompt };
+  window.FlowDash = {
+    mount: mount,
+    sendPrompt: sendPrompt,
+    html: function (role) {
+      var el = {
+        getAttribute: function (name) { return name === "data-flow-role" ? role : ""; },
+        innerHTML: "",
+        querySelectorAll: function () { return []; }
+      };
+      mount(el);
+      return el.innerHTML;
+    }
+  };
 })();
