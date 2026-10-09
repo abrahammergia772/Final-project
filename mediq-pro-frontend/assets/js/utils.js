@@ -529,15 +529,23 @@ function attachDataTable(table, opts = {}) {
 // work after the SPA shell rebuilds the sidebar/topbar on login. Safe to
 // call multiple times — the global listeners attach only once per page load.
 // Mobile menu open/close — keep body class + hamburger a11y state in sync
+function syncNavToggle(open) {
+  const h = document.getElementById("hamburger");
+  const sidebar = document.getElementById("sidebar");
+  if (h) {
+    h.classList.toggle("open", open);
+    h.setAttribute("aria-expanded", open ? "true" : "false");
+    h.setAttribute("aria-label", open ? "Close navigation menu" : "Open navigation menu");
+  }
+  if (sidebar) sidebar.classList.toggle("sidebar--open", open);
+}
 function openMobileMenu() {
   document.body.classList.add("mobile-menu-open");
-  const h = document.getElementById("hamburger");
-  if (h) { h.setAttribute("aria-label", "Close menu"); h.setAttribute("aria-expanded", "true"); }
+  syncNavToggle(true);
 }
 function closeMobileMenu() {
   document.body.classList.remove("mobile-menu-open");
-  const h = document.getElementById("hamburger");
-  if (h) { h.setAttribute("aria-label", "Open menu"); h.setAttribute("aria-expanded", "false"); }
+  syncNavToggle(false);
 }
 
 let _layoutDelegationDone = false;
@@ -550,7 +558,8 @@ function _bindLayoutDelegation() {
     const ham = e.target.closest("#hamburger");
     if (ham) {
       e.stopPropagation();
-      openMobileMenu();
+      if (document.body.classList.contains("mobile-menu-open")) closeMobileMenu();
+      else openMobileMenu();
       return;
     }
     // Collapse toggle (desktop sidebar)
@@ -569,7 +578,12 @@ function _bindLayoutDelegation() {
     const closer = e.target.closest("[data-close-menu]");
     if (closer) {
       closeMobileMenu();
+      return;
     }
+    if (!document.body.classList.contains("mobile-menu-open")) return;
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar && sidebar.contains(e.target)) return;
+    closeMobileMenu();
   });
 
   // Swipe-left on sidebar to close it (mobile nicety)

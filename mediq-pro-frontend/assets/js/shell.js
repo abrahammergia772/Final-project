@@ -75,8 +75,8 @@
     sb.innerHTML = html;
 
     var title = pageTitle();
-    var top = '<div class="topbar-left"><button class="hamburger" id="hamburger" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">' +
-      icon("menu") + '</button><h1 class="page-title" id="topbarTitle">' + title + "</h1></div>";
+    var top = '<div class="topbar-left"><button class="hamburger nav-toggle" id="hamburger" type="button" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">' +
+      '<span class="bar"></span><span class="bar"></span><span class="bar"></span></button><h1 class="page-title" id="topbarTitle">' + title + "</h1></div>";
     top += '<div class="topbar-right">';
     top += '<button class="icon-btn cmd-btn" id="cmdOpen" type="button" aria-label="Search pages" title="Search pages (Ctrl K)">' + icon("search") + "</button>";
     top += '<div class="topbar-search"><button type="button" class="search-trigger" id="searchTrigger" aria-label="Search pages">' +
