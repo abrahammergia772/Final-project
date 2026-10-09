@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=9" />
 <link rel="stylesheet" href="../assets/css/components.css?v=5" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=7" />
+<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=1" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
 
   <script src="../assets/js/theme.js"></script></head>
@@ -23,15 +24,7 @@
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Laboratory Dashboard"></header>
 <section class="page-body">
-
-<div class="stat-grid">
-  <div class="stat-card "><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></div><div><div class="stat-value">38</div><div class="stat-label">Tests Today</div><div class="stat-trend text-success">↗ +6 vs yesterday</div></div></div><div class="stat-card color-warning"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><div class="stat-value">7</div><div class="stat-label">Pending</div><div class="stat-trend text-danger">↘ 3 urgent</div></div></div><div class="stat-card color-success"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="stat-value">26</div><div class="stat-label">Completed</div><div class="stat-trend text-success">↗ 68% done</div></div></div><div class="stat-card color-danger"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><div><div class="stat-value">4</div><div class="stat-label">Abnormal Results</div><div class="stat-trend text-danger">↘ AI flagged</div></div></div>
-</div>
-<div class="panel-grid">
-  <div><section class="panel"><div class="panel-header"><div><h3>Pending Test Requests</h3></div><a class="btn btn-secondary btn-sm" href="test-requests.html">All Requests</a></div><div class="panel-body"><div class="table-wrap" style="max-height:420px;overflow-y:auto"><table class="data-table"><thead><tr><th>Patient</th><th>Test</th><th>Requested By</th><th>Priority</th><th>Status</th></tr></thead><tbody id="labPendingBody"></tbody></table></div></div></section></div>
-  <div><section class="panel"><div class="panel-header"><div><h3>Recent Results</h3></div><a class="btn btn-secondary btn-sm" href="results.html">Results</a></div><div class="panel-body"><div id="labRecentList"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Quick Actions</h3></div></div><div class="panel-body"><div class="quick-actions" style="grid-template-columns:1fr;margin:0"><a class="quick-action" href="ai-analyzer.html"><div class="tile-purple qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg></div><div><div class="qa-title">AI Analyzer</div><div class="qa-sub">Analyze lab values</div></div></a><a class="quick-action" href="test-requests.html"><div class="tile-primary qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></div><div><div class="qa-title">Test Requests</div><div class="qa-sub">Process new tests</div></div></a></div></div></section></div>
-</div>
-
+<div id="flowDashboard" data-flow-role="laboratory"></div>
 </section>
 </main>
 <div id="modalContainer"></div>
@@ -42,6 +35,7 @@
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/utils.js?v=9"></script>
+<script src="../assets/js/flow-dashboard.js?v=1"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -125,24 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("laboratory"); initLayout(); loadPageData();
 });
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.LAB_REQUESTS).then(r => {
-    if (!r.ok) return;
-    const pend = r.data.items.filter(l => l.status !== "completed");
-    document.getElementById("labPendingBody").innerHTML = pend.length ? pend.map(l => `<tr>
-      <td><strong>${esc(l.patient)}</strong></td><td>${esc(l.test)}</td><td>${esc(l.doctor)}</td>
-      <td><span class="badge badge-${l.priority === "Urgent" ? "danger" : "neutral"}">${esc(l.priority)}</span></td>
-      <td>${l.status === "pending" ? badge("Pending","warning") : badge("In progress","info")}</td></tr>`).join("") : emptyRow(5);
-  });
-  apiFetch(CONFIG.ENDPOINTS.LAB_RESULTS).then(r => {
-    if (!r.ok) return;
-    document.getElementById("labRecentList").innerHTML = r.data.items.slice(0, 5).map(res => `
-      <div class="feed-item"><div class="feed-icon" style="background:${res.ai_flag === "abnormal" ? "#FEF2F2" : "#E3F9EF"};color:${res.ai_flag === "abnormal" ? "#DC2626" : "#0F9D5C"}">${ICONS.flask}</div>
-      <div class="feed-text"><strong>${esc(res.patient)}</strong> · ${esc(res.test)}<div class="feed-time">${formatDate(res.date)}</div></div>
-      <span class="badge badge-${res.ai_flag === "abnormal" ? "danger" : "success"}">${res.ai_flag}</span></div>`).join("");
-  });
+  if (window.FlowDash) FlowDash.mount(document.getElementById("flowDashboard"));
 }
 
 </script>
 
-<script src="../assets/js/i18n.js"></script></body>
+<script src="../assets/js/i18n.js?v=2"></script></body>
 </html>

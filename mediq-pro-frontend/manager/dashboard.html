@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=9" />
 <link rel="stylesheet" href="../assets/css/components.css?v=5" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=7" />
+<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=1" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
 
   <script src="../assets/js/theme.js"></script></head>
@@ -23,17 +24,7 @@
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Executive Dashboard"></header>
 <section class="page-body">
-
-<div class="stat-grid">
-  <div class="stat-card "><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-value">ETB 84,350</div><div class="stat-label">Revenue Today</div><div class="stat-trend text-success">↗ +12% vs yesterday</div></div></div><div class="stat-card color-success"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="stat-value">127</div><div class="stat-label">Patients Today</div><div class="stat-trend text-success">↗ +18 vs last Monday</div></div></div><div class="stat-card color-warning"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20"/><path d="M6 8v9"/></svg></div><div><div class="stat-value">82%</div><div class="stat-label">Bed Occupancy</div><div class="stat-trend text-success">↗ 256 of 312 beds</div></div></div><div class="stat-card color-info"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg></div><div><div class="stat-value">87</div><div class="stat-label">Staff Present</div><div class="stat-trend text-success">↗ of 96 scheduled</div></div></div>
-</div>
-<div class="panel-grid cols-2">
-  <section class="panel"><div class="panel-header"><div><h3>Patient Admissions — Last 30 Days</h3><div class="sub">Daily inpatient admissions</div></div></div><div class="panel-body"><div class="chart-box" id="admChart"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Revenue by Department</h3><div class="sub">ETB (thousands) this month</div></div></div><div class="panel-body"><div class="chart-box" id="revChart"></div></div></section>
-</div>
-<div class="panel-grid">
-  <section class="panel"><div class="panel-header"><div><h3>Patient Distribution by Department</h3></div></div><div class="panel-body"><div class="flex wrap" style="gap:20px;align-items:center"><div class="chart-box" id="distChart" style="max-width:230px"></div><div class="chart-legend" id="distLegend" style="flex-direction:column;margin:0"></div></div></div></section><section class="panel"><div class="panel-header"><div><h3>Recent Alerts</h3></div><a class="btn btn-secondary btn-sm" href="ai-insights.html">AI Insights</a></div><div class="panel-body"><div id="mgrAlerts"></div></div></section>
-</div>
-
+<div id="flowDashboard" data-flow-role="manager"></div>
 </section>
 </main>
 <div id="modalContainer"></div>
@@ -44,6 +35,7 @@
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/utils.js?v=9"></script>
+<script src="../assets/js/flow-dashboard.js?v=1"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -127,31 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("manager"); initLayout(); loadPageData();
 });
 function loadPageData() {
-  const admissions = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    admissions.push({ label: d.getDate() + "/" + (d.getMonth() + 1), value: 20 + Math.round(14 * Math.sin(i / 3.1) + Math.random() * 8) });
-  }
-  document.getElementById("admChart").innerHTML = lineChart(admissions, { height: 250 });
-  const rev = [{label:"Medicine",value:32.4},{label:"Surgery",value:24.1},{label:"Cardiology",value:18.7},{label:"Maternity",value:16.2},{label:"Pediatrics",value:12.8},{label:"Pharmacy",value:21.5},{label:"Lab",value:9.6}];
-  document.getElementById("revChart").innerHTML = barChart(rev, { height: 250, color: ["#1A6FA8","#18BF75","#B45309","#7C3AED","#0891B2","#65A30D","#DB2777"] });
-  const dist = [{label:"Internal Medicine",value:34},{label:"Pediatrics",value:21},{label:"Maternity",value:18},{label:"Cardiology",value:13},{label:"Surgery",value:9},{label:"Other",value:5}];
-  document.getElementById("distChart").innerHTML = donutChart(dist);
-  document.getElementById("distLegend").innerHTML = dist.map((d, i) =>
-    `<span class="lg-item"><span class="lg-swatch" style="background:${["#1A6FA8","#18BF75","#B45309","#7C3AED","#0891B2","#DB2778"][i]}"></span>${esc(d.label)} (${d.value}%)</span>`).join("");
-  const alerts = [
-    { sev: "danger", icon: "package", title: "Amoxicillin 250mg out of stock", sub: "Pharmacy — restock immediately" },
-    { sev: "warning", icon: "users", title: "Maternity ward at 92% capacity", sub: "High patient load detected" },
-    { sev: "warning", icon: "user-check", title: "3 staff absent today", sub: "Pediatrics & Surgery shifts affected" },
-    { sev: "success", icon: "check", title: "AI modules healthy", sub: "All 7 modules passing checks" }
-  ];
-  document.getElementById("mgrAlerts").innerHTML = alerts.map(a => `
-    <div class="feed-item"><div class="feed-icon" style="background:${a.sev==="danger"?"#FEF2F2":a.sev==="warning"?"#FBF0D3":"#E3F9EF"};color:${a.sev==="danger"?"#DC2626":a.sev==="warning"?"#B45309":"#0F9D5C"}">${ICONS[a.icon]}</div>
-    <div class="feed-text"><strong>${esc(a.title)}</strong><div class="feed-time">${esc(a.sub)}</div></div>
-    <span class="badge badge-${a.sev}">${a.sev}</span></div>`).join("");
+  if (window.FlowDash) FlowDash.mount(document.getElementById("flowDashboard"));
 }
 
 </script>
 
-<script src="../assets/js/i18n.js"></script></body>
+<script src="../assets/js/i18n.js?v=2"></script></body>
 </html>
