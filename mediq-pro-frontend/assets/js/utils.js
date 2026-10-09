@@ -550,7 +550,8 @@ function _bindLayoutDelegation() {
     const ham = e.target.closest("#hamburger");
     if (ham) {
       e.stopPropagation();
-      openMobileMenu();
+      if (document.body.classList.contains("mobile-menu-open")) closeMobileMenu();
+      else openMobileMenu();
       return;
     }
     // Collapse toggle (desktop sidebar)

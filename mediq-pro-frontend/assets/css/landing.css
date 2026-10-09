@@ -1,0 +1,148 @@
+/* Public health booking pages — matches the navy booking design. */
+.hmb, .hmb * { box-sizing: border-box; }
+.hmb {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #07133f;
+  color: #ffffff;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+.hmb-bg, .hmb-art { position: absolute; inset: 0; pointer-events: none; }
+.hmb-bg {
+  background:
+    radial-gradient(820px 520px at 72% 42%, rgba(46, 92, 196, 0.55), transparent 62%),
+    radial-gradient(640px 480px at 18% 80%, rgba(18, 48, 130, 0.45), transparent 70%),
+    linear-gradient(180deg, #06102e 0%, #0a1d68 48%, #071445 100%);
+}
+.hmb-art { width: 100%; height: 100%; }
+.hmb-burger {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 140;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0B1F4D;
+  box-shadow: 0 6px 18px rgba(6, 16, 48, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.hmb-burger svg { width: 20px; height: 20px; }
+.hmb-burger line { transform-origin: center; transition: transform 0.2s ease, opacity 0.15s ease; }
+body.hmb-open .hmb-burger line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+body.hmb-open .hmb-burger line:nth-child(2) { opacity: 0; }
+body.hmb-open .hmb-burger line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.hmb-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 16, 48, 0.45);
+  z-index: 120;
+}
+.hmb-overlay[hidden], .hmb-menu[hidden] { display: none; }
+.hmb-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(320px, 88vw);
+  z-index: 130;
+  background: #07133f;
+  color: #ffffff;
+  padding: 84px 22px 28px;
+  box-shadow: 12px 0 40px rgba(0, 0, 0, 0.28);
+  overflow: auto;
+}
+.hmb-menu p { margin: 0 0 8px; color: rgba(255, 255, 255, 0.62); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+.hmb-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 15px 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 17px;
+  font-weight: 600;
+}
+.hmb-menu a small { color: rgba(255, 255, 255, 0.62); font-size: 12px; font-weight: 500; }
+.hmb-logo {
+  position: relative;
+  z-index: 2;
+  width: 118px;
+  height: 118px;
+  margin: 28px 0 0 28px;
+}
+.hmb-logo img { width: 54px; height: 54px; object-fit: contain; }
+.hmb-main {
+  position: relative;
+  z-index: 2;
+  min-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 8vw 72px;
+}
+.hmb h1 {
+  margin: 0;
+  max-width: 760px;
+  color: #ffffff;
+  font-size: clamp(40px, 6vw, 76px);
+  line-height: 0.98;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+.hmb-lead {
+  max-width: 640px;
+  margin: 28px 0 0 auto;
+  color: #ffffff;
+  font-size: clamp(16px, 1.7vw, 20px);
+  line-height: 1.45;
+  text-align: center;
+}
+.hmb-actions { display: flex; justify-content: flex-end; margin-top: 28px; }
+.hmb-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0B1F4D;
+  font-weight: 700;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+.hmb-pill:hover { background: #f4f7fb; color: #0B1F4D; }
+.hmb-card {
+  position: relative;
+  z-index: 2;
+  width: min(440px, calc(100% - 32px));
+  margin: 0 auto 48px;
+  background: #ffffff;
+  color: #06141B;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+.hmb-card h2, .hmb-card label, .hmb-card p { color: #06141B; }
+.hmb-card p { color: #3d4c5c; }
+.hmb-card[hidden] { display: none; }
+.hmb-page-card { margin-top: 12px; }
+@media (max-width: 720px) {
+  .hmb-logo { margin: 72px auto 0; }
+  .hmb-main { padding: 12px 22px 48px; text-align: left; }
+  .hmb-lead, .hmb-actions { margin-left: 0; text-align: center; justify-content: center; }
+}

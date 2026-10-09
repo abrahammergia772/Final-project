@@ -14,9 +14,11 @@
   display: flex;
   flex-direction: column;
   z-index: 100;
+  transform: translateX(-105%);
   transition: width 0.25s ease, transform 0.25s ease;
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
 }
+body.mobile-menu-open .sidebar { transform: translateX(0); }
 
 /* ---------- Logo ---------- */
 .sidebar-logo {
@@ -207,29 +209,33 @@ body.sidebar-collapsed .user-box .u-logout svg { margin: 0; }
 body.mobile-menu-open .mobile-overlay { opacity: 1; pointer-events: auto; }
 
 .hamburger {
-  display: none;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: var(--white);
-  border-radius: var(--radius-sm);
-  color: var(--dark);
-  box-shadow: var(--shadow-sm);
+  display: flex;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 140;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(11, 31, 77, 0.12);
+  background: #ffffff;
+  border-radius: 50%;
+  color: #0B1F4D;
+  box-shadow: 0 6px 18px rgba(6, 16, 48, 0.22);
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+  cursor: pointer;
 }
 .hamburger svg { width: 20px; height: 20px; }
 .hamburger svg line {
   transition: transform 0.25s ease, opacity 0.15s ease;
   transform-origin: center;
 }
-.hamburger:hover { background: var(--primary-light); color: var(--primary); }
-.hamburger:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.35); }
+.hamburger:hover { background: #ffffff; color: #0B1F4D; }
+.hamburger:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45); }
 .hamburger:active { transform: scale(0.94); }
 
-/* Open state: button inverts and the 3 lines morph into an X */
-body.mobile-menu-open .hamburger { background: var(--primary); color: var(--white); }
+body.mobile-menu-open .hamburger { background: #ffffff; color: #0B1F4D; }
 body.mobile-menu-open .hamburger svg line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 body.mobile-menu-open .hamburger svg line:nth-child(2) { opacity: 0; }
 body.mobile-menu-open .hamburger svg line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
@@ -254,21 +260,23 @@ body.mobile-menu-open .hamburger svg line:nth-child(3) { transform: translateY(-
   body.sidebar-collapsed .sidebar-logo { justify-content: flex-start; padding: 24px 16px 20px; }
   body.sidebar-collapsed .sidebar-footer { padding: 14px 12px; }
   .sidebar-toggle { display: none; }
-  .hamburger { display: flex; }
+  .hamburger { display: flex; flex-shrink: 0; }
   .role-taskbar { left: 0; }
 }
 
 /* ---------- Bottom taskbar (daily actions for every role) ---------- */
 :root { --taskbar-h: 64px; }
 
+.sidebar-toggle { display: none; }
+.nav-link .nav-go { margin-left: auto; color: rgba(204, 208, 207, 0.7); font-size: 18px; line-height: 1; }
 .role-taskbar {
+  display: none;
   position: fixed;
   left: var(--sidebar-w);
   right: 0;
   bottom: 0;
   z-index: 70;
   height: calc(var(--taskbar-h) + env(safe-area-inset-bottom));
-  display: flex;
   align-items: stretch;
   justify-content: space-around;
   gap: 4px;
@@ -277,6 +285,7 @@ body.mobile-menu-open .hamburger svg line:nth-child(3) { transform: translateY(-
   border-top: 1px solid var(--border);
   box-shadow: 0 -8px 24px rgba(11, 58, 94, 0.08);
 }
+body.has-taskbar .main-content { padding-bottom: 0; }
 body.sidebar-collapsed .role-taskbar { left: var(--sidebar-w-collapsed); }
 .taskbar-link {
   flex: 1 1 0;
