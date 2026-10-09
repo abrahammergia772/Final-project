@@ -62,13 +62,13 @@
         var active = !spa && cur === file ? " active" : "";
         html += '<a class="nav-link' + active + '" href="' + href + '"' +
           (p ? ' data-perm="' + p + '"' : "") + ' data-close-menu>' +
-          icon(ic) + '<span class="nav-label">' + label + '</span><span class="nav-go" aria-hidden="true">›</span></a>';
+          icon(ic) + '<span class="nav-label">' + label + "</span></a>";
       });
     });
     html += '<div class="nav-section-label">MESSAGES</div>';
-    html += '<a class="nav-link" href="messages.html" data-perm="messages" data-close-menu>' + icon("mail") + '<span class="nav-label">Messages</span><span class="nav-go" aria-hidden="true">›</span></a>';
+    html += '<a class="nav-link" href="messages.html" data-perm="messages" data-close-menu>' + icon("mail") + '<span class="nav-label">Messages</span></a>';
     html += '<div class="nav-section-label">ACCOUNT</div>';
-    html += '<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu>' + icon("settings") + '<span class="nav-label">Settings</span><span class="nav-go" aria-hidden="true">›</span></a>';
+    html += '<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu>' + icon("settings") + '<span class="nav-label">Settings</span></a>';
     html += "</nav>";
     html += '<div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div>' +
       '<button class="btn-icon u-logout" type="button" data-logout title="Log out" aria-label="Log out">' + icon("logout") + '<span class="u-logout-label">Log out</span></button></div></div>';

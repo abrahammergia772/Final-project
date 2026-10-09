@@ -4,14 +4,13 @@
    ============================================================ */
 
 .main-content {
-  margin-left: 0;
+  margin-left: var(--sidebar-w);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   transition: margin-left 0.25s ease;
 }
-body.sidebar-collapsed .main-content { margin-left: 0; }
-.topbar { padding-left: 72px; }
+body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); }
 
 /* ---------- Topbar ---------- */
 .topbar {

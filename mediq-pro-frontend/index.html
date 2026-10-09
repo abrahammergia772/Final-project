@@ -11,59 +11,52 @@
 <title>Wolaita Sodo Hospital — Login</title>
 <link rel="icon" type="image/png" href="assets/images/favicon.png" />
 <link rel="stylesheet" href="assets/css/global.css" />
-<link rel="stylesheet" href="assets/css/sidebar.css?v=6" />
+<link rel="stylesheet" href="assets/css/sidebar.css" />
 <link rel="stylesheet" href="assets/css/components.css?v=5" />
-<link rel="stylesheet" href="assets/css/dashboard.css?v=6" />
+<link rel="stylesheet" href="assets/css/dashboard.css" />
 <link rel="stylesheet" href="assets/css/modules.css" />
-<link rel="stylesheet" href="assets/css/landing.css?v=1" />
 
   <script src="assets/js/theme.js"></script></head>
 <body>
 
 <!-- ============ LOGIN VIEW ============ -->
-<div id="loginView">
-  <div class="hmb" data-hmb="1">
-    <div class="hmb-bg"></div>
-    <svg class="hmb-art" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g fill="none" stroke="rgba(150,186,255,.22)" stroke-width="1.2">
-        <path d="M80 80h40l20 34-20 34H80l-20-34zM860 90h56l28 48-28 48h-56l-28-48zM980 220h36l18 32-18 32h-36l-18-32zM1040 420h48l24 42-24 42h-48l-24-42zM760 520h32l16 28-16 28h-32l-16-28z"/>
-      </g>
-      <g fill="rgba(120,164,255,.28)">
-        <path d="M930 70h18v6h6v18h-6v6h-18v-6h-6V76h6zM1088 250h14v5h5v14h-5v5h-14v-5h-5v-14h5zM820 610h16v5h5v16h-5v5h-16v-5h-5v-16h5zM180 560h12v4h4v12h-4v4h-12v-4h-4v-12h4z"/>
-      </g>
-      <path d="M40 430 H220 l28-46 36 92 28-46 H520 l24 0 30-58 34 108 26-50 H1180" fill="none" stroke="rgba(198,220,255,.45)" stroke-width="2"/>
+<div class="login-body login-split" id="loginView">
+  <div class="login-stage">
+    <aside class="login-hero" aria-label="Wolaita Sodo Hospital">
+      <div class="login-hero-inner">
+        <img class="login-mark" src="assets/images/logo-mark.png" alt="" />
+        <p class="login-kicker">Wolaita Sodo University</p>
+        <h1 class="wide"><span>Wolaita Sodo</span><br>Hospital</h1>
+        <p class="login-tag" data-i18n="Care | Compassion | Community">Care | Compassion | Community</p>
+        <svg class="login-ecg" viewBox="0 0 320 40" aria-hidden="true">
+          <path d="M0 22 H48 L62 22 L76 8 L92 34 L106 22 H150 L164 22 L178 6 L196 36 L210 22 H320"/>
+        </svg>
+        <ul class="login-points">
+          <li>
+            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20"/><path d="M6 8v9"/></svg></span>
+            <span><strong>Ward board</strong><small>See who is in each bed</small></span>
+          </li>
+          <li>
+            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></span>
+            <span><strong>Laboratory</strong><small>Samples, results and the blood bank</small></span>
+          </li>
+          <li>
+            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+            <span><strong>Front desk</strong><small>Queue, admissions and cashier</small></span>
+          </li>
+        </ul>
+        <p class="login-place">Wolaita Sodo, South Ethiopia</p>
+      </div>
+      <svg class="login-hills" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 150 L90 118 L160 142 L250 72 L330 128 L410 90 L500 146 L590 64 L680 130 L800 96 L800 200 L0 200 Z" fill="rgba(255,255,255,.06)"/>
+      <path d="M0 168 L120 136 L210 162 L300 104 L390 154 L500 86 L610 148 L720 112 L800 150 L800 200 L0 200 Z" fill="rgba(46,168,112,.22)"/>
     </svg>
-    <button class="hmb-burger" id="hmbBurger" type="button" aria-label="Open menu" aria-controls="hmbMenu" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="7" x2="19" y2="7"/><line x1="5" y1="12" x2="19" y2="12"/><line x1="5" y1="17" x2="19" y2="17"/></svg>
-    </button>
-    <div class="hmb-overlay" id="hmbOverlay" hidden></div>
-    <nav class="hmb-menu" id="hmbMenu" hidden aria-label="Pages">
-      <p>Pages</p>
-      <a href="index.html">Home <small>Page</small></a>
-      <a href="book.html">Book an Appointment <small>Page</small></a>
-      <a href="contact.html">Contact <small>Page</small></a>
-      <a href="index.html#signin" data-open-signin>Sign in <small>Page</small></a>
-      <a href="signup.html">Create an account <small>Page</small></a>
-    </nav>
-    <div class="hmb-logo" aria-hidden="true">
-      <svg viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.4"/>
-        <path id="hmbRing" d="M60 14 a46 46 0 1 1 0 92 a46 46 0 1 1 0-92" fill="none"/>
-        <text fill="#ffffff" font-size="8" letter-spacing="2.2" font-family="Inter, sans-serif">
-          <textPath href="#hmbRing" startOffset="8%">WOLAITA SODO HOSPITAL</textPath>
-        </text>
-        <image href="assets/images/logo-mark.png" x="33" y="33" width="54" height="54"/>
-      </svg>
-    </div>
-    <div class="hmb-main">
-      <h1>Your Lifelong<br>Partner in Health</h1>
-      <p class="hmb-lead">We don’t just treat symptoms—we know your history. Experience reliable primary care designed to keep your entire household thriving.</p>
-      <div class="hmb-actions"><a class="hmb-pill" href="book.html">Book an Appointment</a></div>
-    </div>
-    <section class="hmb-card" id="signin" hidden>
-      <p class="login-kicker login-kicker-form">Staff and patients</p>
-      <h2 class="login-title">Welcome back</h2>
-      <p class="login-sub">Use your hospital email to continue.</p>
+    </aside>
+    <section class="login-panel">
+      <div class="login-card">
+        <p class="login-kicker login-kicker-form">Staff and patients</p>
+        <h2 class="login-title">Welcome back</h2>
+        <p class="login-sub">Use your hospital email to continue.</p>
 
         <div class="login-error" id="loginError">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -103,6 +96,7 @@
         </form>
 
         <p class="text-center text-sm login-foot">Wolaita Sodo Hospital</p>
+      </div>
     </section>
   </div>
 </div>
@@ -126,43 +120,12 @@
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
-<script src="assets/js/utils.js?v=7"></script>
-<script src="assets/js/shell.js?v=2"></script>
+<script src="assets/js/utils.js?v=6"></script>
+<script src="assets/js/shell.js"></script>
 <script src="assets/js/app.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  var burger = document.getElementById("hmbBurger");
-  var menu = document.getElementById("hmbMenu");
-  var overlay = document.getElementById("hmbOverlay");
-  var card = document.getElementById("signin");
-  function setMenu(open) {
-    if (!menu || !overlay || !burger) return;
-    menu.hidden = !open;
-    overlay.hidden = !open;
-    document.body.classList.toggle("hmb-open", open);
-    burger.setAttribute("aria-expanded", open ? "true" : "false");
-    burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-  }
-  function showSignin() {
-    if (!card) return;
-    card.hidden = false;
-    card.scrollIntoView({ block: "nearest" });
-  }
-  if (burger) burger.addEventListener("click", function () { setMenu(menu.hidden); });
-  if (overlay) overlay.addEventListener("click", function () { setMenu(false); });
-  document.querySelectorAll("#hmbMenu a").forEach(function (link) {
-    link.addEventListener("click", function () { setMenu(false); });
-  });
-  var signinLink = document.querySelector("[data-open-signin]");
-  if (signinLink) signinLink.addEventListener("click", function (event) {
-    event.preventDefault();
-    setMenu(false);
-    showSignin();
-    history.replaceState(null, "", "#signin");
-  });
-  if (location.hash === "#signin") showSignin();
-
   var btn = document.getElementById("pwToggle");
   var input = document.getElementById("loginPassword");
   if (!btn || !input) return;
