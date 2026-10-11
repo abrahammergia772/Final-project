@@ -18,7 +18,7 @@ from config import SECRET_KEY
 from db import get_client
 from mailer import MailError, configured as mail_configured, send_reset_code
 import reset_otp
-from security import current_user, hash_password, issue_token, verify_password
+from security import current_user, hash_password, issue_token, password_saved, verify_password
 
 router = APIRouter(tags=["Auth"])
 log = logging.getLogger("mediq.auth")
@@ -107,8 +107,8 @@ def login(req: LoginRequest):
     if client is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
     try:
-        resp = client.table("users").select("id,email,name,role,status,password_hash").eq("email", email).limit(1).execute()
-        rows = resp.data or []
+        row = _user_by_email(client, email, "id,email,name,role,status,password_hash")
+        rows = [row] if row else []
     except Exception as exc:  # noqa: BLE001
         log.error("supabase login failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Sign-in service unavailable")
@@ -451,8 +451,14 @@ def change_password(req: ChangePasswordRequest, user=Depends(current_user)):
         raise HTTPException(status_code=503, detail="Password service unavailable")
     if not rows or not verify_password(req.current_password, rows[0].get("password_hash") or ""):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
-    client.table("users").update({"password_hash": hash_password(req.new_password)}).eq("id", rows[0]["id"]).execute()
-    return {"ok": True}
+    try:
+        _save_new_password(client, rows[0], req.new_password)
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        log.error("supabase password update failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="The new password was not saved in the database. Try again.")
+    return {"ok": True, "password_updated": True}
 
 
 def _public_user(row: dict) -> dict:
@@ -472,10 +478,44 @@ def _valid_email(email: str) -> bool:
     return bool(re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email or ""))
 
 
-def _user_by_email(client, email: str):
-    resp = client.table("users").select("id,email,name,status,details").eq("email", email).limit(1).execute()
+def _user_by_email(client, email: str, columns: str = "id,email,name,status,details"):
+    resp = client.table("users").select(columns).eq("email", email).limit(1).execute()
     rows = resp.data or []
-    return rows[0] if rows else None
+    if rows:
+        return rows[0]
+    try:
+        resp = client.table("users").select(columns).ilike("email", email).limit(5).execute()
+    except Exception:  # noqa: BLE001
+        return None
+    for row in resp.data or []:
+        if str(row.get("email") or "").strip().lower() == email:
+            return row
+    return None
+
+
+def _save_new_password(client, row: dict, new_password: str) -> None:
+    """Write password_hash in Supabase and read it back before reporting success."""
+    user_id = row.get("id")
+    if not user_id:
+        raise HTTPException(status_code=404, detail="Account not found")
+    previous = str(row.get("password_hash") or "")
+    if not previous:
+        fresh = client.table("users").select("id,password_hash").eq("id", user_id).limit(1).execute()
+        previous = str(((fresh.data or [{}])[0]).get("password_hash") or "")
+    if previous and verify_password(new_password, previous):
+        raise HTTPException(status_code=422, detail="Choose a different password. The old password cannot be used again.")
+    new_hash = hash_password(new_password)
+    updated = client.table("users").update({"password_hash": new_hash}).eq("id", user_id).execute()
+    stored = ""
+    for item in updated.data or []:
+        if item.get("password_hash"):
+            stored = str(item.get("password_hash"))
+    if not password_saved(new_password, stored, previous):
+        check = client.table("users").select("id,password_hash").eq("id", user_id).limit(1).execute()
+        stored = str(((check.data or [{}])[0]).get("password_hash") or "")
+    if not password_saved(new_password, stored, previous):
+        log.error("password update did not persist")
+        raise HTTPException(status_code=503, detail="The new password was not saved in the database. Try again.")
 
 
 def _save_reset(client, row: dict, email: str, code: str) -> None:
@@ -584,10 +624,15 @@ def reset_password(req: ResetRequest):
         raise HTTPException(status_code=400, detail="Invalid or expired reset code")
     if len(req.new_password) < 8:
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+    account = _user_by_email(client, email, "id,email,password_hash,details")
+    if not account:
+        raise HTTPException(status_code=404, detail="No account uses that email.")
     try:
-        client.table("users").update({"password_hash": hash_password(req.new_password)}).eq("email", email).execute()
+        _save_new_password(client, account, req.new_password)
+    except HTTPException:
+        raise
     except Exception as exc:  # noqa: BLE001
         log.error("supabase reset failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Password service unavailable")
     _clear_reset(client, email)
-    return {"ok": True}
+    return {"ok": True, "password_updated": True}

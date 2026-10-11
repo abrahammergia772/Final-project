@@ -29,6 +29,17 @@ def hash_password(password: str) -> str:
     return f"pbkdf2_sha256${rounds}${salt}${digest}"
 
 
+def password_saved(new_password: str, stored_hash: str, previous_hash: str = "") -> bool:
+    """True only when the database hash is the new password, not the old one."""
+    if not new_password or not stored_hash:
+        return False
+    if previous_hash and stored_hash == previous_hash:
+        return False
+    if previous_hash and verify_password(new_password, previous_hash):
+        return False
+    return verify_password(new_password, stored_hash)
+
+
 def verify_password(password: str, stored: str) -> bool:
     """Accept the current hash and the older unsalted SHA-256 demo hashes."""
     if not stored or not password:

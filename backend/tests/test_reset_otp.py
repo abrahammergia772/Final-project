@@ -5,8 +5,33 @@ os.environ.setdefault("LAZY_LOAD", "1")
 os.environ.setdefault("SKIP_RF_MODELS", "1")
 os.environ.setdefault("LOW_MEMORY", "1")
 
+import sys
+import types
+
+if "fastapi" not in sys.modules:
+    fastapi = types.ModuleType("fastapi")
+    fastapi.Depends = lambda *args, **kwargs: None
+    fastapi.HTTPException = Exception
+    fastapi.status = types.SimpleNamespace()
+    sys.modules["fastapi"] = fastapi
+    security_mod = types.ModuleType("fastapi.security")
+    security_mod.HTTPAuthorizationCredentials = object
+    security_mod.HTTPBearer = lambda *args, **kwargs: None
+    sys.modules["fastapi.security"] = security_mod
+
 import mailer
 import reset_otp
+from security import hash_password, password_saved, verify_password
+
+
+def test_saved_password_replaces_the_old_one():
+    old_hash = hash_password("old-password")
+    new_hash = hash_password("new-password-1")
+    assert password_saved("new-password-1", new_hash, old_hash)
+    assert verify_password("new-password-1", new_hash)
+    assert not verify_password("old-password", new_hash)
+    assert not password_saved("old-password", old_hash, old_hash)
+    assert not password_saved("new-password-1", old_hash, old_hash)
 
 
 def test_seal_round_trip():
