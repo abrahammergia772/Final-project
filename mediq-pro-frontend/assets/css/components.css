@@ -384,6 +384,15 @@ select.form-control { appearance: auto; }
 }
 .modal.lg { max-width: 760px; }
 .modal.sm { max-width: 420px; }
+.pay-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-height: 360px; overflow: auto; }
+.pay-choice { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; min-width: 0; margin: 0; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; font: inherit; }
+.pay-choice strong, .pay-choice small { display: block; line-height: 1.2; }
+.pay-choice strong { color: var(--text-strong); font-size: 11px; font-weight: 650; }
+.pay-choice small { color: var(--gray); font-size: 10px; }
+.pay-logo { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex: 0 0 64px; box-sizing: border-box; padding: 4px; border-radius: 8px; background: #ffffff; border: 1px solid #E4E7EA; overflow: hidden; }
+.pay-logo img { display: block; width: 56px; height: 56px; max-width: 56px; max-height: 56px; object-fit: contain; object-position: center; }
+.pay-picked .pay-logo { width: 48px; height: 48px; flex: 0 0 48px; }
+.pay-picked .pay-logo img { width: 40px; height: 40px; max-width: 40px; max-height: 40px; }
 .modal-header {
   display: flex;
   align-items: center;

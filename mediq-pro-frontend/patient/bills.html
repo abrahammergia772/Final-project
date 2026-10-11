@@ -12,22 +12,23 @@
 <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
 <link rel="stylesheet" href="../assets/css/global.css?v=2" />
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=10" />
-<link rel="stylesheet" href="../assets/css/components.css?v=6" />
+<link rel="stylesheet" href="../assets/css/components.css?v=7" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=9" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
 <style>
 .pay-tabs { display: flex; gap: 8px; margin: 12px 0; }
-.pay-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-height: 360px; overflow: auto; padding: 2px; align-items: stretch; }
-.pay-choice { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 4px; width: 100%; height: 100%; min-height: 0; margin: 0; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 10px; padding: 6px 4px; text-align: center; cursor: pointer; font: inherit; }
-.pay-choice strong { display: flex; align-items: center; justify-content: center; min-height: 2.4em; color: var(--text-strong); font-size: 11px; line-height: 1.2; font-weight: 650; }
-.pay-choice small { display: block; min-height: 1.2em; color: var(--gray); font-size: 10px; font-weight: 500; line-height: 1.2; }
+.pay-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-height: 360px; overflow: auto; padding: 2px; align-items: start; }
+.pay-choice { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; width: 100%; min-width: 0; margin: 0; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; font: inherit; }
+.pay-choice strong { display: block; color: var(--text-strong); font-size: 11px; line-height: 1.2; font-weight: 650; }
+.pay-choice small { display: block; color: var(--gray); font-size: 10px; font-weight: 500; line-height: 1.2; }
 .pay-choice.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
-.pay-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 28px; flex: 0 0 28px; box-sizing: border-box; padding: 2px 4px; border-radius: 6px; background: #ffffff; color: #06141B; border: 1px solid #E4E7EA; overflow: hidden; }
-.pay-logo img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center center; }
+.pay-logo { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex: 0 0 64px; box-sizing: border-box; padding: 4px; border-radius: 8px; background: #ffffff; color: #06141B; border: 1px solid #E4E7EA; overflow: hidden; }
+.pay-logo img { display: block; width: 56px; height: 56px; max-width: 56px; max-height: 56px; object-fit: contain; object-position: center center; }
 .pay-copy { display: flex; flex-direction: column; gap: 1px; min-height: 0; }
 .pay-picked { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 8px 10px; border: 1px solid var(--primary); border-radius: 12px; background: var(--white); color: var(--text-strong); }
 .pay-picked[hidden] { display: none; }
-.pay-picked .pay-logo { width: 88px; height: 32px; flex: 0 0 88px; }
+.pay-picked .pay-logo { width: 48px; height: 48px; flex: 0 0 48px; }
+.pay-picked .pay-logo img { width: 40px; height: 40px; max-width: 40px; max-height: 40px; }
 .pay-picked strong { display: block; color: var(--text-strong); font-size: 14px; line-height: 1.25; }
 .pay-picked small { display: block; color: var(--gray); font-size: 11px; }
 .pay-form { margin: 0 0 12px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--white); color: var(--text-strong); }
@@ -53,6 +54,17 @@ html[data-theme="dark"] .pay-logo { background: #ffffff; border-color: rgba(204,
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Bills & Payments"></header>
 <section class="page-body">
+<style>
+.pay-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-height: 360px; overflow: auto; }
+.pay-choice { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; min-width: 0; margin: 0; border: 1px solid var(--border); background: var(--white); color: var(--text-strong); border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; font: inherit; }
+.pay-choice strong, .pay-choice small { display: block; line-height: 1.2; }
+.pay-choice strong { color: var(--text-strong); font-size: 11px; font-weight: 650; }
+.pay-choice small { color: var(--gray); font-size: 10px; }
+.pay-logo { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex: 0 0 64px; box-sizing: border-box; padding: 4px; border-radius: 8px; background: #ffffff; border: 1px solid #E4E7EA; overflow: hidden; }
+.pay-logo img { display: block; width: 56px; height: 56px; max-width: 56px; max-height: 56px; object-fit: contain; }
+.pay-picked .pay-logo { width: 48px; height: 48px; flex: 0 0 48px; }
+.pay-picked .pay-logo img { width: 40px; height: 40px; max-width: 40px; max-height: 40px; }
+</style>
 
 <div class="alert alert-warning mb-4" id="outstandingBanner"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span>
   <div class="alert-body"><span class="alert-title">Outstanding balance: </span><strong id="outTotal" style="font-size:16px">ETB 0.00</strong> — pay an open bill with a wallet or bank.</div></div>
