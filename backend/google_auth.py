@@ -4,6 +4,7 @@
 # =============================================================================
 import json
 import os
+import re
 import urllib.parse
 import urllib.request
 
@@ -14,9 +15,19 @@ class GoogleAuthError(Exception):
         self.code = code
 
 
+def clean_client_id(value: str) -> str:
+    """Accept a pasted client ID or the https address Google shows beside it."""
+    text = (value or "").strip().strip('"').strip("'")
+    match = re.search(r"[0-9]+-[a-z0-9_-]+\.apps\.googleusercontent\.com", text, re.I)
+    if match:
+        return match.group(0)
+    text = text.replace("https://", "").replace("http://", "")
+    return text.split("/")[0].split("?")[0].strip()
+
+
 def client_id() -> str:
     for name in ("GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID"):
-        value = os.getenv(name, "").strip().strip('"').strip("'")
+        value = clean_client_id(os.getenv(name, ""))
         if value:
             return value
     return ""

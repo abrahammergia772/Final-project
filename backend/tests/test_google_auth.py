@@ -2,6 +2,11 @@
 import google_auth
 
 
+def test_pasted_client_address_is_cleaned():
+    raw = "https://4041090243-ubu08f0g2n73n7tueo4bo9n14qv8v6pq.apps.googleusercontent.com"
+    assert google_auth.clean_client_id(raw) == "4041090243-ubu08f0g2n73n7tueo4bo9n14qv8v6pq.apps.googleusercontent.com"
+
+
 def test_google_identity_accepts_verified_account():
     identity = google_auth.parse_identity({
         "aud": "client-123",
