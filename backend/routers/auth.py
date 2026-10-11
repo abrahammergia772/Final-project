@@ -537,26 +537,22 @@ def _request_reset(email: str) -> dict:
         raise HTTPException(status_code=503, detail="Password service unavailable")
     if not row:
         raise HTTPException(status_code=404, detail="No account uses that email.")
+    if not mail_configured():
+        log.warning("Password reset email is not configured")
+        raise HTTPException(status_code=503, detail="Could not email the verification code. The hospital email sender is not connected yet.")
     code = reset_otp.new_code()
+    try:
+        send_reset_code(email, str(row.get("name") or ""), code)
+    except MailError as exc:
+        log.error("reset email failed: %s", exc.code)
+        raise HTTPException(status_code=503, detail="Could not email the verification code. Try again in a moment.")
     try:
         _save_reset(client, row, email, code)
     except Exception as exc:  # noqa: BLE001
         log.error("reset code save failed: %s", type(exc).__name__)
         reset_otp.remember(email, code)
-    emailed = False
-    if mail_configured():
-        try:
-            send_reset_code(email, str(row.get("name") or ""), code)
-            emailed = True
-        except MailError as exc:
-            log.error("reset email failed: %s", exc.code)
-    log.info("Password reset code created")
-    return {
-        "ok": True,
-        "code": code,
-        "emailed": emailed,
-        "message": "Your verification code is ready.",
-    }
+    log.info("Password reset code emailed")
+    return {"ok": True, "emailed": True, "message": "Verification code sent to your email."}
 
 
 @router.post("/auth/reset-password")
