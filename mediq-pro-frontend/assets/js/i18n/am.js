@@ -347,7 +347,7 @@ window.I18N_AM = {
 "The code is emailed from wolaitasodo2026@gmail.com to this address. It is not shown on this page.": "ኮዱ ከ wolaitasodo2026@gmail.com ወደዚህ አድራሻ ይላካል። በዚህ ገጽ ላይ አይታይም።",
 "Could not email the verification code. Try again in a moment.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። ትንሽ ቆይተው ይሞክሩ።",
 "Could not email the verification code. In Brevo, confirm wolaitasodo2026@gmail.com as a sender, then try again.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። በ Brevo ውስጥ wolaitasodo2026@gmail.com ን እንደ ላኪ ያረጋግጡ፣ ከዚያ እንደገና ይሞክሩ።",
-"Could not email the verification code. The Brevo API key was rejected.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። የ Brevo ቁልፉ ተቀባይነት አላገኘም።",
+"Could not email the verification code. In Brevo, create a new API key under SMTP & API, then replace BREVO_API_KEY on the Render backend.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። በ Brevo ውስጥ SMTP & API ላይ አዲስ API ቁልፍ ይፍጠሩ፣ ከዚያ በ Render ላይ BREVO_API_KEY ን ይተኩ።",
 "Verification code sent to your email.": "የማረጋገጫ ኮዱ ወደ ኢሜይልዎ ተልኳል።",
 "Verification code sent to": "የማረጋገጫ ኮዱ ተልኳል ወደ",
 "A new code was sent to": "አዲስ ኮድ ተልኳል ወደ",

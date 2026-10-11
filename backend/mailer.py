@@ -31,11 +31,29 @@ def _clean(name: str) -> str:
 
 
 def _normalize_secret(value: str) -> str:
-    value = (value or "").strip().strip('"').strip("'")
-    for prefix in ("api-key:", "api-key=", "bearer ", "brevo_api_key="):
-        if value.lower().startswith(prefix):
-            value = value[len(prefix):].strip()
+    value = (value or "").replace("\ufeff", "").replace("\u200b", "").strip().strip('"').strip("'")
+    lowered = value.lower()
+    for prefix in ("api-key:", "api-key=", "bearer ", "brevo_api_key=", "key:"):
+        if lowered.startswith(prefix):
+            value = value[len(prefix):].strip().strip('"').strip("'")
+            lowered = value.lower()
+    parts = [part.strip().strip('"').strip("'") for part in value.split() if part.strip()]
+    for part in parts:
+        if part.lower().startswith("xkeysib-"):
+            return part
+    if len(parts) > 1:
+        return max(parts, key=len)
     return value
+
+
+def key_shape() -> str:
+    """Safe label for logs and health. Never returns the key."""
+    key = _brevo_key()
+    if not key:
+        return "missing"
+    if key.lower().startswith("xkeysib-") and len(key) >= 30:
+        return "brevo"
+    return "other"
 
 
 def _env_value(*names: str) -> str:
@@ -156,17 +174,28 @@ def send_reset_code(to_email: str, name: str, code: str) -> str:
     subject, text, html = _messages(name, code)
     sender = _from_address()
     if provider == "brevo":
-        _post_json(
-            "https://api.brevo.com/v3/smtp/email",
-            {"api-key": _brevo_key(), "accept": "application/json", "content-type": "application/json"},
-            {
-                "sender": {"email": sender, "name": _from_name()},
-                "to": [{"email": to_email, "name": (name or "").strip() or to_email}],
-                "subject": subject,
-                "textContent": text,
-                "htmlContent": html,
-            },
-        )
+        key = _brevo_key()
+        payload = {
+            "sender": {"email": sender, "name": _from_name()},
+            "to": [{"email": to_email, "name": (name or "").strip() or to_email}],
+            "subject": subject,
+            "textContent": text,
+            "htmlContent": html,
+        }
+        try:
+            _post_json(
+                "https://api.brevo.com/v3/smtp/email",
+                {"api-key": key, "accept": "application/json"},
+                payload,
+            )
+        except MailError as exc:
+            if exc.code != "bad_key":
+                raise
+            _post_json(
+                "https://api.brevo.com/v3/smtp/email",
+                {"authorization": "Bearer " + key, "accept": "application/json"},
+                payload,
+            )
     elif provider == "sendgrid":
         _post_json(
             "https://api.sendgrid.com/v3/mail/send",
