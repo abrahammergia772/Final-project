@@ -355,6 +355,8 @@ window.I18N_AM = {
 "Choose a different password. The old password cannot be used again.": "ሌላ የይለፍ ቃል ይምረጡ። የድሮው የይለፍ ቃል እንደገና መጠቀም አይቻልም።",
 "The new password was not saved in the database. Try again.": "አዲሱ የይለፍ ቃል በዳታቤዝ አልተቀመጠም። እንደገና ይሞክሩ።",
 "Continue with Google": "በ Google ይቀጥሉ",
+"The Google account list cannot open yet. Add GOOGLE_CLIENT_ID on the Render backend, then click again.": "የ Google መለያ ዝርዝር እስካሁን ሊከፈት አይችልም። በ Render ላይ GOOGLE_CLIENT_ID ይጨምሩ፣ ከዚያ እንደገና ይጫኑ።",
+"Google accounts on this device": "በዚህ መሣሪያ ላይ ያሉ የ Google መለያዎች",
 "Choose one of the Google accounts on this device.": "በዚህ መሣሪያ ላይ ካሉት የ Google መለያዎች አንዱን ይምረጡ።",
 "Choose a Google account to continue.": "ለመቀጠል የ Google መለያ ይምረጡ።",
 "Allow popups to see the Google accounts on this device.": "በዚህ መሣሪያ ላይ ያሉትን የ Google መለያዎች ለማየት ብቅ-ባዮችን ይፍቀዱ።",

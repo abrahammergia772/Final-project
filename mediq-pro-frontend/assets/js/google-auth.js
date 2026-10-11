@@ -10,22 +10,52 @@ function mountGoogleContinue(opts) {
   button.addEventListener("click", function () {
     if (opts.before && opts.before() === false) return;
     if (picker) {
-      picker.requestAccessToken({ prompt: "select_account" });
+      openDeviceAccountList(picker);
       return;
     }
     button.disabled = true;
     ready.then(function (client) {
       button.disabled = false;
       if (!client) {
-        opts.onError("Google sign-in is not connected yet.");
+        showDeviceAccountList("The Google account list cannot open yet. Add GOOGLE_CLIENT_ID on the Render backend, then click again.");
+        opts.onError("The Google account list cannot open yet. Add GOOGLE_CLIENT_ID on the Render backend, then click again.");
         return;
       }
-      client.requestAccessToken({ prompt: "select_account" });
+      openDeviceAccountList(client);
     }).catch(function () {
       button.disabled = false;
       opts.onError("Cannot reach the server. Please try again.");
     });
   });
+}
+
+function openDeviceAccountList(client) {
+  showDeviceAccountList("Choose one of the Google accounts on this device.");
+  client.requestAccessToken({ prompt: "select_account" });
+}
+
+function showDeviceAccountList(message) {
+  var old = document.getElementById("googleAccountSheet");
+  if (old) old.remove();
+  var sheet = document.createElement("div");
+  sheet.id = "googleAccountSheet";
+  sheet.setAttribute("role", "dialog");
+  sheet.setAttribute("aria-label", "Google accounts on this device");
+  sheet.style.cssText = "position:fixed;inset:0;z-index:80;background:rgba(6,20,27,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;";
+  sheet.innerHTML = ''
+    + '<div style="width:min(420px,100%);background:#fff;color:#06141B;border-radius:16px;padding:18px 16px 16px;box-shadow:0 16px 40px rgba(6,20,27,.25);">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">'
+    + '<strong style="font-size:16px;">Google accounts on this device</strong>'
+    + '<button type="button" id="googleAccountClose" style="border:0;background:#F4F7F8;color:#06141B;border-radius:8px;padding:6px 10px;font-weight:600;">Close</button>'
+    + '</div>'
+    + '<p style="margin:12px 0 0;font-size:14px;line-height:1.45;color:#06141B;">' + message + '</p>'
+    + '</div>';
+  document.body.appendChild(sheet);
+  sheet.addEventListener("click", function (event) {
+    if (event.target === sheet) sheet.remove();
+  });
+  var close = document.getElementById("googleAccountClose");
+  if (close) close.addEventListener("click", function () { sheet.remove(); });
 }
 
 function prepareGooglePicker(opts, button) {
