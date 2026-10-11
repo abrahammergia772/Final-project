@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 from config import SECRET_KEY
 from db import get_client
-from google_auth import GoogleAuthError, client_id as google_client_id, fetch_identity
+from google_auth import GoogleAuthError, client_id as google_client_id, fetch_access_identity, fetch_identity
 from mailer import MailError, configured as mail_configured, send_reset_code
 import reset_otp
 from security import current_user, hash_password, issue_token, password_saved, verify_password
@@ -52,7 +52,8 @@ class ResetRequest(BaseModel):
 
 
 class GoogleRequest(BaseModel):
-    credential: str
+    credential: str = ""
+    access_token: str = ""
     portal: str = ""
     role: str = "patient"
     phone: str = ""
@@ -245,7 +246,12 @@ def google_sign_in(req: GoogleRequest):
     if not expected:
         raise HTTPException(status_code=503, detail="Google sign-in is not connected yet.")
     try:
-        identity = fetch_identity(req.credential, expected)
+        if req.access_token:
+            identity = fetch_access_identity(req.access_token, expected)
+        elif req.credential:
+            identity = fetch_identity(req.credential, expected)
+        else:
+            raise GoogleAuthError("invalid")
     except GoogleAuthError as exc:
         log.error("google sign-in rejected: %s", exc.code)
         if exc.code == "unverified":

@@ -53,7 +53,8 @@ html[data-theme="dark"] .login-or::before, html[data-theme="dark"] .login-or::af
 .google-continue:hover { background: #F4F7F8; }
 .google-continue:disabled { opacity: .7; cursor: wait; }
 html[data-theme="dark"] .google-continue { background: #F7F7F4; color: #06141B; border-color: #D0D5D8; }
-.google-host { position: absolute; left: -9999px; top: 0; width: 320px; height: 44px; overflow: hidden; }
+.google-hint { margin: 8px 0 0; color: #06141B; font-size: 13px; text-align: center; }
+html[data-theme="dark"] .google-hint { color: #E7EEF2; }
 .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
 .btn-secondary { background: var(--white); color: var(--dark); border-color: var(--border); }
 .btn-secondary:hover:not(:disabled) { background: var(--light-gray); border-color: #CBD5E1; }

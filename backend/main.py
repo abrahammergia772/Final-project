@@ -102,7 +102,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.28",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.29",
             "groq": groq_configured(),
             "mail": mail_configured(),
             "mail_key": mail_key_shape(),
@@ -114,7 +114,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.28", "groq": groq_configured(), "mail": mail_configured(),
+    return {"status": "ok", "version": "2.0.29", "groq": groq_configured(), "mail": mail_configured(),
             "google": bool(os.getenv("GOOGLE_CLIENT_ID", "").strip() or os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()),
             "mail_key": mail_key_shape(),
             "groq_model": groq_model_name() if groq_configured() else "",

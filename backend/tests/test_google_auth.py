@@ -16,6 +16,19 @@ def test_google_identity_accepts_verified_account():
     assert identity["sub"] == "abc"
 
 
+def test_access_token_identity_accepts_account_chooser_payload():
+    identity = google_auth.parse_access_identity({
+        "audience": "client-123",
+        "email": "Nurse@Gmail.com",
+        "verified_email": True,
+        "user_id": "99",
+        "name": "Sara Bekele",
+    }, "client-123")
+    assert identity["email"] == "nurse@gmail.com"
+    assert identity["sub"] == "99"
+    assert identity["name"] == "Sara Bekele"
+
+
 def test_google_identity_rejects_other_app_and_unverified_email():
     payload = {
         "aud": "other-app",

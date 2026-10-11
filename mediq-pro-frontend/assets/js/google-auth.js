@@ -2,21 +2,60 @@
 function mountGoogleContinue(opts) {
   var button = document.getElementById(opts.buttonId);
   if (!button) return;
+  var picker = null;
+  var ready = prepareGooglePicker(opts, button).then(function (client) {
+    picker = client;
+    return client;
+  });
   button.addEventListener("click", function () {
     if (opts.before && opts.before() === false) return;
+    if (picker) {
+      picker.requestAccessToken({ prompt: "select_account" });
+      return;
+    }
     button.disabled = true;
-    loadGoogleClient().then(function (clientId) {
-      if (!clientId) {
-        button.disabled = false;
+    ready.then(function (client) {
+      button.disabled = false;
+      if (!client) {
         opts.onError("Google sign-in is not connected yet.");
         return;
       }
-      return loadGoogleScript().then(function () {
-        openGoogleAccount(clientId, opts, button);
-      });
+      client.requestAccessToken({ prompt: "select_account" });
     }).catch(function () {
       button.disabled = false;
       opts.onError("Cannot reach the server. Please try again.");
+    });
+  });
+}
+
+function prepareGooglePicker(opts, button) {
+  return loadGoogleClient().then(function (clientId) {
+    if (!clientId) return null;
+    return loadGoogleScript().then(function () {
+      return window.google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "openid email profile",
+        callback: function (response) {
+          button.disabled = false;
+          if (!response || response.error || !response.access_token) {
+            if (response && (response.error === "popup_closed" || response.error === "access_denied")) {
+              opts.onError("Choose a Google account to continue.");
+              return;
+            }
+            opts.onError("Google did not return an account.");
+            return;
+          }
+          opts.onAccessToken(response.access_token);
+        },
+        error_callback: function (error) {
+          button.disabled = false;
+          if (error && error.type === "popup_failed_to_open") {
+            opts.onError("Allow popups to see the Google accounts on this device.");
+            return;
+          }
+          opts.onError("Choose a Google account to continue.");
+        }
+      });
     });
   });
 }
@@ -48,45 +87,7 @@ function loadGoogleScript() {
   });
 }
 
-function openGoogleAccount(clientId, opts, button) {
-  var host = document.getElementById(opts.hostId);
-  if (!host) {
-    host = document.createElement("div");
-    host.id = opts.hostId;
-    host.className = "google-host";
-    host.setAttribute("aria-hidden", "true");
-    document.body.appendChild(host);
-  }
-  window.google.accounts.id.initialize({
-    client_id: clientId,
-    callback: function (response) {
-      button.disabled = false;
-      if (!response || !response.credential) {
-        opts.onError("Google did not return an account.");
-        return;
-      }
-      opts.onCredential(response.credential);
-    },
-    auto_select: false,
-    cancel_on_tap_outside: true,
-    use_fedcm_for_prompt: false
-  });
-  host.innerHTML = "";
-  window.google.accounts.id.renderButton(host, {
-    type: "standard",
-    theme: "outline",
-    size: "large",
-    text: "continue_with",
-    shape: "rectangular",
-    width: 320
-  });
-  window.setTimeout(function () {
-    var inner = host.querySelector("[role='button']");
-    if (inner) inner.click();
-    else window.google.accounts.id.prompt();
-    button.disabled = false;
-  }, 60);
-}
+
 
 function saveGoogleSession(data) {
   saveSession({
