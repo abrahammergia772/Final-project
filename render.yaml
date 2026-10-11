@@ -47,12 +47,15 @@ services:
         sync: false
       - key: GROQ_MODEL
         sync: false
-      # Password reset email. Render free blocks SMTP ports 25, 465, and 587,
-      # so the API sends through Brevo over HTTPS. Add these by hand on the
-      # existing backend service — a blueprint sync does not create sync:false
-      # variables on a service that already exists — then redeploy.
+      # Password reset email. Render free blocks SMTP ports 25, 465, and 587.
+      # An xkeysib- key sends over HTTPS. An xsmtpsib- key sends on port 2525
+      # and also needs the Login from the Brevo SMTP tab.
+      # Add these by hand on the existing backend service — a blueprint sync
+      # does not create sync:false variables on a service that already exists.
       # Never put the key value in this file.
       - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SMTP_LOGIN
         sync: false
       - key: MAIL_FROM
         value: wolaitasodo2026@gmail.com

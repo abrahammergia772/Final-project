@@ -347,7 +347,7 @@ window.I18N_AM = {
 "The code is emailed from wolaitasodo2026@gmail.com to this address. It is not shown on this page.": "ኮዱ ከ wolaitasodo2026@gmail.com ወደዚህ አድራሻ ይላካል። በዚህ ገጽ ላይ አይታይም።",
 "Could not email the verification code. Try again in a moment.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። ትንሽ ቆይተው ይሞክሩ።",
 "Could not email the verification code. In Brevo, confirm wolaitasodo2026@gmail.com as a sender, then try again.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። በ Brevo ውስጥ wolaitasodo2026@gmail.com ን እንደ ላኪ ያረጋግጡ፣ ከዚያ እንደገና ይሞክሩ።",
-"Could not email the verification code. In Brevo open SMTP and API, then API keys, create a key that starts with xkeysib-, and replace BREVO_API_KEY on the Render backend.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። በ Brevo ውስጥ SMTP and API ከዚያ API keys ክፈቱ። በ xkeysib- የሚጀምር ቁልፍ ይፍጠሩ እና በ Render ላይ BREVO_API_KEY ን ይተኩ።",
+"Could not email the verification code. The saved key is a Brevo SMTP key. On the Brevo SMTP tab, copy the Login (it ends with @smtp-brevo.com) and add it on the Render backend as BREVO_SMTP_LOGIN.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። የተቀመጠው ቁልፍ የ Brevo SMTP ቁልፍ ነው። በ Brevo SMTP ትር ላይ Login የሚለውን ይቅዱ (በ @smtp-brevo.com ያበቃል) እና በ Render ላይ BREVO_SMTP_LOGIN ብለው ይጨምሩ።",
 "Verification code sent to your email.": "የማረጋገጫ ኮዱ ወደ ኢሜይልዎ ተልኳል።",
 "Verification code sent to": "የማረጋገጫ ኮዱ ተልኳል ወደ",
 "A new code was sent to": "አዲስ ኮድ ተልኳል ወደ",

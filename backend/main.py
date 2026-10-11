@@ -29,7 +29,7 @@ import model_loader
 from permissions import require_permission
 from security import current_user
 from groq_client import configured as groq_configured, model_name as groq_model_name
-from mailer import configured as mail_configured, key_shape as mail_key_shape, probe_brevo_smtp, provider_name as mail_provider
+from mailer import configured as mail_configured, key_shape as mail_key_shape, provider_name as mail_provider
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, payments, reports
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -102,7 +102,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.24",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.25",
             "groq": groq_configured(),
             "mail": mail_configured(),
             "mail_key": mail_key_shape(),
@@ -113,14 +113,11 @@ def root():
 
 
 @app.get("/health")
-def health(probe: str = ""):
-    body = {"status": "ok", "version": "2.0.24", "groq": groq_configured(), "mail": mail_configured(),
+def health():
+    return {"status": "ok", "version": "2.0.25", "groq": groq_configured(), "mail": mail_configured(),
             "mail_key": mail_key_shape(),
             "groq_model": groq_model_name() if groq_configured() else "",
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}
-    if probe == "mail":
-        body["mail_auth"] = probe_brevo_smtp()
-    return body
 
 
 @app.get("/debug/memory")
