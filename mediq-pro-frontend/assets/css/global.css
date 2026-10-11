@@ -125,6 +125,26 @@ html:not([data-theme="dark"]) .btn-primary,
 html:not([data-theme="dark"]) .btn-primary:hover {
   color: #CCD0CF;
 }
+/* Day mode page is fog gray. Muted grays written for a white page disappear on it. */
+html:not([data-theme="dark"]) [style*="color:#6B7280"],
+html:not([data-theme="dark"]) [style*="color: #6B7280"],
+html:not([data-theme="dark"]) [style*="color:#9CA3AF"],
+html:not([data-theme="dark"]) [style*="color:#64748B"],
+html:not([data-theme="dark"]) [style*="color:#94A3B8"],
+html:not([data-theme="dark"]) [style*="color:#475569"] {
+  color: #06141B !important;
+}
+html:not([data-theme="dark"]) .text-gray,
+html:not([data-theme="dark"]) .doc-card .doc-meta,
+html:not([data-theme="dark"]) .doc-card .doc-summary,
+html:not([data-theme="dark"]) .doc-card .doc-title,
+html:not([data-theme="dark"]) .hint,
+html:not([data-theme="dark"]) .form-group .hint,
+html:not([data-theme="dark"]) .card-header .sub,
+html:not([data-theme="dark"]) .search-trigger,
+html:not([data-theme="dark"]) .search-trigger kbd {
+  color: #06141B;
+}
 h1 { font-size: 28px; }
 h2 { font-size: 22px; font-weight: 600; }
 h3 { font-size: 18px; font-weight: 600; }
