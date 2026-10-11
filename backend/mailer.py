@@ -22,9 +22,10 @@ BLOCKED_SMTP = {25, 465, 587}
 
 
 class MailError(Exception):
-    def __init__(self, code: str):
+    def __init__(self, code: str, detail: str = ""):
         super().__init__(code)
         self.code = code
+        self.detail = detail
 
 
 def _clean(name: str) -> str:
@@ -223,20 +224,11 @@ def send_reset_code(to_email: str, name: str, code: str) -> str:
             "textContent": text,
             "htmlContent": html,
         }
-        try:
-            _post_json(
-                "https://api.brevo.com/v3/smtp/email",
-                {"api-key": key, "accept": "application/json"},
-                payload,
-            )
-        except MailError as exc:
-            if exc.code != "bad_key":
-                raise
-            _post_json(
-                "https://api.brevo.com/v3/smtp/email",
-                {"authorization": "Bearer " + key, "accept": "application/json"},
-                payload,
-            )
+        _post_json(
+            "https://api.brevo.com/v3/smtp/email",
+            {"api-key": key, "accept": "application/json"},
+            payload,
+        )
     elif provider == "sendgrid":
         _post_json(
             "https://api.sendgrid.com/v3/mail/send",
@@ -268,6 +260,19 @@ def send_reset_code(to_email: str, name: str, code: str) -> str:
     return provider
 
 
+def ip_block_message(text: str) -> str:
+    """Public message. Includes the blocked IP only, never the key."""
+    match = re.search(r"\b(\d{1,3}(?:\.\d{1,3}){3})\b", text or "")
+    ip = match.group(1) if match else ""
+    message = (
+        "Could not email the verification code. Brevo blocked this server because its IP is not authorized. "
+        "Open https://app.brevo.com/security/authorised_ips and turn off blocking for API keys"
+    )
+    if ip:
+        return message + ", or authorize " + ip + "."
+    return message + "."
+
+
 def _post_json(url: str, headers: dict, payload: dict) -> None:
     import httpx
 
@@ -279,6 +284,8 @@ def _post_json(url: str, headers: dict, payload: dict) -> None:
     if response.status_code < 200 or response.status_code >= 300:
         detail = _safe(response.text).lower()
         log.error("email provider rejected the message: %s %s", response.status_code, _safe(response.text))
+        if "unrecognised ip" in detail or "unrecognized ip" in detail:
+            raise MailError("ip_blocked", ip_block_message(response.text))
         if "sender" in detail or "not yet activated" in detail or "valid sender" in detail:
             raise MailError("sender")
         if response.status_code in (401, 403):
