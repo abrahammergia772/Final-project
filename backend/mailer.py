@@ -11,6 +11,7 @@
 # =============================================================================
 import logging
 import os
+import re
 import smtplib
 import ssl
 from email.message import EmailMessage
@@ -69,6 +70,37 @@ def _env_value(*names: str) -> str:
             if cleaned:
                 return cleaned
     return ""
+
+
+def _raw_brevo_values() -> list[str]:
+    values = []
+    for name, value in os.environ.items():
+        upper = name.upper().replace("-", "_")
+        if "BREVO" in upper or "SENDINBLUE" in upper or upper in {"SMTP_USER", "SMTP_USERNAME", "SMTP_LOGIN"}:
+            text = (value or "").replace("\ufeff", "").replace("\u200b", "")
+            if text.strip():
+                values.append(text)
+    return values
+
+
+def _smtp_login() -> str:
+    """Brevo's SMTP username is often name@smtp-brevo.com, not the hospital Gmail."""
+    explicit = _env_value("BREVO_SMTP_LOGIN", "BREVO_SMTP_USER", "SMTP_LOGIN")
+    if explicit and "@" in explicit and not explicit.lower().startswith(("xkeysib-", "xsmtpsib-")):
+        return explicit
+    found = []
+    for text in _raw_brevo_values():
+        found.extend(re.findall(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}", text))
+    for email in found:
+        if email.lower().endswith("@smtp-brevo.com"):
+            return email
+    for email in found:
+        if not email.lower().startswith(("xkeysib-", "xsmtpsib-")):
+            return email
+    user = _env_value("SMTP_USER")
+    if user and "@" in user and not user.lower().startswith(("xkeysib-", "xsmtpsib-")):
+        return user
+    return HOSPITAL_FROM
 
 
 def _brevo_key() -> str:
@@ -254,11 +286,12 @@ def _post_json(url: str, headers: dict, payload: dict) -> None:
         raise MailError("send_failed")
 
 
-def probe_brevo_smtp() -> str:
-    """Login only. Returns ok, rejected, or missing. Never returns the key."""
+def probe_brevo_smtp() -> dict:
+    """Login only. Never returns the key or the full username."""
     if key_shape() != "smtp":
-        return "missing"
-    user = _env_value("BREVO_SMTP_LOGIN", "SMTP_USER") or HOSPITAL_FROM
+        return {"auth": "missing"}
+    user = _smtp_login()
+    domain = user.split("@", 1)[1].lower() if "@" in user else "none"
     password = _brevo_key()
     try:
         with smtplib.SMTP("smtp-relay.brevo.com", 2525, timeout=20) as smtp:
@@ -267,15 +300,18 @@ def probe_brevo_smtp() -> str:
             smtp.ehlo()
             smtp.login(user, password)
             smtp.quit()
-        return "ok"
+        return {"auth": "ok", "login_domain": domain}
+    except smtplib.SMTPAuthenticationError as exc:
+        log.error("brevo smtp probe rejected: %s", getattr(exc, "smtp_code", ""))
+        return {"auth": "rejected", "login_domain": domain, "code": getattr(exc, "smtp_code", 0)}
     except Exception as exc:  # noqa: BLE001
         log.error("brevo smtp probe failed: %s", type(exc).__name__)
-        return "rejected"
+        return {"auth": "error", "login_domain": domain, "kind": type(exc).__name__}
 
 
 def _send_brevo_smtp(to_email: str, subject: str, text: str, html: str) -> None:
     """Send with a Brevo SMTP key. Render free blocks ports 587 and 465, so use 2525."""
-    user = _env_value("BREVO_SMTP_LOGIN", "SMTP_USER") or HOSPITAL_FROM
+    user = _smtp_login()
     password = _brevo_key()
     message = EmailMessage()
     message["From"] = f"{_from_name()} <{_from_address()}>"
