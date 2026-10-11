@@ -41,6 +41,19 @@
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-primary { background: var(--primary); color: var(--on-primary, #CCD0CF); }
+.login-or { display: flex; align-items: center; gap: 10px; margin: 14px 0 12px; color: #06141B; font-size: 13px; }
+.login-or::before, .login-or::after { content: ""; flex: 1; height: 1px; background: #C5CED4; }
+html[data-theme="dark"] .login-or { color: #E7EEF2; }
+html[data-theme="dark"] .login-or::before, html[data-theme="dark"] .login-or::after { background: #3D4C56; }
+.google-continue {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; min-height: 46px; border-radius: 10px; border: 1px solid #9AA6AC;
+  background: #fff; color: #06141B; font-weight: 600; cursor: pointer;
+}
+.google-continue:hover { background: #F4F7F8; }
+.google-continue:disabled { opacity: .7; cursor: wait; }
+html[data-theme="dark"] .google-continue { background: #F7F7F4; color: #06141B; border-color: #D0D5D8; }
+.google-host { position: absolute; left: -9999px; top: 0; width: 320px; height: 44px; overflow: hidden; }
 .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
 .btn-secondary { background: var(--white); color: var(--dark); border-color: var(--border); }
 .btn-secondary:hover:not(:disabled) { background: var(--light-gray); border-color: #CBD5E1; }

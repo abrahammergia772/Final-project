@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from config import SECRET_KEY
 from db import get_client
+from google_auth import GoogleAuthError, client_id as google_client_id, fetch_identity
 from mailer import MailError, configured as mail_configured, send_reset_code
 import reset_otp
 from security import current_user, hash_password, issue_token, password_saved, verify_password
@@ -48,6 +49,19 @@ class ResetRequest(BaseModel):
     email: str
     code: str = ""
     new_password: str = ""
+
+
+class GoogleRequest(BaseModel):
+    credential: str
+    portal: str = ""
+    role: str = "patient"
+    phone: str = ""
+    dob: str = ""
+    gender: str = ""
+    blood: str = ""
+    emergency_contact: str = ""
+    department: str = ""
+    details: dict = Field(default_factory=dict)
 
 
 class PermissionsBody(BaseModel):
@@ -184,6 +198,112 @@ def signup(req: SignupRequest):
         raise HTTPException(status_code=503, detail="Registration service unavailable")
 
 
+def _google_session(client, row: dict, portal: str) -> dict:
+    if row.get("status", "active") != "active":
+        raise HTTPException(status_code=403, detail="Account is not active")
+    role = row.get("role", "patient")
+    email = str(row.get("email") or "").strip().lower()
+    if role == "admin" and portal != "admin":
+        raise HTTPException(status_code=403, detail="Administrators sign in only through the administrator portal.")
+    if portal == "admin" and role != "admin":
+        raise HTTPException(status_code=403, detail="This portal is for administrators only. Use the main login for other roles.")
+    card = _ensure_patient_card(client, row.get("id"), role)
+    out = {
+        "token": _token_for(row.get("id"), role, email, row.get("name") or email),
+        "role": role,
+        "user_id": row.get("id"),
+        "name": row.get("name") or email,
+        "email": email,
+        "created": False,
+    }
+    if card:
+        out["health_card"] = {"id": card.get("id"), "issued": (card.get("details") or {}).get("health_card", {}).get("issued")}
+    return out
+
+
+def _link_google(client, row: dict, subject: str) -> None:
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    if details.get("google_sub") == subject:
+        return
+    details = dict(details)
+    details["google_sub"] = subject
+    details["auth"] = "google"
+    try:
+        client.table("users").update({"details": details}).eq("id", row["id"]).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("google link failed: %s", type(exc).__name__)
+
+
+@router.get("/auth/google-client")
+def google_client():
+    return {"client_id": google_client_id()}
+
+
+@router.post("/auth/google")
+def google_sign_in(req: GoogleRequest):
+    expected = google_client_id()
+    if not expected:
+        raise HTTPException(status_code=503, detail="Google sign-in is not connected yet.")
+    try:
+        identity = fetch_identity(req.credential, expected)
+    except GoogleAuthError as exc:
+        log.error("google sign-in rejected: %s", exc.code)
+        if exc.code == "unverified":
+            raise HTTPException(status_code=401, detail="This Google email is not verified.")
+        raise HTTPException(status_code=401, detail="Google could not confirm this account.")
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=503, detail="Supabase is not configured")
+    email = identity["email"]
+    portal = (req.portal or "").strip().lower()
+    try:
+        row = _user_by_email(client, email, "id,email,name,role,status,details,password_hash")
+    except Exception as exc:  # noqa: BLE001
+        log.error("google lookup failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Sign-in service unavailable")
+    if row:
+        _link_google(client, row, identity["sub"])
+        session = _google_session(client, row, portal)
+        session["created"] = False
+        return session
+    role = req.role if req.role in _ALLOWED_ROLES else "patient"
+    details = dict(req.details or {})
+    details["auth"] = "google"
+    details["google_sub"] = identity["sub"]
+    created_row = {
+        "name": identity["name"],
+        "email": email,
+        "password_hash": hash_password(secrets.token_urlsafe(32)),
+        "role": role,
+        "phone": (req.phone or "").strip(),
+        "dob": (req.dob or "").strip(),
+        "gender": (req.gender or "").strip(),
+        "blood": (req.blood or "").strip(),
+        "emergency_contact": (req.emergency_contact or "").strip(),
+        "department": (req.department or "").strip() if role != "patient" else "",
+        "details": details,
+        "status": "active",
+    }
+    try:
+        resp = client.table("users").insert(created_row).execute()
+        saved = dict((resp.data or [created_row])[0])
+    except Exception as exc:  # noqa: BLE001
+        log.error("google signup failed: %s", type(exc).__name__)
+        try:
+            row = _user_by_email(client, email, "id,email,name,role,status,details")
+        except Exception:
+            row = None
+        if not row:
+            raise HTTPException(status_code=503, detail="Could not save the Google account.")
+        saved = row
+    if role == "patient":
+        try:
+            issue_health_card(client, saved)
+        except Exception as exc:  # noqa: BLE001
+            log.error("health card after google signup failed: %s", type(exc).__name__)
+    session = _google_session(client, saved, portal)
+    session["created"] = True
+    return session
 
 
 def _safe_exc(exc: Exception) -> str:

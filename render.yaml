@@ -57,6 +57,13 @@ services:
         sync: false
       - key: BREVO_SMTP_LOGIN
         sync: false
+      # Google sign-in. Create an OAuth client at
+      # https://console.cloud.google.com/apis/credentials
+      # Authorized JavaScript origin: https://wsh-cpug.onrender.com
+      # Add the client id here by hand. Never put it in git if you prefer,
+      # and never commit a client secret.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
       - key: MAIL_FROM
         value: wolaitasodo2026@gmail.com
       - key: MAIL_FROM_NAME

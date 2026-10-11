@@ -59,6 +59,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip()
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
 # Optional: use the service-role key for server-side writes (keep secret!)
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
+# Public OAuth client id. The secret is not used; Google ID tokens are verified
+# against this audience. Set it on the Render backend, never in the repo.
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
 
 # --- CORS ------------------------------------------------------------------
 # Default list covers: localhost dev, any Render static site (onrender.com),
