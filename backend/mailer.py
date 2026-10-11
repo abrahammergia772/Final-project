@@ -30,8 +30,11 @@ def _clean(name: str) -> str:
     return os.getenv(name, "").strip().strip('"').strip("'")
 
 
+HOSPITAL_FROM = "wolaitasodo2026@gmail.com"
+
+
 def _from_address() -> str:
-    return _clean("MAIL_FROM") or _clean("SMTP_USER")
+    return _clean("MAIL_FROM") or _clean("SMTP_USER") or HOSPITAL_FROM
 
 
 def _from_name() -> str:

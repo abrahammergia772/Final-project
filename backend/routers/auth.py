@@ -539,7 +539,7 @@ def _request_reset(email: str) -> dict:
         raise HTTPException(status_code=404, detail="No account uses that email.")
     if not mail_configured():
         log.warning("Password reset email is not configured")
-        raise HTTPException(status_code=503, detail="Could not email the verification code. The hospital email sender is not connected yet.")
+        raise HTTPException(status_code=503, detail="Could not email the verification code. wolaitasodo2026@gmail.com is the hospital sender, but it is not allowed to send yet.")
     code = reset_otp.new_code()
     try:
         send_reset_code(email, str(row.get("name") or ""), code)

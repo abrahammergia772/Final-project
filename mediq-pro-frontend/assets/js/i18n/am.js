@@ -343,6 +343,8 @@ window.I18N_AM = {
 "Code from your email": "ከኢሜይልዎ የመጣ ኮድ",
 "Could not email the verification code.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም።",
 "Could not email the verification code. The hospital email sender is not connected yet.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። የሆስፒታሉ ኢሜይል ላኪ እስካሁን አልተገናኘም።",
+"Could not email the verification code. wolaitasodo2026@gmail.com is the hospital sender, but it is not allowed to send yet.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። wolaitasodo2026@gmail.com የሆስፒታሉ ላኪ ነው፣ ግን እስካሁን መላክ አልተፈቀደለትም።",
+"The code is emailed from wolaitasodo2026@gmail.com to this address. It is not shown on this page.": "ኮዱ ከ wolaitasodo2026@gmail.com ወደዚህ አድራሻ ይላካል። በዚህ ገጽ ላይ አይታይም።",
 "Could not email the verification code. Try again in a moment.": "የማረጋገጫ ኮዱን በኢሜይል መላክ አልተቻለም። ትንሽ ቆይተው ይሞክሩ።",
 "Verification code sent to your email.": "የማረጋገጫ ኮዱ ወደ ኢሜይልዎ ተልኳል።",
 "Verification code sent to": "የማረጋገጫ ኮዱ ተልኳል ወደ",

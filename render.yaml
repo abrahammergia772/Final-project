@@ -55,9 +55,9 @@ services:
       - key: BREVO_API_KEY
         sync: false
       - key: MAIL_FROM
-        sync: false
+        value: wolaitasodo2026@gmail.com
       - key: MAIL_FROM_NAME
-        sync: false
+        value: Wolaita Sodo Hospital
       - key: SENDGRID_API_KEY
         sync: false
       - key: RESEND_API_KEY
