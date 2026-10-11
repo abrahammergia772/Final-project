@@ -39,7 +39,8 @@ def _normalize_secret(value: str) -> str:
             lowered = value.lower()
     parts = [part.strip().strip('"').strip("'") for part in value.split() if part.strip()]
     for part in parts:
-        if part.lower().startswith("xkeysib-"):
+        low = part.lower()
+        if low.startswith("xkeysib-") or low.startswith("xsmtpsib-"):
             return part
     if len(parts) > 1:
         return max(parts, key=len)
@@ -51,8 +52,11 @@ def key_shape() -> str:
     key = _brevo_key()
     if not key:
         return "missing"
-    if key.lower().startswith("xkeysib-") and len(key) >= 30:
+    low = key.lower()
+    if low.startswith("xkeysib-"):
         return "brevo"
+    if low.startswith("xsmtpsib-"):
+        return "smtp"
     return "other"
 
 
@@ -113,8 +117,11 @@ def _smtp_usable() -> bool:
 def provider_name() -> str:
     forced = _clean("MAIL_PROVIDER").lower()
     available = []
-    if _brevo_key() and _from_address():
+    kind = key_shape()
+    if kind == "brevo" and _from_address():
         available.append("brevo")
+    if kind == "smtp" and _from_address():
+        available.append("brevo_smtp")
     if _clean("SENDGRID_API_KEY") and _from_address():
         available.append("sendgrid")
     if _clean("RESEND_API_KEY") and _from_address():
@@ -173,7 +180,9 @@ def send_reset_code(to_email: str, name: str, code: str) -> str:
         raise MailError("not_configured")
     subject, text, html = _messages(name, code)
     sender = _from_address()
-    if provider == "brevo":
+    if provider == "brevo_smtp":
+        _send_brevo_smtp(to_email, subject, text, html)
+    elif provider == "brevo":
         key = _brevo_key()
         payload = {
             "sender": {"email": sender, "name": _from_name()},
@@ -243,6 +252,28 @@ def _post_json(url: str, headers: dict, payload: dict) -> None:
         if response.status_code in (401, 403):
             raise MailError("bad_key")
         raise MailError("send_failed")
+
+
+def _send_brevo_smtp(to_email: str, subject: str, text: str, html: str) -> None:
+    """Send with a Brevo SMTP key. Render free blocks ports 587 and 465, so use 2525."""
+    user = _env_value("BREVO_SMTP_LOGIN", "SMTP_USER") or HOSPITAL_FROM
+    password = _brevo_key()
+    message = EmailMessage()
+    message["From"] = f"{_from_name()} <{_from_address()}>"
+    message["To"] = to_email
+    message["Subject"] = subject
+    message.set_content(text)
+    message.add_alternative(html, subtype="html")
+    try:
+        with smtplib.SMTP("smtp-relay.brevo.com", 2525, timeout=20) as smtp:
+            smtp.ehlo()
+            smtp.starttls(context=ssl.create_default_context())
+            smtp.ehlo()
+            smtp.login(user, password)
+            smtp.send_message(message)
+    except Exception as exc:  # noqa: BLE001
+        log.error("brevo smtp login failed: %s", type(exc).__name__)
+        raise MailError("bad_key") from exc
 
 
 def _send_smtp(to_email: str, subject: str, text: str) -> None:

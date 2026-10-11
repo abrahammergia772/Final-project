@@ -46,6 +46,7 @@ def test_gmail_smtp_is_not_used_on_render_free(monkeypatch):
 def test_messy_brevo_key_is_cleaned():
     assert mailer._normalize_secret("api-key: xkeysib-abc123") == "xkeysib-abc123"
     assert mailer._normalize_secret("  xkeysib-abc123  ") == "xkeysib-abc123"
+    assert mailer._normalize_secret("SMTP key xsmtpsib-secret") == "xsmtpsib-secret"
 
 
 def test_brevo_key_name_is_not_case_sensitive(monkeypatch):
