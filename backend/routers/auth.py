@@ -545,6 +545,10 @@ def _request_reset(email: str) -> dict:
         send_reset_code(email, str(row.get("name") or ""), code)
     except MailError as exc:
         log.error("reset email failed: %s", exc.code)
+        if exc.code == "sender":
+            raise HTTPException(status_code=503, detail="Could not email the verification code. In Brevo, confirm wolaitasodo2026@gmail.com as a sender, then try again.")
+        if exc.code == "bad_key":
+            raise HTTPException(status_code=503, detail="Could not email the verification code. The Brevo API key was rejected.")
         raise HTTPException(status_code=503, detail="Could not email the verification code. Try again in a moment.")
     try:
         _save_reset(client, row, email, code)

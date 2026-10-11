@@ -43,6 +43,13 @@ def test_gmail_smtp_is_not_used_on_render_free(monkeypatch):
     assert mailer.configured() is False
 
 
+def test_brevo_key_name_is_not_case_sensitive(monkeypatch):
+    monkeypatch.delenv("BREVO_API_KEY", raising=False)
+    monkeypatch.setenv("brevo-api-key", "xkeysib-test")
+    monkeypatch.setenv("MAIL_FROM", "wolaitasodo2026@gmail.com")
+    assert mailer.provider_name() == "brevo"
+
+
 def test_brevo_is_selected_when_configured(monkeypatch):
     monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
     monkeypatch.setenv("MAIL_FROM", "ward@example.com")

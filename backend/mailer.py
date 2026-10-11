@@ -30,6 +30,41 @@ def _clean(name: str) -> str:
     return os.getenv(name, "").strip().strip('"').strip("'")
 
 
+def _normalize_secret(value: str) -> str:
+    value = (value or "").strip().strip('"').strip("'")
+    for prefix in ("api-key:", "api-key=", "bearer ", "brevo_api_key="):
+        if value.lower().startswith(prefix):
+            value = value[len(prefix):].strip()
+    return value
+
+
+def _env_value(*names: str) -> str:
+    """Read an env var by name, ignoring case and dashes."""
+    wanted = {name.upper().replace("-", "_") for name in names}
+    for name, value in os.environ.items():
+        if name.upper().replace("-", "_") in wanted:
+            cleaned = _normalize_secret(value)
+            if cleaned:
+                return cleaned
+    return ""
+
+
+def _brevo_key() -> str:
+    key = _env_value(
+        "BREVO_API_KEY", "BREVO_KEY", "BREVO_APIKEY", "BREVO_API_TOKEN",
+        "BREVO_TOKEN", "SIB_API_KEY", "SENDINBLUE_API_KEY",
+    )
+    if key:
+        return key
+    for name, value in os.environ.items():
+        upper = name.upper().replace("-", "_")
+        if "BREVO" in upper or "SENDINBLUE" in upper:
+            cleaned = _normalize_secret(value)
+            if cleaned:
+                return cleaned
+    return ""
+
+
 HOSPITAL_FROM = "wolaitasodo2026@gmail.com"
 
 
@@ -60,7 +95,7 @@ def _smtp_usable() -> bool:
 def provider_name() -> str:
     forced = _clean("MAIL_PROVIDER").lower()
     available = []
-    if _clean("BREVO_API_KEY") and _from_address():
+    if _brevo_key() and _from_address():
         available.append("brevo")
     if _clean("SENDGRID_API_KEY") and _from_address():
         available.append("sendgrid")
@@ -79,8 +114,7 @@ def configured() -> bool:
 
 def _safe(text: str) -> str:
     text = (text or "").replace("\n", " ")
-    for name in ("BREVO_API_KEY", "SENDGRID_API_KEY", "RESEND_API_KEY", "SMTP_PASSWORD"):
-        secret = _clean(name)
+    for secret in (_brevo_key(), _clean("SENDGRID_API_KEY"), _clean("RESEND_API_KEY"), _clean("SMTP_PASSWORD")):
         if secret and len(secret) > 4:
             text = text.replace(secret, "***")
     return text[:180]
@@ -124,7 +158,7 @@ def send_reset_code(to_email: str, name: str, code: str) -> str:
     if provider == "brevo":
         _post_json(
             "https://api.brevo.com/v3/smtp/email",
-            {"api-key": _clean("BREVO_API_KEY"), "accept": "application/json"},
+            {"api-key": _brevo_key(), "accept": "application/json", "content-type": "application/json"},
             {
                 "sender": {"email": sender, "name": _from_name()},
                 "to": [{"email": to_email, "name": (name or "").strip() or to_email}],
@@ -173,7 +207,12 @@ def _post_json(url: str, headers: dict, payload: dict) -> None:
         log.error("email provider unreachable: %s", type(exc).__name__)
         raise MailError("send_failed") from exc
     if response.status_code < 200 or response.status_code >= 300:
+        detail = _safe(response.text).lower()
         log.error("email provider rejected the message: %s %s", response.status_code, _safe(response.text))
+        if "sender" in detail or "not yet activated" in detail or "valid sender" in detail:
+            raise MailError("sender")
+        if response.status_code in (401, 403):
+            raise MailError("bad_key")
         raise MailError("send_failed")
 
 

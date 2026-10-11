@@ -102,7 +102,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.19",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.20",
             "groq": groq_configured(),
             "mail": mail_configured(),
             "low_memory": LOW_MEMORY,
@@ -113,7 +113,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.19", "groq": groq_configured(), "mail": mail_configured(),
+    return {"status": "ok", "version": "2.0.20", "groq": groq_configured(), "mail": mail_configured(),
             "groq_model": groq_model_name() if groq_configured() else "",
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}
 
