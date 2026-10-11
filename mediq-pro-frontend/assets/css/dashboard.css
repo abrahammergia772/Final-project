@@ -125,7 +125,7 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
 .icon-btn .notif-dot[hidden] { display: none; }
 
 /* ---------- Page body ---------- */
-.page-body { padding: var(--sp-6); flex: 1; }
+.page-body { padding: var(--sp-6); flex: 1; width: 100%; box-sizing: border-box; }
 @media (max-width: 768px) {
   .page-body { padding: var(--sp-4); }
   /* Sidebar is off-canvas on mobile — content must take full width */

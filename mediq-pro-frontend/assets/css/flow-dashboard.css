@@ -1,5 +1,5 @@
 /* Timeline-first dashboard. Flat surfaces, no glass, no glow cards. */
-.flow-dash { display: flex; flex-direction: column; gap: 12px; max-width: 920px; }
+.flow-dash { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: none; }
 .flow-dash .section-label {
   margin: 0 0 8px;
   color: var(--gray);
@@ -83,7 +83,8 @@
 .flow-node {
   position: relative;
   z-index: 1;
-  flex: 0 0 92px;
+  flex: 1 1 0;
+  min-width: 92px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -205,8 +206,8 @@ html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
 .seg-off { background: #EEF1F3; color: #4A5C6A; }
 .shift-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; color: var(--gray); font-size: 12px; }
 .shift-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
-.ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.must-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; }
+.must-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
 .must-card {
   display: flex;
   flex-direction: column;
