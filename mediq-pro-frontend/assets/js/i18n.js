@@ -63,7 +63,7 @@
   function loadDict() {
     return new Promise(function (resolve) {
       var s = document.createElement("script");
-      s.src = baseDir() + "i18n/am.js?v=5";
+      s.src = baseDir() + "i18n/am.js?v=6";
       s.onload = function () {
         if (window.I18N_AM && typeof window.I18N_AM === "object") {
           for (var k in window.I18N_AM) {

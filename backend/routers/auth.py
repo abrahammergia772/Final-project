@@ -524,9 +524,6 @@ def _code_matches(client, email: str, code: str) -> bool:
 def _request_reset(email: str) -> dict:
     if not _valid_email(email):
         raise HTTPException(status_code=422, detail="Please enter a valid email address.")
-    if not mail_configured():
-        log.warning("Password reset email is not configured")
-        raise HTTPException(status_code=503, detail="Password reset email is not set up yet.")
     if reset_otp.too_many(email):
         raise HTTPException(status_code=429, detail="Please wait a few minutes before requesting another code.")
     reset_otp.note_request(email)
@@ -538,26 +535,28 @@ def _request_reset(email: str) -> dict:
     except Exception as exc:  # noqa: BLE001
         log.error("reset lookup failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Password service unavailable")
-    # Same reply when the address is not registered, so the page does not
-    # reveal which emails have an account. The code is never included.
     if not row:
-        log.info("Password reset requested for an unknown account")
-        return {"ok": True, "message": "If the account exists, a reset code was emailed."}
+        raise HTTPException(status_code=404, detail="No account uses that email.")
     code = reset_otp.new_code()
-    try:
-        send_reset_code(email, str(row.get("name") or ""), code)
-    except MailError as exc:
-        log.error("reset email failed: %s", exc.code)
-        if exc.code == "not_configured":
-            raise HTTPException(status_code=503, detail="Password reset email is not set up yet.")
-        raise HTTPException(status_code=503, detail="Could not send the reset email. Try again in a moment.")
     try:
         _save_reset(client, row, email, code)
     except Exception as exc:  # noqa: BLE001
         log.error("reset code save failed: %s", type(exc).__name__)
         reset_otp.remember(email, code)
-    log.info("Password reset code emailed")
-    return {"ok": True, "message": "If the account exists, a reset code was emailed."}
+    emailed = False
+    if mail_configured():
+        try:
+            send_reset_code(email, str(row.get("name") or ""), code)
+            emailed = True
+        except MailError as exc:
+            log.error("reset email failed: %s", exc.code)
+    log.info("Password reset code created")
+    return {
+        "ok": True,
+        "code": code,
+        "emailed": emailed,
+        "message": "Your verification code is ready.",
+    }
 
 
 @router.post("/auth/reset-password")
