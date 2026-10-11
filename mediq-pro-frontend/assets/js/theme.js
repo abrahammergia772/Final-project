@@ -11,6 +11,11 @@
    ========================================================================== */
 (function () {
   "use strict";
+  try {
+    if (window.matchMedia && window.matchMedia("(min-width: 769px)").matches) {
+      document.documentElement.classList.add("nav-closed");
+    }
+  } catch (e) { /* keep the sidebar if matchMedia is unavailable */ }
 
   var LS_KEY = "mediq_theme";
   var memory = {};

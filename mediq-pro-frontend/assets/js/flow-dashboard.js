@@ -37,6 +37,14 @@
         { name: "Clinical decision", pct: 91, runs: 34, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "clinical-decision.html" },
         { name: "Lab analyzer", pct: 88, runs: 21, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "flask", prompt: "Show Lab analyzer details", href: "ai-diagnosis.html" },
         { name: "Vitals alert", pct: 84, runs: 18, color: "#E24B4A", bg: "#FCEBEB", ink: "#A32D2D", icon: "heart", prompt: "Show Vitals alert details", href: "patients.html" }
+      ],
+      must: [
+        { name: "Patients", note: "Who is in your care", href: "patients.html" },
+        { name: "Consultation", note: "Start a visit", href: "consultation.html" },
+        { name: "Appointments", note: "Today's visits", href: "appointments.html" },
+        { name: "Prescriptions", note: "Write or review", href: "prescriptions.html" },
+        { name: "Bed requests", note: "Request a bed", href: "beds.html" },
+        { name: "Clinical decision", note: "Decision support", href: "clinical-decision.html" }
       ]
     },
     nurse: {
@@ -60,6 +68,14 @@
       ai: [
         { name: "Vitals alert", pct: 84, runs: 18, color: "#E24B4A", bg: "#FCEBEB", ink: "#A32D2D", icon: "heart", prompt: "Show Vitals alert details", href: "vitals.html" },
         { name: "Clinical decision", pct: 91, runs: 12, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "vitals.html" }
+      ],
+      must: [
+        { name: "Vitals", note: "Record vitals", href: "vitals.html" },
+        { name: "Medications", note: "Give medication", href: "medications.html" },
+        { name: "Observations", note: "Ward notes", href: "observations.html" },
+        { name: "Care Plans", note: "Care plan", href: "care-plans.html" },
+        { name: "Beds", note: "Ward beds", href: "beds.html" },
+        { name: "Patients", note: "Assigned patients", href: "patients.html" }
       ]
     },
     pharmacist: {
@@ -83,6 +99,14 @@
       ai: [
         { name: "Drug interaction", pct: 96, runs: 15, color: "#BA7517", bg: "#FAEEDA", ink: "#633806", icon: "pill", prompt: "Show Drug interaction details", href: "ai-interaction.html" },
         { name: "Inventory forecast", pct: 79, runs: 9, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "box", prompt: "Show Inventory forecast details", href: "inventory.html" }
+      ],
+      must: [
+        { name: "Prescriptions", note: "Dispense orders", href: "prescriptions.html" },
+        { name: "Inventory", note: "Stock levels", href: "inventory.html" },
+        { name: "Drug interaction", note: "Check interactions", href: "ai-interaction.html" },
+        { name: "Inventory forecast", note: "Forecast stock", href: "ai-forecast.html" },
+        { name: "Suppliers", note: "Suppliers", href: "suppliers.html" },
+        { name: "Patients", note: "Find a patient", href: "patients.html" }
       ]
     },
     reception: {
@@ -106,6 +130,14 @@
       ai: [
         { name: "Appointment AI", pct: 86, runs: 27, color: "#185FA5", bg: "#E6F1FB", ink: "#0C447C", icon: "cal", prompt: "Show Appointment AI details", href: "appointments.html" },
         { name: "Symptom chatbot", pct: 90, runs: 11, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Symptom chatbot details", href: "queue.html" }
+      ],
+      must: [
+        { name: "Registration", note: "Register a patient", href: "registration.html" },
+        { name: "Queue", note: "Waiting line", href: "queue.html" },
+        { name: "Appointments", note: "Book a visit", href: "appointments.html" },
+        { name: "Cashier", note: "Take payment", href: "billing.html" },
+        { name: "Admissions", note: "Admit a patient", href: "admissions.html" },
+        { name: "Patients", note: "Find a patient", href: "patients.html" }
       ]
     },
     admin: {
@@ -131,6 +163,14 @@
         { name: "Drug interaction", pct: 96, runs: 15, color: "#BA7517", bg: "#FAEEDA", ink: "#633806", icon: "pill", prompt: "Show Drug interaction details", href: "ai-config.html" },
         { name: "Lab analyzer", pct: 88, runs: 21, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "flask", prompt: "Show Lab analyzer details", href: "ai-config.html" },
         { name: "Vitals alert", pct: 84, runs: 18, color: "#E24B4A", bg: "#FCEBEB", ink: "#A32D2D", icon: "heart", prompt: "Show Vitals alert details", href: "ai-config.html" }
+      ],
+      must: [
+        { name: "Users", note: "Staff accounts", href: "users.html" },
+        { name: "Roles", note: "Access control", href: "roles.html" },
+        { name: "Wards", note: "Wards and beds", href: "wards.html" },
+        { name: "Announcements", note: "Hospital notices", href: "announcements.html" },
+        { name: "Audit Logs", note: "Review activity", href: "audit-logs.html" },
+        { name: "Shifts", note: "Who is on duty", href: "shifts.html" }
       ]
     },
     manager: {
@@ -154,6 +194,14 @@
       ai: [
         { name: "Appointment AI", pct: 86, runs: 27, color: "#185FA5", bg: "#E6F1FB", ink: "#0C447C", icon: "cal", prompt: "Show Appointment AI details", href: "reports.html" },
         { name: "Inventory forecast", pct: 79, runs: 9, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "box", prompt: "Show Inventory forecast details", href: "finance.html" }
+      ],
+      must: [
+        { name: "Departments", note: "Hospital units", href: "departments.html" },
+        { name: "Staff", note: "Staff roster", href: "staff.html" },
+        { name: "Finance", note: "Today's money", href: "finance.html" },
+        { name: "Complaints", note: "Open complaints", href: "complaints.html" },
+        { name: "Reports", note: "Hospital reports", href: "reports.html" },
+        { name: "Wards", note: "Wards and beds", href: "wards.html" }
       ]
     },
     laboratory: {
@@ -177,6 +225,14 @@
       ai: [
         { name: "Lab analyzer", pct: 88, runs: 21, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "flask", prompt: "Show Lab analyzer details", href: "ai-analyzer.html" },
         { name: "Clinical decision", pct: 91, runs: 6, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "test-requests.html" }
+      ],
+      must: [
+        { name: "Test Requests", note: "Incoming tests", href: "test-requests.html" },
+        { name: "Samples", note: "Track samples", href: "samples.html" },
+        { name: "Results", note: "Sign results", href: "results.html" },
+        { name: "Blood Bank", note: "Blood stock", href: "blood-bank.html" },
+        { name: "Lab analyzer", note: "Read a result", href: "ai-analyzer.html" },
+        { name: "Patients", note: "Find a patient", href: "patients.html" }
       ]
     },
     patient: {
@@ -200,6 +256,15 @@
       ai: [
         { name: "Symptom chatbot", pct: 90, runs: 4, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Symptom chatbot details", href: "ai-chatbot.html" },
         { name: "Appointment AI", pct: 86, runs: 2, color: "#185FA5", bg: "#E6F1FB", ink: "#0C447C", icon: "cal", prompt: "Show Appointment AI details", href: "appointments.html" }
+      ],
+      hideShift: true,
+      must: [
+        { name: "Appointments", note: "Your visits", href: "appointments.html" },
+        { name: "Medical Records", note: "Your records", href: "records.html" },
+        { name: "Bills", note: "Your invoices", href: "bills.html" },
+        { name: "Health Card", note: "Your card", href: "health-card.html" },
+        { name: "Complaints", note: "Raise a complaint", href: "complaints.html" },
+        { name: "Messages", note: "Your messages", href: "messages.html" }
       ]
     }
   };
@@ -268,19 +333,28 @@
         '%</span><div class="ai-runs">' + m.runs + ' runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:' +
         m.pct + "%;background:" + m.color + '"></div></div></button>';
     }).join("");
+    var must = (cfg.must || []).map(function (item) {
+      return '<a class="must-card" href="' + esc(item.href) + '"><strong data-i18n="' + esc(item.name) + '">' + esc(item.name) +
+        '</strong><span data-i18n="' + esc(item.note) + '">' + esc(item.note) + "</span></a>";
+    }).join("");
+    var identity = '<span data-i18n="' + esc(cfg.role) + '">' + esc(cfg.role) + "</span> · " + esc(dateLine());
+    if (!cfg.hideShift) identity += ' · <span data-i18n="' + esc(shift.name) + '">' + esc(shift.name) + "</span>";
+    var shiftCard = cfg.hideShift ? "" :
+      '<section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">' + esc(shift.time) +
+      '</span></div><div class="shift-track" role="img" aria-label="Shift coverage ' + SHIFT.map(function (s) { return s.n + " " + s.label; }).join(", ") + '">' + segs +
+      '</div><div class="shift-legend">' + legend + "</div></section>";
 
     root.innerHTML =
       '<div class="flow-dash" data-flow-dash="1">' +
       '<header class="identity-bar"><div><p class="hosp-name">' + I.hospital + '<span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p>' +
-      '<p class="hosp-sub"><span data-i18n="' + esc(cfg.role) + '">' + esc(cfg.role) + "</span> · " + esc(dateLine()) + " · <span data-i18n=\"" + esc(shift.name) + "\">" + esc(shift.name) + "</span></p></div>" +
+      '<p class="hosp-sub">' + identity + '</p></div>' +
       '<span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></span></header>' +
       '<section aria-label="Today\'s patient flow"><p class="section-label" data-i18n="' + esc(cfg.flowLabel) + '">' + esc(cfg.flowLabel) +
       '</p><div class="flow-strip" role="list">' + flow + "</div></section>" +
       '<div class="stat-row">' + stats + "</div>" +
+      '<section aria-label="Must have"><p class="section-label" data-i18n="Must have">Must have</p><div class="must-grid">' + must + "</div></section>" +
       '<section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed">' + timeline + "</div></section>" +
-      '<section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">' + esc(shift.time) +
-      '</span></div><div class="shift-track" role="img" aria-label="Shift coverage ' + SHIFT.map(function (s) { return s.n + " " + s.label; }).join(", ") + '">' + segs +
-      '</div><div class="shift-legend">' + legend + "</div></section>" +
+      shiftCard +
       '<section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid">' + ai + "</div></section></div>";
 
     if (root.querySelectorAll) {

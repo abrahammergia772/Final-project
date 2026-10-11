@@ -12,6 +12,7 @@
 }
 body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); }
 @media (min-width: 769px) {
+  html.nav-closed .main-content,
   body.nav-closed .main-content,
   body.nav-closed.sidebar-collapsed .main-content { margin-left: 0; }
 }

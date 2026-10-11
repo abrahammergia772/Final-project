@@ -165,7 +165,7 @@
   background: var(--white);
   border: 1px solid var(--border);
   color: var(--gray);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-sm);
@@ -289,7 +289,9 @@ body.mobile-menu-open .hamburger .bar:nth-child(3) {
 }
 
 @media (min-width: 769px) {
+  html.nav-closed .sidebar,
   body.nav-closed .sidebar { transform: translateX(-100%); }
+  html.nav-closed .role-taskbar,
   body.nav-closed .role-taskbar,
   body.nav-closed.sidebar-collapsed .role-taskbar { left: 0; }
   body.nav-closed .mobile-overlay,
