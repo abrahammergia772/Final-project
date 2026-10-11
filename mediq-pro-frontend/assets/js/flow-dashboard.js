@@ -287,6 +287,43 @@
   }
   window.sendPrompt = sendPrompt;
 
+  function showResponse(text, href) {
+    var host = document.querySelector("#flowDashboard .flow-dash") || document.querySelector(".flow-dash");
+    if (!host) return;
+    var box = host.querySelector(".flow-response");
+    if (!box) {
+      box = document.createElement("section");
+      box.className = "flow-response";
+      box.setAttribute("role", "status");
+      box.setAttribute("aria-live", "polite");
+      box.setAttribute("aria-label", "Response");
+      host.insertBefore(box, host.children[1] || null);
+    }
+    var open = href ? '<a class="flow-response-open" href="' + esc(href) + '" data-i18n="Open page">Open page</a>' : "";
+    box.innerHTML = '<p class="section-label" data-i18n="Response">Response</p><p class="flow-response-text"></p>' + open;
+    box.querySelector(".flow-response-text").textContent = text;
+    if (box.scrollIntoView) box.scrollIntoView({ block: "nearest" });
+  }
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-prompt]");
+    if (!el || !el.closest(".flow-dash")) return;
+    var answer = el.getAttribute("data-answer") || el.getAttribute("data-prompt");
+    var href = el.getAttribute("data-href") || "";
+    showResponse(answer, href);
+    sendPrompt(el.getAttribute("data-prompt") || answer);
+    document.querySelectorAll(".flow-dash .is-picked").forEach(function (n) { n.classList.remove("is-picked"); });
+    el.classList.add("is-picked");
+  }, true);
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var el = e.target.closest("[data-prompt]");
+    if (!el || el.closest("a, button") || !el.closest(".flow-dash")) return;
+    e.preventDefault();
+    el.click();
+  });
+
   function shiftName(hour) {
     if (hour >= 8 && hour < 16) return { name: "Morning shift", time: "08:00 – 16:00" };
     if (hour >= 16) return { name: "Evening shift", time: "16:00 – 00:00" };
@@ -304,51 +341,75 @@
     var role = root.getAttribute("data-flow-role") || "doctor";
     var cfg = ROLES[role] || ROLES.doctor;
     var shift = shiftName(new Date().getHours());
+    var statPages = {
+      doctor: ["patients.html", "appointments.html"],
+      nurse: ["patients.html", "medications.html"],
+      pharmacist: ["prescriptions.html", "inventory.html"],
+      reception: ["queue.html", "appointments.html"],
+      admin: ["users.html", "audit-logs.html"],
+      manager: ["finance.html", "complaints.html"],
+      laboratory: ["samples.html", "results.html"],
+      patient: ["appointments.html", "records.html"]
+    };
+    var timePage = {
+      doctor: "patients.html", nurse: "vitals.html", pharmacist: "prescriptions.html",
+      reception: "queue.html", admin: "audit-logs.html", manager: "complaints.html",
+      laboratory: "results.html", patient: "records.html"
+    }[role] || "dashboard.html";
     var flow = cfg.flow.map(function (item) {
       var badge = item.badge ? '<span class="flow-badge">' + item.badge + "</span>" : "";
-      return '<button type="button" class="flow-node ' + item.cls + '" role="listitem" data-prompt="' + esc(item.prompt) + '" data-href="' + esc(item.href) + '">' +
+      var answer = item.n + " patients are in " + item.name + ".";
+      return '<button type="button" class="flow-node ' + item.cls + '" role="listitem" data-prompt="' + esc(item.prompt) + '" data-answer="' + esc(answer) + '" data-href="' + esc(item.href) + '">' +
         '<span class="flow-dot">' + item.n + badge + "</span>" +
         '<span class="flow-name" data-i18n="' + esc(item.name) + '">' + esc(item.name) + "</span></button>";
     }).join("");
-    var stats = cfg.stats.map(function (s) {
-      return '<div class="stat-tile"><div class="stat-val">' + esc(s.val) + '</div><div class="stat-lbl" data-i18n="' + esc(s.label) + '">' + esc(s.label) +
-        '</div><div class="stat-delta ' + (s.up ? "up" : "dn") + '" data-i18n="' + esc(s.delta) + '">' + esc(s.delta) + "</div></div>";
+    var stats = cfg.stats.map(function (s, i) {
+      var href = (statPages[role] || [])[i] || "dashboard.html";
+      var answer = s.label + " is " + s.val + ". " + s.delta + ".";
+      return '<button type="button" class="stat-tile" data-prompt="Show ' + esc(s.label) + '" data-answer="' + esc(answer) + '" data-href="' + esc(href) + '"><div class="stat-val">' + esc(s.val) + '</div><div class="stat-lbl" data-i18n="' + esc(s.label) + '">' + esc(s.label) +
+        '</div><div class="stat-delta ' + (s.up ? "up" : "dn") + '" data-i18n="' + esc(s.delta) + '">' + esc(s.delta) + "</div></button>";
     }).join("");
     var timeline = cfg.timeline.map(function (t) {
-      return '<article class="tl-item"><div class="tl-dot ' + t.kind + '">' + (I[t.kind === "ai" ? "spark" : t.kind === "ok" ? "ok" : "warn"]) +
+      var href = t.href || timePage;
+      var answer = t.title + ". " + t.text;
+      return '<button type="button" class="tl-item" data-prompt="Show ' + esc(t.title) + '" data-answer="' + esc(answer) + '" data-href="' + esc(href) + '"><div class="tl-dot ' + t.kind + '">' + (I[t.kind === "ai" ? "spark" : t.kind === "ok" ? "ok" : "warn"]) +
         '</div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="' + esc(t.title) + '">' + esc(t.title) +
         '</div><time class="tl-time">' + esc(t.time) + '</time></div><p class="tl-text">' + esc(t.text) +
-        '</p><span class="tl-chip ' + t.chipCls + '" data-i18n="' + esc(t.chip) + '">' + esc(t.chip) + "</span></div></article>";
+        '</p><span class="tl-chip ' + t.chipCls + '" data-i18n="' + esc(t.chip) + '">' + esc(t.chip) + "</span></div></button>";
     }).join("");
     var segs = SHIFT.map(function (s) {
-      return '<div class="seg ' + s.cls + '" style="flex:' + s.flex + '">' + s.n + " " + s.label + "</div>";
+      var answer = s.n + " " + s.label + " are on this shift (" + shift.time + ").";
+      return '<button type="button" class="seg ' + s.cls + '" style="flex:' + s.flex + '" data-prompt="Show ' + esc(s.label) + ' shift" data-answer="' + esc(answer) + '" data-href="shifts.html">' + s.n + " " + s.label + "</button>";
     }).join("");
     var legend = SHIFT.map(function (s) {
       return "<span><i class=\"" + s.cls + "\"></i>" + s.n + " " + s.label + "</span>";
     }).join("");
     var ai = cfg.ai.map(function (m) {
-      return '<button type="button" class="ai-card" role="button" tabindex="0" data-prompt="' + esc(m.prompt) + '" data-href="' + esc(m.href) + '">' +
+      var aiAnswer = m.name + " is at " + m.pct + "% after " + m.runs + " runs.";
+      return '<button type="button" class="ai-card" role="button" tabindex="0" data-prompt="' + esc(m.prompt) + '" data-answer="' + esc(aiAnswer) + '" data-href="' + esc(m.href) + '">' +
         '<div class="ai-top"><span class="ai-ico" style="background:' + m.bg + ";color:" + m.ink + '">' + I[m.icon] + "</span>" +
         '<span class="ai-name" data-i18n="' + esc(m.name) + '">' + esc(m.name) + '</span><span class="ai-meta"><span class="ai-pct">' + m.pct +
         '%</span><div class="ai-runs">' + m.runs + ' runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:' +
         m.pct + "%;background:" + m.color + '"></div></div></button>';
     }).join("");
     var must = (cfg.must || []).map(function (item) {
-      return '<a class="must-card" href="' + esc(item.href) + '"><strong data-i18n="' + esc(item.name) + '">' + esc(item.name) +
+      var mustAnswer = "Opening " + item.name + ". " + item.note + ".";
+      return '<a class="must-card" href="' + esc(item.href) + '" data-prompt="Show ' + esc(item.name) + '" data-answer="' + esc(mustAnswer) + '" data-href="' + esc(item.href) + '"><strong data-i18n="' + esc(item.name) + '">' + esc(item.name) +
         '</strong><span data-i18n="' + esc(item.note) + '">' + esc(item.note) + "</span></a>";
     }).join("");
     var identity = '<span data-i18n="' + esc(cfg.role) + '">' + esc(cfg.role) + "</span> · " + esc(dateLine());
     if (!cfg.hideShift) identity += ' · <span data-i18n="' + esc(shift.name) + '">' + esc(shift.name) + "</span>";
+    var statusAnswer = "Wolaita Sodo Hospital is live. " + cfg.role + " · " + dateLine() + (cfg.hideShift ? "." : " · " + shift.name + ".");
     var shiftCard = cfg.hideShift ? "" :
       '<section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">' + esc(shift.time) +
-      '</span></div><div class="shift-track" role="img" aria-label="Shift coverage ' + SHIFT.map(function (s) { return s.n + " " + s.label; }).join(", ") + '">' + segs +
+      '</span></div><div class="shift-track" role="group" aria-label="Shift coverage ' + SHIFT.map(function (s) { return s.n + " " + s.label; }).join(", ") + '">' + segs +
       '</div><div class="shift-legend">' + legend + "</div></section>";
 
     root.innerHTML =
       '<div class="flow-dash" data-flow-dash="1">' +
-      '<header class="identity-bar"><div><p class="hosp-name">' + I.hospital + '<span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p>' +
+      '<header class="identity-bar" tabindex="0" data-prompt="Show hospital status" data-answer="' + esc(statusAnswer) + '"><div><p class="hosp-name">' + I.hospital + '<span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p>' +
       '<p class="hosp-sub">' + identity + '</p></div>' +
-      '<span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></span></header>' +
+      '<button type="button" class="live-pill" data-prompt="Show live updates" data-answer="Live updates are on for this board."><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></button></header>' +
       '<section aria-label="Today\'s patient flow"><p class="section-label" data-i18n="' + esc(cfg.flowLabel) + '">' + esc(cfg.flowLabel) +
       '</p><div class="flow-strip" role="list">' + flow + "</div></section>" +
       '<div class="stat-row">' + stats + "</div>" +
@@ -357,14 +418,7 @@
       shiftCard +
       '<section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid">' + ai + "</div></section></div>";
 
-    if (root.querySelectorAll) {
-      root.querySelectorAll("[data-prompt]").forEach(function (el) {
-        el.addEventListener("click", function () {
-          sendPrompt(el.getAttribute("data-prompt"));
-        });
-      });
     }
-  }
 
   window.FlowDash = {
     mount: mount,

@@ -12,9 +12,9 @@
 <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=10" />
-<link rel="stylesheet" href="../assets/css/components.css?v=5" />
+<link rel="stylesheet" href="../assets/css/components.css?v=6" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=9" />
-<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=4" />
+<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=5" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
 
   <script src="../assets/js/theme.js?v=2"></script></head>
@@ -63,6 +63,29 @@
   color: var(--text-strong);
   font-size: 13px;
   font-weight: 650;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+.identity-bar[data-prompt] { cursor: pointer; }
+.flow-dash [data-prompt] { cursor: pointer; }
+.flow-dash .is-picked { outline: 2px solid var(--text-strong); outline-offset: 2px; }
+.flow-response {
+  background: var(--white);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--text-strong);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.flow-response-text { margin: 4px 0 0; color: var(--text-strong); font-size: 15px; }
+.flow-response-open {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--text-strong);
+  font-weight: 650;
+  text-decoration: underline;
 }
 .live-dot {
   width: 8px;
@@ -161,6 +184,11 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: 100%;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .stat-val { font-size: 26px; font-weight: 500; line-height: 1.1; color: inherit; }
 .stat-lbl { color: #64748B; font-size: 13px; }
@@ -172,7 +200,7 @@ html[data-theme="dark"] .stat-lbl { color: #9BA8AB; }
 html[data-theme="dark"] .stat-delta.up { color: #8FCBB0; }
 html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
 .timeline { display: flex; flex-direction: column; }
-.tl-item { position: relative; display: flex; gap: 10px; padding: 8px 0; }
+.tl-item { position: relative; display: flex; gap: 10px; padding: 8px 0; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .tl-item:not(:last-child)::before {
   content: "";
   position: absolute;
@@ -221,11 +249,14 @@ html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
   align-items: center;
   justify-content: center;
   min-width: 0;
+  border: 0;
   border-radius: 4px;
+  font: inherit;
   font-size: 10px;
   font-weight: 650;
   overflow: hidden;
   white-space: nowrap;
+  cursor: pointer;
 }
 .seg-doctor { background: #E6F1FB; color: #185FA5; }
 .seg-nurse { background: #FAEEDA; color: #854F0B; }
@@ -273,7 +304,7 @@ html[data-theme="dark"] .ai-bar-track { background: #253745; }
 
 </style>
 <div id="flowDashboard" data-flow-role="reception">
-<div class="flow-dash" data-flow-dash="1"><header class="identity-bar"><div><p class="hosp-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M12 7v4"/><path d="M10 9h4"/></svg><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p><p class="hosp-sub"><span data-i18n="Reception">Reception</span> · Sunday, 11 Oct 2026 · <span data-i18n="Morning shift">Morning shift</span></p></div><span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></span></header><section aria-label="Today's patient flow"><p class="section-label" data-i18n="Front desk flow">Front desk flow</p><div class="flow-strip" role="list"><button type="button" class="flow-node active" role="listitem" data-prompt="Show Walk-in patients" data-href="queue.html"><span class="flow-dot">12</span><span class="flow-name" data-i18n="Walk-in">Walk-in</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Queue patients" data-href="queue.html"><span class="flow-dot">9</span><span class="flow-name" data-i18n="Queue">Queue</span></button><button type="button" class="flow-node done" role="listitem" data-prompt="Show Registered patients" data-href="patients.html"><span class="flow-dot">21</span><span class="flow-name" data-i18n="Registered">Registered</span></button><button type="button" class="flow-node urgent" role="listitem" data-prompt="Show Referred patients" data-href="admissions.html"><span class="flow-dot">3<span class="flow-badge">3</span></span><span class="flow-name" data-i18n="Referred">Referred</span></button></div></section><div class="stat-row"><div class="stat-tile"><div class="stat-val">33</div><div class="stat-lbl" data-i18n="Arrivals today">Arrivals today</div><div class="stat-delta up" data-i18n="↑ 6 vs yesterday">↑ 6 vs yesterday</div></div><div class="stat-tile"><div class="stat-val">2</div><div class="stat-lbl" data-i18n="No-shows">No-shows</div><div class="stat-delta dn" data-i18n="Follow up needed">Follow up needed</div></div></div><section aria-label="Must have"><p class="section-label" data-i18n="Must have">Must have</p><div class="must-grid"><a class="must-card" href="registration.html"><strong data-i18n="Registration">Registration</strong><span data-i18n="Register a patient">Register a patient</span></a><a class="must-card" href="queue.html"><strong data-i18n="Queue">Queue</strong><span data-i18n="Waiting line">Waiting line</span></a><a class="must-card" href="appointments.html"><strong data-i18n="Appointments">Appointments</strong><span data-i18n="Book a visit">Book a visit</span></a><a class="must-card" href="billing.html"><strong data-i18n="Cashier">Cashier</strong><span data-i18n="Take payment">Take payment</span></a><a class="must-card" href="admissions.html"><strong data-i18n="Admissions">Admissions</strong><span data-i18n="Admit a patient">Admit a patient</span></a><a class="must-card" href="patients.html"><strong data-i18n="Patients">Patients</strong><span data-i18n="Find a patient">Find a patient</span></a></div></section><section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed"><article class="tl-item"><div class="tl-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Patient registered">Patient registered</div><time class="tl-time">1m ago</time></div><p class="tl-text">New invoice opened at the front desk</p><span class="tl-chip normal" data-i18n="Done">Done</span></div></article><article class="tl-item"><div class="tl-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 4.3-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-2.7l-8-14a2 2 0 0 0-3.4 0z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Queue waiting">Queue waiting</div><time class="tl-time">6m ago</time></div><p class="tl-text">9 people still in the morning queue</p><span class="tl-chip urgent" data-i18n="Queue">Queue</span></div></article><article class="tl-item"><div class="tl-dot ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="No-show prediction">No-show prediction</div><time class="tl-time">18m ago</time></div><p class="tl-text">Two afternoon slots look at risk</p><span class="tl-chip ai" data-i18n="AI">AI</span></div></article></div></section><section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">08:00 – 16:00</span></div><div class="shift-track" role="img" aria-label="Shift coverage 3 Doctors, 2 Nurses, 2 Pharm, 1 Off"><div class="seg seg-doctor" style="flex:3">3 Doctors</div><div class="seg seg-nurse" style="flex:2">2 Nurses</div><div class="seg seg-pharm" style="flex:2">2 Pharm</div><div class="seg seg-off" style="flex:1">1 Off</div></div><div class="shift-legend"><span><i class="seg-doctor"></i>3 Doctors</span><span><i class="seg-nurse"></i>2 Nurses</span><span><i class="seg-pharm"></i>2 Pharm</span><span><i class="seg-off"></i>1 Off</span></div></section><section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid"><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Appointment AI details" data-href="appointments.html"><div class="ai-top"><span class="ai-ico" style="background:#E6F1FB;color:#0C447C"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="ai-name" data-i18n="Appointment AI">Appointment AI</span><span class="ai-meta"><span class="ai-pct">86%</span><div class="ai-runs">27 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:86%;background:#185FA5"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Symptom chatbot details" data-href="queue.html"><div class="ai-top"><span class="ai-ico" style="background:#EEEDFE;color:#3C3489"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></span><span class="ai-name" data-i18n="Symptom chatbot">Symptom chatbot</span><span class="ai-meta"><span class="ai-pct">90%</span><div class="ai-runs">11 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:90%;background:#7F77DD"></div></div></button></div></section></div>
+<div class="flow-dash" data-flow-dash="1"><header class="identity-bar" tabindex="0" data-prompt="Show hospital status" data-answer="Wolaita Sodo Hospital is live. Reception · Sunday, 11 Oct 2026 · Morning shift."><div><p class="hosp-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M12 7v4"/><path d="M10 9h4"/></svg><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p><p class="hosp-sub"><span data-i18n="Reception">Reception</span> · Sunday, 11 Oct 2026 · <span data-i18n="Morning shift">Morning shift</span></p></div><button type="button" class="live-pill" data-prompt="Show live updates" data-answer="Live updates are on for this board."><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></button></header><section aria-label="Today's patient flow"><p class="section-label" data-i18n="Front desk flow">Front desk flow</p><div class="flow-strip" role="list"><button type="button" class="flow-node active" role="listitem" data-prompt="Show Walk-in patients" data-answer="12 patients are in Walk-in." data-href="queue.html"><span class="flow-dot">12</span><span class="flow-name" data-i18n="Walk-in">Walk-in</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Queue patients" data-answer="9 patients are in Queue." data-href="queue.html"><span class="flow-dot">9</span><span class="flow-name" data-i18n="Queue">Queue</span></button><button type="button" class="flow-node done" role="listitem" data-prompt="Show Registered patients" data-answer="21 patients are in Registered." data-href="patients.html"><span class="flow-dot">21</span><span class="flow-name" data-i18n="Registered">Registered</span></button><button type="button" class="flow-node urgent" role="listitem" data-prompt="Show Referred patients" data-answer="3 patients are in Referred." data-href="admissions.html"><span class="flow-dot">3<span class="flow-badge">3</span></span><span class="flow-name" data-i18n="Referred">Referred</span></button></div></section><div class="stat-row"><button type="button" class="stat-tile" data-prompt="Show Arrivals today" data-answer="Arrivals today is 33. ↑ 6 vs yesterday." data-href="queue.html"><div class="stat-val">33</div><div class="stat-lbl" data-i18n="Arrivals today">Arrivals today</div><div class="stat-delta up" data-i18n="↑ 6 vs yesterday">↑ 6 vs yesterday</div></button><button type="button" class="stat-tile" data-prompt="Show No-shows" data-answer="No-shows is 2. Follow up needed." data-href="appointments.html"><div class="stat-val">2</div><div class="stat-lbl" data-i18n="No-shows">No-shows</div><div class="stat-delta dn" data-i18n="Follow up needed">Follow up needed</div></button></div><section aria-label="Must have"><p class="section-label" data-i18n="Must have">Must have</p><div class="must-grid"><a class="must-card" href="registration.html" data-prompt="Show Registration" data-answer="Opening Registration. Register a patient." data-href="registration.html"><strong data-i18n="Registration">Registration</strong><span data-i18n="Register a patient">Register a patient</span></a><a class="must-card" href="queue.html" data-prompt="Show Queue" data-answer="Opening Queue. Waiting line." data-href="queue.html"><strong data-i18n="Queue">Queue</strong><span data-i18n="Waiting line">Waiting line</span></a><a class="must-card" href="appointments.html" data-prompt="Show Appointments" data-answer="Opening Appointments. Book a visit." data-href="appointments.html"><strong data-i18n="Appointments">Appointments</strong><span data-i18n="Book a visit">Book a visit</span></a><a class="must-card" href="billing.html" data-prompt="Show Cashier" data-answer="Opening Cashier. Take payment." data-href="billing.html"><strong data-i18n="Cashier">Cashier</strong><span data-i18n="Take payment">Take payment</span></a><a class="must-card" href="admissions.html" data-prompt="Show Admissions" data-answer="Opening Admissions. Admit a patient." data-href="admissions.html"><strong data-i18n="Admissions">Admissions</strong><span data-i18n="Admit a patient">Admit a patient</span></a><a class="must-card" href="patients.html" data-prompt="Show Patients" data-answer="Opening Patients. Find a patient." data-href="patients.html"><strong data-i18n="Patients">Patients</strong><span data-i18n="Find a patient">Find a patient</span></a></div></section><section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed"><button type="button" class="tl-item" data-prompt="Show Patient registered" data-answer="Patient registered. New invoice opened at the front desk" data-href="queue.html"><div class="tl-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Patient registered">Patient registered</div><time class="tl-time">1m ago</time></div><p class="tl-text">New invoice opened at the front desk</p><span class="tl-chip normal" data-i18n="Done">Done</span></div></button><button type="button" class="tl-item" data-prompt="Show Queue waiting" data-answer="Queue waiting. 9 people still in the morning queue" data-href="queue.html"><div class="tl-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 4.3-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-2.7l-8-14a2 2 0 0 0-3.4 0z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Queue waiting">Queue waiting</div><time class="tl-time">6m ago</time></div><p class="tl-text">9 people still in the morning queue</p><span class="tl-chip urgent" data-i18n="Queue">Queue</span></div></button><button type="button" class="tl-item" data-prompt="Show No-show prediction" data-answer="No-show prediction. Two afternoon slots look at risk" data-href="queue.html"><div class="tl-dot ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="No-show prediction">No-show prediction</div><time class="tl-time">18m ago</time></div><p class="tl-text">Two afternoon slots look at risk</p><span class="tl-chip ai" data-i18n="AI">AI</span></div></button></div></section><section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">08:00 – 16:00</span></div><div class="shift-track" role="group" aria-label="Shift coverage 3 Doctors, 2 Nurses, 2 Pharm, 1 Off"><button type="button" class="seg seg-doctor" style="flex:3" data-prompt="Show Doctors shift" data-answer="3 Doctors are on this shift (08:00 – 16:00)." data-href="shifts.html">3 Doctors</button><button type="button" class="seg seg-nurse" style="flex:2" data-prompt="Show Nurses shift" data-answer="2 Nurses are on this shift (08:00 – 16:00)." data-href="shifts.html">2 Nurses</button><button type="button" class="seg seg-pharm" style="flex:2" data-prompt="Show Pharm shift" data-answer="2 Pharm are on this shift (08:00 – 16:00)." data-href="shifts.html">2 Pharm</button><button type="button" class="seg seg-off" style="flex:1" data-prompt="Show Off shift" data-answer="1 Off are on this shift (08:00 – 16:00)." data-href="shifts.html">1 Off</button></div><div class="shift-legend"><span><i class="seg-doctor"></i>3 Doctors</span><span><i class="seg-nurse"></i>2 Nurses</span><span><i class="seg-pharm"></i>2 Pharm</span><span><i class="seg-off"></i>1 Off</span></div></section><section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid"><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Appointment AI details" data-answer="Appointment AI is at 86% after 27 runs." data-href="appointments.html"><div class="ai-top"><span class="ai-ico" style="background:#E6F1FB;color:#0C447C"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="ai-name" data-i18n="Appointment AI">Appointment AI</span><span class="ai-meta"><span class="ai-pct">86%</span><div class="ai-runs">27 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:86%;background:#185FA5"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Symptom chatbot details" data-answer="Symptom chatbot is at 90% after 11 runs." data-href="queue.html"><div class="ai-top"><span class="ai-ico" style="background:#EEEDFE;color:#3C3489"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></span><span class="ai-name" data-i18n="Symptom chatbot">Symptom chatbot</span><span class="ai-meta"><span class="ai-pct">90%</span><div class="ai-runs">11 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:90%;background:#7F77DD"></div></div></button></div></section></div>
 </div>
 </section>
 </main>
@@ -285,7 +316,7 @@ html[data-theme="dark"] .ai-bar-track { background: #253745; }
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/utils.js?v=10"></script>
-<script src="../assets/js/flow-dashboard.js?v=3"></script>
+<script src="../assets/js/flow-dashboard.js?v=4"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -386,5 +417,5 @@ function loadPageData() {
 
 </script>
 
-<script src="../assets/js/i18n.js?v=3"></script></body>
+<script src="../assets/js/i18n.js?v=4"></script></body>
 </html>

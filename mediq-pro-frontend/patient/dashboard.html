@@ -12,9 +12,9 @@
 <link rel="icon" type="image/png" href="../assets/images/favicon.png" />
 <link rel="stylesheet" href="../assets/css/global.css" />
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=10" />
-<link rel="stylesheet" href="../assets/css/components.css?v=5" />
+<link rel="stylesheet" href="../assets/css/components.css?v=6" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=9" />
-<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=4" />
+<link rel="stylesheet" href="../assets/css/flow-dashboard.css?v=5" />
 <link rel="stylesheet" href="../assets/css/modules.css" />
 
   <script src="../assets/js/theme.js?v=2"></script></head>
@@ -63,6 +63,29 @@
   color: var(--text-strong);
   font-size: 13px;
   font-weight: 650;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+.identity-bar[data-prompt] { cursor: pointer; }
+.flow-dash [data-prompt] { cursor: pointer; }
+.flow-dash .is-picked { outline: 2px solid var(--text-strong); outline-offset: 2px; }
+.flow-response {
+  background: var(--white);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--text-strong);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.flow-response-text { margin: 4px 0 0; color: var(--text-strong); font-size: 15px; }
+.flow-response-open {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--text-strong);
+  font-weight: 650;
+  text-decoration: underline;
 }
 .live-dot {
   width: 8px;
@@ -161,6 +184,11 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: 100%;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .stat-val { font-size: 26px; font-weight: 500; line-height: 1.1; color: inherit; }
 .stat-lbl { color: #64748B; font-size: 13px; }
@@ -172,7 +200,7 @@ html[data-theme="dark"] .stat-lbl { color: #9BA8AB; }
 html[data-theme="dark"] .stat-delta.up { color: #8FCBB0; }
 html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
 .timeline { display: flex; flex-direction: column; }
-.tl-item { position: relative; display: flex; gap: 10px; padding: 8px 0; }
+.tl-item { position: relative; display: flex; gap: 10px; padding: 8px 0; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .tl-item:not(:last-child)::before {
   content: "";
   position: absolute;
@@ -221,11 +249,14 @@ html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
   align-items: center;
   justify-content: center;
   min-width: 0;
+  border: 0;
   border-radius: 4px;
+  font: inherit;
   font-size: 10px;
   font-weight: 650;
   overflow: hidden;
   white-space: nowrap;
+  cursor: pointer;
 }
 .seg-doctor { background: #E6F1FB; color: #185FA5; }
 .seg-nurse { background: #FAEEDA; color: #854F0B; }
@@ -273,7 +304,7 @@ html[data-theme="dark"] .ai-bar-track { background: #253745; }
 
 </style>
 <div id="flowDashboard" data-flow-role="patient">
-<div class="flow-dash" data-flow-dash="1"><header class="identity-bar"><div><p class="hosp-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M12 7v4"/><path d="M10 9h4"/></svg><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p><p class="hosp-sub"><span data-i18n="Patient">Patient</span> · Sunday, 11 Oct 2026</p></div><span class="live-pill"><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></span></header><section aria-label="Today's patient flow"><p class="section-label" data-i18n="Your care path">Your care path</p><div class="flow-strip" role="list"><button type="button" class="flow-node active" role="listitem" data-prompt="Show Appointment patients" data-href="appointments.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Appointment">Appointment</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Consult patients" data-href="appointments.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Consult">Consult</span></button><button type="button" class="flow-node done" role="listitem" data-prompt="Show Lab patients" data-href="records.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Lab">Lab</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Prescription patients" data-href="records.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Prescription">Prescription</span></button></div></section><div class="stat-row"><div class="stat-tile"><div class="stat-val">1</div><div class="stat-lbl" data-i18n="Upcoming visit">Upcoming visit</div><div class="stat-delta up" data-i18n="This morning">This morning</div></div><div class="stat-tile"><div class="stat-val">1</div><div class="stat-lbl" data-i18n="Open result">Open result</div><div class="stat-delta up" data-i18n="Ready to view">Ready to view</div></div></div><section aria-label="Must have"><p class="section-label" data-i18n="Must have">Must have</p><div class="must-grid"><a class="must-card" href="appointments.html"><strong data-i18n="Appointments">Appointments</strong><span data-i18n="Your visits">Your visits</span></a><a class="must-card" href="records.html"><strong data-i18n="Medical Records">Medical Records</strong><span data-i18n="Your records">Your records</span></a><a class="must-card" href="bills.html"><strong data-i18n="Bills">Bills</strong><span data-i18n="Your invoices">Your invoices</span></a><a class="must-card" href="health-card.html"><strong data-i18n="Health Card">Health Card</strong><span data-i18n="Your card">Your card</span></a><a class="must-card" href="complaints.html"><strong data-i18n="Complaints">Complaints</strong><span data-i18n="Raise a complaint">Raise a complaint</span></a><a class="must-card" href="messages.html"><strong data-i18n="Messages">Messages</strong><span data-i18n="Your messages">Your messages</span></a></div></section><section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed"><article class="tl-item"><div class="tl-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Lab result ready">Lab result ready</div><time class="tl-time">8m ago</time></div><p class="tl-text">Your latest result is available to view</p><span class="tl-chip normal" data-i18n="Ready">Ready</span></div></article><article class="tl-item"><div class="tl-dot ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Symptom chatbot">Symptom chatbot</div><time class="tl-time">1h ago</time></div><p class="tl-text">A suggestion is waiting if you want it</p><span class="tl-chip ai" data-i18n="AI">AI</span></div></article><article class="tl-item"><div class="tl-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 4.3-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-2.7l-8-14a2 2 0 0 0-3.4 0z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Bill open">Bill open</div><time class="tl-time">Yesterday</time></div><p class="tl-text">One invoice is still unpaid</p><span class="tl-chip urgent" data-i18n="Bill">Bill</span></div></article></div></section><section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid"><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Symptom chatbot details" data-href="ai-chatbot.html"><div class="ai-top"><span class="ai-ico" style="background:#EEEDFE;color:#3C3489"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></span><span class="ai-name" data-i18n="Symptom chatbot">Symptom chatbot</span><span class="ai-meta"><span class="ai-pct">90%</span><div class="ai-runs">4 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:90%;background:#7F77DD"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Appointment AI details" data-href="appointments.html"><div class="ai-top"><span class="ai-ico" style="background:#E6F1FB;color:#0C447C"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="ai-name" data-i18n="Appointment AI">Appointment AI</span><span class="ai-meta"><span class="ai-pct">86%</span><div class="ai-runs">2 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:86%;background:#185FA5"></div></div></button></div></section></div>
+<div class="flow-dash" data-flow-dash="1"><header class="identity-bar" tabindex="0" data-prompt="Show hospital status" data-answer="Wolaita Sodo Hospital is live. Patient · Sunday, 11 Oct 2026."><div><p class="hosp-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M12 7v4"/><path d="M10 9h4"/></svg><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p><p class="hosp-sub"><span data-i18n="Patient">Patient</span> · Sunday, 11 Oct 2026</p></div><button type="button" class="live-pill" data-prompt="Show live updates" data-answer="Live updates are on for this board."><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></button></header><section aria-label="Today's patient flow"><p class="section-label" data-i18n="Your care path">Your care path</p><div class="flow-strip" role="list"><button type="button" class="flow-node active" role="listitem" data-prompt="Show Appointment patients" data-answer="1 patients are in Appointment." data-href="appointments.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Appointment">Appointment</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Consult patients" data-answer="1 patients are in Consult." data-href="appointments.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Consult">Consult</span></button><button type="button" class="flow-node done" role="listitem" data-prompt="Show Lab patients" data-answer="1 patients are in Lab." data-href="records.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Lab">Lab</span></button><button type="button" class="flow-node wait" role="listitem" data-prompt="Show Prescription patients" data-answer="1 patients are in Prescription." data-href="records.html"><span class="flow-dot">1</span><span class="flow-name" data-i18n="Prescription">Prescription</span></button></div></section><div class="stat-row"><button type="button" class="stat-tile" data-prompt="Show Upcoming visit" data-answer="Upcoming visit is 1. This morning." data-href="appointments.html"><div class="stat-val">1</div><div class="stat-lbl" data-i18n="Upcoming visit">Upcoming visit</div><div class="stat-delta up" data-i18n="This morning">This morning</div></button><button type="button" class="stat-tile" data-prompt="Show Open result" data-answer="Open result is 1. Ready to view." data-href="records.html"><div class="stat-val">1</div><div class="stat-lbl" data-i18n="Open result">Open result</div><div class="stat-delta up" data-i18n="Ready to view">Ready to view</div></button></div><section aria-label="Must have"><p class="section-label" data-i18n="Must have">Must have</p><div class="must-grid"><a class="must-card" href="appointments.html" data-prompt="Show Appointments" data-answer="Opening Appointments. Your visits." data-href="appointments.html"><strong data-i18n="Appointments">Appointments</strong><span data-i18n="Your visits">Your visits</span></a><a class="must-card" href="records.html" data-prompt="Show Medical Records" data-answer="Opening Medical Records. Your records." data-href="records.html"><strong data-i18n="Medical Records">Medical Records</strong><span data-i18n="Your records">Your records</span></a><a class="must-card" href="bills.html" data-prompt="Show Bills" data-answer="Opening Bills. Your invoices." data-href="bills.html"><strong data-i18n="Bills">Bills</strong><span data-i18n="Your invoices">Your invoices</span></a><a class="must-card" href="health-card.html" data-prompt="Show Health Card" data-answer="Opening Health Card. Your card." data-href="health-card.html"><strong data-i18n="Health Card">Health Card</strong><span data-i18n="Your card">Your card</span></a><a class="must-card" href="complaints.html" data-prompt="Show Complaints" data-answer="Opening Complaints. Raise a complaint." data-href="complaints.html"><strong data-i18n="Complaints">Complaints</strong><span data-i18n="Raise a complaint">Raise a complaint</span></a><a class="must-card" href="messages.html" data-prompt="Show Messages" data-answer="Opening Messages. Your messages." data-href="messages.html"><strong data-i18n="Messages">Messages</strong><span data-i18n="Your messages">Your messages</span></a></div></section><section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed"><button type="button" class="tl-item" data-prompt="Show Lab result ready" data-answer="Lab result ready. Your latest result is available to view" data-href="records.html"><div class="tl-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Lab result ready">Lab result ready</div><time class="tl-time">8m ago</time></div><p class="tl-text">Your latest result is available to view</p><span class="tl-chip normal" data-i18n="Ready">Ready</span></div></button><button type="button" class="tl-item" data-prompt="Show Symptom chatbot" data-answer="Symptom chatbot. A suggestion is waiting if you want it" data-href="records.html"><div class="tl-dot ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Symptom chatbot">Symptom chatbot</div><time class="tl-time">1h ago</time></div><p class="tl-text">A suggestion is waiting if you want it</p><span class="tl-chip ai" data-i18n="AI">AI</span></div></button><button type="button" class="tl-item" data-prompt="Show Bill open" data-answer="Bill open. One invoice is still unpaid" data-href="records.html"><div class="tl-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 4.3-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-2.7l-8-14a2 2 0 0 0-3.4 0z"/></svg></div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="Bill open">Bill open</div><time class="tl-time">Yesterday</time></div><p class="tl-text">One invoice is still unpaid</p><span class="tl-chip urgent" data-i18n="Bill">Bill</span></div></button></div></section><section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid"><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Symptom chatbot details" data-answer="Symptom chatbot is at 90% after 4 runs." data-href="ai-chatbot.html"><div class="ai-top"><span class="ai-ico" style="background:#EEEDFE;color:#3C3489"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/></svg></span><span class="ai-name" data-i18n="Symptom chatbot">Symptom chatbot</span><span class="ai-meta"><span class="ai-pct">90%</span><div class="ai-runs">4 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:90%;background:#7F77DD"></div></div></button><button type="button" class="ai-card" role="button" tabindex="0" data-prompt="Show Appointment AI details" data-answer="Appointment AI is at 86% after 2 runs." data-href="appointments.html"><div class="ai-top"><span class="ai-ico" style="background:#E6F1FB;color:#0C447C"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="ai-name" data-i18n="Appointment AI">Appointment AI</span><span class="ai-meta"><span class="ai-pct">86%</span><div class="ai-runs">2 runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:86%;background:#185FA5"></div></div></button></div></section></div>
 </div>
 </section>
 </main>
@@ -285,7 +316,7 @@ html[data-theme="dark"] .ai-bar-track { background: #253745; }
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/utils.js?v=10"></script>
-<script src="../assets/js/flow-dashboard.js?v=3"></script>
+<script src="../assets/js/flow-dashboard.js?v=4"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -386,5 +417,5 @@ function loadPageData() {
 
 </script>
 
-<script src="../assets/js/i18n.js?v=3"></script></body>
+<script src="../assets/js/i18n.js?v=4"></script></body>
 </html>
