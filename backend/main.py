@@ -29,6 +29,7 @@ import model_loader
 from permissions import require_permission
 from security import current_user
 from groq_client import configured as groq_configured, model_name as groq_model_name
+from mailer import configured as mail_configured, provider_name as mail_provider
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, payments, reports
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -62,6 +63,10 @@ async def lifespan(app: FastAPI):
         log.info("Groq explanations enabled (%s)", groq_model_name())
     else:
         log.info("GROQ_API_KEY is not set. AI results will use the local explanation.")
+    if mail_configured():
+        log.info("Password reset email is configured (%s)", mail_provider())
+    else:
+        log.info("Password reset email is not configured. Set BREVO_API_KEY and MAIL_FROM.")
 
     # 1) In eager mode, try to fetch any missing >25 MB model files.
     #    In lazy/low-mem mode we skip this: we won't load the RF anyway.
@@ -97,8 +102,9 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory", "appointment", "sym
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.15",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.16",
             "groq": groq_configured(),
+            "mail": mail_configured(),
             "low_memory": LOW_MEMORY,
             "lazy_load": LAZY_LOAD,
             "skip_rf_models": SKIP_RF_MODELS,
@@ -107,7 +113,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.15", "groq": groq_configured(),
+    return {"status": "ok", "version": "2.0.16", "groq": groq_configured(), "mail": mail_configured(),
             "groq_model": groq_model_name() if groq_configured() else "",
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}
 

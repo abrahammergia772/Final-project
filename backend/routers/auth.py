@@ -5,6 +5,7 @@
 # falls back to built-in demo accounts so the whole system stays usable.
 # =============================================================================
 import logging
+import re
 from datetime import date
 from typing import Optional
 import secrets
@@ -13,7 +14,10 @@ import time
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from config import SECRET_KEY
 from db import get_client
+from mailer import MailError, configured as mail_configured, send_reset_code
+import reset_otp
 from security import current_user, hash_password, issue_token, verify_password
 
 router = APIRouter(tags=["Auth"])
@@ -51,7 +55,7 @@ class PermissionsBody(BaseModel):
     permissions: dict = Field(default_factory=dict)
 
 
-_RESET_CODES = {}
+_RESET_FIELD = "_password_reset"
 _ALLOWED_ROLES = {"patient", "doctor", "nurse", "pharmacist", "laboratory", "reception"}
 _FAILS = {}
 
@@ -360,7 +364,14 @@ def update_profile(req: ProfileUpdate, user=Depends(current_user)):
         if taken.data and str(taken.data[0].get("id")) != uid:
             raise HTTPException(status_code=409, detail="That email is already used")
     details = current.get("details") if isinstance(current.get("details"), dict) else {}
-    details = _merge_dict(details, req.details_patch or {})
+    saved_reset = details.get(_RESET_FIELD)
+    patch = dict(req.details_patch or {})
+    patch.pop(_RESET_FIELD, None)
+    details = _merge_dict(details, patch)
+    if saved_reset:
+        details[_RESET_FIELD] = saved_reset
+    else:
+        details.pop(_RESET_FIELD, None)
     def keep(value, current_value):
         return current_value if value is None else value
     payload = {
@@ -378,8 +389,7 @@ def update_profile(req: ProfileUpdate, user=Depends(current_user)):
         log.error("profile update failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Could not save the profile")
     row = (saved.data or [payload])[0]
-    row.pop("password_hash", None)
-    return {"ok": True, "user": row}
+    return {"ok": True, "user": _public_user(row)}
 
 
 
@@ -422,7 +432,7 @@ def me(user=Depends(current_user)):
     rows = resp.data or []
     if not rows:
         raise HTTPException(status_code=404, detail="Account not found")
-    return rows[0]
+    return _public_user(rows[0])
 
 
 @router.post("/auth/change-password")
@@ -445,33 +455,138 @@ def change_password(req: ChangePasswordRequest, user=Depends(current_user)):
     return {"ok": True}
 
 
-@router.post("/auth/reset-password")
-def reset_password(req: ResetRequest):
-    email = req.email.strip().lower()
-    # First call requests a short-lived code. In production this must be sent
-    # through an email/SMS provider; never return it in the API response.
-    if not req.code:
-        code = f"{secrets.randbelow(1_000_000):06d}"
-        _RESET_CODES[email] = (code, time.time() + 600)
-        log.info("Password reset requested for %s", email)
-        return {"ok": True, "message": "If the account exists, a reset code was sent."}
-    record = _RESET_CODES.get(email)
-    if not record or time.time() > record[1]:
-        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
-    if not secrets.compare_digest(req.code, record[0]):
-        _note_failure("reset:" + email)
-        if _too_many("reset:" + email):
-            _RESET_CODES.pop(email, None)
-        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
-    if len(req.new_password) < 8:
-        raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+def _public_user(row: dict) -> dict:
+    """Drop password material before a user row leaves the API."""
+    row = dict(row or {})
+    row.pop("password_hash", None)
+    row.pop(_RESET_FIELD, None)
+    details = row.get("details")
+    if isinstance(details, dict):
+        details = dict(details)
+        details.pop(_RESET_FIELD, None)
+        row["details"] = details
+    return row
+
+
+def _valid_email(email: str) -> bool:
+    return bool(re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email or ""))
+
+
+def _user_by_email(client, email: str):
+    resp = client.table("users").select("id,email,name,status,details").eq("email", email).limit(1).execute()
+    rows = resp.data or []
+    return rows[0] if rows else None
+
+
+def _save_reset(client, row: dict, email: str, code: str) -> None:
+    reset_otp.remember(email, code)
+    try:
+        fresh = _user_by_email(client, email)
+        if fresh:
+            row = fresh
+    except Exception:  # noqa: BLE001
+        pass
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    details = dict(details)
+    details[_RESET_FIELD] = reset_otp.seal(code, SECRET_KEY, int(time.time()) + reset_otp.TTL)
+    client.table("users").update({"details": details}).eq("id", row["id"]).execute()
+
+
+def _clear_reset(client, email: str) -> None:
+    reset_otp.forget(email)
+    try:
+        row = _user_by_email(client, email)
+    except Exception:  # noqa: BLE001
+        return
+    if not row:
+        return
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    if _RESET_FIELD not in details:
+        return
+    details = dict(details)
+    details.pop(_RESET_FIELD, None)
+    try:
+        client.table("users").update({"details": details}).eq("id", row["id"]).execute()
+    except Exception as exc:  # noqa: BLE001
+        log.error("reset code clear failed: %s", type(exc).__name__)
+
+
+def _code_matches(client, email: str, code: str) -> bool:
+    if reset_otp.memory_matches(email, code):
+        return True
+    row = _user_by_email(client, email)
+    if not row:
+        return False
+    details = row.get("details") if isinstance(row.get("details"), dict) else {}
+    return reset_otp.sealed_matches(code, details.get(_RESET_FIELD), SECRET_KEY)
+
+
+def _request_reset(email: str) -> dict:
+    if not _valid_email(email):
+        raise HTTPException(status_code=422, detail="Please enter a valid email address.")
+    if not mail_configured():
+        log.warning("Password reset email is not configured")
+        raise HTTPException(status_code=503, detail="Password reset email is not set up yet.")
+    if reset_otp.too_many(email):
+        raise HTTPException(status_code=429, detail="Please wait a few minutes before requesting another code.")
+    reset_otp.note_request(email)
     client = get_client()
     if client is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
+    try:
+        row = _user_by_email(client, email)
+    except Exception as exc:  # noqa: BLE001
+        log.error("reset lookup failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Password service unavailable")
+    # Same reply when the address is not registered, so the page does not
+    # reveal which emails have an account. The code is never included.
+    if not row:
+        log.info("Password reset requested for an unknown account")
+        return {"ok": True, "message": "If the account exists, a reset code was emailed."}
+    code = reset_otp.new_code()
+    try:
+        send_reset_code(email, str(row.get("name") or ""), code)
+    except MailError as exc:
+        log.error("reset email failed: %s", exc.code)
+        if exc.code == "not_configured":
+            raise HTTPException(status_code=503, detail="Password reset email is not set up yet.")
+        raise HTTPException(status_code=503, detail="Could not send the reset email. Try again in a moment.")
+    try:
+        _save_reset(client, row, email, code)
+    except Exception as exc:  # noqa: BLE001
+        log.error("reset code save failed: %s", type(exc).__name__)
+        reset_otp.remember(email, code)
+    log.info("Password reset code emailed")
+    return {"ok": True, "message": "If the account exists, a reset code was emailed."}
+
+
+@router.post("/auth/reset-password")
+def reset_password(req: ResetRequest):
+    email = req.email.strip().lower()
+    code = re.sub(r"\s+", "", req.code or "")
+    if not code:
+        return _request_reset(email)
+    if not _valid_email(email) or not code.isdigit() or len(code) != 6:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
+    client = get_client()
+    if client is None:
+        raise HTTPException(status_code=503, detail="Supabase is not configured")
+    try:
+        matched = _code_matches(client, email, code)
+    except Exception as exc:  # noqa: BLE001
+        log.error("reset code check failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Password service unavailable")
+    if not matched:
+        _note_failure("reset:" + email)
+        if _too_many("reset:" + email):
+            reset_otp.forget(email)
+        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
+    if len(req.new_password) < 8:
+        raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
     try:
         client.table("users").update({"password_hash": hash_password(req.new_password)}).eq("email", email).execute()
     except Exception as exc:  # noqa: BLE001
         log.error("supabase reset failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Password service unavailable")
-    _RESET_CODES.pop(email, None)
+    _clear_reset(client, email)
     return {"ok": True}

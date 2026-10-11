@@ -152,12 +152,15 @@ def _present(endpoint: str, row: dict) -> dict:
     details = row.get("details")
     if isinstance(details, dict):
         details = dict(details)
+        # Never send a password-reset hash back to the browser.
+        details.pop("_password_reset", None)
+        row.pop("_password_reset", None)
         if details.get("file_data"):
             row["has_file"] = True
             row["file_name"] = details.get("file_name") or row.get("file_name") or ""
             row["file_mime"] = details.get("file_mime") or row.get("file_mime") or ""
             details.pop("file_data", None)
-            row["details"] = details
+        row["details"] = details
         for key, value in details.items():
             if key not in row or row.get(key) in (None, "", []):
                 row[key] = value

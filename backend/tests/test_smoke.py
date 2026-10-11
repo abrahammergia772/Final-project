@@ -27,6 +27,17 @@ def test_health_and_root():
         assert root.json()["service"] == "Wolaita Sodo Hospital API"
 
 
+def test_reset_does_not_reveal_a_code(monkeypatch):
+    for name in ("BREVO_API_KEY", "SENDGRID_API_KEY", "RESEND_API_KEY", "MAIL_FROM", "SMTP_HOST", "SMTP_PASSWORD"):
+        monkeypatch.delenv(name, raising=False)
+    with TestClient(main.app) as client:
+        res = client.post("/auth/reset-password", json={"email": "person@example.com"})
+        assert res.status_code == 503
+        body = res.json()
+        assert "code" not in body
+        assert "not set up" in str(body.get("detail") or "").lower()
+
+
 def test_debug_memory_requires_auth():
     with TestClient(main.app) as client:
         res = client.get("/debug/memory")
