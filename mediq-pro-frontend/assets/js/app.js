@@ -1,9 +1,9 @@
 /* ============================================================
    Wolaita Sodo Hospital — app.js  (single-page shell)
    The whole system runs from the root URL (index.html). Pages are
-   loaded into #spaBody with fetch() and swapped in place, so the
-   browser URL never changes from the domain root. Every static
-   page still works standalone when opened directly.
+   loaded into #spaBody with fetch() and swapped in place. The current
+   page is kept in the URL hash so a refresh stays there instead of
+   returning to login. Every static page still works standalone.
    ============================================================ */
 window.SPA = { mode: true, current: "" };
 
@@ -34,6 +34,42 @@ window.SPA = { mode: true, current: "" };
   function markActive(path) {
     const file = path.split("/").pop();
     $$(".nav-link, .taskbar-link").forEach(a => a.classList.toggle("active", a.getAttribute("href").split("?")[0].split("#")[0].split("/").pop() === file));
+  }
+
+  var PAGE_KEY = "wsh_page";
+  var ROLE_FOLDERS = { admin: 1, manager: 1, doctor: 1, nurse: 1, pharmacist: 1, laboratory: 1, reception: 1, patient: 1 };
+
+  function safePage(path, role) {
+    if (!path || !role || !ROLE_FOLDERS[role]) return "";
+    var clean = String(path).replace(/^#/, "").split("?")[0].split("#")[0];
+    if (clean.indexOf("..") >= 0 || clean.indexOf("\\") >= 0) return "";
+    if (!new RegExp("^" + role + "/[\\w.-]+\\.html$").test(clean)) return "";
+    return clean;
+  }
+
+  function readSavedPage() {
+    var hash = (location.hash || "").replace(/^#/, "");
+    var stored = "";
+    try { stored = sessionStorage.getItem(PAGE_KEY) || localStorage.getItem(PAGE_KEY) || ""; } catch (e) {}
+    return hash || stored || "";
+  }
+
+  function rememberPage(path) {
+    if (!path) return;
+    try {
+      sessionStorage.setItem(PAGE_KEY, path);
+      localStorage.setItem(PAGE_KEY, path);
+    } catch (e) {}
+    var next = "#" + path;
+    if (location.hash !== next) history.replaceState({ page: path }, "", next);
+  }
+
+  function forgetPage() {
+    try {
+      sessionStorage.removeItem(PAGE_KEY);
+      localStorage.removeItem(PAGE_KEY);
+    } catch (e) {}
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
   }
 
   // ---------- page script execution ----------
@@ -113,6 +149,7 @@ window.SPA = { mode: true, current: "" };
       document.title = base + " — Wolaita Sodo Hospital";
       SPA.current = path.split("?")[0].split("#")[0];
       markActive(SPA.current);
+      rememberPage(SPA.current);
       if (typeof closeMobileMenu === "function") closeMobileMenu(); else document.body.classList.remove("mobile-menu-open");
       window.scrollTo(0, 0);
       runPageScript(inline);
@@ -128,7 +165,7 @@ window.SPA = { mode: true, current: "" };
   // Sidebar + topbar are built by shell.js (window.buildShell).
 
     // ---------- enter / exit the app ----------
-  function enterApp() {
+  function enterApp(restore) {
     const role = getUserRole();
     if (!role) return showLogin();
     if (role === "admin" && (!getSession() || getSession().portal !== "admin")) {
@@ -145,9 +182,11 @@ window.SPA = { mode: true, current: "" };
     // the listeners survive future DOM rebuilds too).
     window.__spaLayoutDone = false; // force re-wire for the new shell
     initLayout();
-    load(getRoleRedirect(role));
+    var page = safePage(restore, role) || safePage(readSavedPage(), role);
+    load(page || getRoleRedirect(role));
   }
   function showLogin() {
+    forgetPage();
     clearSession();
     $("#appView").classList.add("hidden");
     $("#loginView").classList.remove("hidden");
@@ -222,12 +261,19 @@ window.SPA = { mode: true, current: "" };
         }).catch(() => showToast("Login service unavailable.", "error"));
       }));
     }
-    // Browsing the site root ALWAYS shows the login page — even if a previous
-    // session exists in localStorage (fresh login each visit).
-    // The only exception is a one-shot auto-enter flag set by admin-login.html,
-    // so the Administrator portal can drop you straight into the admin dashboard.
+    // A refresh keeps the signed-in session and returns to the page in the
+    // URL hash. Login is shown only when there is no session. Logout still
+    // clears the session and the saved page.
     let autoEnter = false;
     try { autoEnter = new URLSearchParams(location.search).get("enter") === "1"; } catch (e) {}
-    if (autoEnter && getSession()) enterApp(); else showLogin();
+    if (getSession() && getUserRole()) enterApp(readSavedPage());
+    else if (autoEnter && getSession()) enterApp();
+    else showLogin();
+  });
+
+  window.addEventListener("hashchange", function () {
+    if (!getSession() || !getUserRole()) return;
+    var page = safePage(readSavedPage(), getUserRole());
+    if (page && page !== SPA.current) load(page);
   });
 })();
