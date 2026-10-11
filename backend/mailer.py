@@ -254,6 +254,25 @@ def _post_json(url: str, headers: dict, payload: dict) -> None:
         raise MailError("send_failed")
 
 
+def probe_brevo_smtp() -> str:
+    """Login only. Returns ok, rejected, or missing. Never returns the key."""
+    if key_shape() != "smtp":
+        return "missing"
+    user = _env_value("BREVO_SMTP_LOGIN", "SMTP_USER") or HOSPITAL_FROM
+    password = _brevo_key()
+    try:
+        with smtplib.SMTP("smtp-relay.brevo.com", 2525, timeout=20) as smtp:
+            smtp.ehlo()
+            smtp.starttls(context=ssl.create_default_context())
+            smtp.ehlo()
+            smtp.login(user, password)
+            smtp.quit()
+        return "ok"
+    except Exception as exc:  # noqa: BLE001
+        log.error("brevo smtp probe failed: %s", type(exc).__name__)
+        return "rejected"
+
+
 def _send_brevo_smtp(to_email: str, subject: str, text: str, html: str) -> None:
     """Send with a Brevo SMTP key. Render free blocks ports 587 and 465, so use 2525."""
     user = _env_value("BREVO_SMTP_LOGIN", "SMTP_USER") or HOSPITAL_FROM
