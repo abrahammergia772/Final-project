@@ -17,7 +17,7 @@
   };
   var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var pending = null;
-  var soundOn = true;
+  var soundOn = false;
   var recognition = null;
   var listening = false;
   var suppressSend = false;
@@ -757,9 +757,9 @@
   function setSoundLabel() {
     var btn = root.document && root.document.getElementById("btnVoiceSound");
     if (!btn) return;
-    btn.innerHTML = soundOn ? SOUND_ON_ICON : SOUND_OFF_ICON;
-    btn.setAttribute("aria-label", soundOn ? tr("Sound on", "ድምፅ በርቷል") : tr("Sound off", "ድምፅ ጠፍቷል"));
-    btn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+    btn.innerHTML = STOP_ICON;
+    btn.setAttribute("aria-label", tr("Stop reading", "ማንበብ አቁም"));
+    btn.setAttribute("aria-pressed", "false");
   }
 
   function clearPlaying() {
@@ -869,9 +869,7 @@
     try {
       recognition.start();
       listening = true;
-      soundOn = true;
       setSpeakLabel();
-      setSoundLabel();
     } catch (e) {
       listening = false;
       setSpeakLabel();
@@ -898,9 +896,8 @@
     sound.className = "btn";
     sound.id = "btnVoiceSound";
     sound.onclick = function () {
-      soundOn = !soundOn;
-      if (!soundOn && root.speechSynthesis) root.speechSynthesis.cancel();
-      setSoundLabel();
+      if (root.speechSynthesis) root.speechSynthesis.cancel();
+      clearPlaying();
     };
     input.parentNode.style.flexWrap = "wrap";
     input.style.flex = "1";
@@ -940,14 +937,8 @@
     }
   }
 
-  function afterReply(text, fromVoice, askMore) {
-    if (fromVoice) soundOn = true;
+  function afterReply(text) {
     remember(text);
-    setSoundLabel();
-    var said = speak(text, !!(askMore && fromVoice));
-    if (fromVoice && !said && isSpeechRefusal(text)) {
-      if (typeof showToast === "function") showToast("I will read the answer aloud. Ask the question again if nothing plays.", "info");
-    }
   }
 
   var api = {

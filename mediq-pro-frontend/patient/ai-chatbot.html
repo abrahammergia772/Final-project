@@ -51,7 +51,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/voice-assistant.js?v=3"></script>
+<script src="../assets/js/voice-assistant.js?v=4"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -142,13 +142,13 @@ function loadPageData() {
     CHAT_TURNS = [];
     if (window.VoiceAssistant) VoiceAssistant.reset();
     document.getElementById("chatArea").innerHTML = "";
-    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Use the microphone to talk, the speaker to turn sound on or off, and the play icon on a reply to hear it. This is not a diagnosis.");
+    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Use the microphone to talk. A reply is not read aloud until you tap the play icon in front of it. This is not a diagnosis.");
   });
   document.getElementById("btnSave").addEventListener("click", () => showToast("Conversation saved to your records","success"));
   // Load curated videos so the AI can suggest related educational videos
   apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) VIDS = r.data.items; });
   // Intro message
-  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Use the microphone to talk, the speaker to turn sound on or off, and the play icon on a reply to hear it. This is not a diagnosis.");
+  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Use the microphone to talk. A reply is not read aloud until you tap the play icon in front of it. This is not a diagnosis.");
   if (window.VoiceAssistant) VoiceAssistant.mount();
 }
 let CHAT_TURNS = [];
@@ -158,8 +158,6 @@ function sendMsg(fromVoice) {
   if (!text) return;
   if (window.VoiceAssistant && VoiceAssistant.stopListen) VoiceAssistant.stopListen();
   const prep = (window.VoiceAssistant && VoiceAssistant.prepare) ? VoiceAssistant.prepare(text) : { speak: false, question: text, repeat: false };
-  const forceSpeak = !!fromVoice || !!prep.speak;
-  if (window.VoiceAssistant && VoiceAssistant.prime) VoiceAssistant.prime(forceSpeak);
   addMsg("user", esc(text));
   input.value = "";
   if (prep.speak && prep.repeat) {
@@ -183,8 +181,8 @@ function sendMsg(fromVoice) {
     const node = document.getElementById("typing");
     if (node) node.remove();
   };
-  const spoken = (reply, askMore) => {
-    if (window.VoiceAssistant) VoiceAssistant.afterReply(reply, forceSpeak, !!askMore);
+  const spoken = (reply) => {
+    if (window.VoiceAssistant) VoiceAssistant.afterReply(reply);
   };
   const actionJob = (window.VoiceAssistant && VoiceAssistant.tryAction)
     ? VoiceAssistant.tryAction(ask)
@@ -214,7 +212,7 @@ function sendMsg(fromVoice) {
       }
       CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
       renderAIResponse(res);
-      if (forceSpeak) spoken(res.reply || "", false);
+      spoken(res.reply || "");
     }).finally(finish);
   });
 }
