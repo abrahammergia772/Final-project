@@ -27,7 +27,7 @@
 <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 140px);min-height:520px;padding:0">
   <div class="panel-header">
     <div class="flex" style="gap:12px"><div class="stat-icon" style="background:#F5F3FF;color:#7C3AED;width:40px;height:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg></div>
-      <div><h3 style="font-size:16px">Hospital AI Assistant</h3><div class="text-sm" style="color:#6B7280">How to use the system, what it means, or a symptom check</div></div></div>
+      <div><h3 style="font-size:16px">Hospital AI Assistant</h3><div class="text-sm voice-subtitle">Voice assistant: book, cancel, bills, and the same help as this chat</div></div></div>
     <div class="flex" style="gap:8px">
       <button class="btn btn-secondary btn-sm" id="btnClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 6L6 18M6 6l12 12"/></svg> Clear</button>
       <button class="btn btn-secondary btn-sm" id="btnSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg> Save</button>
@@ -36,7 +36,7 @@
   <div id="chatArea" class="chat-area" style="flex:1;overflow-y:auto;background:#F9FAFB"></div>
   <div class="panel-header" style="border-top:1px solid #E5E7EB;border-bottom:none">
     <div class="flex" style="gap:10px;width:100%">
-      <input class="form-control" id="chatInput" placeholder="Ask how to use the system, what a page means, or describe symptoms…">
+      <input class="form-control" id="chatInput" placeholder="Speak or type: book an appointment, cancel my appointment, show my bills">
       <button class="btn btn-primary" id="btnSend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> Send</button>
     </div>
   </div>
@@ -51,6 +51,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
+<script src="../assets/js/voice-assistant.js?v=1"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -139,37 +140,65 @@ function loadPageData() {
   document.getElementById("chatInput").addEventListener("keydown", e => { if (e.key === "Enter") sendMsg(); });
   document.getElementById("btnClear").addEventListener("click", () => {
     CHAT_TURNS = [];
+    if (window.VoiceAssistant) VoiceAssistant.reset();
     document.getElementById("chatArea").innerHTML = "";
-    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital assistant. Ask how to use the system, what a page or word means, or about appointments, records, bills, your health card, and messages. Describe your own symptoms only if you feel unwell. This is not a diagnosis.");
+    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Tap Speak, then say book an appointment, cancel my appointment, show my bills, or ask how the system works. You can also type. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
   });
   document.getElementById("btnSave").addEventListener("click", () => showToast("Conversation saved to your records","success"));
   // Load curated videos so the AI can suggest related educational videos
   apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) VIDS = r.data.items; });
   // Intro message
-  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital assistant. Ask how to use the system, what a page or word means, or about appointments, records, bills, your health card, and messages. Describe your own symptoms only if you feel unwell. This is not a diagnosis.");
+  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Tap Speak, then say book an appointment, cancel my appointment, show my bills, or ask how the system works. You can also type. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
+  if (window.VoiceAssistant) VoiceAssistant.mount();
 }
 let CHAT_TURNS = [];
-function sendMsg() {
+function sendMsg(fromVoice) {
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
   if (!text) return;
-  addMsg("user", text);
+  if (window.VoiceAssistant && VoiceAssistant.stopListen) VoiceAssistant.stopListen();
+  addMsg("user", esc(text));
   input.value = "";
   const history = CHAT_TURNS.slice(-6);
   CHAT_TURNS.push({ role: "user", content: text });
   const typing = document.createElement("div");
   typing.className = "chat-msg ai"; typing.id = "typing";
-  typing.innerHTML = '<div class="flex" style="gap:6px"><span class="spinner sm" style="border-color:#C7DBFE;border-top-color:#1A6FA8"></span> AI is thinking…</div>';
+  typing.innerHTML = '<div class="flex" style="gap:6px"><span class="spinner sm" style="border-color:#C7DBFE;border-top-color:#1A6FA8"></span> Working…</div>';
   document.getElementById("chatArea").appendChild(typing);
   document.getElementById("chatArea").scrollTop = document.getElementById("chatArea").scrollHeight;
-  symptomChat({ message: text, session_id: getUserRole(), history: history }, res => {
-    CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
-    renderAIResponse(res);
-  }).finally(() => {
+  const finish = () => {
     const node = document.getElementById("typing");
     if (node) node.remove();
+  };
+  const spoken = (reply, askMore) => {
+    if (window.VoiceAssistant) VoiceAssistant.afterReply(reply, !!fromVoice, !!askMore);
+  };
+  const actionJob = (window.VoiceAssistant && VoiceAssistant.tryAction)
+    ? VoiceAssistant.tryAction(text)
+    : Promise.resolve(null);
+  actionJob.then(result => {
+    if (result && result.handled) {
+      finish();
+      CHAT_TURNS.push({ role: "assistant", content: result.reply || "" });
+      addMsg("ai", `<div class="mt-2 text-sm">${esc(result.reply || "")}</div>`);
+      spoken(result.reply, result.askMore);
+      return;
+    }
+    symptomChat({ message: text, session_id: getUserRole(), history: history }, res => {
+      CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
+      renderAIResponse(res);
+      var say = (res.urgency === "red" ? "This may be urgent. Go to the Emergency Department or call 907. " : "") + (res.reply || "");
+      if (res.follow_up) say += " " + res.follow_up;
+      spoken(say, false);
+    }).finally(finish);
+  }).catch(() => {
+    symptomChat({ message: text, session_id: getUserRole(), history: history }, res => {
+      CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
+      renderAIResponse(res);
+    }).finally(finish);
   });
 }
+window.sendMsg = sendMsg;
 function renderAIResponse(res) {
   const conds = res.conditions || [];
   if (res.mode === "assistant" || !conds.length) {

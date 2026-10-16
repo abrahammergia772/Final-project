@@ -58,7 +58,7 @@ SYSTEM_GUIDE = (
     "Patient Dashboard, also called Home, shows the welcome page, upcoming appointments, recent complaints, and the outstanding bill summary. "
     "Appointments: open Appointments, choose Book Appointment, then department, doctor from the list, date, time, and reason, then Request Booking. "
     "Bookable departments are Internal Medicine, Pediatrics, Cardiology, Maternity, and Orthopedics. "
-    "An open appointment can be edited, rescheduled, or cancelled. A cancelled, completed, or attended appointment cannot be changed here. This chat cannot book. "
+    "This chat can book, cancel, reschedule, and list appointments when the patient says so. Example: book cardiology tomorrow at 9. A cancelled, completed, or attended appointment cannot be changed. "
     "Medical Records is a timeline of saved visits, prescriptions, and laboratory notes. The patient reads them; a doctor files the clinical note. "
     "Bills shows billing history and the outstanding balance. Status means Paid, Pending, or Overdue. View a bill for the itemized breakdown. Print a receipt only for a paid bill. The page does not take payment; settle an unpaid bill at the hospital cashier. Do not invent an amount. "
     "Complaints: open Complaints, choose a category, subject, priority, and description, then Submit. The General Manager reviews it and can write a solution. Status means pending, in-review, or resolved. "
@@ -82,7 +82,7 @@ SYSTEM_TOPICS = (
     (("dashboard", "home", "taskbar", "sidebar", "menu", "system", "how can i use", "how do i use", "how to use"),
      "The Dashboard is the home page. It shows upcoming appointments, complaints, and the bill summary. The sidebar is the left menu. The bottom taskbar has Home, Appointments, Records, Health Card, and Messages. Settings and Messages are also in the sidebar."),
     (("appointment", "book", "reschedule"),
-     "Open Appointments, then Book Appointment. Choose a department, a doctor from the list, a date, a time, and a reason, then Request Booking. You can edit, reschedule, or cancel an open appointment. This chat cannot book one for you."),
+     "This chat can book, cancel, reschedule, and list your appointments when you ask. Say book cardiology tomorrow at 9, cancel my appointment, or show my appointments. Departments are Internal Medicine, Pediatrics, Cardiology, Maternity, and Orthopedics."),
     (("record", "medical record", "timeline"),
      "Medical Records means the saved timeline of visits, prescriptions, and laboratory notes. You read them there. A doctor files the clinical note."),
     (("bill", "payment", "cashier", "receipt"),
