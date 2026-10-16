@@ -20,7 +20,7 @@ Final-project/
 │   ├── assets/
 │   │   ├── css/            ← global, sidebar, components, dashboard
 │   │   ├── js/             ← config, auth, api, utils
-│   │   └── images/logo.png
+│   │   └── images/logo-mark.png
 │   ├── admin/              ← 7 pages (incl. Announcements)
 │   ├── manager/            ← 6 pages (incl. Finance)
 │   ├── doctor/             ← 7 pages (incl. AI Diagnosis, Referrals)
@@ -36,8 +36,7 @@ Final-project/
 │   ├── main.py, config.py, db.py, model_loader.py, download_models.py
 │   ├── routers/            ← auth + 7 AI modules + data CRUD
 │   ├── supabase_schema.sql ← paste in Supabase SQL editor (new project)
-│   └── sql/                ← 001 schema, 002 security, 003 training seed, 004 upgrade
-└── tools/build_frontend.py ← dev-only page generator (not needed to run)
+│   └── sql/                ← 001 schema, 002 security, 004 upgrade, 005 settings
 ```
 
 **106 pages · 8 roles · 7 AI modules · 0 frameworks** — pure HTML5 / CSS3 / Vanilla JavaScript.
@@ -58,7 +57,7 @@ The shell (sidebar, topbar, Ctrl+K page search) is built from `assets/js/nav.js`
 
 ## Backend (deploy on Render + Supabase)
 
-The **FastAPI backend** (`backend/`) serves all 7 AI modules from your **trained models** (`backend/models/`) and uses **Supabase (PostgreSQL)** as the database. See `backend/README.md` for the full deploy guide. Includes an automatic downloader for the >25 MB appointment model (GitHub's file limit) via `MODEL_DOWNLOAD_URLS`.
+The **FastAPI backend** (`backend/`) serves the hospital API and the trained models in `backend/models/`. Appointment scheduling uses Groq, not a saved model. See `backend/README.md` for the deploy guide.
 
 ### Single-page shell (clean URL) + separate Admin login
 - The app runs as a **single-page application from the root URL** — after login the browser URL stays at just the domain (no `page.html` shown), because pages are swapped in place by `assets/js/app.js`. Every static page still works if opened directly (deep links).
@@ -160,7 +159,7 @@ mock predictions; point `CONFIG.API_BASE_URL` at your FastAPI backend to go live
 | 3 | Lab Result Analyzer | `/ai/analyze-lab` | `laboratory/ai-analyzer.html` |
 | 4 | Vitals Alert System | `/ai/check-vitals` | `nurse/vitals.html` |
 | 5 | Inventory Forecasting | `/ai/forecast-inventory` | `pharmacist/ai-forecast.html` |
-| 6 | Appointment / No-show AI | `/ai/predict-appointment` | `reception/appointments.html` |
+| 6 | Appointment assistant | Groq scheduling on saved visits | `reception/appointments.html` |
 | 7 | Symptom Checker Chatbot | `/ai/symptom-chat` | `patient/ai-chatbot.html` |
 
 Every AI output shows a clinical disclaimer, confidence bars and error/loading states.
@@ -205,10 +204,7 @@ Defined once in `assets/css/global.css` (`:root` for light, `html[data-theme="da
 
 - All money shown in **ETB**, dates in **DD/MM/YYYY** (Ethiopian standard).
 - Responsive: sidebar collapses to a hamburger menu below 768px.
-- `tools/build_frontend.py` regenerates the 40 role pages from shared templates —
-  edit the `bodies_*.py` files and re-run `python3 tools/build_frontend.py` if you
-  want to change the shell/layout everywhere at once. The static pages in
-  `mediq-pro-frontend/` are the deployable output.
+- The static pages in `mediq-pro-frontend/` are the deployable site.
 
 ---
 
