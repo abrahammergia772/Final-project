@@ -34,6 +34,11 @@ const CONFIG = {
     CHECK_VITALS:         "/ai/check-vitals",
     FORECAST_INVENTORY:   "/ai/forecast-inventory",
     PREDICT_APPOINTMENT:  "/ai/predict-appointment",
+    APPOINTMENT_SCHEDULE: "/ai/appointment/schedule",
+    APPOINTMENT_REMINDERS:"/ai/appointment/reminders",
+    APPOINTMENT_PRESCREEN:"/ai/appointment/prescreen",
+    APPOINTMENT_BRIEF:    "/ai/appointment/doctor-brief",
+    APPOINTMENT_FOLLOWUP: "/ai/appointment/follow-up",
     SYMPTOM_CHAT:         "/ai/symptom-chat",
     REPORT_GENERATE:      "/reports/generate",
 

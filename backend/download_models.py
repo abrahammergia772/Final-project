@@ -38,7 +38,6 @@ MODELS_DIR = Path(__file__).resolve().parent / "models"
 
 # key -> destination path under backend/models/
 DESTINATIONS = {
-    "appointment_rf": "appointment/rf_appointment.pkl",
     "clinical_rf": "clinical_decision/rf_model.pkl",
     "symptom_rf": "symptom-checker/rf_model.pkl",
     "lab_rf": "lab/lab_rf_model.pkl",

@@ -157,6 +157,20 @@ def complete(messages: list, max_tokens: int = 400, temperature: float = 0.3, js
     return "", "unavailable"
 
 
+def ask_json(system: str, user: str, max_tokens: int = 500) -> tuple:
+    """Ask Groq for a JSON object. Returns ({}, source) when it cannot."""
+    text, source = complete(
+        [{"role": "system", "content": system}, {"role": "user", "content": user[:4000]}],
+        max_tokens=max_tokens,
+        temperature=0.2,
+        json_mode=True,
+    )
+    parsed = _json_obj(text) if text else None
+    if not isinstance(parsed, dict):
+        return {}, source or "local"
+    return parsed, source
+
+
 def explain(kind: str, facts: str, fallback: str) -> tuple:
     """Explain a finished AI result. Never replaces the result itself."""
     system = (

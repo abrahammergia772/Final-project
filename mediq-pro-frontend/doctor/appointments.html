@@ -46,6 +46,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
+<script src="../assets/js/appointment-ai.js?v=1"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -131,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let APPT = [];
 function loadPageData() {
+  if (window.AppointmentAI) AppointmentAI.mount("doctor");
   apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
     if (!r.ok) return; APPT = r.data.items; renderAppts();
     attachDataTable(document.getElementById("apptTable"), { pagerEl: document.getElementById("apptPager"), pageSize: 8 });
@@ -148,7 +150,7 @@ function renderAppts() {
   document.getElementById("apptBody").innerHTML = APPT.length ? APPT.map(a => `<tr>
     <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.type)}</td>
     <td>${esc(a.dept)}</td><td>${apptBadge(a.status)}</td>
-    <td>${a.no_show >= 30 ? `<span class="badge badge-danger">High (${a.no_show}%)</span>` : a.no_show >= 15 ? `<span class="badge badge-warning">Medium (${a.no_show}%)</span>` : `<span class="badge badge-success">Low (${a.no_show}%)</span>`}</td>
+    <td>${a.no_show === null || a.no_show === undefined || a.no_show === "" ? `<span class="badge badge-neutral">Not scored</span>` : a.no_show >= 30 ? `<span class="badge badge-danger">High (${a.no_show}%)</span>` : a.no_show >= 15 ? `<span class="badge badge-warning">Medium (${a.no_show}%)</span>` : `<span class="badge badge-success">Low (${a.no_show}%)</span>`}</td>
     <td><div class="actions">
       <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setStatus('${a.id}','attended')">${ICONS.check}</button>
@@ -203,11 +205,16 @@ function bookModal() {
     ov.querySelector("#saveBk").onclick = () => {
       const pat = ov.querySelector("#bkPat").value.trim();
       if (!pat) { showToast("Patient is required","error"); return; }
-      const noShow = Math.round(5 + Math.random() * 30);
-      (function(){var _row={ id: uid("A"), patient: pat, doctor: getUserName(), dept: ov.querySelector("#bkDept").value,
-        date: ov.querySelector("#bkDate").value, time: ov.querySelector("#bkTime").value,
-        type: ov.querySelector("#bkType").value, status: "confirmed", no_show: noShow };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
-      renderAppts(); ov.remove(); showToast("Appointment booked (no-show risk " + noShow + "%)","success");
+      showLoading("Checking saved visits…");
+      predictAppointment({ patient: pat, appointment_date: ov.querySelector("#bkDate").value, appointment_time: ov.querySelector("#bkTime").value, department: ov.querySelector("#bkDept").value, doctor_id: getUserName(), appointment_type: ov.querySelector("#bkType").value }, res => {
+        hideLoading();
+        var scored = res && res.no_show_percent != null ? res.no_show_percent : null;
+        (function(){var _row={ id: uid("A"), patient: pat, doctor: getUserName(), dept: ov.querySelector("#bkDept").value,
+          date: ov.querySelector("#bkDate").value, time: ov.querySelector("#bkTime").value,
+          type: ov.querySelector("#bkType").value, status: "confirmed", no_show: scored };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
+        renderAppts(); ov.remove();
+        showToast(scored == null ? "Appointment booked. No-show risk was not scored because there is no saved history." : "Appointment booked. Saved-visit no-show risk " + scored + "%.", "success");
+      });
     };
   }});
 }

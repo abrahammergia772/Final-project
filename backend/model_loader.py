@@ -29,11 +29,10 @@ log = logging.getLogger("mediq.models")
 # Files that are huge in RAM (RandomForest ensembles). Skipped when
 # SKIP_RF_MODELS=1 (default on low-memory / Render free).
 RF_FILES = {
-    "rf_model.pkl",            # clinical_decision & symptom-checker
-    "lab_rf_model.pkl",        # lab
-    "vitals_rf_model.pkl",     # vitals
-    "drug_interaction_rf.pkl", # drug_interaction
-    "rf_appointment.pkl",      # appointment (also >25 MB GitHub limit)
+    "rf_model.pkl",
+    "lab_rf_model.pkl",
+    "vitals_rf_model.pkl",
+    "drug_interaction_rf.pkl",
 }
 
 # Module -> subfolder + the files we expect
@@ -44,9 +43,6 @@ EXPECTED = {
     "inventory":("inventory", ["inventory_xgb_model.pkl", "inventory_scaler.pkl", "inventory_label_encoder.pkl", "inventory_config.json"]),
     "symptom":  ("symptom-checker", ["rf_model.pkl", "xgb_model.pkl", "tfidf_vectorizer.pkl", "label_encoder.pkl", "urgency_keywords.json", "response_templates.json", "model_config.json"]),
     "vitals":   ("vitals", ["vitals_rf_model.pkl", "vitals_xgb_model.pkl", "vitals_scaler.pkl", "vitals_config.json"]),
-    "appointment": ("appointment", ["xgb_appointment.pkl", "rf_appointment.pkl", "feature_cols.pkl",
-                                    "le_department.pkl", "le_doctor.pkl", "le_appt_type.pkl",
-                                    "le_gender.pkl", "le_insurance.pkl", "le_reminder.pkl", "appointment_config.json"]),
 }
 
 # subfolder -> glob of prophet seasonal files (inventory)
@@ -233,9 +229,5 @@ def load_all() -> None:
             load_module(m)
         except Exception as exc:  # noqa: BLE001
             log.warning("module %s failed to load: %s", m, exc)
-    missing_appt = list_missing("appointment")
-    if missing_appt:
-        log.warning("Appointment module missing files (GitHub 25 MB limit?): %s — using XGB only.",
-                    ", ".join(missing_appt))
     if SKIP_RF_MODELS:
         log.info("SKIP_RF_MODELS=1 — RandomForest models skipped to fit within memory limit.")

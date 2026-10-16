@@ -454,7 +454,18 @@ async def update(resource: str, row_id: str, request: Request, user=Depends(curr
         return _fail_if_down(update_row(resource, row_id, body))
     _authorize(resource, user, write=True)
     _assert_patient_owns(resource, row_id, user)
-    return _fail_if_down(update_row(resource, row_id, _stamp_patient(resource, body, user)))
+    previous = None
+    if resource == "appointments" and str(body.get("status") or "").lower() == "cancelled":
+        found = _fail_if_down(list_rows(resource))
+        previous = next((item for item in found.get("items", []) if str(item.get("id")) == str(row_id)), None)
+    saved = _fail_if_down(update_row(resource, row_id, _stamp_patient(resource, body, user)))
+    if previous and str(previous.get("status") or "").lower() != "cancelled":
+        try:
+            from routers.appointment import fill_cancelled_slot
+            saved["gap"] = fill_cancelled_slot(previous)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("cancelled slot was not filled: %s", type(exc).__name__)
+    return saved
 
 
 @router.delete("/{resource}/{row_id}")

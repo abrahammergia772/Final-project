@@ -51,6 +51,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
+<script src="../assets/js/appointment-ai.js?v=1"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -138,6 +139,7 @@ let APPT = [];
 const PATIENTS = ["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Biruk Ayele","Ruth Gebre","Tewodros Haile","Mahlet Shiferaw","Yohannes Mamo","Kidist Assefa"];
 const DOCTORS = ["Dr. Daniel Alemu","Dr. Fikru Debebe","Dr. Meron Assefa","Dr. Tsehay Mengistu","Dr. Natnael Fekadu"];
 function loadPageData() {
+  if (window.AppointmentAI) AppointmentAI.mount("reception");
   apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
     if (!r.ok) return; APPT = r.data.items; renderAppts();
     attachDataTable(document.getElementById("apptTable"), {
@@ -156,9 +158,10 @@ function loadPageData() {
 }
 function noShowBadge(a) {
   const p = a.no_show;
-  return p >= 30 ? `<span class="badge badge-danger" title="AI predicted no-show">High · ${p}%</span>`
-    : p >= 15 ? `<span class="badge badge-warning" title="AI predicted no-show">Med · ${p}%</span>`
-    : `<span class="badge badge-success" title="AI predicted no-show">Low · ${p}%</span>`;
+  if (p === null || p === undefined || p === "") return `<span class="badge badge-neutral">Not scored</span>`;
+  return p >= 30 ? `<span class="badge badge-danger" title="From saved visits">High · ${p}%</span>`
+    : p >= 15 ? `<span class="badge badge-warning" title="From saved visits">Med · ${p}%</span>`
+    : `<span class="badge badge-success" title="From saved visits">Low · ${p}%</span>`;
 }
 function renderAppts() {
   document.getElementById("apptBody").innerHTML = APPT.length ? APPT.map(a => `<tr>
@@ -208,7 +211,7 @@ function bookModal() {
         <div class="form-group"><label>Department</label><select class="form-control" id="bDept"><option>Internal Medicine</option><option>Pediatrics</option><option>Cardiology</option><option>Maternity</option><option>Orthopedics</option></select></div>
       </div>
       <div class="form-group"><label>Notes</label><textarea class="form-control" rows="2" id="bNotes"></textarea></div>
-      <div class="alert alert-info mb-0"><span>${ICONS.brain}</span><div class="alert-body">On booking, the AI will predict the no-show probability (Module 6).</div></div>`,
+      <div class="alert alert-info mb-0"><span>${ICONS.brain}</span><div class="alert-body">On booking, Groq checks saved visits for a no-show risk. It does not use the old trained model.</div></div>`,
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveB">Book Appointment</button>`
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
@@ -223,7 +226,8 @@ function bookModal() {
           type: ov.querySelector("#bType").value, status: "confirmed", no_show: res.no_show_percent };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
         renderAppts(); ov.remove();
         var note = res.explanation ? " " + String(res.explanation).slice(0, 180) : "";
-        showToast("Appointment booked — AI no-show risk " + res.no_show_percent + "%." + note, "success", note ? 8000 : 4000);
+        var riskText = res.no_show_percent == null ? "No-show risk was not scored." : "Saved-visit no-show risk " + res.no_show_percent + "%.";
+        showToast("Appointment booked. " + riskText + note, "success", note ? 8000 : 4000);
       });
     };
   }});
