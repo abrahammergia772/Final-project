@@ -21,6 +21,7 @@
   var recognition = null;
   var listening = false;
   var suppressSend = false;
+  var spokenAnswer = "";
 
   function tr(en, am) {
     try {
@@ -250,6 +251,33 @@
       if (t.indexOf(pages[i][0]) >= 0) return { path: pages[i][1], label: pages[i][2] };
     }
     return null;
+  }
+
+  function isSpeechRefusal(text) {
+    return /cannot speak|can't speak|can not speak|unable to (speak|talk)|do not have (a )?voice|don't have (a )?voice|cannot produce audio|can't produce audio|cannot generate audio|no audio capability|text-only|text only/i.test(String(text || ""));
+  }
+
+  function prepare(text) {
+    var raw = clean(text);
+    var t = lower(raw);
+    var asks = (
+      /\b(respond|reply|answer|speak|talk|tell|read|say)\b[\s\S]{0,48}\b(voice|audio|aloud|out loud)\b/.test(t) ||
+      /\b(voice|audio)\b[\s\S]{0,32}\b(respond|reply|answer|response)\b/.test(t) ||
+      /\b(speak to me|read (it|this|that|the answer)( to me)?|say it out loud)\b/.test(t) ||
+      /በድምፅ|በድምጽ/.test(raw)
+    );
+    if (!asks) return { speak: false, question: raw, repeat: false };
+    var question = raw
+      .replace(/\b(?:please\s+)?(?:can you\s+|could you\s+|i ask(?:ed)?(?: you)? to\s+)?(?:respond|reply|answer|speak|talk|tell me|read(?:\s+(?:it|this|that|the answer))?|say(?:\s+it)?)\s+(?:to me\s+|me\s+|the answer\s+)?(?:by|with|in|using|via)\s+(?:a\s+)?(?:voice|audio|speech)\b/ig, " ")
+      .replace(/\b(?:by|with|in|using)\s+(?:a\s+)?(?:voice|audio|speech)\b/ig, " ")
+      .replace(/\bvoice\s+(?:response|reply|answer)\b/ig, " ")
+      .replace(/\b(?:speak to me|read (?:it|this|that|the answer)(?: to me)?|say it out loud|out loud|aloud)\b/ig, " ")
+      .replace(/በድምፅ(?:\s*መልስልኝ|\s*መልስ)?|በድምጽ(?:\s*ንገረኝ)?/g, " ")
+      .replace(/\b(?:and|also|then|but)\b\s*$/i, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^[\s,.;:?!-]+|[\s,.;:?!-]+$/g, "")
+      .trim();
+    return { speak: true, question: question, repeat: question.length < 8 };
   }
 
   function detectIntent(text) {
@@ -660,23 +688,54 @@
     return clean(String(text || "").replace(/<[^>]+>/g, " ")).slice(0, 500);
   }
 
+  function remember(text) {
+    var line = stripSpeak(text);
+    if (!line || isSpeechRefusal(line)) return;
+    spokenAnswer = line;
+  }
+
   function speak(text, thenListen) {
     var line = stripSpeak(text);
-    if (!soundOn || !root.speechSynthesis || !line) {
+    if (!line || isSpeechRefusal(line)) line = spokenAnswer;
+    if (!soundOn || !line) {
       if (thenListen) setTimeout(startListen, 300);
-      return;
+      return false;
     }
+    if (!root.speechSynthesis || !root.SpeechSynthesisUtterance) {
+      if (typeof showToast === "function") showToast("This browser cannot play speech. The answer is written in the chat.", "info");
+      return false;
+    }
+    try { root.speechSynthesis.resume(); } catch (e) { /* ignore */ }
     try { root.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
-    var Utter = root.SpeechSynthesisUtterance;
-    if (!Utter) {
-      if (thenListen) startListen();
-      return;
-    }
-    var voice = new Utter(line);
+    var voice = new root.SpeechSynthesisUtterance(line);
     voice.lang = tr("en-US", "am-ET");
     voice.rate = 1;
+    var voices = [];
+    try { voices = root.speechSynthesis.getVoices() || []; } catch (e) { voices = []; }
+    var wanted = tr("en", "am");
+    var picked = voices.filter(function (item) { return String(item.lang || "").toLowerCase().indexOf(wanted) === 0; })[0];
+    if (picked) voice.voice = picked;
     voice.onend = function () { if (thenListen) startListen(); };
-    root.speechSynthesis.speak(voice);
+    voice.onerror = function () {
+      if (typeof showToast === "function") showToast("Turn the device volume up, tap Sound on, and ask again.", "info");
+    };
+    setTimeout(function () {
+      try { root.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+      root.speechSynthesis.speak(voice);
+    }, 80);
+    return true;
+  }
+
+  function prime(force) {
+    if (force) soundOn = true;
+    if (!soundOn || !root.speechSynthesis || !root.SpeechSynthesisUtterance) return;
+    try { root.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+    try {
+      var unlock = new root.SpeechSynthesisUtterance(" ");
+      unlock.volume = 0.01;
+      unlock.rate = 2;
+      root.speechSynthesis.speak(unlock);
+    } catch (e) { /* ignore */ }
   }
 
   function setSpeakLabel() {
@@ -776,7 +835,7 @@
     input.style.minWidth = "160px";
     input.parentNode.insertBefore(speak, input);
     input.parentNode.insertBefore(sound, input);
-    input.placeholder = "Speak or type: book an appointment, cancel my appointment, show my bills";
+    input.placeholder = "Type a question and add respond by voice, or tap Speak";
     var hints = root.document.createElement("div");
     hints.id = "voiceHints";
     hints.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px 0";
@@ -811,12 +870,20 @@
 
   function afterReply(text, fromVoice, askMore) {
     if (fromVoice) soundOn = true;
+    remember(text);
     setSoundLabel();
-    speak(text, !!(askMore && fromVoice));
+    var said = speak(text, !!(askMore && fromVoice));
+    if (fromVoice && !said && isSpeechRefusal(text)) {
+      if (typeof showToast === "function") showToast("I will read the answer aloud. Ask the question again if nothing plays.", "info");
+    }
   }
 
   var api = {
     tryAction: tryAction,
+    prepare: prepare,
+    remember: remember,
+    lastAnswer: function () { return spokenAnswer; },
+    prime: prime,
     mount: mount,
     reset: reset,
     stopListen: stopListen,

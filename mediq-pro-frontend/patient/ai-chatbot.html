@@ -51,7 +51,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/voice-assistant.js?v=1"></script>
+<script src="../assets/js/voice-assistant.js?v=2"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -142,13 +142,13 @@ function loadPageData() {
     CHAT_TURNS = [];
     if (window.VoiceAssistant) VoiceAssistant.reset();
     document.getElementById("chatArea").innerHTML = "";
-    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Tap Speak, then say book an appointment, cancel my appointment, show my bills, or ask how the system works. You can also type. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
+    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Type a question and add respond by voice, or tap Speak. I will read the answer aloud. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
   });
   document.getElementById("btnSave").addEventListener("click", () => showToast("Conversation saved to your records","success"));
   // Load curated videos so the AI can suggest related educational videos
   apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) VIDS = r.data.items; });
   // Intro message
-  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Tap Speak, then say book an appointment, cancel my appointment, show my bills, or ask how the system works. You can also type. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
+  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Type a question and add respond by voice, or tap Speak. I will read the answer aloud. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
   if (window.VoiceAssistant) VoiceAssistant.mount();
 }
 let CHAT_TURNS = [];
@@ -157,10 +157,23 @@ function sendMsg(fromVoice) {
   const text = input.value.trim();
   if (!text) return;
   if (window.VoiceAssistant && VoiceAssistant.stopListen) VoiceAssistant.stopListen();
+  const prep = (window.VoiceAssistant && VoiceAssistant.prepare) ? VoiceAssistant.prepare(text) : { speak: false, question: text, repeat: false };
+  const forceSpeak = !!fromVoice || !!prep.speak;
+  if (window.VoiceAssistant && VoiceAssistant.prime) VoiceAssistant.prime(forceSpeak);
   addMsg("user", esc(text));
   input.value = "";
+  if (prep.speak && prep.repeat) {
+    const last = (window.VoiceAssistant && VoiceAssistant.lastAnswer && VoiceAssistant.lastAnswer()) || "";
+    const reply = last || "Ask a hospital question, and I will read the answer aloud.";
+    CHAT_TURNS.push({ role: "user", content: text });
+    CHAT_TURNS.push({ role: "assistant", content: reply });
+    addMsg("ai", `<div class="mt-2 text-sm">${esc(reply)}</div>`);
+    if (window.VoiceAssistant) VoiceAssistant.afterReply(reply, true, false);
+    return;
+  }
+  const ask = (prep.speak && prep.question) ? prep.question : text;
   const history = CHAT_TURNS.slice(-6);
-  CHAT_TURNS.push({ role: "user", content: text });
+  CHAT_TURNS.push({ role: "user", content: ask });
   const typing = document.createElement("div");
   typing.className = "chat-msg ai"; typing.id = "typing";
   typing.innerHTML = '<div class="flex" style="gap:6px"><span class="spinner sm" style="border-color:#C7DBFE;border-top-color:#1A6FA8"></span> Working…</div>';
@@ -171,10 +184,10 @@ function sendMsg(fromVoice) {
     if (node) node.remove();
   };
   const spoken = (reply, askMore) => {
-    if (window.VoiceAssistant) VoiceAssistant.afterReply(reply, !!fromVoice, !!askMore);
+    if (window.VoiceAssistant) VoiceAssistant.afterReply(reply, forceSpeak, !!askMore);
   };
   const actionJob = (window.VoiceAssistant && VoiceAssistant.tryAction)
-    ? VoiceAssistant.tryAction(text)
+    ? VoiceAssistant.tryAction(ask)
     : Promise.resolve(null);
   actionJob.then(result => {
     if (result && result.handled) {
@@ -184,17 +197,24 @@ function sendMsg(fromVoice) {
       spoken(result.reply, result.askMore);
       return;
     }
-    symptomChat({ message: text, session_id: getUserRole(), history: history }, res => {
+    symptomChat({ message: ask, session_id: getUserRole(), history: history }, res => {
+      if (/cannot speak|can't speak|cannot produce audio|text-only/i.test(res.reply || "")) {
+        res.reply = "Ask the hospital question again. I will read that answer aloud.";
+      }
       CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
       renderAIResponse(res);
       var say = (res.urgency === "red" ? "This may be urgent. Go to the Emergency Department or call 907. " : "") + (res.reply || "");
-      if (res.follow_up) say += " " + res.follow_up;
+      if (res.follow_up && !/cannot speak|can't speak/i.test(res.follow_up)) say += " " + res.follow_up;
       spoken(say, false);
     }).finally(finish);
   }).catch(() => {
-    symptomChat({ message: text, session_id: getUserRole(), history: history }, res => {
+    symptomChat({ message: ask, session_id: getUserRole(), history: history }, res => {
+      if (/cannot speak|can't speak|cannot produce audio|text-only/i.test(res.reply || "")) {
+        res.reply = "Ask the hospital question again. I will read that answer aloud.";
+      }
       CHAT_TURNS.push({ role: "assistant", content: res.reply || "" });
       renderAIResponse(res);
+      if (forceSpeak) spoken(res.reply || "", false);
     }).finally(finish);
   });
 }

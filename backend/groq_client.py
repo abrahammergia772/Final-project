@@ -252,7 +252,8 @@ def assistant_reply(message: str, history: list, fallback_reply: str, fallback_f
         "Explain what a page, role, or word means, and give short steps for how to use it. "
         "Use only the system guide below. Do not invent phone numbers, prices, opening hours, staff names, or pages that are not in the guide. "
         "If a fact is not in the guide, say you do not know and tell the person to ask reception. "
-        "If the person asks how to book, cancel, or check a bill, tell them to say it in this chat, for example book cardiology tomorrow at 9. Do not claim a booking, payment, or cancellation was saved unless that confirmation is already in the conversation. Do not ask for a PIN or card number. "
+        "If the person asks how to book, cancel, or check a bill, tell them to say it in this chat, for example book cardiology tomorrow at 9. Do not claim a booking, payment, or cancellation was saved unless that confirmation is already in the conversation. Do not ask for a PIN or card number. "\
+        "The hospital page reads your reply aloud when the person asks for a voice answer. Never say you cannot speak, cannot produce audio, or are text-only. Answer the hospital question in the reply. "
         "Do not predict a disease and do not give drug doses. "
         "If they ask what a symptom word means, explain it in plain language. If that symptom can be an emergency, say so and tell them to seek care if they have it. "
         "If the message is not about this hospital or its system, politely say you only help with Wolaita Sodo Hospital. "
@@ -284,7 +285,21 @@ def assistant_reply(message: str, history: list, fallback_reply: str, fallback_f
         source = "groq"
     else:
         source = "local"
+    reply = _without_speech_refusal(reply, fallback_reply)
+    follow = _without_speech_refusal(follow, fallback_follow)
     return reply[:1200], str(follow)[:300], source
+
+
+def _without_speech_refusal(text: str, fallback: str) -> str:
+    low = (text or "").lower()
+    refused = (
+        "cannot speak", "can't speak", "can not speak", "unable to speak", "unable to talk",
+        "cannot produce audio", "can't produce audio", "cannot generate audio",
+        "do not have a voice", "don't have a voice", "text-only", "text only",
+    )
+    if any(phrase in low for phrase in refused):
+        return fallback or "Ask your hospital question in this chat. The page will read the answer aloud."
+    return text
 
 
 def write_report(title: str, period: str, facts: str) -> tuple:
