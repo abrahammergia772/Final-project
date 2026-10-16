@@ -128,7 +128,7 @@ const MODULES = [
   { id:"m4", name:"Vitals Alert System", ep:"/ai/check-vitals", page:"nurse/vitals.html", icon:"heart-pulse", on:true, conf:88, model:"vitals_alert_v1.3" },
   { id:"m5", name:"Inventory Forecasting", ep:"/ai/forecast-inventory", page:"pharmacist/ai-forecast.html", icon:"truck", on:true, conf:70, model:"inventory_forecast_v1.4" },
   { id:"m6", name:"Appointment assistant", ep:"/ai/appointment/schedule", page:"reception/appointments.html", icon:"calendar", on:true, conf:65, model:"groq" },
-  { id:"m7", name:"Symptom Checker Chatbot", ep:"/ai/symptom-chat", page:"patient/ai-chatbot.html", icon:"chat", on:true, conf:60, model:"symptom_chat_v1.5", hasKey:true }
+  { id:"m7", name:"Symptom Checker Chatbot", ep:"/ai/symptom-chat", page:"patient/ai-chatbot.html", icon:"chat", on:true, conf:60, model:"doctor_ai_model", hasKey:true }
 ];
 function loadPageData() { renderModules(); }
 function renderModules() {

@@ -54,7 +54,7 @@ CORS_ALLOW_ALL=0
 | 4 Vitals alert | `POST /ai/check-vitals` | vitals: 26-feature RF/XGB + RobustScaler |
 | 5 Inventory forecast | `POST /ai/forecast-inventory` | inventory: XGBRegressor + Prophet JSONs |
 | 6 Appointment AI | `POST /ai/predict-appointment` | appointment: XGB (RF optional — see below) |
-| 7 Symptom chatbot | `POST /ai/symptom-chat` | symptom-checker: TF-IDF + RF/XGB |
+| 7 Symptom chatbot | `POST /ai/symptom-chat` | clinical_decision: doctor_ai_model |
 
 Plus:
 - `POST /auth/login`, `/auth/signup`, `/auth/reset-password` (Supabase `users` table)

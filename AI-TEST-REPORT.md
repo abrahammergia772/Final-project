@@ -16,7 +16,7 @@ Peak memory: **296 MB** · Test script kept at `backend/ai_smoke_test.py` (rerun
 | 4 | Vitals Alert System | `vitals/` (xgb + scaler + ranges) | `POST /ai/check-vitals` | `nurse/vitals.html` |
 | 5 | Inventory Forecasting | `inventory/` (xgb + scaler + 12× Prophet JSONs) | `POST /ai/forecast-inventory` | `pharmacist/ai-forecast.html` |
 | 6 | Appointment No-Show | `appointment/` (xgb + 6 label encoders) | `POST /ai/predict-appointment` | `reception/appointments.html` |
-| 7 | Symptom Chatbot | `symptom-checker/` (tfidf + xgb + urgency + templates) | `POST /ai/symptom-chat` | `patient/ai-chatbot.html` |
+| 7 | Symptom Chatbot | `clinical_decision/` doctor_ai_model | `POST /ai/symptom-chat` | `patient/ai-chatbot.html` |
 
 Auth verified first: `doctor@wsh.et` → signed HMAC bearer token (8 h expiry); all AI routes are token-protected.
 
