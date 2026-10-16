@@ -51,7 +51,7 @@
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/voice-assistant.js?v=2"></script>
+<script src="../assets/js/voice-assistant.js?v=3"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -142,13 +142,13 @@ function loadPageData() {
     CHAT_TURNS = [];
     if (window.VoiceAssistant) VoiceAssistant.reset();
     document.getElementById("chatArea").innerHTML = "";
-    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Type a question and add respond by voice, or tap Speak. I will read the answer aloud. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
+    addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Use the microphone to talk, the speaker to turn sound on or off, and the play icon on a reply to hear it. This is not a diagnosis.");
   });
   document.getElementById("btnSave").addEventListener("click", () => showToast("Conversation saved to your records","success"));
   // Load curated videos so the AI can suggest related educational videos
   apiFetch(CONFIG.ENDPOINTS.VIDEOS).then(r => { if (r.ok) VIDS = r.data.items; });
   // Intro message
-  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Type a question and add respond by voice, or tap Speak. I will read the answer aloud. Tap Sound off if you do not want me to talk. This is not a diagnosis.");
+  addMsg("ai", "Hello. I am the Wolaita Sodo Hospital voice assistant. Use the microphone to talk, the speaker to turn sound on or off, and the play icon on a reply to hear it. This is not a diagnosis.");
   if (window.VoiceAssistant) VoiceAssistant.mount();
 }
 let CHAT_TURNS = [];
@@ -403,7 +403,14 @@ function addMsg(who, html) {
   const area = document.getElementById("chatArea");
   const div = document.createElement("div");
   div.className = "chat-msg " + who;
-  div.innerHTML = html + `<span class="msg-time">${new Date().toTimeString().slice(0, 5)}</span>`;
+  const body = document.createElement("div");
+  body.className = "voice-msg-body";
+  body.innerHTML = html + `<span class="msg-time">${new Date().toTimeString().slice(0, 5)}</span>`;
+  if (who === "ai" && window.VoiceAssistant && VoiceAssistant.playButton) {
+    div.classList.add("has-play");
+    div.appendChild(VoiceAssistant.playButton(body));
+  }
+  div.appendChild(body);
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
 }

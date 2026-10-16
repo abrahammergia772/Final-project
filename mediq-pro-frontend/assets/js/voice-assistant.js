@@ -738,19 +738,92 @@
     } catch (e) { /* ignore */ }
   }
 
+  var MIC_ICON = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><path d=\"M12 19v3\"/></svg>";
+  var STOP_ICON = "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><rect x=\"6\" y=\"6\" width=\"12\" height=\"12\" rx=\"2\"/></svg>";
+  var PLAY_ICON = "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><polygon points=\"7 4 20 12 7 20 7 4\"/></svg>";
+  var SOUND_ON_ICON = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"/><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14\"/></svg>";
+  var SOUND_OFF_ICON = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><line x1=\"22\" y1=\"9\" x2=\"16\" y2=\"15\"/><line x1=\"16\" y1=\"9\" x2=\"22\" y2=\"15\"/></svg>";
+  var playingButton = null;
+
   function setSpeakLabel() {
     var btn = root.document && root.document.getElementById("btnSpeak");
     if (!btn) return;
-    btn.textContent = listening ? tr("Listening", "እየሰማሁ ነው") : tr("Speak", "ተናገር");
+    btn.innerHTML = listening ? STOP_ICON : MIC_ICON;
     btn.classList.toggle("listening", listening);
+    btn.setAttribute("aria-label", listening ? tr("Stop listening", "ማዳመጥ አቁም") : tr("Speak", "ተናገር"));
     btn.setAttribute("aria-pressed", listening ? "true" : "false");
   }
 
   function setSoundLabel() {
     var btn = root.document && root.document.getElementById("btnVoiceSound");
     if (!btn) return;
-    btn.textContent = soundOn ? tr("Sound on", "ድምፅ በርቷል") : tr("Sound off", "ድምፅ ጠፍቷል");
+    btn.innerHTML = soundOn ? SOUND_ON_ICON : SOUND_OFF_ICON;
+    btn.setAttribute("aria-label", soundOn ? tr("Sound on", "ድምፅ በርቷል") : tr("Sound off", "ድምፅ ጠፍቷል"));
     btn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+  }
+
+  function clearPlaying() {
+    if (!playingButton) return;
+    playingButton.classList.remove("playing");
+    playingButton.innerHTML = PLAY_ICON;
+    playingButton = null;
+  }
+
+  function playThis(source, btn) {
+    var line = source;
+    if (source && source.cloneNode) {
+      var copy = source.cloneNode(true);
+      var times = copy.querySelectorAll ? copy.querySelectorAll(".msg-time") : [];
+      for (var i = 0; i < times.length; i++) times[i].remove();
+      line = copy.textContent;
+    }
+    line = stripSpeak(line);
+    if (!line) return false;
+    if (btn && btn.classList.contains("playing")) {
+      if (root.speechSynthesis) root.speechSynthesis.cancel();
+      clearPlaying();
+      return false;
+    }
+    if (!root.speechSynthesis || !root.SpeechSynthesisUtterance) {
+      if (typeof showToast === "function") showToast("This browser cannot play speech. The answer is written in the chat.", "info");
+      return false;
+    }
+    clearPlaying();
+    try { root.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+    try { root.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    var voice = new root.SpeechSynthesisUtterance(line);
+    voice.lang = tr("en-US", "am-ET");
+    voice.rate = 1;
+    var voices = [];
+    try { voices = root.speechSynthesis.getVoices() || []; } catch (e) { voices = []; }
+    var wanted = tr("en", "am");
+    var picked = voices.filter(function (item) { return String(item.lang || "").toLowerCase().indexOf(wanted) === 0; })[0];
+    if (picked) voice.voice = picked;
+    voice.onend = function () { if (playingButton === btn) clearPlaying(); };
+    voice.onerror = function () {
+      clearPlaying();
+      if (typeof showToast === "function") showToast("Turn the device volume up and tap play again.", "info");
+    };
+    if (btn) {
+      playingButton = btn;
+      btn.classList.add("playing");
+      btn.innerHTML = STOP_ICON;
+    }
+    setTimeout(function () {
+      try { root.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+      root.speechSynthesis.speak(voice);
+    }, 60);
+    return true;
+  }
+
+  function playButton(source) {
+    var btn = root.document.createElement("button");
+    btn.type = "button";
+    btn.className = "voice-play";
+    btn.setAttribute("aria-label", tr("Play response", "መልሱን አጫውት"));
+    btn.innerHTML = PLAY_ICON;
+    btn.onclick = function () { playThis(source, btn); };
+    return btn;
   }
 
   function stopListen() {
@@ -812,14 +885,13 @@
     if (!root.document.getElementById("voice-assistant-style")) {
       var style = root.document.createElement("style");
       style.id = "voice-assistant-style";
-      style.textContent = "#btnSpeak,#btnVoiceSound,.voice-chip{background:#fff !important;color:#06141B !important;border:1px solid #9AA6AC !important;font-weight:700}#btnSpeak.listening{background:#1A6FA8 !important;color:#fff !important;border-color:#1A6FA8 !important}.voice-chip{border-radius:999px;padding:6px 10px;cursor:pointer}.voice-subtitle{color:#06141B}html[data-theme=\"dark\"] .voice-subtitle{color:#F4F7F8}";
+      style.textContent = "#btnSpeak,#btnVoiceSound,.voice-play{width:42px;height:42px;min-width:42px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:#fff !important;color:#06141B !important;border:1px solid #9AA6AC !important}#btnSpeak svg,#btnVoiceSound svg,.voice-play svg{width:20px;height:20px;display:block}#btnSpeak.listening,.voice-play.playing{background:#1A6FA8 !important;color:#fff !important;border-color:#1A6FA8 !important}.chat-msg.ai.has-play{display:flex;align-items:flex-start;gap:8px}.chat-msg.ai.has-play .voice-msg-body{flex:1;min-width:0}.voice-chip{background:#fff !important;color:#06141B !important;border:1px solid #9AA6AC !important;font-weight:700;border-radius:999px;padding:6px 10px;cursor:pointer}.voice-subtitle{color:#06141B}html[data-theme=\"dark\"] .voice-subtitle{color:#F4F7F8}";
       root.document.head.appendChild(style);
     }
     var speak = root.document.createElement("button");
     speak.type = "button";
     speak.className = "btn";
     speak.id = "btnSpeak";
-    speak.style.minWidth = "108px";
     speak.onclick = startListen;
     var sound = root.document.createElement("button");
     sound.type = "button";
@@ -835,7 +907,7 @@
     input.style.minWidth = "160px";
     input.parentNode.insertBefore(speak, input);
     input.parentNode.insertBefore(sound, input);
-    input.placeholder = "Type a question and add respond by voice, or tap Speak";
+    input.placeholder = "Type a question, or use the microphone";
     var hints = root.document.createElement("div");
     hints.id = "voiceHints";
     hints.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px 0";
@@ -880,6 +952,7 @@
 
   var api = {
     tryAction: tryAction,
+    playButton: playButton,
     prepare: prepare,
     remember: remember,
     lastAnswer: function () { return spokenAnswer; },
