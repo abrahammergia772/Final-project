@@ -30,7 +30,7 @@ from permissions import require_permission
 from security import current_user
 from groq_client import configured as groq_configured, model_name as groq_model_name
 from mailer import configured as mail_configured, key_shape as mail_key_shape, provider_name as mail_provider
-from sms import configured as sms_configured
+from sms import configured as sms_configured, live_account as sms_live
 from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, payments, reports
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -103,7 +103,7 @@ MODULES = ["clinical", "drug", "lab", "vitals", "inventory"]
 # ---- health ----
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.41",
+    return {"status": "ok", "service": "Wolaita Sodo Hospital API", "version": "2.0.42",
             "groq": groq_configured(),
             "mail": mail_configured(),
             "mail_key": mail_key_shape(),
@@ -115,9 +115,10 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.41", "groq": groq_configured(), "mail": mail_configured(),
+    return {"status": "ok", "version": "2.0.42", "groq": groq_configured(), "mail": mail_configured(),
             "google": bool(os.getenv("GOOGLE_CLIENT_ID", "").strip() or os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()),
             "sms": sms_configured(),
+            "sms_live": sms_live(),
             "mail_key": mail_key_shape(),
             "groq_model": groq_model_name() if groq_configured() else "",
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}

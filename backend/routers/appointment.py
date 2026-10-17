@@ -192,6 +192,22 @@ def _patient_row(rows: list, name: str) -> dict:
     return next((row for row in rows if _same(row.get("name") or ((row.get("first_name") or "") + " " + (row.get("last_name") or "")), name) or _same(row.get("patient"), name)), {})
 
 
+def _account_phone(user: dict, users: list) -> str:
+    email = str(user.get("email") or "").strip().lower()
+    uid = str(user.get("sub") or user.get("id") or "")
+    name = str(user.get("name") or "")
+    for row in users:
+        matched = (uid and str(row.get("id") or "") == uid) or (email and str(row.get("email") or "").strip().lower() == email) or (name and _same(row.get("name"), name))
+        if not matched:
+            continue
+        details = row.get("details") if isinstance(row.get("details"), dict) else {}
+        for raw in (row.get("phone"), details.get("phone")):
+            number = normalize_phone(raw)
+            if number:
+                return number
+    return ""
+
+
 def _phone_for(name: str, appointment: dict, patients: list, users: list) -> str:
     details = appointment.get("details") if isinstance(appointment.get("details"), dict) else {}
     person = _patient_row(patients, name)
@@ -397,10 +413,22 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
         )
         result = send_sms(phone, sms_text)
         where = mask_phone(result.get("number") or phone)
+        staff_number = _account_phone(user, users)
+        staff_result = None
+        if staff_number and staff_number != (result.get("number") or normalize_phone(phone)):
+            staff_result = send_sms(staff_number, sms_text)
         if result.get("ok"):
-            note = "Africa's Talking accepted the SMS for " + where + ". That is not proof the phone has received it, and it is not sent to the staff phone."
+            note = "Africa's Talking accepted the SMS for " + where + ". That means Africa's Talking took it, not that the handset has it yet."
         else:
             note = str(result.get("detail") or "SMS was not sent.")
+        if staff_result and staff_result.get("ok"):
+            note += " A copy was accepted for your phone " + mask_phone(staff_result.get("number") or staff_number, "ending").replace("ending ending", "ending") + "."
+        elif staff_result:
+            note += " Your phone was not accepted. " + str(staff_result.get("detail") or "")
+        elif staff_number:
+            note += " That is also the phone saved on your account."
+        else:
+            note += " No phone is saved on your account, so your phone was not texted."
         text = (
             "Reminder for " + patient + ": " + str(row.get("dept") or "your visit")
             + " with " + str(row.get("doctor") or "the hospital")

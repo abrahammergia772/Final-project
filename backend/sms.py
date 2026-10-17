@@ -143,11 +143,16 @@ def _post(host: str, fields: dict, key: str) -> tuple:
         return 0, ""
 
 
-def mask_phone(number: str) -> str:
+def mask_phone(number: str, label: str = "the patient number") -> str:
     digits = re.sub(r"\D", "", str(number or ""))
     if len(digits) < 4:
-        return "the patient number on the visit"
-    return "the patient number ending " + digits[-4:]
+        return label + " on the visit"
+    return label + " ending " + digits[-4:]
+
+
+def live_account() -> bool:
+    username = _env("AT_USERNAME", "AFRICASTALKING_USERNAME")
+    return bool(username) and username != "sandbox"
 
 
 def _tagged(result: dict, number: str) -> dict:
