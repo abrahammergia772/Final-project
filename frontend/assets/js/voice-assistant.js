@@ -316,7 +316,18 @@
     return tr("What time? For example, 9 in the morning or 2 in the afternoon.", "ስንት ሰዓት? ለምሳሌ ጧት 9 ወይም ከሰዓት 2።");
   }
 
+  function refreshDoctors() {
+    if (!root.loadDoctorList || refreshDoctors.busy) return;
+    refreshDoctors.busy = true;
+    root.loadDoctorList().then(function (result) {
+      refreshDoctors.busy = false;
+      var names = ((result && result.items) || []).map(function (row) { return row.name; }).filter(Boolean);
+      if (names.length) DOCTORS = names;
+    });
+  }
+
   function doctorQuestion() {
+    refreshDoctors();
     return "I can book with " + DOCTORS.join(", ") + ". Which doctor?";
   }
 

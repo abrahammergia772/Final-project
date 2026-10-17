@@ -168,6 +168,80 @@ function apptTimeValue(value) {
   return match ? match[1].padStart(2, "0") + ":" + match[2] : "";
 }
 
+function loadDoctorList() {
+  const path = (window.CONFIG && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.DOCTOR_LIST) || "/doctors";
+  if (typeof apiFetch !== "function") return Promise.resolve({ ok: false, items: [] });
+  return apiFetch(path).then(function (res) {
+    const items = (res && res.ok && res.data && res.data.items) || [];
+    return {
+      ok: !!(res && res.ok),
+      items: items.filter(function (row) { return row && String(row.name || "").trim(); })
+    };
+  });
+}
+
+function ensureDoctorListStyle() {
+  if (document.getElementById("doctor-list-style")) return;
+  const style = document.createElement("style");
+  style.id = "doctor-list-style";
+  style.textContent = ".doctor-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto;border:1px solid #9AA6AC;border-radius:10px;padding:6px;background:#fff}.doctor-list button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:8px;border:1px solid transparent;border-radius:8px;background:#fff;cursor:pointer;color:#06141B}.doctor-list button.is-selected{border-color:#1A6FA8;background:#E1EFFA}.doctor-list .sub{display:block;color:#06141B;font-size:12px}.doctor-list .mark{width:34px;height:34px;border-radius:50%;background:#0B3A5E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}html[data-theme=\"dark\"] .doctor-list,html[data-theme=\"dark\"] .doctor-list button{background:#11212D;color:#F4F7F8}html[data-theme=\"dark\"] .doctor-list .sub{color:#F4F7F8}html[data-theme=\"dark\"] .doctor-list button.is-selected{background:#1A6FA8;color:#fff}";
+  document.head.appendChild(style);
+}
+
+function doctorPickerHtml(doctors, selected) {
+  const current = selected || (doctors[0] && doctors[0].name) || "";
+  const rows = doctors.map(function (doctor) {
+    const name = String(doctor.name || "");
+    const chosen = name === current;
+    const dept = doctor.department || doctor.dept || "Doctor";
+    const email = doctor.email || "";
+    const initials = typeof initialsOf === "function" ? initialsOf(name) : name.slice(0, 2);
+    return '<button type="button" data-doctor-name="' + escapeHtml(name) + '" data-doctor-dept="' + escapeHtml(dept) + '" class="' + (chosen ? "is-selected" : "") + '">' +
+      '<span class="mark">' + escapeHtml(initials) + '</span>' +
+      '<span><strong>' + escapeHtml(name) + '</strong><span class="sub">' + escapeHtml(dept) + (email ? " · " + escapeHtml(email) : "") + '</span></span></button>';
+  }).join("");
+  return '<div class="doctor-list">' + rows + '</div><input type="hidden" data-picked-doctor value="' + escapeHtml(current) + '">';
+}
+
+function pickedDoctor(root) {
+  const node = root && root.querySelector ? root.querySelector("[data-picked-doctor]") : null;
+  return node ? String(node.value || "").trim() : "";
+}
+
+function mountDoctorPicker(host, selected) {
+  if (!host) return;
+  ensureDoctorListStyle();
+  host.innerHTML = '<p class="text-sm" style="color:#06141B">Loading the doctor list…</p>';
+  loadDoctorList().then(function (result) {
+    if (!host.isConnected) return;
+    if (!result.ok) {
+      host.innerHTML = '<p class="text-sm" style="color:#06141B">The doctor list could not be loaded.</p><input type="hidden" data-picked-doctor value="">';
+      return;
+    }
+    if (!result.items.length) {
+      host.innerHTML = '<p class="text-sm" style="color:#06141B">No doctor account is registered yet.</p><input type="hidden" data-picked-doctor value="">';
+      return;
+    }
+    host.innerHTML = doctorPickerHtml(result.items, selected);
+    host.querySelectorAll("[data-doctor-name]").forEach(function (btn) {
+      btn.onclick = function () {
+        const name = btn.getAttribute("data-doctor-name") || "";
+        const hidden = host.querySelector("[data-picked-doctor]");
+        if (hidden) hidden.value = name;
+        host.querySelectorAll("[data-doctor-name]").forEach(function (other) {
+          other.classList.toggle("is-selected", other === btn);
+        });
+        const dept = btn.getAttribute("data-doctor-dept") || "";
+        const form = host.closest(".modal") || document;
+        const deptSelect = form.querySelector("select[id$='Dept']");
+        if (dept && deptSelect && Array.from(deptSelect.options).some(function (option) { return option.text === dept || option.value === dept; })) {
+          deptSelect.value = dept;
+        }
+      };
+    });
+  });
+}
+
 function optionList(values, current) {
   const list = values.slice();
   if (current && list.indexOf(current) < 0) list.unshift(current);
@@ -207,6 +281,14 @@ function openAppointmentEditor(opts) {
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="apptSave">${mode === "edit" ? "Save changes" : "Reschedule"}</button>`
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
+    loadDoctorList().then(function (result) {
+      const select = ov.querySelector("#apptDoctor");
+      if (!select || !result.ok || !result.items.length) return;
+      const names = result.items.map(function (doctor) { return doctor.name; });
+      const current = select.value;
+      if (current && names.indexOf(current) < 0) names.unshift(current);
+      select.innerHTML = optionList(names, current || names[0]);
+    });
     const move = ov.querySelector("#apptMove");
     if (move) move.addEventListener("change", () => {
       const picked = others.find(item => String(item.id) === move.value);

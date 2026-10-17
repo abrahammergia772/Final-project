@@ -249,6 +249,55 @@ def message_directory(user=Depends(current_user)):
     return {"items": items, "total": len(items)}
 
 
+def _doctor_items() -> list:
+    people = []
+    users = list_rows("users", 500)
+    if users.get("ok"):
+        for row in users.get("items") or []:
+            if str(row.get("role") or "").lower() != "doctor":
+                continue
+            if str(row.get("status") or "").lower() == "inactive":
+                continue
+            name = " ".join(str(row.get("name") or "").split())
+            if not name:
+                continue
+            people.append({
+                "id": row.get("id") or "",
+                "name": name,
+                "email": row.get("email") or "",
+                "department": row.get("department") or "",
+                "phone": row.get("phone") or "",
+            })
+    staff = list_rows("staff", 500)
+    if staff.get("ok"):
+        known = {item["name"].lower() for item in people}
+        for row in staff.get("items") or []:
+            if "doctor" not in str(row.get("role") or "").lower():
+                continue
+            if str(row.get("status") or "").lower() == "inactive":
+                continue
+            name = " ".join(str(row.get("name") or "").split())
+            if not name or name.lower() in known:
+                continue
+            details = row.get("details") if isinstance(row.get("details"), dict) else {}
+            people.append({
+                "id": row.get("id") or "",
+                "name": name,
+                "email": str(details.get("email") or ""),
+                "department": row.get("dept") or "",
+                "phone": row.get("contact") or "",
+            })
+    people.sort(key=lambda item: item["name"].lower())
+    return people
+
+
+@router.get("/doctors")
+def list_doctors(user=Depends(current_user)):
+    _authorize("appointments", user)
+    items = _doctor_items()
+    return {"items": items, "total": len(items)}
+
+
 @router.get("/documents/{doc_id}/file")
 def document_file(doc_id: str, user=Depends(current_user)):
     _authorize("documents", user)

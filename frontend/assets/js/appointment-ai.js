@@ -89,7 +89,7 @@
       + "<div style=\"display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px\">"
       + "<input class=\"form-control\" id=\"aiPatient\" placeholder=\"Patient name\" style=\"max-width:220px\">"
       + "<select class=\"form-control\" id=\"aiDept\" style=\"max-width:180px\"><option>Internal Medicine</option><option>Pediatrics</option><option>Cardiology</option><option>Maternity</option><option>Orthopedics</option></select>"
-      + "<select class=\"form-control\" id=\"aiDoc\" style=\"max-width:200px\"><option>Dr. Daniel Alemu</option><option>Dr. Fikru Debebe</option><option>Dr. Meron Assefa</option><option>Dr. Tsehay Mengistu</option></select>"
+      + "<select class=\"form-control\" id=\"aiDoc\" style=\"max-width:220px\"><option>Loading doctors…</option></select>"
       + "<select class=\"form-control\" id=\"aiUrgency\" style=\"max-width:140px\"><option value=\"routine\">Routine</option><option value=\"soon\">Soon</option><option value=\"urgent\">Urgent</option></select>"
       + "</div>"
       + "<input class=\"form-control\" id=\"aiReason\" placeholder=\"Reason for the visit\" style=\"margin-bottom:10px\">"
@@ -103,6 +103,18 @@
       + "</div>"
       + "<div id=\"apptAiResult\" style=\"margin-top:12px;padding:10px;border-radius:8px\"></div>";
     body.insertBefore(card, body.firstChild);
+    if (typeof loadDoctorList === "function") {
+      loadDoctorList().then(function (result) {
+        var select = root.document.getElementById("aiDoc");
+        if (!select || !result || !result.ok || !result.items.length) {
+          if (select && select.options.length === 1) select.options[0].text = "No doctor is registered";
+          return;
+        }
+        select.innerHTML = result.items.map(function (doctor) {
+          return "<option>" + esc(doctor.name) + "</option>";
+        }).join("");
+      });
+    }
     function payload(book) {
       return {
         patient: value("aiPatient"),

@@ -194,6 +194,7 @@ function bookModal() {
   openModal({
     title: "Book Appointment",
     body: `<div class="form-group"><label>Patient</label><input class="form-control" id="bkPat" list="rxPats2" placeholder="Search…"><datalist id="rxPats2">${["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Biruk Ayele","Ruth Gebre","Tewodros Haile","Mahlet Shiferaw","Yohannes Mamo","Kidist Assefa"].map(n=>`<option value="${n}">`).join("")}</datalist></div>
+      <div class="form-group"><label>Doctor</label><div id="bkDoctorList">Loading the doctor list…</div></div>
       <div class="form-row"><div class="form-group"><label>Date</label><input class="form-control" type="date" id="bkDate" value="${todayStr()}"></div>
       <div class="form-group"><label>Time</label><input class="form-control" type="time" id="bkTime" value="09:00"></div></div>
       <div class="form-row"><div class="form-group"><label>Type</label><select class="form-control" id="bkType"><option>Consultation</option><option>Follow-up</option><option>New patient</option></select></div>
@@ -202,14 +203,17 @@ function bookModal() {
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveBk">Book</button>`
   }, { onMount: ov => {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
+    mountDoctorPicker(ov.querySelector("#bkDoctorList"), typeof getUserName === "function" ? getUserName() : "");
     ov.querySelector("#saveBk").onclick = () => {
       const pat = ov.querySelector("#bkPat").value.trim();
+      const doctor = pickedDoctor(ov);
       if (!pat) { showToast("Patient is required","error"); return; }
+      if (!doctor) { showToast("Choose a doctor from the list","error"); return; }
       showLoading("Checking saved visits…");
-      predictAppointment({ patient: pat, appointment_date: ov.querySelector("#bkDate").value, appointment_time: ov.querySelector("#bkTime").value, department: ov.querySelector("#bkDept").value, doctor_id: getUserName(), appointment_type: ov.querySelector("#bkType").value }, res => {
+      predictAppointment({ patient: pat, appointment_date: ov.querySelector("#bkDate").value, appointment_time: ov.querySelector("#bkTime").value, department: ov.querySelector("#bkDept").value, doctor_id: doctor, appointment_type: ov.querySelector("#bkType").value }, res => {
         hideLoading();
         var scored = res && res.no_show_percent != null ? res.no_show_percent : null;
-        (function(){var _row={ id: uid("A"), patient: pat, doctor: getUserName(), dept: ov.querySelector("#bkDept").value,
+        (function(){var _row={ id: uid("A"), patient: pat, doctor: doctor, dept: ov.querySelector("#bkDept").value,
           date: ov.querySelector("#bkDate").value, time: ov.querySelector("#bkTime").value,
           type: ov.querySelector("#bkType").value, status: "confirmed", no_show: scored };APPT.unshift(_row);persistInsert(CONFIG.ENDPOINTS.APPOINTMENTS,_row);return _row;})();
         renderAppts(); ov.remove();

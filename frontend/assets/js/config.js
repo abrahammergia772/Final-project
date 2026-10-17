@@ -47,6 +47,7 @@ const CONFIG = {
     PATIENTS:       "/patients",
     PATIENT_LOOKUP: "/patients/lookup",
     DOCTORS:        "/staff",
+    DOCTOR_LIST:    "/doctors",
     DEPARTMENTS:    "/departments",
     STAFF:          "/staff",
     APPOINTMENTS:   "/appointments",

@@ -296,7 +296,7 @@ def schedule(body: ScheduleBody, user=Depends(current_user)):
     if not patient:
         raise HTTPException(status_code=400, detail="Type the patient name")
     department = body.department if body.department in DEPARTMENTS else (body.department or DEPARTMENTS[0])
-    doctor = body.doctor if body.doctor in DOCTORS else (body.doctor or DOCTORS[0])
+    doctor = _name(body.doctor) or DOCTORS[0]
     rows = _rows("appointments")
     slots = open_slots(rows, doctor, department)
     risk = risk_from_history(rows, patient)
