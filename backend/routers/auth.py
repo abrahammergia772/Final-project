@@ -153,10 +153,18 @@ def login(req: LoginRequest):
     return out
 
 
+def _email_taken(exc: Exception) -> bool:
+    text = str(exc).lower()
+    return "23505" in text or "duplicate" in text or "already exists" in text
+
+
 @router.post("/auth/signup")
 def signup(req: SignupRequest):
     if len(req.password) < 8:
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+    email = req.email.strip().lower()
+    if "@" not in email or "." not in email.split("@")[-1]:
+        raise HTTPException(status_code=422, detail="Enter a valid email address")
     # Public registration can never create an administrator or manager account.
     role = req.role if req.role in _ALLOWED_ROLES else "patient"
     if role == "manager":
@@ -165,15 +173,23 @@ def signup(req: SignupRequest):
     if client is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
     try:
+        if _user_by_email(client, email, "id"):
+            raise HTTPException(status_code=409, detail="That email is already registered. Sign in instead.")
         existing = client.table("users").select("id").limit(1).execute()
         if not (existing.data or []):
             role = "admin"
         row = {
-            "name": req.name, "email": req.email.strip().lower(),
-            "password_hash": hash_password(req.password), "role": role,
-            "phone": req.phone, "dob": req.dob, "gender": req.gender,
-            "blood": req.blood, "emergency_contact": req.emergency_contact,
-            "department": req.department, "details": req.details or {},
+            "name": req.name.strip(),
+            "email": email,
+            "password_hash": hash_password(req.password),
+            "role": role,
+            "phone": req.phone or "",
+            "dob": req.dob or "",
+            "gender": req.gender or "",
+            "blood": req.blood or "",
+            "emergency_contact": req.emergency_contact or "",
+            "department": req.department or "",
+            "details": req.details or {},
             "status": "active",
         }
         resp = client.table("users").insert(row).execute()
@@ -195,7 +211,9 @@ def signup(req: SignupRequest):
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
-        log.error("supabase signup failed: %s", type(exc).__name__)
+        if _email_taken(exc):
+            raise HTTPException(status_code=409, detail="That email is already registered. Sign in instead.")
+        log.error("supabase signup failed: %s %s", type(exc).__name__, _safe_exc(exc))
         raise HTTPException(status_code=503, detail="Registration service unavailable")
 
 
