@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from db import insert_row, list_rows, update_row
 from groq_client import ask_json, configured as groq_configured
 from security import current_user
-from sms import normalize_phone, send_sms
+from sms import mask_phone, normalize_phone, send_sms
 
 router = APIRouter(tags=["AI · Appointment"])
 log = logging.getLogger("mediq.appointment")
@@ -396,7 +396,11 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
             + ". Please arrive on time."
         )
         result = send_sms(phone, sms_text)
-        note = "SMS was sent." if result.get("ok") else str(result.get("detail") or "SMS was not sent.")
+        where = mask_phone(result.get("number") or phone)
+        if result.get("ok"):
+            note = "Africa's Talking accepted the SMS for " + where + ". That is not proof the phone has received it, and it is not sent to the staff phone."
+        else:
+            note = str(result.get("detail") or "SMS was not sent.")
         text = (
             "Reminder for " + patient + ": " + str(row.get("dept") or "your visit")
             + " with " + str(row.get("doctor") or "the hospital")
@@ -430,7 +434,12 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
         summary = "No upcoming visit needed a new reminder."
     else:
         label = "reminder message" if len(sent) == 1 else "reminder messages"
-        summary = "Saved " + str(len(sent)) + " " + label + ". Africa's Talking accepted " + str(sms_sent) + " SMS."
+        accepted = [str(item.get("note") or "") for item in sent if item.get("sms") == "sent" and item.get("note")]
+        summary = "Saved " + str(len(sent)) + " " + label + "."
+        if accepted:
+            summary += " " + " ".join(accepted[:1])
+        else:
+            summary += " Africa's Talking accepted " + str(sms_sent) + " SMS."
         reasons = [str(item.get("note") or "") for item in sent if item.get("sms") != "sent" and item.get("note")]
         if sms_failed:
             summary += " " + str(sms_failed) + " SMS could not be sent."

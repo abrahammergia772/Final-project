@@ -143,16 +143,28 @@ def _post(host: str, fields: dict, key: str) -> tuple:
         return 0, ""
 
 
+def mask_phone(number: str) -> str:
+    digits = re.sub(r"\D", "", str(number or ""))
+    if len(digits) < 4:
+        return "the patient number on the visit"
+    return "the patient number ending " + digits[-4:]
+
+
+def _tagged(result: dict, number: str) -> dict:
+    result["number"] = number
+    return result
+
+
 def send_sms(phone, message: str) -> dict:
     key = _api_key()
     username = _env("AT_USERNAME", "AFRICASTALKING_USERNAME")
     number = normalize_phone(phone)
     if not key:
-        return {"ok": False, "status": "not-configured", "detail": "AT_API_KEY is not set on this service"}
+        return _tagged({"ok": False, "status": "not-configured", "detail": "AT_API_KEY is not set on this service"}, "")
     if not username:
-        return {"ok": False, "status": "missing-username", "detail": "Add the Africa's Talking app username as AT_USERNAME"}
+        return _tagged({"ok": False, "status": "missing-username", "detail": "Add the Africa's Talking app username as AT_USERNAME"}, "")
     if not number:
-        return {"ok": False, "status": "no-phone", "detail": "No usable phone number on the patient record"}
+        return _tagged({"ok": False, "status": "no-phone", "detail": "No usable phone number on the patient record"}, "")
     host = "api.sandbox.africastalking.com" if username == "sandbox" else "api.africastalking.com"
     fields = {
         "username": username,
@@ -165,17 +177,17 @@ def send_sms(phone, message: str) -> dict:
         fields["from"] = sender
     http_code, body = _post(host, fields, key)
     if http_code == 0 and not body:
-        return {"ok": False, "status": "failed", "detail": "Africa's Talking could not be reached"}
+        return _tagged({"ok": False, "status": "failed", "detail": "Africa's Talking could not be reached"}, number)
     result = interpret_sms_response(http_code, body, number)
     if result.get("ok") or "from" not in fields or not _sender_rejected(result):
-        return result
+        return _tagged(result, number)
     fields.pop("from", None)
     retry_code, retry_body = _post(host, fields, key)
     if retry_code == 0 and not retry_body:
-        return {"ok": False, "status": "failed", "detail": "The sender ID was rejected, and Africa's Talking could not be reached for the retry."}
+        return _tagged({"ok": False, "status": "failed", "detail": "The sender ID was rejected, and Africa's Talking could not be reached for the retry."}, number)
     retried = interpret_sms_response(retry_code, retry_body, number)
     if retried.get("ok"):
-        retried["detail"] = "Sent with the default sender after the saved sender ID was rejected."
-        return retried
+        retried["detail"] = "Africa's Talking accepted it with the default sender after the saved sender ID was rejected. That is not proof the phone has received it."
+        return _tagged(retried, number)
     retried["detail"] = "The saved sender ID was rejected. " + str(retried.get("detail") or "The retry without it also failed.")
-    return retried
+    return _tagged(retried, number)
