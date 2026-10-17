@@ -36,6 +36,17 @@ function formatCurrency(amount, withSymbol = true) {
 
 // ---------- Toasts ----------
 function showToast(message, type = "info", duration = 4000) {
+  const gate = window._saveGate;
+  if (!showToast._flush && type === "success" && gate && gate.burst && gate.burst.length && Date.now() - gate.at < 200) {
+    const waiting = gate.burst.slice();
+    Promise.all(waiting).then(function (results) {
+      if (results.some(function (res) { return !res || res.ok === false; })) return;
+      showToast._flush = true;
+      try { showToast(message, type, duration); }
+      finally { showToast._flush = false; }
+    });
+    return;
+  }
   let container = document.getElementById("toastContainer");
   if (!container) {
     container = document.createElement("div");

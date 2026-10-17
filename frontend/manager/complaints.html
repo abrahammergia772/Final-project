@@ -52,7 +52,7 @@
 <script src="../assets/js/icons.js"></script>
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
-<script src="../assets/js/api.js"></script>
+<script src="../assets/js/api.js?v=2"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -234,12 +234,21 @@ function solveCmp(id) {
       ov.querySelector("#solSave").onclick = () => {
         const sol = ov.querySelector("#solText").value.trim();
         if (!sol) { showToast("Please write the solution", "error"); return; }
+        const previous = { solution: c.solution, status: c.status, resolved_by: c.resolved_by, resolved_date: c.resolved_date };
         c.solution = sol;
         c.status = ov.querySelector("#solStatus").value;
         c.resolved_by = getUserName();
         c.resolved_date = new Date().toISOString();
-        renderStats(); renderTable(); ov.remove();
-        showToast("Solution sent to the patient", "success");
+        ov.remove();
+        saveRow(CONFIG.ENDPOINTS.COMPLAINTS, c, "Solution saved").then(function (res) {
+          if (!res || !res.ok) {
+            c.solution = previous.solution;
+            c.status = previous.status;
+            c.resolved_by = previous.resolved_by;
+            c.resolved_date = previous.resolved_date;
+          }
+          renderStats(); renderTable();
+        });
       };
     }
   });

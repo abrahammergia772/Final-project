@@ -101,6 +101,36 @@ def _hide_secrets(row):
     return row
 
 
+_INT_COLUMNS = {"age", "no_show", "stock", "workers", "pain", "intake", "output", "reorder", "quantity"}
+_NUM_COLUMNS = {"amount", "paid", "price", "cost", "balance"}
+_JSON_COLUMNS = {"details", "drugs", "value"}
+
+
+def _coerce_column(key: str, value):
+    """Keep Supabase column types stable so one bad field does not reject the update."""
+    if key in _JSON_COLUMNS:
+        if value is None:
+            return [] if key == "drugs" else {}
+        return value
+    if key in _INT_COLUMNS:
+        if value in (None, ""):
+            return 0
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            return 0
+    if key in _NUM_COLUMNS:
+        if value in (None, ""):
+            return 0
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0
+    if value is None:
+        return ""
+    return value
+
+
 def prepare_write(endpoint: str, data: dict) -> dict:
     """Keep known columns. Hash a plaintext password. Stash unknown fields."""
     data = dict(data or {})
@@ -123,7 +153,7 @@ def prepare_write(endpoint: str, data: dict) -> dict:
     clean, extra = {}, {}
     for key, value in data.items():
         if key in allowed:
-            clean[key] = value
+            clean[key] = _coerce_column(key, value)
         elif key != "details":
             extra[key] = value
     if extra:
@@ -222,6 +252,16 @@ def _write(client, table: str, payload: dict, row_id: str | None = None, huge: b
         return query.insert(payload).execute()
 
 
+def _confirmed_row(endpoint: str, row_id: str, resp) -> dict | None:
+    """A write counts only when Supabase returns the row or a re-read finds it."""
+    rows = getattr(resp, "data", None) or []
+    if rows:
+        return dict(rows[0])
+    if not row_id:
+        return None
+    return get_row(endpoint, row_id)
+
+
 def insert_row(endpoint: str, data: dict) -> Dict[str, Any]:
     table = TABLES.get(endpoint, endpoint)
     payload = prepare_write(endpoint, data)
@@ -229,7 +269,9 @@ def insert_row(endpoint: str, data: dict) -> Dict[str, Any]:
     if client is not None:
         try:
             resp = _write(client, table, payload, huge=_has_file(payload))
-            stored = dict((resp.data or [payload])[0])
+            stored = _confirmed_row(endpoint, str(payload.get("id") or ""), resp)
+            if not stored:
+                return {"ok": False, "error": "Supabase did not save this record", "source": "supabase"}
             row = _present(endpoint, _hide_secrets(stored))
             return {"ok": True, "row": row, "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
@@ -251,7 +293,9 @@ def update_row(endpoint: str, row_id: str, data: dict) -> Dict[str, Any]:
     if client is not None:
         try:
             resp = _write(client, table, payload, row_id=row_id, huge=_has_file(payload))
-            stored = dict((resp.data or [payload])[0])
+            stored = _confirmed_row(endpoint, row_id, resp)
+            if not stored:
+                return {"ok": False, "error": "Supabase did not update this record", "source": "supabase"}
             stored.setdefault("id", row_id)
             row = _present(endpoint, _hide_secrets(stored))
             return {"ok": True, "row": row, "source": "supabase"}
@@ -266,6 +310,8 @@ def delete_row(endpoint: str, row_id: str) -> Dict[str, Any]:
     if client is not None:
         try:
             client.table(table).delete().eq("id", row_id).execute()
+            if get_row(endpoint, row_id):
+                return {"ok": False, "error": "Supabase did not delete this record", "source": "supabase"}
             return {"ok": True, "source": "supabase"}
         except Exception as exc:  # noqa: BLE001
             return _db_error("delete", endpoint, exc)

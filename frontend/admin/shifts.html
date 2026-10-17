@@ -93,7 +93,7 @@
 <script src="../assets/js/icons.js"></script>
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
-<script src="../assets/js/api.js"></script>
+<script src="../assets/js/api.js?v=2"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -386,9 +386,21 @@ function shiftModal(id) {
         const name = ov.querySelector("#shName").value.trim();
         if (!name) { showToast("Shift name required", "error"); return; }
         const css = name.toLowerCase().replace(/[^a-z]/g, "").slice(0, 10) || "custom";
-        if (s) { s.name = name; s.start = ov.querySelector("#shStart").value; s.end = ov.querySelector("#shEnd").value; s.color = ov.querySelector("#shColor").value; s.css = css; showToast("Shift updated", "success"); }
-        else { (function(){var _row={ id: uid("SH"), name, start: ov.querySelector("#shStart").value, end: ov.querySelector("#shEnd").value, color: ov.querySelector("#shColor").value, css, workers: 0 };SHIFTS.push(_row);persistInsert(CONFIG.ENDPOINTS.SHIFTS,_row);return _row;})(); showToast("Shift created", "success"); }
-        renderShifts(); ov.remove();
+        if (s) {
+          const previous = { name: s.name, start: s.start, end: s.end, color: s.color, css: s.css };
+          s.name = name; s.start = ov.querySelector("#shStart").value; s.end = ov.querySelector("#shEnd").value; s.color = ov.querySelector("#shColor").value; s.css = css;
+          saveRow(CONFIG.ENDPOINTS.SHIFTS, s, "Shift updated").then(function (res) {
+            if (!res || !res.ok) Object.assign(s, previous);
+            renderShifts();
+          });
+        } else {
+          const row = { id: uid("SH"), name, start: ov.querySelector("#shStart").value, end: ov.querySelector("#shEnd").value, color: ov.querySelector("#shColor").value, css, workers: 0 };
+          persistInsert(CONFIG.ENDPOINTS.SHIFTS, row).then(function (res) {
+            if (res && res.ok) { SHIFTS.push(row); showToast("Shift created", "success"); }
+            renderShifts();
+          });
+        }
+        ov.remove();
       };
     }
   });
@@ -404,15 +416,31 @@ function renderRoster() {
   document.getElementById("rosterBody").innerHTML = ROSTER.length ? ROSTER.map(r => `
     <tr><td><strong>${esc(r.staff)}</strong></td><td>${esc(r.dept)}</td><td>${formatDate(r.date)}</td>
     <td><span class="shift-chip shift-${(r.shift || "morning").toLowerCase().replace(/[^a-z]/g, "") || "custom"}"><span class="sc-dot"></span>${esc(r.shift)}</span></td>
-    <td style="text-align:right"><button class="btn-icon danger" onclick="ROSTER=ROSTER.filter(x=>x.id!=='${r.id}');renderRoster()">${ICONS.trash}</button></td></tr>`).join("") : emptyRow(5);
+    <td style="text-align:right"><button class="btn-icon danger" onclick="removeRoster('${r.id}')">${ICONS.trash}</button></td></tr>`).join("") : emptyRow(5);
   document.getElementById("btnAssign").onclick = assignModal;
 }
+function removeRoster(id) {
+  const row = ROSTER.find(x => x.id === id);
+  ROSTER = ROSTER.filter(x => x.id !== id);
+  renderRoster();
+  persistDelete(CONFIG.ENDPOINTS.ROSTER, id).then(function (res) {
+    if (!res || !res.ok) { if (row) ROSTER.unshift(row); renderRoster(); }
+  });
+}
 function assignModal() {
-  const staff = ["Dr. Daniel Alemu", "Dr. Fikru Debebe", "Dr. Meron Assefa", "Marta Tesfaye", "Bethelehem Girma", "Yonas Girma", "Sara Worku", "Liya Hailu", "Kaleb Teshome", "Solomon Tadesse", "Hanna Bekele"];
+  apiFetch(CONFIG.ENDPOINTS.USERS).then(function (res) {
+    const staff = ((res.ok && res.data && res.data.items) || []).filter(function (person) {
+      return person && person.name && person.role !== "patient";
+    });
+    if (!staff.length) { showToast(res.ok ? "No saved staff to assign" : (res.error || "Could not load staff"), "error"); return; }
+    openAssign(staff);
+  });
+}
+function openAssign(staff) {
   const shiftOpts = SHIFTS.map(s => `<option>${esc(s.name)}</option>`).join("");
   openModal({
     title: "Assign Staff to Shift",
-    body: `<div class="form-group"><label>Staff</label><select class="form-control" id="asStaff">${staff.map(n => `<option>${esc(n)}</option>`).join("")}</select></div>
+    body: `<div class="form-group"><label>Staff</label><select class="form-control" id="asStaff">${staff.map(n => `<option value="${esc(n.name)}">${esc(n.name)}${n.department ? " · " + esc(n.department) : ""}</option>`).join("")}</select></div>
       <div class="form-row">
         <div class="form-group"><label>Shift</label><select class="form-control" id="asShift">${shiftOpts}</select></div>
         <div class="form-group"><label>Date</label><input class="form-control" type="date" id="asDate" value="${TODAY}"></div>
@@ -422,9 +450,14 @@ function assignModal() {
     onMount: (ov) => {
       ov.querySelector("[data-c]").onclick = () => ov.remove();
       ov.querySelector("#asSave").onclick = () => {
-        const sh = SHIFTS.find(s => s.name === ov.querySelector("#asShift").value) || { start: "07:00", end: "15:00" };
-        ROSTER.unshift({ id: uid("RO"), staff: ov.querySelector("#asStaff").value, dept: "Department", date: ov.querySelector("#asDate").value, shift: sh.name, start: sh.start, end: sh.end });
-        renderRoster(); ov.remove(); showToast("Staff assigned to " + sh.name + " shift", "success");
+        const sh = SHIFTS.find(s => s.name === ov.querySelector("#asShift").value) || { name: ov.querySelector("#asShift").value, start: "07:00", end: "15:00" };
+        const name = ov.querySelector("#asStaff").value;
+        const person = staff.find(function (item) { return item.name === name; }) || {};
+        const row = { id: uid("RO"), staff: name, dept: person.department || "", date: ov.querySelector("#asDate").value, shift: sh.name, start: sh.start, end: sh.end };
+        ov.remove();
+        persistInsert(CONFIG.ENDPOINTS.ROSTER, row).then(function (res) {
+          if (res && res.ok) { ROSTER.unshift(row); showToast("Staff assigned to " + sh.name + " shift", "success"); renderRoster(); }
+        });
       };
     }
   });

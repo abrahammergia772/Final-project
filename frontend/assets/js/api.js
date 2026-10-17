@@ -129,34 +129,62 @@ function uid(prefix) {
   return (prefix || "ID") + "-" + Date.now().toString(36) + idSeq.toString(36);
 }
 
+function _reloadAfterFailedSave() {
+  const reloaders = ["loadPageData", "loadStore", "loadBeds", "loadA", "loadB", "loadT", "loadI", "loadU"];
+  reloaders.forEach(function (name) {
+    if (typeof window[name] === "function") window[name]();
+  });
+}
 function _saveError(res, action) {
   const msg = (res && res.error) || ("Could not " + action + " in Supabase");
   showToast(msg, "error");
+  _reloadAfterFailedSave();
+}
+
+window._saveGate = window._saveGate || { burst: [], at: 0 };
+function _trackSave(promise) {
+  const gate = window._saveGate;
+  gate.at = Date.now();
+  const tracked = Promise.resolve(promise).then(function (res) { return res; }, function () { return { ok: false, error: "Could not save" }; });
+  gate.burst.push(tracked);
+  tracked.finally(function () {
+    const index = gate.burst.indexOf(tracked);
+    if (index >= 0) gate.burst.splice(index, 1);
+  });
+  return promise;
+}
+function _applySaved(row, res) {
+  const saved = res && res.data && res.data.row;
+  if (!row || !saved || typeof saved !== "object") return;
+  Object.keys(saved).forEach(function (key) {
+    if (saved[key] !== undefined) row[key] = saved[key];
+  });
 }
 
 function persistInsert(endpoint, row) {
   if (!endpoint || !row) return Promise.resolve({ ok: false, error: "Nothing to save" });
-  return apiFetch(endpoint, "POST", row).then(function (res) {
+  return _trackSave(apiFetch(endpoint, "POST", row).then(function (res) {
     if (!res.ok) _saveError(res, "save");
-    else if (res.data && res.data.row && res.data.row.id) row.id = res.data.row.id;
+    else _applySaved(row, res);
     return res;
-  });
+  }));
 }
 
 function persistUpdate(endpoint, id, row) {
   if (!endpoint || !id) return persistInsert(endpoint, row);
-  return apiFetch(endpoint + "/" + encodeURIComponent(id), "PUT", row).then(function (res) {
+  return _trackSave(apiFetch(endpoint + "/" + encodeURIComponent(id), "PUT", row).then(function (res) {
     if (!res.ok) _saveError(res, "update");
+    else _applySaved(row, res);
     return res;
-  });
+  }));
 }
 
 function persistDelete(endpoint, id) {
   if (!endpoint || !id) return Promise.resolve({ ok: false });
-  return apiFetch(endpoint + "/" + encodeURIComponent(id), "DELETE").then(function (res) {
+  return _trackSave(apiFetch(endpoint + "/" + encodeURIComponent(id), "DELETE").then(function (res) {
     if (!res.ok) _saveError(res, "delete");
     return res;
-  });
+  }));
 }
 
 // Save a row the screen already changed. Shows okMsg only after Supabase accepts it.
@@ -173,11 +201,22 @@ function saveRow(endpoint, row, okMsg) {
 
 const _known = {};
 function persistUpsert(endpoint, row) {
-  if (!row) return Promise.resolve({ ok: false });
+  if (!row) return Promise.resolve({ ok: false, error: "Nothing to save" });
   const key = endpoint + ":" + row.id;
-  if (row.id && _known[key]) return persistUpdate(endpoint, row.id, row);
-  if (row.id) _known[key] = true;
-  return persistInsert(endpoint, row);
+  const known = !!(row.id && _known[key]);
+  const call = known ? persistUpdate(endpoint, row.id, row) : persistInsert(endpoint, row);
+  return call.then(function (res) {
+    if (res && res.ok && row.id) _known[key] = true;
+    else if (!known) delete _known[key];
+    if (res && !res.ok && known && /did not update|not found|No row/i.test(String(res.error || ""))) {
+      delete _known[key];
+      return persistInsert(endpoint, row).then(function (ins) {
+        if (ins && ins.ok && row.id) _known[key] = true;
+        return ins;
+      });
+    }
+    return res;
+  });
 }
 function markKnown(endpoint, rows) {
   (rows || []).forEach(function (row) {

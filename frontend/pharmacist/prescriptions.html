@@ -44,7 +44,7 @@
 <script src="../assets/js/icons.js"></script>
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/auth.js"></script>
-<script src="../assets/js/api.js"></script>
+<script src="../assets/js/api.js?v=2"></script>
 <script src="../assets/js/utils.js?v=10"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
@@ -149,8 +149,13 @@ function render() {
 }
 function dispense(id) {
   const p = PHRX.find(x => x.id === id);
-  p.status = "dispensed"; render();
-  showToast("Dispensed " + p.drugs.length + " item(s) to " + p.patient, "success");
+  if (!p || p.status === "dispensed") return;
+  const previous = p.status;
+  p.status = "dispensed";
+  saveRow(CONFIG.ENDPOINTS.PRESCRIPTIONS, p, "Dispensed " + (p.drugs || []).length + " item(s) to " + p.patient).then(function (res) {
+    if (!res || !res.ok) p.status = previous;
+    render();
+  });
 }
 function viewPhRx(id) {
   const p = PHRX.find(x => x.id === id);
