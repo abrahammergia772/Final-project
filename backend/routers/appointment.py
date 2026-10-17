@@ -4,6 +4,7 @@
 # There is no trained appointment model.
 # =============================================================================
 import logging
+import os
 import secrets
 from datetime import date, datetime, timedelta
 
@@ -32,6 +33,7 @@ class ScheduleBody(BaseModel):
     reason: str = ""
     urgency: str = "routine"
     book: bool = False
+    slot_id: str = ""
 
 
 class NamedBody(BaseModel):
@@ -314,12 +316,48 @@ def schedule(body: ScheduleBody, user=Depends(current_user)):
     if not patient:
         raise HTTPException(status_code=400, detail="Type the patient name")
     department = body.department if body.department in DEPARTMENTS else (body.department or DEPARTMENTS[0])
-    doctor = _name(body.doctor) or DOCTORS[0]
+    doctor = _name(body.doctor)
+    if not doctor:
+        raise HTTPException(status_code=400, detail="Choose a saved doctor")
     rows = _rows("appointments")
     slots = open_slots(rows, doctor, department)
     risk = risk_from_history(rows, patient)
     if not slots:
-        return {"slots": [], "summary": "No open weekday slot was found in the next 8 days.", "risk": risk, "model": "groq-appointment"}
+        return {"slots": [], "summary": "No open weekday slot was found in the next 8 days.", "risk": risk, "model": "groq-appointment", "explained_by": "hospital-records"}
+    picked = next((item for item in slots if item["id"] == body.slot_id), None) if body.slot_id else None
+    if body.slot_id and not picked:
+        return {"slots": [], "summary": "That slot is no longer open.", "risk": risk, "model": "groq-appointment", "explained_by": "hospital-records"}
+    if picked:
+        chosen = [picked]
+        note = "Selected slot from the hospital calendar."
+        source = "selected-slot"
+        booked = None
+        if body.book:
+            row = {
+                "id": "A-" + secrets.token_hex(4),
+                "patient": patient,
+                "doctor": picked["doctor"],
+                "dept": department,
+                "date": picked["date"],
+                "time": picked["time"],
+                "type": "Consultation",
+                "status": "confirmed",
+                "no_show": risk.get("no_show_percent"),
+                "reason": body.reason[:180],
+            }
+            saved = insert_row("appointments", row)
+            booked = row if saved.get("ok") else None
+            if not saved.get("ok"):
+                note = saved.get("error") or "The slot was not saved."
+        return {
+            "slots": chosen,
+            "summary": note,
+            "explained_by": source,
+            "risk": risk,
+            "booked": booked,
+            "model": "groq-appointment",
+            "sms": "not-connected",
+        }
     parsed, source = ask_json(
         "You schedule visits at Wolaita Sodo Hospital. Return JSON with keys note and chosen_ids. "
         "chosen_ids must be copied from the given ids. Do not invent a patient, doctor, time, or diagnosis.",
@@ -417,18 +455,27 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
         staff_result = None
         if staff_number and staff_number != (result.get("number") or normalize_phone(phone)):
             staff_result = send_sms(staff_number, sms_text)
+        alert_number = normalize_phone(os.getenv("STAFF_ALERT_PHONE", ""))
+        alert_result = None
+        if alert_number and alert_number not in {result.get("number") or "", staff_number or ""}:
+            alert_result = send_sms(alert_number, "STAFF ALERT: " + patient + " on " + str(row.get("date") or "") + " at " + _clock(row.get("time")) + ". " + str(row.get("dept") or ""))
+        def sms_label(item, empty):
+            if not item:
+                return empty
+            if item.get("ok"):
+                return "accepted for " + mask_phone(item.get("number") or "", "number")
+            if item.get("status") == "no-phone":
+                return empty
+            return "not accepted: " + str(item.get("detail") or "failed")
+        patient_sms = sms_label(result, "no phone saved")
+        staff_pick = next((item for item in (staff_result, alert_result) if item and item.get("ok")), None) or staff_result or alert_result
+        staff_sms = sms_label(staff_pick, "no staff phone")
         if result.get("ok"):
-            note = "Africa's Talking accepted the SMS for " + where + ". That means Africa's Talking took it, not that the handset has it yet."
+            note = "Africa's Talking accepted the patient SMS for " + where + ". That is not proof the handset has received it."
         else:
-            note = str(result.get("detail") or "SMS was not sent.")
-        if staff_result and staff_result.get("ok"):
-            note += " A copy was accepted for your phone " + mask_phone(staff_result.get("number") or staff_number, "ending").replace("ending ending", "ending") + "."
-        elif staff_result:
-            note += " Your phone was not accepted. " + str(staff_result.get("detail") or "")
-        elif staff_number:
-            note += " That is also the phone saved on your account."
-        else:
-            note += " No phone is saved on your account, so your phone was not texted."
+            note = patient_sms
+        if staff_sms not in {"no staff phone"}:
+            note += " Staff SMS: " + staff_sms + "."
         text = (
             "Reminder for " + patient + ": " + str(row.get("dept") or "your visit")
             + " with " + str(row.get("doctor") or "the hospital")
@@ -453,7 +500,9 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
             "date": row.get("date"),
             "time": _clock(row.get("time")),
             "early": early,
-            "sms": "sent" if result.get("ok") else str(result.get("status") or "failed"),
+            "sms": "accepted" if result.get("ok") else str(result.get("status") or "failed"),
+            "patient_sms": patient_sms,
+            "staff_sms": staff_sms,
             "note": note,
         })
     if wanted and not seen:
