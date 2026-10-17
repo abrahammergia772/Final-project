@@ -55,7 +55,7 @@
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=2"></script>
 <script src="../assets/js/appointment-ai.js?v=1"></script>
-<script src="../assets/js/utils.js?v=13"></script>
+<script src="../assets/js/utils.js?v=14"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -164,7 +164,7 @@ function runListedAction(kind) {
     showLoading("Sending reminders…");
     runAppointmentAction(rows[0], "all").then(res => {
       hideLoading();
-      showActionResult(res.ok ? (res.data && res.data.summary) || "Reminders finished." : (res.error || "Could not send reminders."), !!res.ok);
+      showActionResult(res.ok ? (res.data && res.data.summary) || "Reminders finished." : (res.error || "Could not send reminders."), typeof appointmentResultOk === "function" ? appointmentResultOk(res) : !!res.ok);
     });
     return;
   }
@@ -182,7 +182,7 @@ function rowAction(id, kind) {
   showLoading(kind === "remind" ? "Sending reminder…" : "Working…");
   runAppointmentAction(row, kind).then(res => {
     hideLoading();
-    showActionResult(res.ok ? ((res.data && res.data.summary) || "Done for " + (row.patient || "the visit")) : (res.error || "Could not finish."), !!res.ok);
+    showActionResult(res.ok ? ((res.data && res.data.summary) || "Done for " + (row.patient || "the visit")) : (res.error || "Could not finish."), typeof appointmentResultOk === "function" ? appointmentResultOk(res) : !!res.ok);
   });
 }
 function renderAppts() {

@@ -186,6 +186,12 @@ function isUpcomingAppointment(row) {
   return !!(day && day >= todayStr());
 }
 
+function appointmentResultOk(res) {
+  if (!res || !res.ok) return false;
+  const sms = res.data && res.data.sms;
+  return sms !== "not-sent" && sms !== "partial";
+}
+
 function runAppointmentAction(row, kind) {
   if (!row || typeof apiFetch !== "function") return Promise.resolve({ ok: false, error: "That appointment is not on this page." });
   const paths = (window.CONFIG && CONFIG.ENDPOINTS) || {};

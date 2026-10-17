@@ -429,9 +429,17 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
     elif not sent:
         summary = "No upcoming visit needed a new reminder."
     else:
-        summary = "Saved " + str(len(sent)) + " reminder messages. Africa's Talking accepted " + str(sms_sent) + " SMS."
+        label = "reminder message" if len(sent) == 1 else "reminder messages"
+        summary = "Saved " + str(len(sent)) + " " + label + ". Africa's Talking accepted " + str(sms_sent) + " SMS."
+        reasons = [str(item.get("note") or "") for item in sent if item.get("sms") != "sent" and item.get("note")]
         if sms_failed:
             summary += " " + str(sms_failed) + " SMS could not be sent."
+            if reasons:
+                summary += " " + " ".join(reasons[:2])
+        elif not sms_sent:
+            summary += " No SMS was sent."
+            if reasons:
+                summary += " " + " ".join(reasons[:2])
     return {
         "sent": sent,
         "total": len(sent),
