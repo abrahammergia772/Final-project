@@ -72,9 +72,9 @@ uvicorn main:app --reload --port 8000
 
 ## 🔌 Point the frontend at this backend
 
-In `mediq-pro-frontend/assets/js/config.js`:
+In `frontend/assets/js/config.js`:
 ```js
 API_BASE_URL: "https://your-backend.onrender.com",
 DEMO_MODE: false,
 ```
-Then deploy the frontend (Netlify, publish dir `mediq-pro-frontend/`).
+Then deploy the frontend (Netlify, publish dir `frontend/`).

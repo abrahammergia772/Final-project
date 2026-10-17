@@ -79,10 +79,10 @@ services:
   - type: web
     name: mediq-pro-frontend
     runtime: static
-    rootDir: mediq-pro-frontend
+    rootDir: frontend
     plan: free
     buildCommand: ""     # pure static — no build step
     staticPublishPath: .
     pullRequestPreviewsEnabled: true
     # No Vite env injection (there is no build). The API URL lives in
-    # mediq-pro-frontend/assets/js/config.js and can be overridden with ?api=
+    # frontend/assets/js/config.js and can be overridden with ?api=

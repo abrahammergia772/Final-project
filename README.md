@@ -15,7 +15,7 @@ Department of Electrical and Computer Engineering
 ```
 Final-project/
 │
-├── mediq-pro-frontend/     ← THIS IS THE FRONTEND (static, deploy as-is)
+├── frontend/               ← THIS IS THE FRONTEND (static, deploy as-is)
 │   ├── index.html          ← Login page
 │   ├── assets/
 │   │   ├── css/            ← global, sidebar, components, dashboard
@@ -118,7 +118,7 @@ The login page also has **one-click demo buttons** for every role.
 Run locally:
 
 ```bash
-cd mediq-pro-frontend
+cd frontend
 python3 -m http.server 8000      # or: npx serve .
 # open http://localhost:8000
 ```
@@ -168,11 +168,11 @@ Every AI output shows a clinical disclaimer, confidence bars and error/loading s
 
 ## 🔌 Going live (when your backend + models are ready)
 
-1. **Frontend**: deploy `mediq-pro-frontend/` to Netlify (build command: *none*,
-   publish directory: `mediq-pro-frontend/`).
+1. **Frontend**: deploy `frontend/` to Netlify (build command: *none*,
+   publish directory: `frontend/`).
 2. **Backend**: deploy your FastAPI app to Render, upload `.pkl` files to
    `models/`, endpoints as in the table above.
-3. In `mediq-pro-frontend/assets/js/config.js` set:
+3. In `frontend/assets/js/config.js` set:
    ```js
    API_BASE_URL: "https://your-backend.onrender.com",
    DEMO_MODE: false,
@@ -204,7 +204,7 @@ Defined once in `assets/css/global.css` (`:root` for light, `html[data-theme="da
 
 - All money shown in **ETB**, dates in **DD/MM/YYYY** (Ethiopian standard).
 - Responsive: sidebar collapses to a hamburger menu below 768px.
-- The static pages in `mediq-pro-frontend/` are the deployable site.
+- The static pages in `frontend/` are the deployable site.
 
 ---
 
