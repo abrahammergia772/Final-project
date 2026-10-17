@@ -53,7 +53,7 @@ CORS_ALLOW_ALL=0
 | 3 Lab analyzer | `POST /ai/analyze-lab` | lab: 78-feature RF/XGB + scaler |
 | 4 Vitals alert | `POST /ai/check-vitals` | vitals: 26-feature RF/XGB + RobustScaler |
 | 5 Inventory forecast | `POST /ai/forecast-inventory` | inventory: XGBRegressor + Prophet JSONs |
-| 6 Appointment assistant | Groq on saved visits | no model file |
+| 6 Appointment assistant | Groq on saved visits. Reminders also send SMS through Africa's Talking when `AT_API_KEY` and `AT_USERNAME` are set. | no model file |
 | 7 Symptom chatbot | `POST /ai/symptom-chat` | clinical_decision: doctor_ai_model |
 
 Plus:

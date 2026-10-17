@@ -72,6 +72,14 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
+      # Appointment reminder SMS. AT_API_KEY is already set on the live service.
+      # Do not put the key in this file. Africa's Talking also needs the app username.
+      - key: AT_API_KEY
+        sync: false
+      - key: AT_USERNAME
+        sync: false
+      - key: AT_SENDER_ID
+        sync: false
 
   # ============================================================
   # Frontend — static site (HTML/CSS/JS) on Render free tier

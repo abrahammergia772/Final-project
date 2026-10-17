@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from db import insert_row, list_rows, update_row
 from groq_client import ask_json, configured as groq_configured
 from security import current_user
+from sms import normalize_phone, send_sms
 
 router = APIRouter(tags=["AI · Appointment"])
 log = logging.getLogger("mediq.appointment")
@@ -189,6 +190,26 @@ def _patient_row(rows: list, name: str) -> dict:
     return next((row for row in rows if _same(row.get("name") or ((row.get("first_name") or "") + " " + (row.get("last_name") or "")), name) or _same(row.get("patient"), name)), {})
 
 
+def _phone_for(name: str, appointment: dict, patients: list, users: list) -> str:
+    details = appointment.get("details") if isinstance(appointment.get("details"), dict) else {}
+    person = _patient_row(patients, name)
+    person_details = person.get("details") if isinstance(person.get("details"), dict) else {}
+    user = next((row for row in users if _same(row.get("name"), name)), {})
+    user_details = user.get("details") if isinstance(user.get("details"), dict) else {}
+    for raw in (
+        appointment.get("phone"),
+        details.get("phone"),
+        person.get("phone"),
+        person_details.get("phone"),
+        user.get("phone"),
+        user_details.get("phone"),
+    ):
+        number = normalize_phone(raw)
+        if number:
+            return number
+    return ""
+
+
 def _facts_for(name: str) -> dict:
     appointments = [row for row in _rows("appointments") if _same(row.get("patient"), name)]
     prescriptions = [row for row in _rows("prescriptions") if _same(row.get("patient"), name)]
@@ -333,7 +354,11 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
     today = date.today()
     window = max(1, min(int(body.days or 3), 7))
     rows = _rows("appointments")
+    patients = _rows("patients")
+    users = _rows("users")
     sent = []
+    sms_sent = 0
+    sms_failed = 0
     for row in rows:
         if not _open(row):
             continue
@@ -349,28 +374,60 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
         if ahead > (2 if early else 1):
             continue
         details = row.get("details") if isinstance(row.get("details"), dict) else {}
-        if str(details.get("reminded_on") or "") == today.isoformat():
+        already = str(details.get("reminded_on") or "") == today.isoformat()
+        if already and str(details.get("sms") or "") == "sent":
             continue
         patient = _name(row.get("patient"))
         when_text = "two days before" if early else "the day before"
+        phone = _phone_for(patient, row, patients, users)
+        sms_text = (
+            "Wolaita Sodo Hospital reminder: " + str(row.get("dept") or "your visit")
+            + " with " + str(row.get("doctor") or "the hospital")
+            + " on " + str(row.get("date") or "") + " at " + _clock(row.get("time"))
+            + ". Please arrive on time."
+        )
+        result = send_sms(phone, sms_text)
+        note = "SMS was sent." if result.get("ok") else str(result.get("detail") or "SMS was not sent.")
         text = (
             "Reminder for " + patient + ": " + str(row.get("dept") or "your visit")
             + " with " + str(row.get("doctor") or "the hospital")
             + " on " + str(row.get("date") or "") + " at " + _clock(row.get("time"))
             + ". This reminder is " + when_text + " because "
             + ("earlier visits were missed." if early else "the visit is soon.")
-            + " SMS is not connected. This is a hospital message only."
+            + " " + note
         )
-        if not _save_message(patient, "Appointment reminder", text, "reminder"):
+        if not already and not _save_message(patient, "Appointment reminder", text, "reminder"):
             continue
-        update_row("appointments", str(row.get("id")), {"details": {"reminded_on": today.isoformat(), "reminder": when_text}})
-        sent.append({"patient": patient, "date": row.get("date"), "time": _clock(row.get("time")), "early": early})
+        update_row("appointments", str(row.get("id")), {"details": {
+            "reminded_on": today.isoformat(),
+            "reminder": when_text,
+            "sms": "sent" if result.get("ok") else str(result.get("status") or "failed"),
+        }})
+        if result.get("ok"):
+            sms_sent += 1
+        elif result.get("status") != "no-phone":
+            sms_failed += 1
+        sent.append({
+            "patient": patient,
+            "date": row.get("date"),
+            "time": _clock(row.get("time")),
+            "early": early,
+            "sms": "sent" if result.get("ok") else str(result.get("status") or "failed"),
+            "note": note,
+        })
+    if not sent:
+        summary = "No upcoming visit needed a new reminder."
+    else:
+        summary = "Saved " + str(len(sent)) + " reminder messages. Africa's Talking accepted " + str(sms_sent) + " SMS."
+        if sms_failed:
+            summary += " " + str(sms_failed) + " SMS could not be sent."
     return {
         "sent": sent,
         "total": len(sent),
-        "sms": "not-connected",
+        "sms": "sent" if sms_sent and not sms_failed else ("partial" if sms_sent else "not-sent"),
+        "sms_sent": sms_sent,
         "email": "not-sent",
-        "summary": "Saved " + str(len(sent)) + " reminder messages. No SMS was sent.",
+        "summary": summary,
         "model": "groq-appointment",
     }
 

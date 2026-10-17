@@ -1,6 +1,6 @@
 /* Wolaita Sodo Hospital — Groq appointment assistant.
    Scheduling, reminders, intake, doctor brief, and follow-up.
-   Replies are not spoken. SMS is not connected. */
+   Replies are not spoken. Appointment reminders use Africa's Talking when a phone is saved. */
 (function (root) {
   function endpoint(name, fallback) {
     var map = (root.CONFIG && root.CONFIG.ENDPOINTS) || {};
@@ -58,7 +58,8 @@
     });
     if (data.booked) lines.push("<p>Saved a visit on " + esc(data.booked.date) + " at " + esc(data.booked.time) + ".</p>");
     if (!lines.length) lines.push("<p>No matching hospital record was found. Nothing was invented.</p>");
-    lines.push("<p>SMS is not connected. Email was not sent. Messages, when saved, are in the hospital inbox.</p>");
+    if (data.sms === "sent") lines.push("<p>Africa's Talking accepted the reminder SMS. Email was not sent.</p>");
+    else if (!(data.summary && /SMS/i.test(data.summary))) lines.push("<p>Email was not sent. Messages, when saved, are in the hospital inbox.</p>");
     return lines.join("");
   }
 
