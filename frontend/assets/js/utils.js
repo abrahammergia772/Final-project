@@ -168,6 +168,27 @@ function apptTimeValue(value) {
   return match ? match[1].padStart(2, "0") + ":" + match[2] : "";
 }
 
+function isUpcomingAppointment(row) {
+  const status = String((row && row.status) || "").toLowerCase();
+  if (["cancelled", "completed", "attended"].indexOf(status) >= 0) return false;
+  const day = String((row && row.date) || "").slice(0, 10);
+  return !!(day && day >= todayStr());
+}
+
+function runAppointmentAction(row, kind) {
+  if (!row || typeof apiFetch !== "function") return Promise.resolve({ ok: false, error: "That appointment is not on this page." });
+  const paths = (window.CONFIG && CONFIG.ENDPOINTS) || {};
+  const path = kind === "remind" ? (paths.APPOINTMENT_REMINDERS || "/ai/appointment/reminders")
+    : kind === "intake" ? (paths.APPOINTMENT_PRESCREEN || "/ai/appointment/prescreen")
+    : kind === "brief" ? (paths.APPOINTMENT_BRIEF || "/ai/appointment/doctor-brief")
+    : kind === "all" ? (paths.APPOINTMENT_REMINDERS || "/ai/appointment/reminders")
+    : (paths.APPOINTMENT_FOLLOWUP || "/ai/appointment/follow-up");
+  const body = kind === "all" ? { all_upcoming: true, days: 30 }
+    : kind === "remind" ? { appointment_id: row.id }
+    : { patient: row.patient || "", doctor: row.doctor || "", department: row.dept || row.department || "", reason: row.reason || ((row.details && row.details.notes) || "") };
+  return apiFetch(path, "POST", body);
+}
+
 function loadDoctorList() {
   const path = (window.CONFIG && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.DOCTOR_LIST) || "/doctors";
   if (typeof apiFetch !== "function") return Promise.resolve({ ok: false, items: [] });

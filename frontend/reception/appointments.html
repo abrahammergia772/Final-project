@@ -28,6 +28,7 @@
     <span class="chip selected" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> List View</span>
     <span class="chip" data-view="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Calendar View</span>
   </div>
+  <button class="btn" id="btnRemindAll" type="button">Send reminders</button>
   <button class="btn btn-primary" id="btnBook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Book Appointment</button></div>
 <div id="calView" class="card mb-4 hidden"><div id="calGrid"></div></div>
 <div class="card" style="padding:0" id="listView">
@@ -52,7 +53,7 @@
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/appointment-ai.js?v=1"></script>
-<script src="../assets/js/utils.js?v=10"></script>
+<script src="../assets/js/utils.js?v=12"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -148,6 +149,14 @@ function loadPageData() {
     });
   });
   document.getElementById("btnBook").addEventListener("click", bookModal);
+  const remindAll = document.getElementById("btnRemindAll");
+  if (remindAll) remindAll.addEventListener("click", () => {
+    showLoading("Sending reminders…");
+    runAppointmentAction({ id: "" }, "all").then(res => {
+      hideLoading();
+      showToast(res.ok ? (res.data && res.data.summary) || "Reminders finished." : (res.error || "Could not send reminders."), res.ok ? "success" : "error", 7000);
+    });
+  });
   document.querySelectorAll("[data-view]").forEach(c => c.addEventListener("click", () => {
     document.querySelectorAll("[data-view]").forEach(x => x.classList.remove("selected"));
     c.classList.add("selected");
@@ -168,7 +177,11 @@ function renderAppts() {
     <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td>
     <td>${esc(a.dept)}</td><td>${esc(a.type)}</td><td>${noShowBadge(a)}</td>
     <td>${apptBadge(a.status)}</td>
-    <td><div class="actions">
+    <td><div class="actions" style="justify-content:flex-end;flex-wrap:wrap">
+      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="sendOneReminder('${encodeURIComponent(a.id)}')">Send reminder</button>
+      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowExtra('${encodeURIComponent(a.id)}','intake')">Intake</button>
+      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowExtra('${encodeURIComponent(a.id)}','brief')">Doctor brief</button>
+      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowExtra('${encodeURIComponent(a.id)}','follow')">Follow-up</button>
       <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setA('${a.id}','attended')">${ICONS.check}</button>
       <button class="btn-icon warning" title="Reschedule to other appointment" onclick="moveAppt('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
@@ -180,6 +193,16 @@ function apptBadge(s) {
   const b = m[s] || ["neutral", s]; return `<span class="badge badge-${b[0]}">${b[1]}</span>`;
 }
 function setA(id, s) { const a = APPT.find(x => x.id === id); if (!a) return; a.status = s; renderAppts(); saveRow(CONFIG.ENDPOINTS.APPOINTMENTS, a, "Appointment " + s); }
+function sendOneReminder(id) { rowExtra(id, "remind"); }
+function rowExtra(id, kind) {
+  const row = apptById(id);
+  if (!row) { showToast("That appointment is no longer on this page.", "error"); return; }
+  showLoading(kind === "remind" ? "Sending reminder…" : "Working…");
+  runAppointmentAction(row, kind).then(res => {
+    hideLoading();
+    showToast(res.ok ? (res.data && res.data.summary) || "Done." : (res.error || "Could not finish."), res.ok ? "success" : "error", 7000);
+  });
+}
 function apptById(id) { return APPT.find(x => String(x.id) === decodeURIComponent(id)); }
 function saveEditedAppt(a, updated, message) {
   Object.assign(a, updated);

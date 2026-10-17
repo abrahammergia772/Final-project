@@ -43,6 +43,8 @@ class NamedBody(BaseModel):
 
 class ReminderBody(BaseModel):
     days: int = 3
+    appointment_id: str = ""
+    all_upcoming: bool = False
 
 
 class AppointmentRequest(BaseModel):
@@ -353,13 +355,20 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
     _staff(user)
     today = date.today()
     window = max(1, min(int(body.days or 3), 7))
+    wanted = str(body.appointment_id or "").strip()
+    span = 30 if (body.all_upcoming or wanted) else window
     rows = _rows("appointments")
     patients = _rows("patients")
     users = _rows("users")
     sent = []
     sms_sent = 0
     sms_failed = 0
+    seen = False
     for row in rows:
+        if wanted and str(row.get("id")) != wanted:
+            continue
+        if wanted:
+            seen = True
         if not _open(row):
             continue
         try:
@@ -367,15 +376,15 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
         except ValueError:
             continue
         ahead = (when - today).days
-        if ahead < 0 or ahead > window:
+        if ahead < 0 or ahead > span:
             continue
         risk = risk_from_history(rows, row.get("patient") or "")
         early = risk["missed_visits"] > 0
-        if ahead > (2 if early else 1):
+        if not wanted and not body.all_upcoming and ahead > (2 if early else 1):
             continue
         details = row.get("details") if isinstance(row.get("details"), dict) else {}
         already = str(details.get("reminded_on") or "") == today.isoformat()
-        if already and str(details.get("sms") or "") == "sent":
+        if not wanted and already and str(details.get("sms") or "") == "sent":
             continue
         patient = _name(row.get("patient"))
         when_text = "two days before" if early else "the day before"
@@ -415,7 +424,9 @@ def reminders(body: ReminderBody, user=Depends(current_user)):
             "sms": "sent" if result.get("ok") else str(result.get("status") or "failed"),
             "note": note,
         })
-    if not sent:
+    if wanted and not seen:
+        summary = "That appointment was not found."
+    elif not sent:
         summary = "No upcoming visit needed a new reminder."
     else:
         summary = "Saved " + str(len(sent)) + " reminder messages. Africa's Talking accepted " + str(sms_sent) + " SMS."

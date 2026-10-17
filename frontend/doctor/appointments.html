@@ -23,18 +23,26 @@
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Appointments"></header>
 <section class="page-body">
+<style>#apptCount,#apptActionResult,.table-toolbar h3{color:#06141B}html[data-theme="dark"] #apptCount,html[data-theme="dark"] #apptActionResult,html[data-theme="dark"] .table-toolbar h3{color:#F4F7F8}html[data-theme="dark"] #apptBody .btn{background:#11212D;color:#F4F7F8;border-color:#9AA6AC}</style>
 
-<div class="card mb-4" id="weekStrip"><div class="flex wrap" style="gap:8px" id="weekDays"></div></div>
 <div class="card" style="padding:0">
-  <div class="table-toolbar"><h3 style="font-size:16px">Upcoming Appointments</h3>
-    <button class="btn btn-primary" id="btnBook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Book Appointment</button></div>
+  <div class="table-toolbar" style="align-items:flex-start;gap:10px;flex-wrap:wrap">
+    <div>
+      <h3 style="font-size:16px;margin:0;color:#06141B">All upcoming appointments</h3>
+      <p id="apptCount" class="text-sm" style="margin:4px 0 0;color:#06141B">Loading visits…</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnRemindAll" type="button">Send reminders</button>
+      <button class="btn btn-primary" id="btnBook" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Book Appointment</button>
+    </div>
+  </div>
+  <div id="apptActionResult" style="margin:0 14px 10px;color:#06141B"></div>
   <div class="table-wrap">
     <table class="data-table" id="apptTable">
-      <thead><tr><th class="sortable">Time</th><th class="sortable">Patient</th><th class="sortable">Type</th><th class="sortable">Department</th><th class="sortable">Status</th><th class="sortable">No-show Risk</th><th style="text-align:right">Actions</th></tr></thead>
+      <thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Type</th><th>Department</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
       <tbody id="apptBody"></tbody>
     </table>
   </div>
-  <div class="pagination" id="apptPager"></div>
 </div>
 
 </section>
@@ -47,7 +55,7 @@
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/appointment-ai.js?v=1"></script>
-<script src="../assets/js/utils.js?v=10"></script>
+<script src="../assets/js/utils.js?v=12"></script>
 <script src="../assets/js/shell.js?v=3"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -134,29 +142,64 @@ let APPT = [];
 function loadPageData() {
   if (window.AppointmentAI) AppointmentAI.mount("doctor");
   apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
-    if (!r.ok) return; APPT = r.data.items; renderAppts();
-    attachDataTable(document.getElementById("apptTable"), { pagerEl: document.getElementById("apptPager"), pageSize: 8 });
+    if (!r.ok) { document.getElementById("apptCount").textContent = r.error || "Could not load appointments."; return; }
+    APPT = r.data.items || []; renderAppts();
   });
   document.getElementById("btnBook").addEventListener("click", bookModal);
-  // week strip
-  const today = new Date();
-  document.getElementById("weekDays").innerHTML = Array.from({length: 7}).map((_, i) => {
-    const d = new Date(today); d.setDate(today.getDate() + i);
-    const sel = i === 0 ? "selected" : "";
-    return `<span class="chip ${sel}" style="flex-direction:column;gap:2px;padding:8px 14px"><strong style="font-size:14px">${d.getDate()}</strong><span style="font-size:11px;opacity:.8">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]}</span></span>`;
-  }).join("");
+  document.getElementById("btnRemindAll").addEventListener("click", () => runListedAction("all"));
+}
+function upcomingAppts() {
+  return APPT.filter(a => typeof isUpcomingAppointment === "function" ? isUpcomingAppointment(a) : true)
+    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || String(a.time || "").localeCompare(String(b.time || "")));
+}
+function showActionResult(text, ok) {
+  const box = document.getElementById("apptActionResult");
+  if (box) box.textContent = text;
+  showToast(text, ok ? "success" : "error", 7000);
+}
+function runListedAction(kind) {
+  const rows = upcomingAppts();
+  if (!rows.length) { showActionResult("No upcoming appointment is saved.", false); return; }
+  if (kind === "all") {
+    showLoading("Sending reminders…");
+    runAppointmentAction(rows[0], "all").then(res => {
+      hideLoading();
+      showActionResult(res.ok ? (res.data && res.data.summary) || "Reminders finished." : (res.error || "Could not send reminders."), !!res.ok);
+    });
+    return;
+  }
+  showLoading("Working…");
+  Promise.all(rows.map(row => runAppointmentAction(row, kind))).then(results => {
+    hideLoading();
+    const failed = results.filter(res => !res.ok).length;
+    const first = results.find(res => res.ok && res.data && res.data.summary);
+    showActionResult(failed ? failed + " of " + results.length + " could not finish." : ((first && first.data.summary) || "Finished for " + results.length + " upcoming visits."), !failed);
+  });
+}
+function rowAction(id, kind) {
+  const row = apptById(id);
+  if (!row) { showActionResult("That appointment is no longer on this page.", false); return; }
+  showLoading(kind === "remind" ? "Sending reminder…" : "Working…");
+  runAppointmentAction(row, kind).then(res => {
+    hideLoading();
+    showActionResult(res.ok ? ((res.data && res.data.summary) || "Done for " + (row.patient || "the visit")) : (res.error || "Could not finish."), !!res.ok);
+  });
 }
 function renderAppts() {
-  document.getElementById("apptBody").innerHTML = APPT.length ? APPT.map(a => `<tr>
-    <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.type)}</td>
+  const rows = upcomingAppts();
+  const count = document.getElementById("apptCount");
+  if (count) count.textContent = rows.length ? rows.length + " open visits from today onward, for every doctor." : "No upcoming appointment is saved.";
+  const btn = (id, label) => `<button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowAction('${encodeURIComponent(id)}','${label}')">${label === "remind" ? "Send reminder" : label === "intake" ? "Intake" : label === "brief" ? "Doctor brief" : "Follow-up"}</button>`;
+  document.getElementById("apptBody").innerHTML = rows.length ? rows.map(a => `<tr>
+    <td><strong>${esc(formatDate(a.date))}</strong></td><td><span class="time-pill">${esc(a.time)}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td><td>${esc(a.type)}</td>
     <td>${esc(a.dept)}</td><td>${apptBadge(a.status)}</td>
-    <td>${a.no_show === null || a.no_show === undefined || a.no_show === "" ? `<span class="badge badge-neutral">Not scored</span>` : a.no_show >= 30 ? `<span class="badge badge-danger">High (${a.no_show}%)</span>` : a.no_show >= 15 ? `<span class="badge badge-warning">Medium (${a.no_show}%)</span>` : `<span class="badge badge-success">Low (${a.no_show}%)</span>`}</td>
-    <td><div class="actions">
+    <td><div class="actions" style="justify-content:flex-end;flex-wrap:wrap">
+      ${btn(a.id, "remind")}${btn(a.id, "intake")}${btn(a.id, "brief")}${btn(a.id, "follow")}
       <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setStatus('${a.id}','attended')">${ICONS.check}</button>
       <button class="btn-icon warning" title="Reschedule to other appointment" onclick="moveAppt('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
       <button class="btn-icon danger" title="Cancel" onclick="setStatus('${a.id}','cancelled')">${ICONS.x}</button>
-    </div></td></tr>`).join("") : emptyRow(7);
+    </div></td></tr>`).join("") : emptyRow(8, "No upcoming appointments.");
 }
 function apptBadge(s) {
   const m = { confirmed:["success","Confirmed"], "checked-in":["info","Checked in"], completed:["neutral","Completed"], cancelled:["danger","Cancelled"], attended:["success","Attended"], rescheduled:["warning","Rescheduled"] };
