@@ -99,7 +99,7 @@ Plus: the **topbar bell now shows live notifications** (low-stock items, AI-flag
 ## 🚀 Quick start (no backend needed)
 
 The frontend ships with **DEMO_MODE = true**, so every page, table and AI module
-runs on realistic mock data. Open `mediq-pro-frontend/index.html` in any browser
+runs on realistic mock data. Open `frontend/index.html` in any browser
 (or serve the folder) and log in with any demo account:
 
 | Role       | Email              | Password      |
