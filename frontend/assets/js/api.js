@@ -401,17 +401,9 @@ function ensureHealthCard() {
     if (card) showHealthCardStrip(card);
   });
 }
-function showHealthCardStrip(card) {
-  const host = document.querySelector(".page-body") || document.getElementById("spaBody");
-  if (!host || document.getElementById("autoHealthCard")) return;
-  const el = document.createElement("a");
-  el.id = "autoHealthCard";
-  el.href = "health-card.html";
-  el.className = "card mb-4";
-  el.style.cssText = "display:block;text-decoration:none;color:inherit";
-  el.innerHTML = '<div class="flex-between wrap" style="gap:8px"><div><div class="text-sm" style="color:#6B7280">Health card</div><strong>' +
-    esc(card.id) + '</strong><div class="text-sm" style="color:#6B7280">Issued automatically for this patient account.</div></div><span class="badge badge-success">Active</span></div>';
-  host.insertBefore(el, host.firstChild);
+function showHealthCardStrip() {
+  var old = document.getElementById("autoHealthCard");
+  if (old) old.remove();
 }
 function fillDoctorPatientFile(id) {
   const form = document.getElementById("patientFileForm");

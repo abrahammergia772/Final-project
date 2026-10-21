@@ -125,13 +125,12 @@
     sb.setAttribute("hidden", "hidden");
 
     var title = pageTitle();
-    var top = '<div class="topbar-left">';
+    var top = '<div class="topbar-main">';
     top += '<a class="brand-lockup" href="dashboard.html"><img src="' + asset("assets/images/logo-mark.png") + '" alt=""><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></a>';
     top += '<nav class="top-nav" aria-label="Primary"><div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" data-dropdown-toggle="#homeMenu" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
     top += '<span data-i18n="Home">Home</span>' + icon("chevron-down") + "</button>";
     top += '<div class="dropdown-menu home-menu" id="homeMenu" role="menu"><div class="home-menu-grid">' + navMenuHtml(cfg, perm, spa, cur) + "</div></div></div>";
     top += topLinksHtml(role, perm, spa, cur) + "</nav>";
-    top += '<h1 class="page-title" id="topbarTitle">' + title + "</h1></div>";
     top += '<div class="topbar-right">';
     top += '<button class="icon-btn cmd-btn" id="cmdOpen" type="button" aria-label="Search pages" title="Search pages (Ctrl K)">' + icon("search") + "</button>";
     top += '<div class="dropdown"><button class="icon-btn" type="button" data-dropdown-toggle="#notifMenu" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">' +
@@ -139,7 +138,8 @@
       '<div class="empty-state" style="padding:22px">Loading notifications…</div></div></div>';
     top += '<span class="top-user" data-user-name></span>';
     top += authControl();
-    top += "</div>";
+    top += "</div></div>";
+    top += '<h1 class="page-title" id="topbarTitle">' + title + "</h1>";
     tb.innerHTML = top;
     tb.setAttribute("data-title", title);
 
