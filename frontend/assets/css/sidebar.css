@@ -1355,3 +1355,110 @@ html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
   border: 1.5px solid rgba(247, 248, 248, 0.92);
   box-shadow: none;
 }
+
+/* Phones and narrow windows: keep the top bar from covering itself. */
+@media (max-width: 1080px) {
+  .topbar {
+    padding: calc(8px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 8px calc(12px + env(safe-area-inset-left));
+    max-width: 100%;
+  }
+  .topbar-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    max-width: 100%;
+  }
+  .top-center { display: contents; }
+  .brand-lockup {
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: calc(100% - 148px);
+    gap: 8px;
+  }
+  .brand-lockup img { width: 40px; height: 40px; flex-shrink: 0; }
+  .brand-lockup span,
+  .topbar .page-title { display: block; }
+  .brand-lockup span {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 16px;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+  }
+  .home-drop { order: 2; flex: 0 0 auto; position: relative; z-index: 3; }
+  .topbar-right { order: 3; flex: 0 0 auto; position: relative; z-index: 3; }
+  .home-trigger, .more-trigger { flex-shrink: 0; }
+  .more-trigger { width: 40px; height: 40px; }
+  .top-nav {
+    order: 4;
+    flex: 1 0 100%;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 0 4px;
+    z-index: 1;
+  }
+  .topbar .page-title {
+    font-size: 18px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.home-shell .topbar::after,
+  body.home-shell .topbar .page-title::after {
+    left: 0;
+    width: 28%;
+    animation: none;
+  }
+  .dropdown.more-drop > .dropdown-menu.more-menu.show {
+    position: fixed;
+    top: calc(56px + env(safe-area-inset-top));
+    right: 8px;
+    left: auto;
+    width: min(320px, calc(100vw - 16px));
+    max-height: calc(100dvh - 72px - env(safe-area-inset-top));
+  }
+  body.home-shell .dropdown.home-drop > .dropdown-menu.home-menu.show {
+    max-height: calc(100dvh - 80px - env(safe-area-inset-top));
+  }
+  .app-controls-fixed {
+    top: calc(8px + env(safe-area-inset-top));
+    right: calc(8px + env(safe-area-inset-right));
+  }
+  body .login-split .login-hero { padding-top: calc(76px + env(safe-area-inset-top)); }
+  .identity-bar { flex-wrap: wrap; align-items: flex-start; }
+  .identity-bar .hosp-name { min-width: 0; }
+  body.has-auth-foot .main-content { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 760px) {
+  .role-home figcaption.land-on {
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    padding: 12px 14px 14px;
+  }
+  .role-home figcaption.land-on h2,
+  .role-home figcaption.land-on .land-line,
+  .role-home figcaption.land-on .land-facts {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .role-home figcaption.land-on h2 { font-size: clamp(28px, 9vw, 40px); }
+  .role-home figcaption.land-on .land-facts { letter-spacing: 0; line-height: 1.35; }
+  .role-home img {
+    width: 100%;
+    height: calc(100dvh - 132px - env(safe-area-inset-top));
+    min-height: 0;
+    object-fit: cover;
+  }
+  .panel-header, .card-header, .table-toolbar, .msg-chat-header { flex-wrap: wrap; gap: 8px; }
+  .table-wrap { max-width: 100%; }
+}
