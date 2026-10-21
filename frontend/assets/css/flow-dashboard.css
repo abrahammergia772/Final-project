@@ -325,7 +325,71 @@ html[data-theme="dark"] .ai-bar-track { background: #253745; }
   text-decoration: none;
 }
 .care-cta:hover { color: #F7F8F8; text-decoration: none; background: #253745; }
-.care-art { min-width: 0; }
+.role-photo {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 14px;
+  display: block;
+}
+.flow-dash[data-role="doctor"] .care-hero { background: #E6F1FB; border-color: #185FA5; }
+.flow-dash[data-role="nurse"] .care-hero { background: #E1F5EE; border-color: #0F6E56; }
+.flow-dash[data-role="pharmacist"] .care-hero { background: #FAEEDA; border-color: #BA7517; }
+.flow-dash[data-role="laboratory"] .care-hero { background: #E7F6F2; border-color: #1D9E75; }
+.flow-dash[data-role="reception"] .care-hero { background: #E7EEF2; border-color: #253745; }
+.flow-dash[data-role="admin"] .care-hero { background: #EEF1F3; border-color: #11212D; }
+.flow-dash[data-role="manager"] .care-hero { background: #EEEDFE; border-color: #534AB7; }
+.flow-dash[data-role="patient"] .care-hero { background: #EAF3FB; border-color: #185FA5; }
+.flow-dash[data-role="doctor"] .care-cta,
+.flow-dash[data-role="doctor"] .care-btn { background: #185FA5; }
+.flow-dash[data-role="nurse"] .care-cta,
+.flow-dash[data-role="nurse"] .care-btn { background: #0F6E56; }
+.flow-dash[data-role="pharmacist"] .care-cta,
+.flow-dash[data-role="pharmacist"] .care-btn { background: #8A5A12; }
+.flow-dash[data-role="laboratory"] .care-cta,
+.flow-dash[data-role="laboratory"] .care-btn { background: #0F6E56; }
+.flow-dash[data-role="reception"] .care-cta,
+.flow-dash[data-role="reception"] .care-btn { background: #253745; }
+.flow-dash[data-role="admin"] .care-cta,
+.flow-dash[data-role="admin"] .care-btn { background: #11212D; }
+.flow-dash[data-role="manager"] .care-cta,
+.flow-dash[data-role="manager"] .care-btn { background: #3C3489; }
+.flow-dash[data-role="patient"] .care-cta,
+.flow-dash[data-role="patient"] .care-btn { background: #185FA5; }
+.flow-dash[data-role] .care-cta,
+.flow-dash[data-role] .care-btn { color: #F7F8F8 !important; }
+.care-card { border-top: 3px solid #253745; }
+.flow-dash[data-role="doctor"] .care-card { border-top-color: #185FA5; }
+.flow-dash[data-role="nurse"] .care-card { border-top-color: #0F6E56; }
+.flow-dash[data-role="pharmacist"] .care-card { border-top-color: #BA7517; }
+.flow-dash[data-role="laboratory"] .care-card { border-top-color: #1D9E75; }
+.flow-dash[data-role="manager"] .care-card { border-top-color: #534AB7; }
+.flow-dash[data-role="patient"] .care-card { border-top-color: #185FA5; }
+html[data-theme="dark"] .flow-dash[data-role] .care-hero { background: #253745; }
+html[data-theme="dark"] .flow-dash[data-role] .care-kicker,
+html[data-theme="dark"] .flow-dash[data-role] .care-id,
+html[data-theme="dark"] .flow-dash[data-role] .care-copy h2,
+html[data-theme="dark"] .flow-dash[data-role] .care-sub { color: #F4F7F8; }
+html[data-theme="dark"] .flow-dash[data-role] .care-cta,
+html[data-theme="dark"] .flow-dash[data-role] .care-btn { background: #CCD0CF; color: #06141B !important; }
+@keyframes care-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes care-photo {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: none; }
+}
+.care-hero { animation: care-rise 0.45s ease both; }
+.role-photo { animation: care-photo 0.7s ease both; }
+.care-card { animation: care-rise 0.5s ease both; }
+.care-card:nth-child(2) { animation-delay: 0.08s; }
+.care-card:nth-child(3) { animation-delay: 0.16s; }
+.flow-node { animation: care-rise 0.45s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  .care-hero, .role-photo, .care-card, .flow-node { animation: none; }
+}
 .care-scene { width: 100%; height: auto; display: block; }
 .scene-bg { fill: #D5DCDF; }
 .scene-panel { fill: #F7F8F8; }

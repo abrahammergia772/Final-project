@@ -14,20 +14,19 @@
     clip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
   };
 
-  function sceneSvg() {
-    return '<svg class="care-scene" viewBox="0 0 320 220" aria-hidden="true">' +
-      '<rect class="scene-bg" width="320" height="220" rx="18"/>' +
-      '<rect class="scene-panel" x="22" y="18" width="96" height="70" rx="8"/>' +
-      '<path class="scene-line" d="M34 40h28M70 40h28M34 58h28M70 58h28"/>' +
-      '<rect class="scene-seat" x="48" y="150" width="72" height="12" rx="4"/>' +
-      '<circle class="scene-skin" cx="84" cy="112" r="14"/>' +
-      '<path class="scene-coat" d="M58 162c0-20 11-30 26-30s26 10 26 30v16H58z"/>' +
-      '<rect class="scene-desk" x="168" y="132" width="128" height="12" rx="4"/>' +
-      '<circle class="scene-skin" cx="228" cy="74" r="16"/>' +
-      '<path class="scene-coat" d="M196 148c2-26 14-40 32-40s30 14 32 40v22H196z"/>' +
-      '<path class="scene-line" d="M214 92c8 8 20 8 28 0"/>' +
-      '<circle class="scene-line" cx="242" cy="108" r="6"/>' +
-      '</svg>';
+  function rolePhoto(role) {
+    var base = (typeof basePath === "function") ? basePath() : "";
+    var alt = {
+      doctor: "A doctor speaking with a patient",
+      nurse: "A nurse checking a patient's blood pressure",
+      pharmacist: "A pharmacist at the dispensing counter",
+      laboratory: "A laboratory scientist with a sample",
+      reception: "A receptionist at the hospital desk",
+      admin: "A hospital administrator at a desk",
+      manager: "A hospital manager in the corridor",
+      patient: "A patient waiting calmly with a card"
+    }[role] || "Hospital staff";
+    return '<img class="role-photo" src="' + base + "assets/images/roles/" + role + '.jpg" alt="' + esc(alt) + '">';
   }
 
   var ROLES = {
@@ -518,7 +517,7 @@
       '<p class="care-sub" data-i18n="' + esc(concept.sub) + '">' + esc(concept.sub) + "</p>" +
       '<div class="care-actions"><a class="care-cta" href="' + esc(concept.href) + '" data-prompt="' + esc(concept.prompt) + '" data-answer="' + esc("Opening " + concept.cta + ".") + '" data-href="' + esc(concept.href) + '"><span data-i18n="' + esc(concept.cta) + '">' + esc(concept.cta) + "</span></a>" +
       '<button type="button" class="live-pill" data-prompt="Show live updates" data-answer="Live updates are on for this board."><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></button></div></div>' +
-      '<div class="care-art" aria-hidden="true">' + sceneSvg() + "</div></section>" +
+      '<div class="care-art">' + rolePhoto(role) + "</div></section>" +
       '<section class="care-row" aria-label="Start here">' + cards + "</section>";
     var shiftCard = cfg.hideShift ? "" :
       '<section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">' + esc(shift.time) +
@@ -526,7 +525,7 @@
       '</div><div class="shift-legend">' + legend + "</div></section>";
 
     root.innerHTML =
-      '<div class="flow-dash" data-flow-dash="1">' +
+      '<div class="flow-dash" data-flow-dash="1" data-role="' + esc(role) + '">' +
       hero +
       '<section aria-label="Today\'s patient flow"><p class="section-label" data-i18n="' + esc(cfg.flowLabel) + '">' + esc(cfg.flowLabel) +
       '</p><div class="flow-strip" role="list">' + flow + "</div></section>" +
