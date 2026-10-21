@@ -37,11 +37,18 @@ RF_FILES = {
 
 # Module -> subfolder + the files we expect
 EXPECTED = {
-    "clinical": ("clinical_decision", ["rf_model.pkl", "xgb_model.pkl", "tfidf_vectorizer.pkl", "label_encoder.pkl", "model_config.json"]),
+    "clinical": ("clinical_decision", ["doctor_ai_model.pkl", "label_encoder (1).pkl", "symptom_vocab (1).json"]),
     "drug":     ("drug_interaction", ["severity_classifier.pkl", "binary_classifier.pkl", "severity_label_encoder.pkl", "label_encoders.pkl", "feature_columns.pkl"]),
-    "lab":      ("lab", ["lab_rf_model.pkl", "lab_xgb_model.pkl", "lab_scaler.pkl", "lab_imputer.pkl", "lab_label_encoder.pkl", "lab_feature_config.json"]),
+    "lab":      ("lab", ["lab_xgb_model.pkl", "lab_scaler.pkl", "lab_imputer.pkl", "lab_label_encoder.pkl", "lab_feature_config.json"]),
     "inventory":("inventory", ["inventory_xgb_model.pkl", "inventory_scaler.pkl", "inventory_label_encoder.pkl", "inventory_config.json"]),
-    "vitals":   ("vitals", ["vitals_rf_model.pkl", "vitals_xgb_model.pkl", "vitals_scaler.pkl", "vitals_config.json"]),
+    "vitals":   ("vitals", ["vitals_xgb_model.pkl", "vitals_scaler.pkl", "vitals_config.json"]),
+}
+PRIMARY = {
+    "clinical": "doctor_ai_model.pkl",
+    "drug": "severity_classifier.pkl",
+    "lab": "lab_xgb_model.pkl",
+    "vitals": "vitals_xgb_model.pkl",
+    "inventory": "inventory_xgb_model.pkl",
 }
 
 # subfolder -> glob of prophet seasonal files (inventory)
@@ -131,7 +138,11 @@ def unload_all() -> None:
 
 
 def module_loaded(module: str) -> bool:
-    return bool(_loaded.get(module))
+    loaded = _loaded.get(module) or []
+    primary = PRIMARY.get(module)
+    if primary:
+        return primary in loaded
+    return bool(loaded)
 
 
 def list_missing(module: str) -> list:
@@ -201,7 +212,7 @@ def prophet_files() -> Dict[str, Path]:
 
 # Modules that are small / required for health endpoints and can be safely
 # preloaded even on low-memory tiers. XGBoost models + encoders are tiny.
-_LIGHT_PRELOAD: List[str] = ["inventory"]  # inventory uses only xgb (~1.3 MB)
+_LIGHT_PRELOAD: List[str] = ["clinical", "drug", "lab", "vitals", "inventory"]
 
 
 def preload_light() -> None:

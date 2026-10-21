@@ -83,21 +83,15 @@ def _doctor_bundle():
     if _DOCTOR.get("checked"):
         return _DOCTOR.get("bundle")
     _DOCTOR["checked"] = True
-    base = Path(__file__).resolve().parents[1] / "models" / "clinical_decision"
-    model_path = base / "doctor_ai_model.pkl"
-    encoder_path = next((base / name for name in ("label_encoder (1).pkl", "label_encoder.pkl") if (base / name).exists()), None)
-    vocab_path = next((base / name for name in ("symptom_vocab (1).json", "symptom_vocab.json") if (base / name).exists()), None)
-    if not model_path.exists() or encoder_path is None or vocab_path is None:
+    models = load_module("clinical")
+    model = models.get("doctor_ai_model.pkl")
+    encoder = models.get("label_encoder (1).pkl") or models.get("label_encoder.pkl")
+    vocab = models.get("symptom_vocab (1).json") or models.get("symptom_vocab.json")
+    if model is None or encoder is None or not isinstance(vocab, dict):
         _DOCTOR["bundle"] = None
         return None
-    import joblib
-    vocab = json.loads(vocab_path.read_text(encoding="utf-8"))
     index = {str(key).lower(): int(value) for key, value in (vocab.get("symptom_to_idx") or {}).items()}
-    _DOCTOR["bundle"] = {
-        "model": joblib.load(model_path),
-        "encoder": joblib.load(encoder_path),
-        "index": index,
-    }
+    _DOCTOR["bundle"] = {"model": model, "encoder": encoder, "index": index}
     return _DOCTOR["bundle"]
 
 
