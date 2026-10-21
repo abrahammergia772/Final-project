@@ -835,14 +835,8 @@ html[data-theme="dark"] .social-tile:focus-visible { outline-color: #F4F7F8; }
 @media (max-width: 760px) {
   .brand-lockup span, .top-user, .topbar .page-title { display: none; }
   .home-menu-grid { grid-template-columns: 1fr; }
-  .home-menu {
-    position: fixed;
-    left: 12px;
-    right: 12px;
-    top: calc(var(--topbar-h) + 8px);
-    min-width: 0;
-    width: auto;
-  }
+  .home-menu-grid { grid-template-columns: 1fr; }
+  .home-menu { min-width: 0; width: min(640px, calc(100vw - 16px)); }
 }
 @media (max-width: 768px) {
   .role-taskbar, body.sidebar-collapsed .role-taskbar { left: 0; }
@@ -1363,18 +1357,21 @@ html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
     max-width: 100%;
   }
   .topbar-main {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand brand more"
+      "menu nav nav";
     align-items: center;
-    gap: 8px 10px;
+    column-gap: 12px;
+    row-gap: 6px;
     max-width: 100%;
   }
   .top-center { display: contents; }
   .brand-lockup {
-    order: 1;
-    flex: 1 1 0;
+    grid-area: brand;
     min-width: 0;
-    max-width: calc(100% - 148px);
+    max-width: none;
     gap: 8px;
   }
   .brand-lockup img { width: 40px; height: 40px; flex-shrink: 0; }
@@ -1387,14 +1384,18 @@ html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
     line-height: 1.15;
     text-overflow: ellipsis;
   }
-  .home-drop { order: 2; flex: 0 0 auto; position: relative; z-index: 3; }
-  .topbar-right { order: 3; flex: 0 0 auto; position: relative; z-index: 3; }
+  .home-drop {
+    grid-area: menu;
+    position: relative;
+    z-index: 3;
+    justify-self: start;
+  }
+  .topbar-right { grid-area: more; position: relative; z-index: 3; justify-self: end; }
   .home-trigger, .more-trigger { flex-shrink: 0; }
   .more-trigger { width: 40px; height: 40px; }
   .top-nav {
-    order: 4;
-    flex: 1 0 100%;
-    width: 100%;
+    grid-area: nav;
+    width: auto;
     max-width: 100%;
     min-width: 0;
     justify-content: flex-start;
@@ -1418,15 +1419,20 @@ html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
     animation: none;
   }
   .dropdown.more-drop > .dropdown-menu.more-menu.show {
-    position: fixed;
-    top: calc(56px + env(safe-area-inset-top));
-    right: 8px;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
     left: auto;
     width: min(320px, calc(100vw - 16px));
-    max-height: calc(100dvh - 72px - env(safe-area-inset-top));
+    max-height: min(70dvh, 520px);
   }
+  body.home-shell .home-menu,
+  body.home-shell .dropdown.home-drop > .dropdown-menu.home-menu,
   body.home-shell .dropdown.home-drop > .dropdown-menu.home-menu.show {
-    max-height: calc(100dvh - 80px - env(safe-area-inset-top));
+    top: auto;
+    right: auto;
+    bottom: auto;
+    min-width: 0;
   }
   .app-controls-fixed {
     top: calc(8px + env(safe-area-inset-top));

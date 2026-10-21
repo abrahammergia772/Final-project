@@ -344,14 +344,22 @@
     var box = btn.getBoundingClientRect();
     var width = Math.min(640, window.innerWidth - 16);
     var left = Math.max(8, Math.min(box.left, window.innerWidth - width - 8));
+    var top = Math.round(box.bottom + 8);
     menu.style.position = "fixed";
-    menu.style.top = Math.round(box.bottom + 8) + "px";
+    menu.style.top = top + "px";
     menu.style.left = Math.round(left) + "px";
     menu.style.right = "auto";
     menu.style.width = Math.round(width) + "px";
+    menu.style.maxHeight = Math.max(180, window.innerHeight - top - 12) + "px";
     menu.style.zIndex = "4000";
     menu.style.display = "block";
   }
+
+  window.addEventListener("resize", function () {
+    var menu = document.getElementById("homeMenu");
+    var btn = document.querySelector(".home-trigger");
+    if (menu && btn && menu.classList.contains("show")) placeHomeMenu(btn, menu);
+  });
 
   function closeHomeMenu() {
     var menu = document.getElementById("homeMenu");
