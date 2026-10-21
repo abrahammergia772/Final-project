@@ -14,6 +14,21 @@
     clip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
   };
 
+  function homeBanner(role) {
+    var base = (typeof basePath === "function") ? basePath() : "";
+    var alt = {
+      doctor: "A doctor with a patient in the ward",
+      nurse: "A nurse at a patient's bedside",
+      pharmacist: "A pharmacist at the dispensing counter",
+      laboratory: "A laboratory scientist at the bench",
+      reception: "A receptionist greeting a visitor",
+      admin: "A hospital administrator at a desk",
+      manager: "A hospital manager with the ward team",
+      patient: "A patient waiting with a health card"
+    }[role] || "Wolaita Sodo Hospital";
+    return '<a class="dash-home" href="home.html"><img src="' + base + "assets/images/home/" + role + '.jpg" alt="' + esc(alt) + '"><span data-i18n="Home">Home</span></a>';
+  }
+
   function rolePhoto(role) {
     var base = (typeof basePath === "function") ? basePath() : "";
     var alt = {
@@ -526,6 +541,7 @@
 
     root.innerHTML =
       '<div class="flow-dash" data-flow-dash="1" data-role="' + esc(role) + '">' +
+      homeBanner(role) +
       hero +
       '<section aria-label="Today\'s patient flow"><p class="section-label" data-i18n="' + esc(cfg.flowLabel) + '">' + esc(cfg.flowLabel) +
       '</p><div class="flow-strip" role="list">' + flow + "</div></section>" +

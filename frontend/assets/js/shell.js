@@ -126,10 +126,10 @@
 
     var title = pageTitle();
     var top = '<div class="topbar-main">';
-    top += '<a class="brand-lockup" href="dashboard.html"><img src="' + asset("assets/images/logo-mark.png") + '" alt=""><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></a>';
+    top += '<a class="brand-lockup" href="home.html"><img src="' + asset("assets/images/logo-mark.png") + '" alt=""><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></a>';
     top += '<div class="top-center">';
     top += '<div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
-    top += '<span data-i18n="Home">Home</span>' + icon("chevron-down") + "</button>";
+    top += '<span data-i18n="Menu">Menu</span>' + icon("chevron-down") + "</button>";
     top += '<div class="dropdown-menu home-menu" id="homeMenu" role="menu"><div class="home-menu-grid">' + navMenuHtml(cfg, perm, spa, cur) + "</div></div></div>";
     top += '<nav class="top-nav" aria-label="Primary">' + topLinksHtml(role, perm, spa, cur) + "</nav></div>";
     top += '<div class="topbar-right"><div class="dropdown more-drop">';

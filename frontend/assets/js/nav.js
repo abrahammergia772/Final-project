@@ -3,6 +3,7 @@ window.NAV_ROLES = {
   admin: {
     label: "Administrator",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["users.html", "Users", "users"],
       ["roles.html", "Roles & Permissions", "shield"],
@@ -21,6 +22,7 @@ window.NAV_ROLES = {
   manager: {
     label: "General Manager",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["departments.html", "Departments", "building"],
       ["staff.html", "Staff", "briefcase"],
@@ -38,6 +40,7 @@ window.NAV_ROLES = {
   doctor: {
     label: "Doctor",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["patients.html", "Patients", "users"],
       ["beds.html", "Bed requests", "bed"],
@@ -59,6 +62,7 @@ window.NAV_ROLES = {
   nurse: {
     label: "Nurse",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["beds.html", "Wards & Beds", "bed"],
       ["vitals.html", "Vitals", "thermometer"],
@@ -74,6 +78,7 @@ window.NAV_ROLES = {
   pharmacist: {
     label: "Pharmacist",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["prescriptions.html", "Prescriptions", "file-text"],
       ["inventory.html", "Inventory", "package"],
@@ -90,6 +95,7 @@ window.NAV_ROLES = {
   laboratory: {
     label: "Laboratory",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["test-requests.html", "Test Requests", "flask"],
       ["samples.html", "Sample Tracking", "barcode"],
@@ -106,6 +112,7 @@ window.NAV_ROLES = {
   reception: {
     label: "Receptionist",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["registration.html", "Registration", "users"],
       ["admissions.html", "Admissions & Beds", "bed"],
@@ -123,6 +130,7 @@ window.NAV_ROLES = {
   patient: {
     label: "Patient",
     nav: [["MAIN", [
+      ["home.html", "Home", "building"],
       ["dashboard.html", "Dashboard", "grid"],
       ["appointments.html", "Appointments", "calendar"],
       ["records.html", "Medical Records", "book"],
@@ -190,48 +198,56 @@ window.NAV_PERM_MAP = {
 /* A few pages sit beside Home, the same way for every role. The rest stay in the Home menu. */
 window.NAV_TOP = {
   admin: [
+    ["home.html", "Home", "building"],
     ["ai-config.html", "AI Configuration", "cpu"],
     ["messages.html", "Messages", "mail"],
     ["users.html", "Users", "users"],
     ["contact.html", "Contact us", "phone"]
   ],
   manager: [
+    ["home.html", "Home", "building"],
     ["ai-insights.html", "AI Insights", "sparkles"],
     ["messages.html", "Messages", "mail"],
     ["staff.html", "Staff", "briefcase"],
     ["contact.html", "Contact us", "phone"]
   ],
   doctor: [
+    ["home.html", "Home", "building"],
     ["ai-diagnosis.html", "AI Diagnosis", "brain"],
     ["messages.html", "Messages", "mail"],
     ["patients.html", "Patients", "users"],
     ["contact.html", "Contact us", "phone"]
   ],
   nurse: [
+    ["home.html", "Home", "building"],
     ["vitals.html", "Vitals", "thermometer"],
     ["messages.html", "Messages", "mail"],
     ["patients.html", "Patients", "users"],
     ["contact.html", "Contact us", "phone"]
   ],
   pharmacist: [
+    ["home.html", "Home", "building"],
     ["ai-interaction.html", "AI Interaction", "zap"],
     ["messages.html", "Messages", "mail"],
     ["prescriptions.html", "Prescriptions", "file-text"],
     ["contact.html", "Contact us", "phone"]
   ],
   laboratory: [
+    ["home.html", "Home", "building"],
     ["ai-analyzer.html", "AI Analyzer", "brain"],
     ["messages.html", "Messages", "mail"],
     ["test-requests.html", "Test Requests", "flask"],
     ["contact.html", "Contact us", "phone"]
   ],
   reception: [
+    ["home.html", "Home", "building"],
     ["registration.html", "Registration", "users"],
     ["messages.html", "Messages", "mail"],
     ["appointments.html", "Appointments", "calendar"],
     ["contact.html", "Contact us", "phone"]
   ],
   patient: [
+    ["home.html", "Home", "building"],
     ["ai-chatbot.html", "AI Chatbot", "chat"],
     ["messages.html", "Messages", "mail"],
     ["appointments.html", "Appointments", "calendar"],
@@ -242,56 +258,56 @@ window.NAV_TOP = {
 /* Five daily actions pinned to the bottom taskbar. The sidebar keeps the rest. */
 window.NAV_TASKBAR = {
   admin: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["users.html", "Users", "users"],
     ["patients.html", "Patients", "users"],
     ["wards.html", "Wards", "bed"],
     ["messages.html", "Messages", "mail"]
   ],
   manager: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["staff.html", "Staff", "briefcase"],
     ["finance.html", "Finance", "wallet"],
     ["reports.html", "Reports", "chart"],
     ["messages.html", "Messages", "mail"]
   ],
   doctor: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["patients.html", "Patients", "users"],
     ["consultation.html", "Consult", "stethoscope"],
     ["prescriptions.html", "Rx", "file-text"],
     ["messages.html", "Messages", "mail"]
   ],
   nurse: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["vitals.html", "Vitals", "thermometer"],
     ["beds.html", "Beds", "bed"],
     ["medications.html", "Meds", "pill"],
     ["messages.html", "Messages", "mail"]
   ],
   pharmacist: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["prescriptions.html", "Rx", "file-text"],
     ["inventory.html", "Stock", "package"],
     ["ai-interaction.html", "Interact", "zap"],
     ["messages.html", "Messages", "mail"]
   ],
   laboratory: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["test-requests.html", "Tests", "flask"],
     ["samples.html", "Samples", "barcode"],
     ["results.html", "Results", "file-text"],
     ["messages.html", "Messages", "mail"]
   ],
   reception: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["registration.html", "Register", "users"],
     ["appointments.html", "Appts", "calendar"],
     ["queue.html", "Queue", "list"],
     ["messages.html", "Messages", "mail"]
   ],
   patient: [
-    ["dashboard.html", "Home", "grid"],
+    ["home.html", "Home", "building"],
     ["appointments.html", "Appts", "calendar"],
     ["records.html", "Records", "book"],
     ["health-card.html", "Card", "card"],

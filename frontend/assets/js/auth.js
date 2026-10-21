@@ -66,14 +66,14 @@ function inRoleFolder() {
 function basePath() { return inRoleFolder() ? "../" : ""; }
 
 const ROLE_DASHBOARDS = {
-  admin:      "admin/dashboard.html",
-  manager:    "manager/dashboard.html",
-  doctor:     "doctor/dashboard.html",
-  nurse:      "nurse/dashboard.html",
-  pharmacist: "pharmacist/dashboard.html",
-  laboratory: "laboratory/dashboard.html",
-  reception:  "reception/dashboard.html",
-  patient:    "patient/dashboard.html"
+  admin:      "admin/home.html",
+  manager:    "manager/home.html",
+  doctor:     "doctor/home.html",
+  nurse:      "nurse/home.html",
+  pharmacist: "pharmacist/home.html",
+  laboratory: "laboratory/home.html",
+  reception:  "reception/home.html",
+  patient:    "patient/home.html"
 };
 
 // ---------- Role → dashboard mapping ----------
@@ -287,7 +287,7 @@ function pageFileOf(path) {
 
 function permKeyFor(path) {
   const file = pageFileOf(path);
-  if (!file || file === "dashboard.html" || file === "index.html") return "";
+  if (!file || file === "dashboard.html" || file === "home.html" || file === "index.html") return "";
   const role = getUserRole();
   const map = (window.NAV_PERM_MAP || {})[role] || {};
   if (map[file]) return map[file];

@@ -1045,3 +1045,67 @@ html[data-theme="dark"] body.has-auth-foot .auth-foot-note { color: #F4F7F8; }
   .login-body.login-split::after { opacity: 0; }
   body.home-shell .btn:hover:not(:disabled) { transform: none; }
 }
+
+/* Home page: the picture fills the main area. The caption is a flat plate, not glass. */
+body.home-shell .page-body:has(.role-home) { padding: 0; }
+.role-home {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  min-height: calc(100vh - 210px);
+}
+.role-home img {
+  width: 100%;
+  height: calc(100vh - 210px);
+  min-height: 520px;
+  object-fit: cover;
+  object-position: center 28%;
+  display: block;
+}
+.role-home figcaption {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  max-width: min(420px, calc(100% - 40px));
+  padding: 16px 18px;
+  background: #F7F8F8;
+  color: #06141B;
+  border: 1px solid #9BA8AB;
+  border-radius: 16px;
+}
+.role-home p { margin: 0; color: #253745; font-size: 14px; font-weight: 650; }
+.role-home h2 {
+  margin: 4px 0 8px;
+  color: #06141B;
+  font-family: Fraunces, "Noto Serif Ethiopic", Georgia, serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.role-home .role-home-line { margin: 0 0 12px; font-weight: 500; }
+.role-home a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  background: #11212D;
+  color: #F7F8F8;
+  border-radius: 8px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.role-home a:hover { background: #253745; color: #F7F8F8; text-decoration: none; }
+html[data-theme="dark"] .role-home figcaption {
+  background: #11212D;
+  color: #F4F7F8;
+  border-color: #4A5C6A;
+}
+html[data-theme="dark"] .role-home p,
+html[data-theme="dark"] .role-home h2 { color: #F4F7F8; }
+html[data-theme="dark"] .role-home a { background: #CCD0CF; color: #06141B; }
+html[data-theme="dark"] .role-home a:hover { background: #9BA8AB; color: #06141B; }
+@media (max-width: 760px) {
+  .role-home img { height: calc(100vh - 160px); min-height: 420px; }
+  .role-home figcaption { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+}

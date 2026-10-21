@@ -473,3 +473,38 @@ html[data-theme="dark"] .care-btn { background: #CCD0CF; color: #06141B !importa
     width: auto;
   }
 }
+
+/* Full-size role picture at the top of every dashboard. */
+.dash-home {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 0 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #9BA8AB;
+}
+.dash-home img {
+  width: 100%;
+  height: min(78vh, 760px);
+  min-height: 420px;
+  object-fit: cover;
+  object-position: center 28%;
+  display: block;
+}
+.dash-home span {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  padding: 8px 14px;
+  background: #F7F8F8;
+  color: #06141B;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.dash-home:hover { text-decoration: none; }
+html[data-theme="dark"] .dash-home { border-color: #4A5C6A; }
+html[data-theme="dark"] .dash-home span { background: #11212D; color: #F4F7F8; }
+@media (max-width: 760px) {
+  .dash-home img { height: 62vh; min-height: 320px; }
+}
