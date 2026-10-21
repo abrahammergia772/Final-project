@@ -230,7 +230,11 @@
       try { visible = window.getComputedStyle(bar).display !== "none"; }
       catch (e) { visible = true; }
     }
-    if (visible) {
+    var slot = document.getElementById("moreControls");
+    if (slot) {
+      if (wrapper.parentNode !== slot) slot.appendChild(wrapper);
+      wrapper.classList.remove("app-controls-fixed");
+    } else if (visible) {
       var right = bar.querySelector(".topbar-right") || bar;
       if (wrapper.parentNode !== right) right.insertBefore(wrapper, right.firstChild);
       wrapper.classList.remove("app-controls-fixed");

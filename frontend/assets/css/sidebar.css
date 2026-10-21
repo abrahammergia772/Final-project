@@ -499,6 +499,91 @@ html[data-theme="dark"] .home-menu .nav-link.active {
 }
 html[data-theme="dark"] .home-menu .nav-link:hover,
 html[data-theme="dark"] .home-menu .nav-link.active { background: #253745; }
+.more-trigger {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--white);
+  color: #06141B;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.more-trigger span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.more-trigger .notif-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9B2C2C;
+}
+html[data-theme="dark"] .more-trigger { background: #253745; color: #F4F7F8; border-color: #4A5C6A; }
+.more-drop { position: relative; }
+.dropdown.more-drop > .dropdown-menu.more-menu {
+  right: 0;
+  left: auto;
+  overflow: auto;
+  z-index: 4000;
+}
+.more-menu {
+  left: auto;
+  right: 0;
+  min-width: 280px;
+  max-width: min(360px, calc(100vw - 24px));
+  max-height: min(78vh, 640px);
+  overflow: auto;
+  padding: 12px;
+  display: none;
+}
+.more-menu.show { display: block; }
+.more-name {
+  color: #06141B;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 4px 4px 10px;
+}
+html[data-theme="dark"] .more-name,
+html[data-theme="dark"] .more-row { color: #F4F7F8; }
+.more-menu .app-controls {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.more-menu .lang-seg,
+.more-menu .theme-switch { width: 100%; justify-content: center; }
+.more-row {
+  width: 100%;
+  min-height: 42px;
+  margin: 4px 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: #06141B;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.more-row svg { width: 18px; height: 18px; }
+.more-notes { border-top: 1px solid var(--border); margin-top: 4px; }
+.more-notes .notif-list { max-height: 220px; overflow: auto; }
+.more-menu .auth-corner { width: 100%; margin-top: 10px; }
 .top-user {
   max-width: 140px;
   overflow: hidden;

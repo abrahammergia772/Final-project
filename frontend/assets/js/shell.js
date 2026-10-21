@@ -132,14 +132,16 @@
     top += '<span data-i18n="Home">Home</span>' + icon("chevron-down") + "</button>";
     top += '<div class="dropdown-menu home-menu" id="homeMenu" role="menu"><div class="home-menu-grid">' + navMenuHtml(cfg, perm, spa, cur) + "</div></div></div>";
     top += '<nav class="top-nav" aria-label="Primary">' + topLinksHtml(role, perm, spa, cur) + "</nav></div>";
-    top += '<div class="topbar-right">';
-    top += '<button class="icon-btn cmd-btn" id="cmdOpen" type="button" aria-label="Search pages" title="Search pages (Ctrl K)">' + icon("search") + "</button>";
-    top += '<div class="dropdown"><button class="icon-btn" type="button" data-dropdown-toggle="#notifMenu" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">' +
-      icon("bell") + '<span class="notif-dot" hidden></span></button><div class="dropdown-menu" id="notifMenu" role="menu"><div class="dd-header">Notifications</div>' +
-      '<div class="empty-state" style="padding:22px">Loading notifications…</div></div></div>';
-    top += '<span class="top-user" data-user-name></span>';
+    top += '<div class="topbar-right"><div class="dropdown more-drop">';
+    top += '<button class="more-trigger" type="button" data-dropdown-toggle="#moreMenu" aria-label="More" aria-haspopup="true" aria-expanded="false" title="More">';
+    top += '<span></span><span></span><span></span><i class="notif-dot" hidden></i></button>';
+    top += '<div class="dropdown-menu more-menu" id="moreMenu" role="menu">';
+    top += '<div class="more-name" data-user-name></div>';
+    top += '<div id="moreControls"></div>';
+    top += '<button class="more-row" id="cmdOpen" type="button">' + icon("search") + '<span data-i18n="Search pages">Search pages</span></button>';
+    top += '<div class="more-notes" id="notifMenu" role="group" aria-label="Notifications"><div class="dd-header">Notifications</div><div class="empty-state" style="padding:16px">Loading notifications…</div></div>';
     top += authControl();
-    top += "</div></div>";
+    top += "</div></div></div></div>";
     top += '<h1 class="page-title" id="topbarTitle">' + title + "</h1>";
     tb.innerHTML = top;
     tb.setAttribute("data-title", title);
@@ -311,6 +313,8 @@
     }
     if (e.target.closest && e.target.closest("#cmdOpen, #searchTrigger")) {
       e.preventDefault();
+      var more = document.getElementById("moreMenu");
+      if (more) more.classList.remove("show");
       openPalette();
     }
   });
