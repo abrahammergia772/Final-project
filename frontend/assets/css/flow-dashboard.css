@@ -475,19 +475,25 @@ html[data-theme="dark"] .care-btn { background: #CCD0CF; color: #06141B !importa
 }
 
 /* Full-size role picture at the top of every dashboard. */
+body.home-shell .page-body:has(.dash-home) {
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
 .dash-home {
   position: relative;
   display: block;
   width: 100%;
-  margin: 0 0 14px;
-  border-radius: 16px;
+  margin: 0 0 16px;
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid #9BA8AB;
+  border: 0;
+  border-bottom: 1px solid #9BA8AB;
 }
 .dash-home img {
   width: 100%;
-  height: min(78vh, 760px);
-  min-height: 420px;
+  height: calc(100vh - 132px);
+  min-height: 78vh;
   object-fit: cover;
   object-position: center 28%;
   display: block;
@@ -502,9 +508,17 @@ html[data-theme="dark"] .care-btn { background: #CCD0CF; color: #06141B !importa
   border-radius: 999px;
   font-weight: 700;
 }
+body.home-shell .page-body:has(.dash-home) .flow-dash > :not(.dash-home) {
+  margin-left: 24px;
+  margin-right: 24px;
+}
 .dash-home:hover { text-decoration: none; }
 html[data-theme="dark"] .dash-home { border-color: #4A5C6A; }
 html[data-theme="dark"] .dash-home span { background: #11212D; color: #F4F7F8; }
 @media (max-width: 760px) {
-  .dash-home img { height: 62vh; min-height: 320px; }
+  .dash-home img { height: calc(100vh - 108px); min-height: 70vh; }
+  body.home-shell .page-body:has(.dash-home) .flow-dash > :not(.dash-home) {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
 }

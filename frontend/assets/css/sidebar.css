@@ -1056,8 +1056,8 @@ body.home-shell .page-body:has(.role-home) { padding: 0; }
 }
 .role-home img {
   width: 100%;
-  height: calc(100vh - 210px);
-  min-height: 520px;
+  height: calc(100vh - 132px);
+  min-height: 78vh;
   object-fit: cover;
   object-position: center 28%;
   display: block;
@@ -1106,6 +1106,6 @@ html[data-theme="dark"] .role-home h2 { color: #F4F7F8; }
 html[data-theme="dark"] .role-home a { background: #CCD0CF; color: #06141B; }
 html[data-theme="dark"] .role-home a:hover { background: #9BA8AB; color: #06141B; }
 @media (max-width: 760px) {
-  .role-home img { height: calc(100vh - 160px); min-height: 420px; }
+  .role-home img { height: calc(100vh - 108px); min-height: 70vh; }
   .role-home figcaption { left: 12px; right: 12px; bottom: 12px; max-width: none; }
 }
