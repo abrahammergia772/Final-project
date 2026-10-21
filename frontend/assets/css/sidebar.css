@@ -846,3 +846,202 @@ html[data-theme="dark"] .social-tile:focus-visible { outline-color: #F4F7F8; }
 @media (max-width: 768px) {
   .role-taskbar, body.sidebar-collapsed .role-taskbar { left: 0; }
 }
+
+/* Top bars: a flat rail and a moving mark. No glow, no gradient. */
+@keyframes bar-run {
+  from { left: -22%; }
+  to { left: 100%; }
+}
+@keyframes bar-settle {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mark-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes link-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes title-rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+body.home-shell .topbar {
+  background: #F7F8F8;
+  border-bottom: 1px solid #C5CED4;
+  animation: bar-settle 0.55s ease both;
+}
+body.home-shell .topbar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: #11212D;
+  pointer-events: none;
+  z-index: 2;
+}
+body.home-shell .topbar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -22%;
+  width: 18%;
+  height: 3px;
+  background: #0F6B45;
+  pointer-events: none;
+  z-index: 3;
+  animation: bar-run 6.5s linear infinite;
+}
+body.home-shell .topbar-main {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E7EEF2;
+}
+body.home-shell .brand-lockup img { animation: mark-in 0.55s ease both; }
+body.home-shell .home-trigger,
+body.home-shell .top-nav .bar-link,
+body.home-shell .more-trigger { animation: link-rise 0.45s ease both; }
+body.home-shell .top-nav .bar-link:nth-child(2) { animation-delay: 0.06s; }
+body.home-shell .top-nav .bar-link:nth-child(3) { animation-delay: 0.12s; }
+body.home-shell .top-nav .bar-link:nth-child(4) { animation-delay: 0.18s; }
+body.home-shell .more-trigger { animation-delay: 0.16s; }
+body.home-shell .bar-link {
+  position: relative;
+  border-bottom-color: transparent;
+}
+body.home-shell .bar-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: #11212D;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s ease;
+}
+body.home-shell .bar-link:hover::after,
+body.home-shell .bar-link.active::after { transform: scaleX(1); }
+body.home-shell .topbar .page-title {
+  position: relative;
+  padding-bottom: 8px;
+  color: #06141B;
+  font-family: Fraunces, "Noto Serif Ethiopic", "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 22px;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  animation: title-rise 0.55s ease 0.12s both;
+}
+body.home-shell .topbar .page-title::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 0;
+  height: 2px;
+  background: #E7EEF2;
+  pointer-events: none;
+}
+body.home-shell .topbar .page-title::after {
+  content: "";
+  position: absolute;
+  left: -22%;
+  bottom: 0;
+  width: 16%;
+  height: 2px;
+  background: #0F6B45;
+  pointer-events: none;
+  animation: bar-run 9s linear infinite;
+}
+body.home-shell .page-body > * { animation: page-in 0.45s ease both; }
+body.home-shell .page-body h1,
+body.home-shell .page-body h2,
+body.home-shell .page-body h3,
+body.home-shell .panel-header h3,
+body.home-shell .card-header h3 {
+  font-family: Fraunces, "Noto Serif Ethiopic", Georgia, serif;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+}
+body.home-shell .panel,
+body.home-shell .card {
+  border-radius: 16px;
+}
+body.home-shell .panel { border-left: 3px solid #11212D; }
+body.home-shell .btn {
+  border-radius: 10px;
+  font-weight: 650;
+}
+body.home-shell .btn:hover:not(:disabled) { transform: translateY(-1px); }
+body.has-auth-foot .auth-foot { border-top: 3px solid #11212D; }
+
+html[data-theme="dark"] body.home-shell .topbar {
+  background: #11212D;
+  border-bottom-color: #4A5C6A;
+}
+html[data-theme="dark"] body.home-shell .topbar::before { background: #CCD0CF; }
+html[data-theme="dark"] body.home-shell .topbar::after { background: #0F6B45; }
+html[data-theme="dark"] body.home-shell .topbar-main { border-bottom-color: #253745; }
+html[data-theme="dark"] body.home-shell .bar-link::after { background: #CCD0CF; }
+html[data-theme="dark"] body.home-shell .topbar .page-title { color: #F4F7F8; }
+html[data-theme="dark"] body.home-shell .topbar .page-title::before { background: #253745; }
+html[data-theme="dark"] body.home-shell .topbar .page-title::after { background: #8FCBB0; }
+html[data-theme="dark"] body.home-shell .panel { border-left-color: #CCD0CF; }
+html[data-theme="dark"] body.has-auth-foot .auth-foot {
+  background: #11212D;
+  border-top-color: #CCD0CF;
+  color: #F4F7F8;
+}
+html[data-theme="dark"] body.has-auth-foot .auth-foot-note { color: #F4F7F8; }
+
+.login-body.login-split::before {
+  content: "";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #0F6B45;
+  z-index: 30;
+  pointer-events: none;
+}
+.login-body.login-split::after {
+  content: "";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: -22%;
+  width: 18%;
+  height: 3px;
+  background: #F4F7F8;
+  z-index: 31;
+  pointer-events: none;
+  animation: bar-run 6.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home-shell .topbar,
+  body.home-shell .brand-lockup img,
+  body.home-shell .home-trigger,
+  body.home-shell .top-nav .bar-link,
+  body.home-shell .more-trigger,
+  body.home-shell .topbar .page-title,
+  body.home-shell .page-body > *,
+  body.home-shell .topbar::after,
+  body.home-shell .topbar .page-title::after,
+  .login-body.login-split::after { animation: none; }
+  body.home-shell .topbar::after,
+  body.home-shell .topbar .page-title::after,
+  .login-body.login-split::after { opacity: 0; }
+  body.home-shell .btn:hover:not(:disabled) { transform: none; }
+}
