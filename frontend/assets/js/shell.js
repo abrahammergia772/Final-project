@@ -58,13 +58,14 @@
     return '<a class="auth-corner" href="' + loginHref() + '"><span data-i18n="Log in">Log in</span></a>';
   }
 
-  function navLink(href, label, ic, perm, spa, cur) {
+  function navLink(href, label, ic, perm, spa, cur, cls) {
     var p = perm[href] || (href === "messages.html" ? "messages" : href === "settings.html" ? "settings" : "");
     var file = String(href).split("?")[0].split("/").pop();
     var active = !spa && cur === file ? " active" : "";
-    return '<a class="nav-link' + active + '" href="' + href + '"' +
+    var withIcon = cls !== "bar-link";
+    return '<a class="' + (cls || "nav-link") + active + '" href="' + href + '"' +
       (p ? ' data-perm="' + p + '"' : "") + ' data-close-menu>' +
-      icon(ic) + '<span class="nav-label" data-i18n="' + label + '">' + label + "</span></a>";
+      (withIcon ? icon(ic) : "") + '<span class="nav-label" data-i18n="' + label + '">' + label + "</span></a>";
   }
 
   function navMenuHtml(cfg, perm, spa, cur) {
@@ -80,8 +81,17 @@
     html += navLink("messages.html", "Messages", "mail", perm, spa, cur);
     html += '<div class="nav-section-label">ACCOUNT</div>';
     html += navLink("settings.html", "Settings", "settings", perm, spa, cur);
+    html += '<div class="nav-section-label">CONTACT</div>';
+    html += navLink("contact.html", "Contact us", "phone", perm, spa, cur);
     html += "</div>";
     return html;
+  }
+
+  function topLinksHtml(role, perm, spa, cur) {
+    var items = (window.NAV_TOP || {})[role] || [];
+    return items.map(function (item) {
+      return navLink(item[0], item[1], item[2], perm, spa, cur, "bar-link");
+    }).join("");
   }
 
   function buildAuthFoot() {
@@ -117,9 +127,10 @@
     var title = pageTitle();
     var top = '<div class="topbar-left">';
     top += '<a class="brand-lockup" href="dashboard.html"><img src="' + asset("assets/images/logo-mark.png") + '" alt=""><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></a>';
-    top += '<div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" data-dropdown-toggle="#homeMenu" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
+    top += '<nav class="top-nav" aria-label="Primary"><div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" data-dropdown-toggle="#homeMenu" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
     top += '<span data-i18n="Home">Home</span>' + icon("chevron-down") + "</button>";
     top += '<div class="dropdown-menu home-menu" id="homeMenu" role="menu"><div class="home-menu-grid">' + navMenuHtml(cfg, perm, spa, cur) + "</div></div></div>";
+    top += topLinksHtml(role, perm, spa, cur) + "</nav>";
     top += '<h1 class="page-title" id="topbarTitle">' + title + "</h1></div>";
     top += '<div class="topbar-right">';
     top += '<button class="icon-btn cmd-btn" id="cmdOpen" type="button" aria-label="Search pages" title="Search pages (Ctrl K)">' + icon("search") + "</button>";
@@ -184,6 +195,7 @@
     });
     out.push({ href: "messages.html", label: "Messages", icon: "mail", section: "MESSAGES" });
     out.push({ href: "settings.html", label: "Settings", icon: "settings", section: "ACCOUNT" });
+    out.push({ href: "contact.html", label: "Contact us", icon: "phone", section: "CONTACT" });
     return out.filter(function (item) {
       return typeof pageAllowed !== "function" || pageAllowed(item.href);
     });

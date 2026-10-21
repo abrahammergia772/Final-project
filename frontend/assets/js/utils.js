@@ -791,7 +791,7 @@ function applyPermissions() {
   const role = getUserRole();
   if (!role) return;
   seedPermissions();
-  document.querySelectorAll(".nav-link[data-perm], .taskbar-link[data-perm]").forEach(a => {
+  document.querySelectorAll(".nav-link[data-perm], .taskbar-link[data-perm], .bar-link[data-perm]").forEach(a => {
     a.classList.toggle("hidden", !canAccess(role, a.dataset.perm));
   });
   document.querySelectorAll(".nav-section-label").forEach(function (label) {

@@ -698,6 +698,18 @@ window.I18N_AM = {
 
 /* ---------- Misc fragments (phrase fallback) ---------- */
 "Log in": "ግባ",
+"Contact us": "ያግኙን",
+"Facebook": "ፌስቡክ",
+"Telegram": "ቴሌግራም",
+"YouTube": "ዩቲዩብ",
+"Website": "ድረ-ገጽ",
+"Phone and social accounts": "ስልክ እና ማህበራዊ መለያዎች",
+"University switchboard": "የዩኒቨርሲቲ መቀየሪያ",
+"Teaching hospital listing": "የሆስፒታል መመዝገቢያ ስልክ",
+"Published on the university site.": "በዩኒቨርሲቲው ገጽ ላይ የታተመ።",
+"Published hospital directory listing.": "የታተመ የሆስፒታል ማውጫ ዝርዝር።",
+"Official university account.": "ኦፊሴላዊ የዩኒቨርሲቲ መለያ።",
+"These are the published university phone numbers and social accounts. A separate hospital-only Instagram, TikTok, or WhatsApp was not listed.": "እነዚህ የታተሙ የዩኒቨርሲቲ ስልክ ቁጥሮች እና ማህበራዊ መለያዎች ናቸው። ለሆስፒታሉ ብቻ የሆነ Instagram፣ TikTok ወይም WhatsApp አልተዘረዘረም።",
 "Today's care, in one place": "የዛሬው እንክብካቤ በአንድ ቦታ",
 "See who is waiting, who is with you, and what needs a decision.": "ማን እንደሚጠብቅ፣ ማን ከእርስዎ ጋር እንዳለ እና ምን ውሳኔ እንደሚፈልግ ይመልከቱ።",
 "Open the list": "ዝርዝሩን ክፈት",

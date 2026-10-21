@@ -187,6 +187,58 @@ window.NAV_PERM_MAP = {
   }
 };
 
+/* A few pages sit beside Home, the same way for every role. The rest stay in the Home menu. */
+window.NAV_TOP = {
+  admin: [
+    ["ai-config.html", "AI Configuration", "cpu"],
+    ["messages.html", "Messages", "mail"],
+    ["users.html", "Users", "users"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  manager: [
+    ["ai-insights.html", "AI Insights", "sparkles"],
+    ["messages.html", "Messages", "mail"],
+    ["staff.html", "Staff", "briefcase"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  doctor: [
+    ["ai-diagnosis.html", "AI Diagnosis", "brain"],
+    ["messages.html", "Messages", "mail"],
+    ["patients.html", "Patients", "users"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  nurse: [
+    ["vitals.html", "Vitals", "thermometer"],
+    ["messages.html", "Messages", "mail"],
+    ["patients.html", "Patients", "users"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  pharmacist: [
+    ["ai-interaction.html", "AI Interaction", "zap"],
+    ["messages.html", "Messages", "mail"],
+    ["prescriptions.html", "Prescriptions", "file-text"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  laboratory: [
+    ["ai-analyzer.html", "AI Analyzer", "brain"],
+    ["messages.html", "Messages", "mail"],
+    ["test-requests.html", "Test Requests", "flask"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  reception: [
+    ["registration.html", "Registration", "users"],
+    ["messages.html", "Messages", "mail"],
+    ["appointments.html", "Appointments", "calendar"],
+    ["contact.html", "Contact us", "phone"]
+  ],
+  patient: [
+    ["ai-chatbot.html", "AI Chatbot", "chat"],
+    ["messages.html", "Messages", "mail"],
+    ["appointments.html", "Appointments", "calendar"],
+    ["contact.html", "Contact us", "phone"]
+  ]
+};
+
 /* Five daily actions pinned to the bottom taskbar. The sidebar keeps the rest. */
 window.NAV_TASKBAR = {
   admin: [
