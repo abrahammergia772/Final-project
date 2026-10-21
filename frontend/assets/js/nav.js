@@ -4,7 +4,6 @@ window.NAV_ROLES = {
     label: "Administrator",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["users.html", "Users", "users"],
       ["roles.html", "Roles & Permissions", "shield"],
       ["wards.html", "Wards & Beds", "bed"],
@@ -23,7 +22,6 @@ window.NAV_ROLES = {
     label: "General Manager",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["departments.html", "Departments", "building"],
       ["staff.html", "Staff", "briefcase"],
       ["wards.html", "Wards & Beds", "bed"],
@@ -41,7 +39,6 @@ window.NAV_ROLES = {
     label: "Doctor",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["patients.html", "Patients", "users"],
       ["beds.html", "Bed requests", "bed"],
       ["consultation.html", "Consultation", "stethoscope"],
@@ -63,7 +60,6 @@ window.NAV_ROLES = {
     label: "Nurse",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["beds.html", "Wards & Beds", "bed"],
       ["vitals.html", "Vitals", "thermometer"],
       ["observations.html", "Observations", "activity"],
@@ -79,7 +75,6 @@ window.NAV_ROLES = {
     label: "Pharmacist",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["prescriptions.html", "Prescriptions", "file-text"],
       ["inventory.html", "Inventory", "package"],
       ["suppliers.html", "Suppliers & POs", "truck"],
@@ -96,7 +91,6 @@ window.NAV_ROLES = {
     label: "Laboratory",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["test-requests.html", "Test Requests", "flask"],
       ["samples.html", "Sample Tracking", "barcode"],
       ["blood-bank.html", "Blood Bank", "droplet"],
@@ -113,7 +107,6 @@ window.NAV_ROLES = {
     label: "Receptionist",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["registration.html", "Registration", "users"],
       ["admissions.html", "Admissions & Beds", "bed"],
       ["appointments.html", "Appointments", "calendar"],
@@ -131,7 +124,6 @@ window.NAV_ROLES = {
     label: "Patient",
     nav: [["MAIN", [
       ["home.html", "Home", "building"],
-      ["dashboard.html", "Dashboard", "grid"],
       ["appointments.html", "Appointments", "calendar"],
       ["records.html", "Medical Records", "book"],
       ["bills.html", "Bills", "wallet"],

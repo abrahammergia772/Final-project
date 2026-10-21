@@ -1299,3 +1299,30 @@ html[data-theme="dark"] .role-home figcaption.land-on .land-facts {
   .role-home figcaption.land-on h2 { font-size: 36px; }
   .role-home figcaption.land-on .land-facts { letter-spacing: 0.04em; }
 }
+
+.role-home figcaption.land-on .land-go {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 14px;
+  min-height: 42px;
+  padding: 0 18px;
+  background: #F7F8F8;
+  color: #06141B;
+  border-radius: 8px;
+  font-family: Inter, "Noto Sans Ethiopic", sans-serif;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+.role-home figcaption.land-on .land-go:hover {
+  background: #CCD0CF;
+  color: #06141B;
+  text-decoration: none;
+}
+html[data-theme="dark"] .role-home figcaption.land-on .land-go,
+html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
+  background: #F7F8F8;
+  color: #06141B;
+}
