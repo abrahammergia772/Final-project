@@ -356,6 +356,161 @@ body.sidebar-collapsed .role-taskbar { left: var(--sidebar-w-collapsed); }
 }
 body.has-taskbar .main-content { padding-bottom: calc(var(--taskbar-h) + env(safe-area-inset-bottom)); }
 body.has-taskbar #toastContainer { bottom: calc(var(--taskbar-h) + 16px); }
+
+/* Home menu replaces the sidebar and the hamburger. */
+.sidebar,
+.sidebar-toggle,
+.hamburger,
+.nav-toggle,
+.mobile-overlay { display: none !important; }
+.main-content,
+body.sidebar-collapsed .main-content,
+html.nav-closed .main-content,
+body.nav-closed .main-content { margin-left: 0 !important; }
+
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--text-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+.brand-lockup:hover { text-decoration: none; color: var(--text-strong); }
+.brand-lockup img { width: 36px; height: 36px; object-fit: contain; }
+.brand-lockup span {
+  font-size: 16px;
+  line-height: 1.15;
+  color: var(--text-strong);
+}
+.home-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 4px 6px;
+  border: 0;
+  border-bottom: 2px solid #11212D;
+  background: transparent;
+  color: #06141B;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.home-trigger svg { width: 16px; height: 16px; }
+html[data-theme="dark"] .home-trigger {
+  color: #F4F7F8;
+  border-bottom-color: #CCD0CF;
+}
+.home-drop { position: relative; }
+.home-menu {
+  left: 0;
+  right: auto;
+  min-width: min(640px, calc(100vw - 24px));
+  max-height: min(70vh, 540px);
+  overflow: auto;
+  padding: 8px;
+}
+.home-menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+}
+.home-menu .nav-section-label {
+  color: #253745;
+  padding: 10px 10px 4px;
+}
+.home-menu .nav-link {
+  height: auto;
+  min-height: 40px;
+  color: #06141B;
+  background: transparent;
+}
+.home-menu .nav-link:hover,
+.home-menu .nav-link.active {
+  background: #E7EEF2;
+  color: #06141B;
+}
+.home-menu .nav-link.active::before { display: none; }
+html[data-theme="dark"] .home-menu {
+  background: #11212D;
+  border-color: #4A5C6A;
+}
+html[data-theme="dark"] .home-menu .nav-section-label { color: #CCD0CF; }
+html[data-theme="dark"] .home-menu .nav-link,
+html[data-theme="dark"] .home-menu .nav-link:hover,
+html[data-theme="dark"] .home-menu .nav-link.active {
+  color: #F4F7F8;
+}
+html[data-theme="dark"] .home-menu .nav-link:hover,
+html[data-theme="dark"] .home-menu .nav-link.active { background: #253745; }
+.top-user {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #06141B;
+  font-size: 13px;
+  font-weight: 650;
+}
+html[data-theme="dark"] .top-user { color: #F4F7F8; }
+.auth-corner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #11212D;
+  color: #F7F8F8;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.auth-corner:hover { text-decoration: none; color: #F7F8F8; background: #253745; }
+html[data-theme="dark"] .auth-corner,
+html[data-theme="dark"] .auth-corner:hover {
+  background: #CCD0CF;
+  color: #06141B;
+}
+.auth-foot {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 20px calc(8px + env(safe-area-inset-bottom));
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  color: var(--text-strong);
+}
+.auth-foot-note { color: var(--text-strong); font-size: 14px; font-weight: 650; }
+body.has-auth-foot .main-content { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+body.has-auth-foot #toastContainer { bottom: calc(72px + env(safe-area-inset-bottom)); }
+body.has-auth-foot .role-taskbar { display: none; }
+@media (max-width: 760px) {
+  .brand-lockup span, .top-user, .topbar .page-title { display: none; }
+  .home-menu-grid { grid-template-columns: 1fr; }
+  .home-menu {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: calc(var(--topbar-h) + 8px);
+    min-width: 0;
+    width: auto;
+  }
+}
 @media (max-width: 768px) {
   .role-taskbar, body.sidebar-collapsed .role-taskbar { left: 0; }
 }

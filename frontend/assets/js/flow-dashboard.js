@@ -9,8 +9,26 @@
     pill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="m8.5 8.5 7 7"/></svg>',
     cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
     users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>',
-    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>'
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>',
+    bed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 18V8"/><path d="M2 14h20v4"/><path d="M6 14V9h7v5"/><path d="M22 18V8"/></svg>',
+    clip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
   };
+
+  function sceneSvg() {
+    return '<svg class="care-scene" viewBox="0 0 320 220" aria-hidden="true">' +
+      '<rect class="scene-bg" width="320" height="220" rx="18"/>' +
+      '<rect class="scene-panel" x="22" y="18" width="96" height="70" rx="8"/>' +
+      '<path class="scene-line" d="M34 40h28M70 40h28M34 58h28M70 58h28"/>' +
+      '<rect class="scene-seat" x="48" y="150" width="72" height="12" rx="4"/>' +
+      '<circle class="scene-skin" cx="84" cy="112" r="14"/>' +
+      '<path class="scene-coat" d="M58 162c0-20 11-30 26-30s26 10 26 30v16H58z"/>' +
+      '<rect class="scene-desk" x="168" y="132" width="128" height="12" rx="4"/>' +
+      '<circle class="scene-skin" cx="228" cy="74" r="16"/>' +
+      '<path class="scene-coat" d="M196 148c2-26 14-40 32-40s30 14 32 40v22H196z"/>' +
+      '<path class="scene-line" d="M214 92c8 8 20 8 28 0"/>' +
+      '<circle class="scene-line" cx="242" cy="108" r="6"/>' +
+      '</svg>';
+  }
 
   var ROLES = {
     doctor: {
@@ -269,6 +287,89 @@
     }
   };
 
+  var CONCEPT = {
+    doctor: {
+      title: "Today's care, in one place",
+      sub: "See who is waiting, who is with you, and what needs a decision.",
+      cta: "Open the list", href: "patients.html", prompt: "Show Waiting patients",
+      cards: [
+        { name: "Patients", note: "See who is in your care today.", href: "patients.html", icon: "users" },
+        { name: "Consultation", note: "Start the visit that is waiting.", href: "consultation.html", icon: "heart" },
+        { name: "Appointments", note: "Open today's visits.", href: "appointments.html", icon: "cal" }
+      ]
+    },
+    nurse: {
+      title: "The ward, hour by hour",
+      sub: "Vitals, medicines, and the beds that need you now.",
+      cta: "Open vitals", href: "vitals.html", prompt: "Show Vitals patients",
+      cards: [
+        { name: "Vitals", note: "Record the next set of vitals.", href: "vitals.html", icon: "heart" },
+        { name: "Medications", note: "Give the doses that are due.", href: "medications.html", icon: "pill" },
+        { name: "Beds", note: "See the ward beds.", href: "beds.html", icon: "bed" }
+      ]
+    },
+    pharmacist: {
+      title: "Orders ready to check",
+      sub: "Review the prescription, the interaction, and the shelf.",
+      cta: "Open prescriptions", href: "prescriptions.html", prompt: "Show Orders patients",
+      cards: [
+        { name: "Prescriptions", note: "Dispense the orders waiting.", href: "prescriptions.html", icon: "pill" },
+        { name: "Inventory", note: "Check what is on the shelf.", href: "inventory.html", icon: "box" },
+        { name: "Drug interaction", note: "Check a combination before you dispense.", href: "ai-interaction.html", icon: "spark" }
+      ]
+    },
+    reception: {
+      title: "The desk, in order",
+      sub: "Register, queue, and book the next visit.",
+      cta: "Open the queue", href: "queue.html", prompt: "Show Queue patients",
+      cards: [
+        { name: "Queue", note: "See who is waiting at the desk.", href: "queue.html", icon: "users" },
+        { name: "Registration", note: "Register a patient and open an invoice.", href: "registration.html", icon: "clip" },
+        { name: "Appointments", note: "Book a visit with a saved doctor.", href: "appointments.html", icon: "cal" }
+      ]
+    },
+    admin: {
+      title: "The hospital account",
+      sub: "People, wards, and the notices that keep the day moving.",
+      cta: "Open users", href: "users.html", prompt: "Show Users patients",
+      cards: [
+        { name: "Users", note: "Open staff accounts.", href: "users.html", icon: "users" },
+        { name: "Wards", note: "See wards and beds.", href: "wards.html", icon: "bed" },
+        { name: "Announcements", note: "Post a hospital notice.", href: "announcements.html", icon: "spark" }
+      ]
+    },
+    manager: {
+      title: "The day across units",
+      sub: "Departments, collections, and complaints still open.",
+      cta: "Open reports", href: "reports.html", prompt: "Show Reports patients",
+      cards: [
+        { name: "Reports", note: "Read the hospital day.", href: "reports.html", icon: "spark" },
+        { name: "Finance", note: "See today's collections.", href: "finance.html", icon: "box" },
+        { name: "Departments", note: "Open each hospital unit.", href: "departments.html", icon: "hospital" }
+      ]
+    },
+    laboratory: {
+      title: "The bench, in sequence",
+      sub: "Requests in, samples moving, results ready to sign.",
+      cta: "Open test requests", href: "test-requests.html", prompt: "Show Received patients",
+      cards: [
+        { name: "Test Requests", note: "See tests that just arrived.", href: "test-requests.html", icon: "flask" },
+        { name: "Samples", note: "Track a sample through the bench.", href: "samples.html", icon: "box" },
+        { name: "Results", note: "Sign the results that are ready.", href: "results.html", icon: "ok" }
+      ]
+    },
+    patient: {
+      title: "Your visit, clearly",
+      sub: "The appointment, the record, and the bill that is still open.",
+      cta: "Open appointments", href: "appointments.html", prompt: "Show Appointment patients",
+      cards: [
+        { name: "Appointments", note: "See your visits.", href: "appointments.html", icon: "cal" },
+        { name: "Medical Records", note: "Open your records.", href: "records.html", icon: "clip" },
+        { name: "Bills", note: "See an invoice that is still open.", href: "bills.html", icon: "box" }
+      ]
+    }
+  };
+
   var SHIFT = [
     { cls: "seg-doctor", label: "Doctors", n: 3, flex: 3 },
     { cls: "seg-nurse", label: "Nurses", n: 2, flex: 2 },
@@ -400,6 +501,25 @@
     var identity = '<span data-i18n="' + esc(cfg.role) + '">' + esc(cfg.role) + "</span> · " + esc(dateLine());
     if (!cfg.hideShift) identity += ' · <span data-i18n="' + esc(shift.name) + '">' + esc(shift.name) + "</span>";
     var statusAnswer = "Wolaita Sodo Hospital is live. " + cfg.role + " · " + dateLine() + (cfg.hideShift ? "." : " · " + shift.name + ".");
+    var concept = CONCEPT[role] || CONCEPT.doctor;
+    var cards = (concept.cards || []).map(function (item) {
+      var answer = "Opening " + item.name + ". " + item.note;
+      return '<a class="care-card" href="' + esc(item.href) + '" data-prompt="Show ' + esc(item.name) + '" data-answer="' + esc(answer) + '" data-href="' + esc(item.href) + '">' +
+        '<span class="care-ico">' + (I[item.icon] || I.hospital) + "</span>" +
+        '<strong data-i18n="' + esc(item.name) + '">' + esc(item.name) + "</strong>" +
+        '<span data-i18n="' + esc(item.note) + '">' + esc(item.note) + "</span>" +
+        '<span class="care-btn" data-i18n="View">View</span></a>';
+    }).join("");
+    var hero = '<section class="care-hero"><div class="care-copy">' +
+      '<button type="button" class="care-kicker" data-prompt="Show hospital status" data-answer="' + esc(statusAnswer) + '">' +
+      I.hospital + '<span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></button>' +
+      '<p class="care-id">' + identity + "</p>" +
+      '<h2 data-i18n="' + esc(concept.title) + '">' + esc(concept.title) + "</h2>" +
+      '<p class="care-sub" data-i18n="' + esc(concept.sub) + '">' + esc(concept.sub) + "</p>" +
+      '<div class="care-actions"><a class="care-cta" href="' + esc(concept.href) + '" data-prompt="' + esc(concept.prompt) + '" data-answer="' + esc("Opening " + concept.cta + ".") + '" data-href="' + esc(concept.href) + '"><span data-i18n="' + esc(concept.cta) + '">' + esc(concept.cta) + "</span></a>" +
+      '<button type="button" class="live-pill" data-prompt="Show live updates" data-answer="Live updates are on for this board."><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></button></div></div>' +
+      '<div class="care-art" aria-hidden="true">' + sceneSvg() + "</div></section>" +
+      '<section class="care-row" aria-label="Start here">' + cards + "</section>";
     var shiftCard = cfg.hideShift ? "" :
       '<section class="shift-card" aria-label="Shift coverage"><div class="shift-header"><span data-i18n="Shift coverage">Shift coverage</span><span class="shift-time">' + esc(shift.time) +
       '</span></div><div class="shift-track" role="group" aria-label="Shift coverage ' + SHIFT.map(function (s) { return s.n + " " + s.label; }).join(", ") + '">' + segs +
@@ -407,9 +527,7 @@
 
     root.innerHTML =
       '<div class="flow-dash" data-flow-dash="1">' +
-      '<header class="identity-bar" tabindex="0" data-prompt="Show hospital status" data-answer="' + esc(statusAnswer) + '"><div><p class="hosp-name">' + I.hospital + '<span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></p>' +
-      '<p class="hosp-sub">' + identity + '</p></div>' +
-      '<button type="button" class="live-pill" data-prompt="Show live updates" data-answer="Live updates are on for this board."><span class="live-dot" aria-hidden="true"></span><span data-i18n="Live">Live</span></button></header>' +
+      hero +
       '<section aria-label="Today\'s patient flow"><p class="section-label" data-i18n="' + esc(cfg.flowLabel) + '">' + esc(cfg.flowLabel) +
       '</p><div class="flow-strip" role="list">' + flow + "</div></section>" +
       '<div class="stat-row">' + stats + "</div>" +

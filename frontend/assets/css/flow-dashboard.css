@@ -274,3 +274,138 @@ html[data-theme="dark"] .ai-bar-track { background: #253745; }
   .stat-row, .ai-grid, .must-grid { grid-template-columns: 1fr; }
   .identity-bar { align-items: flex-start; }
 }
+
+/* Concept board: calm hero, then three action cards. Flat color, no glow. */
+.care-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  background: #E7EEF2;
+  color: #06141B;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.care-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #06141B;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  padding: 0;
+  cursor: pointer;
+}
+.care-kicker svg { width: 18px; height: 18px; }
+.care-id { margin: 6px 0 0; color: #06141B; font-size: 13px; }
+.care-copy h2 {
+  margin: 10px 0 0;
+  color: #06141B;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 640;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.care-sub { margin: 10px 0 0; max-width: 36em; color: #06141B; font-size: 16px; }
+.care-actions { display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+.care-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: #11212D;
+  color: #F7F8F8;
+  font-weight: 650;
+  text-decoration: none;
+}
+.care-cta:hover { color: #F7F8F8; text-decoration: none; background: #253745; }
+.care-art { min-width: 0; }
+.care-scene { width: 100%; height: auto; display: block; }
+.scene-bg { fill: #D5DCDF; }
+.scene-panel { fill: #F7F8F8; }
+.scene-line { fill: none; stroke: #4A5C6A; stroke-width: 2; }
+.scene-desk { fill: #4A5C6A; }
+.scene-coat { fill: #F7F8F8; stroke: #11212D; stroke-width: 2; }
+.scene-skin { fill: #C4A484; }
+.scene-seat { fill: #9BA8AB; }
+.care-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.care-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 180px;
+  padding: 16px;
+  background: var(--white);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-decoration: none;
+}
+.care-card:hover { text-decoration: none; border-color: #4A5C6A; }
+.care-card strong { color: var(--text-strong); font-size: 18px; font-weight: 650; }
+.care-card span { color: #06141B; font-size: 14px; }
+.care-ico {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #E7EEF2;
+  color: #11212D;
+}
+.care-ico svg { width: 20px; height: 20px; }
+.care-btn {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: #253745;
+  color: #F7F8F8 !important;
+  font-size: 13px;
+  font-weight: 650;
+}
+html[data-theme="dark"] .care-hero { background: #253745; color: #F4F7F8; }
+html[data-theme="dark"] .care-kicker,
+html[data-theme="dark"] .care-id,
+html[data-theme="dark"] .care-copy h2,
+html[data-theme="dark"] .care-sub { color: #F4F7F8; }
+html[data-theme="dark"] .care-cta { background: #CCD0CF; color: #06141B; }
+html[data-theme="dark"] .care-cta:hover { background: #F7F8F8; color: #06141B; }
+html[data-theme="dark"] .scene-bg { fill: #1B2C38; }
+html[data-theme="dark"] .scene-panel { fill: #11212D; }
+html[data-theme="dark"] .scene-line { stroke: #CCD0CF; }
+html[data-theme="dark"] .scene-coat { fill: #253745; stroke: #F4F7F8; }
+html[data-theme="dark"] .care-card span { color: #F4F7F8; }
+html[data-theme="dark"] .care-ico { background: #1B2C38; color: #F4F7F8; }
+html[data-theme="dark"] .care-btn { background: #CCD0CF; color: #06141B !important; }
+@media (max-width: 800px) {
+  .care-hero, .care-row { grid-template-columns: 1fr; }
+}
+.dropdown.home-drop > .dropdown-menu.home-menu {
+  left: 0;
+  right: auto;
+  overflow: auto;
+}
+@media (max-width: 760px) {
+  .dropdown.home-drop > .dropdown-menu.home-menu {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: calc(var(--topbar-h) + 8px);
+    min-width: 0;
+    width: auto;
+  }
+}

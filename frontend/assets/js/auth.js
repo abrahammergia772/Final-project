@@ -520,11 +520,11 @@ function initAuthUI() {
   if (typeof ensureHealthCard === "function") ensureHealthCard();
 
   // --- Populate user name / role / initials everywhere currently in DOM ---
-  const nameEl = document.querySelector("[data-user-name]");
-  const roleEl = document.querySelector("[data-user-role]");
   const role = getUserRole();
-  if (nameEl) nameEl.textContent = getUserName();
-  if (roleEl && role) roleEl.textContent = getRoleLabel(role);
+  document.querySelectorAll("[data-user-name]").forEach(function (el) { el.textContent = getUserName(); });
+  document.querySelectorAll("[data-user-role]").forEach(function (el) {
+    if (role) el.textContent = getRoleLabel(role);
+  });
   document.querySelectorAll("[data-user-initials]").forEach((el) => {
     el.textContent = getUserInitials();
   });

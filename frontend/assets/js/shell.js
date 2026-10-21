@@ -40,6 +40,66 @@
     return !!(lv && !lv.classList.contains("hidden"));
   }
 
+  function signedIn() {
+    try { return typeof getSession === "function" && !!getSession(); }
+    catch (e) { return false; }
+  }
+
+  function loginHref() {
+    if (window.SPA && window.SPA.mode) return "index.html";
+    if (roleFromPath() === "admin") return "../admin-login.html";
+    return "../index.html";
+  }
+
+  function authControl() {
+    if (signedIn()) {
+      return '<button type="button" class="auth-corner" data-logout><span data-i18n="Log out">Log out</span></button>';
+    }
+    return '<a class="auth-corner" href="' + loginHref() + '"><span data-i18n="Log in">Log in</span></a>';
+  }
+
+  function navLink(href, label, ic, perm, spa, cur) {
+    var p = perm[href] || (href === "messages.html" ? "messages" : href === "settings.html" ? "settings" : "");
+    var file = String(href).split("?")[0].split("/").pop();
+    var active = !spa && cur === file ? " active" : "";
+    return '<a class="nav-link' + active + '" href="' + href + '"' +
+      (p ? ' data-perm="' + p + '"' : "") + ' data-close-menu>' +
+      icon(ic) + '<span class="nav-label" data-i18n="' + label + '">' + label + "</span></a>";
+  }
+
+  function navMenuHtml(cfg, perm, spa, cur) {
+    var html = "";
+    (cfg.nav || []).forEach(function (section) {
+      html += '<div class="home-col"><div class="nav-section-label">' + section[0] + "</div>";
+      (section[1] || []).forEach(function (item) {
+        html += navLink(item[0], item[1], item[2], perm, spa, cur);
+      });
+      html += "</div>";
+    });
+    html += '<div class="home-col"><div class="nav-section-label">MESSAGES</div>';
+    html += navLink("messages.html", "Messages", "mail", perm, spa, cur);
+    html += '<div class="nav-section-label">ACCOUNT</div>';
+    html += navLink("settings.html", "Settings", "settings", perm, spa, cur);
+    html += "</div>";
+    return html;
+  }
+
+  function buildAuthFoot() {
+    var old = document.getElementById("roleTaskbar");
+    if (old) old.remove();
+    document.body.classList.remove("has-taskbar");
+    var foot = document.getElementById("authFoot");
+    if (!foot) {
+      foot = document.createElement("div");
+      foot.id = "authFoot";
+      foot.className = "auth-foot";
+      var host = document.getElementById("appView") || document.body;
+      host.appendChild(foot);
+    }
+    foot.innerHTML = '<span class="auth-foot-note"><span data-user-role></span></span>' + authControl();
+    document.body.classList.add("has-auth-foot");
+  }
+
   function buildShell(role) {
     role = role || roleFromPath() || "";
     var cfg = (window.NAV_ROLES || {})[role] || { label: role, nav: [] };
@@ -50,49 +110,29 @@
 
     var spa = window.SPA && window.SPA.mode;
     var cur = pageFile();
-    var html = '<button class="sidebar-toggle" id="sidebarToggle" type="button" title="Collapse menu" aria-label="Collapse menu">' + icon("chevron-left") + "</button>";
-    html += '<div class="sidebar-logo"><img src="' + asset("assets/images/logo-mark.png") + '" alt="Wolaita Sodo Hospital"><div class="logo-text"><div class="brand">Wolaita Sodo Hospital</div><div class="tag">Management System</div></div></div>';
-    html += '<nav class="sidebar-nav" aria-label="Primary">';
-    (cfg.nav || []).forEach(function (section) {
-      html += '<div class="nav-section-label">' + section[0] + "</div>";
-      (section[1] || []).forEach(function (item) {
-        var href = item[0], label = item[1], ic = item[2];
-        var p = perm[href] || "";
-        var file = String(href).split("?")[0].split("/").pop();
-        var active = !spa && cur === file ? " active" : "";
-        html += '<a class="nav-link' + active + '" href="' + href + '"' +
-          (p ? ' data-perm="' + p + '"' : "") + ' data-close-menu>' +
-          icon(ic) + '<span class="nav-label">' + label + "</span></a>";
-      });
-    });
-    html += '<div class="nav-section-label">MESSAGES</div>';
-    html += '<a class="nav-link" href="messages.html" data-perm="messages" data-close-menu>' + icon("mail") + '<span class="nav-label">Messages</span></a>';
-    html += '<div class="nav-section-label">ACCOUNT</div>';
-    html += '<a class="nav-link" href="settings.html" data-perm="settings" data-close-menu>' + icon("settings") + '<span class="nav-label">Settings</span></a>';
-    html += "</nav>";
-    html += '<div class="sidebar-footer"><div class="user-box"><span class="avatar" data-user-initials>…</span><div class="u-meta"><div class="u-name" data-user-name>Loading…</div><div class="u-role" data-user-role></div></div>' +
-      '<button class="btn-icon u-logout" type="button" data-logout title="Log out" aria-label="Log out">' + icon("logout") + '<span class="u-logout-label">Log out</span></button></div></div>';
-    sb.innerHTML = html;
+    document.body.classList.add("home-shell");
+    sb.innerHTML = "";
+    sb.setAttribute("hidden", "hidden");
 
     var title = pageTitle();
-    var top = '<div class="topbar-left"><button class="hamburger nav-toggle" id="hamburger" type="button" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">' +
-      '<span class="bar"></span><span class="bar"></span><span class="bar"></span></button><h1 class="page-title" id="topbarTitle">' + title + "</h1></div>";
+    var top = '<div class="topbar-left">';
+    top += '<a class="brand-lockup" href="dashboard.html"><img src="' + asset("assets/images/logo-mark.png") + '" alt=""><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></a>';
+    top += '<div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" data-dropdown-toggle="#homeMenu" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
+    top += '<span data-i18n="Home">Home</span>' + icon("chevron-down") + "</button>";
+    top += '<div class="dropdown-menu home-menu" id="homeMenu" role="menu"><div class="home-menu-grid">' + navMenuHtml(cfg, perm, spa, cur) + "</div></div></div>";
+    top += '<h1 class="page-title" id="topbarTitle">' + title + "</h1></div>";
     top += '<div class="topbar-right">';
     top += '<button class="icon-btn cmd-btn" id="cmdOpen" type="button" aria-label="Search pages" title="Search pages (Ctrl K)">' + icon("search") + "</button>";
-    top += '<div class="topbar-search"><button type="button" class="search-trigger" id="searchTrigger" aria-label="Search pages">' +
-      icon("search") + "<span>Search pages</span><kbd>Ctrl K</kbd></button></div>";
     top += '<div class="dropdown"><button class="icon-btn" type="button" data-dropdown-toggle="#notifMenu" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">' +
       icon("bell") + '<span class="notif-dot" hidden></span></button><div class="dropdown-menu" id="notifMenu" role="menu"><div class="dd-header">Notifications</div>' +
       '<div class="empty-state" style="padding:22px">Loading notifications…</div></div></div>';
-    top += '<div class="dropdown"><button class="topbar-avatar" type="button" data-dropdown-toggle="#profileMenu" aria-label="Account menu" aria-haspopup="true">' +
-      '<span class="avatar" data-user-initials>…</span><div class="hide-sm"><div class="t-name" data-user-name>Loading…</div><div class="t-role" data-user-role></div></div></button>' +
-      '<div class="dropdown-menu" id="profileMenu" role="menu"><div class="dd-header">Account</div><div class="dd-item" data-logout>' +
-      icon("logout") + "<span>Log out</span></div></div></div>";
+    top += '<span class="top-user" data-user-name></span>';
+    top += authControl();
     top += "</div>";
     tb.innerHTML = top;
     tb.setAttribute("data-title", title);
 
-    buildTaskbar(role, perm, spa, cur);
+    buildAuthFoot();
     ensurePalette();
     try { document.dispatchEvent(new CustomEvent("i18n:rescan")); } catch (e) {}
     if (typeof initAuthUI === "function") initAuthUI();
@@ -280,6 +320,23 @@
     if (!sb || sb.children.length) return;
     buildShell(roleFromPath());
   }
+
+  document.addEventListener("click", function (e) {
+    var trigger = e.target.closest && e.target.closest(".home-trigger");
+    if (trigger) {
+      setTimeout(function () {
+        var menu = document.getElementById("homeMenu");
+        trigger.setAttribute("aria-expanded", menu && menu.classList.contains("show") ? "true" : "false");
+      }, 0);
+    }
+    var link = e.target.closest && e.target.closest("#homeMenu a");
+    if (link) {
+      var menu = document.getElementById("homeMenu");
+      if (menu) menu.classList.remove("show");
+      var btn = document.querySelector(".home-trigger");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    }
+  });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", auto);
   else auto();
