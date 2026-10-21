@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Fraunces:ital,opsz,wght@1,9..144,560;1,9..144,640&display=swap");
 /* ============================================================
    Wolaita Sodo Hospital — sidebar.css
    Sidebar navigation, collapse, mobile off-canvas, profile
@@ -1115,7 +1116,6 @@ body.on-landing .page-title { display: none !important; }
 body.on-landing .auth-foot { display: none !important; }
 body.on-landing.has-auth-foot .main-content { padding-bottom: 0; }
 body.on-landing .role-home { min-height: 0; }
-body.on-landing .role-home figcaption { display: none; }
 .role-home img {
   height: min(58vh, 560px);
   min-height: 320px;
@@ -1222,4 +1222,80 @@ html[data-theme="dark"] .land-actions a.land-quiet {
   .land-grid { grid-template-columns: 1fr; }
   .land-wrap { padding: 22px 16px 32px; }
   .role-home img { height: 46vh; min-height: 240px; }
+}
+
+/* Short lines, written on the picture. */
+.role-home img {
+  height: calc(100vh - 132px);
+  min-height: 78vh;
+}
+.role-home figcaption.land-on {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  margin: 0;
+  padding: 18px 36px 22px;
+  background: #11212D;
+  color: #F7F8F8;
+  border: 0;
+  border-radius: 0;
+}
+.role-home figcaption.land-on .land-kicker {
+  margin: 0;
+  color: #CCD0CF;
+  font-family: Inter, "Noto Sans Ethiopic", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.role-home figcaption.land-on h2 {
+  margin: 2px 0 0;
+  max-width: 14em;
+  color: #F7F8F8;
+  font-family: "Cormorant Garamond", Fraunces, "Noto Serif Ethiopic", Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(40px, 5.6vw, 72px);
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+}
+.role-home figcaption.land-on .land-line {
+  margin: 6px 0 0;
+  color: #F4F7F8;
+  font-family: "Cormorant Garamond", Fraunces, "Noto Serif Ethiopic", Georgia, serif;
+  font-size: clamp(18px, 2.1vw, 28px);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.role-home figcaption.land-on .land-facts {
+  margin: 10px 0 0;
+  color: #CCD0CF;
+  font-family: Inter, "Noto Sans Ethiopic", sans-serif;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+html[data-theme="dark"] .role-home figcaption.land-on {
+  background: #11212D;
+  color: #F7F8F8;
+  border-color: transparent;
+}
+html[data-theme="dark"] .role-home figcaption.land-on h2,
+html[data-theme="dark"] .role-home figcaption.land-on .land-line {
+  color: #F7F8F8;
+}
+html[data-theme="dark"] .role-home figcaption.land-on .land-kicker,
+html[data-theme="dark"] .role-home figcaption.land-on .land-facts {
+  color: #CCD0CF;
+}
+@media (max-width: 760px) {
+  .role-home img { height: calc(100vh - 108px); min-height: 70vh; }
+  .role-home figcaption.land-on { padding: 14px 16px 16px; }
+  .role-home figcaption.land-on h2 { font-size: 36px; }
+  .role-home figcaption.land-on .land-facts { letter-spacing: 0.04em; }
 }
