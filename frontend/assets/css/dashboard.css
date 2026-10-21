@@ -31,23 +31,31 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-w-collapsed); 
   align-items: stretch;
   justify-content: center;
   gap: 0;
-  padding: 8px 16px 6px;
+  padding: 12px 28px 10px;
 }
-.topbar-main, .topbar-left { display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; }
+.topbar-main, .topbar-left {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  min-width: 0;
+}
 .topbar .page-title {
   width: 100%;
   max-width: none;
-  margin: 0;
-  padding: 2px 0 4px;
-  font-size: 18px;
+  margin: 6px 0 0;
+  padding: 4px 0 2px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
   color: var(--dark);
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
+.topbar-right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-shrink: 0; margin-left: 0; }
 
 .topbar-search { position: relative; width: 300px; }
 .topbar-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--gray); }
