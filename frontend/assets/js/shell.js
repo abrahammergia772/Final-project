@@ -120,7 +120,9 @@
 
     var spa = window.SPA && window.SPA.mode;
     var cur = pageFile();
+    if (spa && window.SPA.current) cur = String(window.SPA.current).split("/").pop();
     document.body.classList.add("home-shell");
+    document.body.classList.toggle("on-landing", cur === "home.html");
     sb.innerHTML = "";
     sb.setAttribute("hidden", "hidden");
 

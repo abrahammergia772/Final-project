@@ -141,13 +141,18 @@ window.SPA = { mode: true, current: "" };
       const titled = doc.querySelector("header.topbar[data-title], [data-title]");
       const title = doc.querySelector(".page-title");
       const label = (titled && titled.getAttribute("data-title")) || (title && title.textContent) || "";
-      if (label) {
-        const tt = $("#topbarTitle");
-        if (tt) tt.textContent = label.trim();
-      }
-      const base = (doc.title || "Wolaita Sodo Hospital").replace(/\s*—\s*(Wolaita Sodo Hospital|MedIQ Pro)\s*$/, "");
-      document.title = base + " — Wolaita Sodo Hospital";
       SPA.current = path.split("?")[0].split("#")[0];
+      const landing = /(^|\/)home\.html$/.test(SPA.current);
+      document.body.classList.toggle("on-landing", landing);
+      const tt = $("#topbarTitle");
+      if (landing) {
+        if (tt) tt.textContent = "";
+      } else if (label && tt) {
+        tt.textContent = label.trim();
+      }
+      const rawTitle = (doc.title || "Wolaita Sodo Hospital").trim();
+      const base = rawTitle.replace(/\s*—\s*(Wolaita Sodo Hospital|MedIQ Pro)\s*$/, "");
+      document.title = /Wolaita Sodo Hospital/.test(base) ? base : base + " — Wolaita Sodo Hospital";
       markActive(SPA.current);
       rememberPage(SPA.current);
       if (typeof closeMobileMenu === "function") closeMobileMenu(); else document.body.classList.remove("mobile-menu-open");
@@ -173,6 +178,9 @@ window.SPA = { mode: true, current: "" };
       window.location.replace("admin-login.html");
       return;
     }
+    var page = safePage(restore, role) || safePage(readSavedPage(), role) || getRoleRedirect(role);
+    SPA.current = String(page || "").split("?")[0].split("#")[0];
+    document.body.classList.toggle("on-landing", /(^|\/)home\.html$/.test(SPA.current));
     $("#loginView").classList.add("hidden");
     $("#appView").classList.remove("hidden");
     if (typeof window.buildShell === "function") window.buildShell(role);
@@ -182,8 +190,7 @@ window.SPA = { mode: true, current: "" };
     // the listeners survive future DOM rebuilds too).
     window.__spaLayoutDone = false; // force re-wire for the new shell
     initLayout();
-    var page = safePage(restore, role) || safePage(readSavedPage(), role);
-    load(page || getRoleRedirect(role));
+    load(page);
   }
   function showLogin() {
     forgetPage();
@@ -191,6 +198,7 @@ window.SPA = { mode: true, current: "" };
     $("#appView").classList.add("hidden");
     $("#loginView").classList.remove("hidden");
     $("#spaBody").innerHTML = "";
+    document.body.classList.remove("on-landing");
     document.title = "Login — Wolaita Sodo Hospital";
     // Reset one-shot flags so a future login re-initialises notifs/layout.
     window.__notifsBound = false;

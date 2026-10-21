@@ -1109,3 +1109,117 @@ html[data-theme="dark"] .role-home a:hover { background: #9BA8AB; color: #06141B
   .role-home img { height: calc(100vh - 108px); min-height: 70vh; }
   .role-home figcaption { left: 12px; right: 12px; bottom: 12px; max-width: none; }
 }
+
+/* Landing page: hide the circled title and the bottom logout. */
+body.on-landing .page-title { display: none !important; }
+body.on-landing .auth-foot { display: none !important; }
+body.on-landing.has-auth-foot .main-content { padding-bottom: 0; }
+body.on-landing .role-home { min-height: 0; }
+body.on-landing .role-home figcaption { display: none; }
+.role-home img {
+  height: min(58vh, 560px);
+  min-height: 320px;
+}
+.land-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+}
+.land-kicker {
+  margin: 0;
+  color: #4A5C6A;
+  font-size: 13px;
+  font-weight: 700;
+}
+.land-block h2 {
+  margin: 8px 0 0;
+  max-width: 16em;
+  color: #06141B;
+  font-family: Fraunces, "Noto Serif Ethiopic", Georgia, serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+.land-lead {
+  margin: 14px 0 0;
+  max-width: 42em;
+  color: #253745;
+  font-size: 18px;
+  line-height: 1.45;
+}
+.land-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.land-card {
+  padding: 16px 18px;
+  background: #F7F8F8;
+  color: #06141B;
+  border: 1px solid #9BA8AB;
+  border-left: 4px solid #11212D;
+  border-radius: 16px;
+}
+.land-card strong {
+  display: block;
+  color: #06141B;
+  font-family: Fraunces, "Noto Serif Ethiopic", Georgia, serif;
+  font-size: 22px;
+  font-weight: 640;
+  line-height: 1.15;
+}
+.land-card span {
+  display: block;
+  margin-top: 6px;
+  color: #253745;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.land-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.land-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: #11212D;
+  color: #F7F8F8;
+  font-weight: 650;
+  text-decoration: none;
+}
+.land-actions a.land-quiet {
+  background: #F7F8F8;
+  color: #06141B;
+  border: 1px solid #9BA8AB;
+}
+.land-actions a:hover { text-decoration: none; }
+.land-note { margin: 14px 0 0; color: #4A5C6A; font-size: 13px; }
+html[data-theme="dark"] .land-kicker,
+html[data-theme="dark"] .land-note { color: #CCD0CF; }
+html[data-theme="dark"] .land-block h2,
+html[data-theme="dark"] .land-lead,
+html[data-theme="dark"] .land-card,
+html[data-theme="dark"] .land-card strong,
+html[data-theme="dark"] .land-card span { color: #F4F7F8; }
+html[data-theme="dark"] .land-card {
+  background: #253745;
+  border-color: #4A5C6A;
+  border-left-color: #CCD0CF;
+}
+html[data-theme="dark"] .land-actions a { background: #CCD0CF; color: #06141B; }
+html[data-theme="dark"] .land-actions a.land-quiet {
+  background: #11212D;
+  color: #F4F7F8;
+  border-color: #4A5C6A;
+}
+@media (max-width: 760px) {
+  .land-grid { grid-template-columns: 1fr; }
+  .land-wrap { padding: 22px 16px 32px; }
+  .role-home img { height: 46vh; min-height: 240px; }
+}
