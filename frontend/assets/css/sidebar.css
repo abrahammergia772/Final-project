@@ -443,7 +443,13 @@ html[data-theme="dark"] .home-trigger {
   color: #F4F7F8;
   border-bottom-color: #CCD0CF;
 }
-.home-drop { position: relative; }
+.home-drop { position: relative; flex-shrink: 0; overflow: visible; }
+.topbar, .topbar-main { overflow: visible; }
+.dropdown.home-drop > .dropdown-menu.home-menu.show {
+  display: block;
+  position: fixed;
+  z-index: 4000;
+}
 .home-menu {
   left: 0;
   right: auto;

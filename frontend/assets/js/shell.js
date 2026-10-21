@@ -127,10 +127,10 @@
     var title = pageTitle();
     var top = '<div class="topbar-main">';
     top += '<a class="brand-lockup" href="dashboard.html"><img src="' + asset("assets/images/logo-mark.png") + '" alt=""><span data-i18n="Wolaita Sodo Hospital">Wolaita Sodo Hospital</span></a>';
-    top += '<nav class="top-nav" aria-label="Primary"><div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" data-dropdown-toggle="#homeMenu" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
+    top += '<div class="dropdown home-drop"><button class="home-trigger" id="homeTrigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="homeMenu">';
     top += '<span data-i18n="Home">Home</span>' + icon("chevron-down") + "</button>";
     top += '<div class="dropdown-menu home-menu" id="homeMenu" role="menu"><div class="home-menu-grid">' + navMenuHtml(cfg, perm, spa, cur) + "</div></div></div>";
-    top += topLinksHtml(role, perm, spa, cur) + "</nav>";
+    top += '<nav class="top-nav" aria-label="Primary">' + topLinksHtml(role, perm, spa, cur) + "</nav>";
     top += '<div class="topbar-right">';
     top += '<button class="icon-btn cmd-btn" id="cmdOpen" type="button" aria-label="Search pages" title="Search pages (Ctrl K)">' + icon("search") + "</button>";
     top += '<div class="dropdown"><button class="icon-btn" type="button" data-dropdown-toggle="#notifMenu" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">' +
@@ -333,21 +333,51 @@
     buildShell(roleFromPath());
   }
 
+  function placeHomeMenu(btn, menu) {
+    var box = btn.getBoundingClientRect();
+    var width = Math.min(640, window.innerWidth - 16);
+    var left = Math.max(8, Math.min(box.left, window.innerWidth - width - 8));
+    menu.style.position = "fixed";
+    menu.style.top = Math.round(box.bottom + 8) + "px";
+    menu.style.left = Math.round(left) + "px";
+    menu.style.right = "auto";
+    menu.style.width = Math.round(width) + "px";
+    menu.style.zIndex = "4000";
+    menu.style.display = "block";
+  }
+
+  function closeHomeMenu() {
+    var menu = document.getElementById("homeMenu");
+    var btn = document.querySelector(".home-trigger");
+    if (menu) {
+      menu.classList.remove("show");
+      menu.style.display = "";
+    }
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+
   document.addEventListener("click", function (e) {
     var trigger = e.target.closest && e.target.closest(".home-trigger");
     if (trigger) {
-      setTimeout(function () {
-        var menu = document.getElementById("homeMenu");
-        trigger.setAttribute("aria-expanded", menu && menu.classList.contains("show") ? "true" : "false");
-      }, 0);
+      e.preventDefault();
+      var menu = document.getElementById("homeMenu");
+      if (!menu) return;
+      var open = !menu.classList.contains("show");
+      document.querySelectorAll(".dropdown-menu.show").forEach(function (m) {
+        if (m !== menu) m.classList.remove("show");
+      });
+      menu.classList.toggle("show", open);
+      trigger.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) placeHomeMenu(trigger, menu);
+      else menu.style.display = "";
+      return;
     }
     var link = e.target.closest && e.target.closest("#homeMenu a");
     if (link) {
-      var menu = document.getElementById("homeMenu");
-      if (menu) menu.classList.remove("show");
-      var btn = document.querySelector(".home-trigger");
-      if (btn) btn.setAttribute("aria-expanded", "false");
+      closeHomeMenu();
+      return;
     }
+    if (!e.target.closest || !e.target.closest("#homeMenu, .home-trigger")) closeHomeMenu();
   });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", auto);
