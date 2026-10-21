@@ -95,19 +95,9 @@
   }
 
   function buildAuthFoot() {
-    var old = document.getElementById("roleTaskbar");
-    if (old) old.remove();
-    document.body.classList.remove("has-taskbar");
     var foot = document.getElementById("authFoot");
-    if (!foot) {
-      foot = document.createElement("div");
-      foot.id = "authFoot";
-      foot.className = "auth-foot";
-      var host = document.getElementById("appView") || document.body;
-      host.appendChild(foot);
-    }
-    foot.innerHTML = '<span class="auth-foot-note"><span data-user-role></span></span>' + authControl();
-    document.body.classList.add("has-auth-foot");
+    if (foot) foot.remove();
+    document.body.classList.remove("has-auth-foot");
   }
 
   function buildShell(role) {
