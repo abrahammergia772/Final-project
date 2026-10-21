@@ -1326,3 +1326,32 @@ html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
   background: #F7F8F8;
   color: #06141B;
 }
+
+/* Transparent writing, so the picture stays fully visible. */
+.role-home figcaption.land-on,
+html[data-theme="dark"] .role-home figcaption.land-on {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.role-home figcaption.land-on .land-kicker,
+.role-home figcaption.land-on h2,
+.role-home figcaption.land-on .land-line,
+.role-home figcaption.land-on .land-facts,
+html[data-theme="dark"] .role-home figcaption.land-on .land-kicker,
+html[data-theme="dark"] .role-home figcaption.land-on h2,
+html[data-theme="dark"] .role-home figcaption.land-on .land-line,
+html[data-theme="dark"] .role-home figcaption.land-on .land-facts {
+  background: transparent;
+  color: rgba(247, 248, 248, 0.92);
+  text-shadow: 0 1px 1px rgba(6, 20, 27, 0.55);
+}
+.role-home figcaption.land-on .land-go,
+.role-home figcaption.land-on .land-go:hover,
+html[data-theme="dark"] .role-home figcaption.land-on .land-go,
+html[data-theme="dark"] .role-home figcaption.land-on .land-go:hover {
+  background: transparent;
+  color: #F7F8F8;
+  border: 1.5px solid rgba(247, 248, 248, 0.92);
+  box-shadow: none;
+}
