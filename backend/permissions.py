@@ -9,7 +9,7 @@ import logging
 import time
 from typing import Dict
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 
 from db import get_client
 from security import current_user
@@ -262,3 +262,31 @@ def require_permission(key: str):
         assert_key(user, key)
         return user
     return dependency
+
+
+_AI_PAGE_KEYS = {
+    "/ai/check-vitals": ("vitals", "ai"),
+    "/ai/analyze-lab": ("results", "ai"),
+    "/ai/check-interaction": ("prescriptions", "inventory", "ai"),
+    "/ai/interaction-drugs": ("prescriptions", "inventory", "ai"),
+    "/ai/forecast-inventory": ("inventory", "ai"),
+    "/ai/predict-disease": ("consultation", "ai"),
+    "/ai/clinical-decision/file": ("consultation", "ai"),
+    "/ai/predict-appointment": ("appointments", "ai"),
+    "/ai/symptom-chat": ("ai",),
+}
+
+
+def require_ai_page(request: Request, user=Depends(current_user)):
+    raw = request.url.path.rstrip("/") or "/"
+    marker = raw.find("/ai/")
+    path = raw[marker:] if marker >= 0 else raw
+    keys = _AI_PAGE_KEYS.get(path)
+    if keys is None and path.startswith("/ai/appointment/"):
+        keys = ("appointments", "ai")
+    if keys is None:
+        keys = ("ai",)
+    role = str(user.get("role") or "")
+    if any(granted(role, key) for key in keys):
+        return user
+    raise HTTPException(status_code=403, detail=DENIED)

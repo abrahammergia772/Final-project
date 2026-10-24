@@ -26,7 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS, CORS_ALLOW_ALL, MODEL_DOWNLOAD_URLS, LAZY_LOAD, SKIP_RF_MODELS, LOW_MEMORY, SECRET_KEY
 import model_loader
-from permissions import require_permission
+from permissions import require_ai_page
 from security import current_user
 from groq_client import configured as groq_configured, model_name as groq_model_name
 from mailer import configured as mail_configured, key_shape as mail_key_shape, provider_name as mail_provider
@@ -115,7 +115,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.45", "groq": groq_configured(), "mail": mail_configured(),
+    return {"status": "ok", "version": "2.0.46", "groq": groq_configured(), "mail": mail_configured(),
             "google": bool(os.getenv("GOOGLE_CLIENT_ID", "").strip() or os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()),
             "sms": sms_configured(),
             "sms_live": sms_live(),
@@ -149,7 +149,7 @@ def debug_memory(_user=Depends(current_user)):
 app.include_router(auth.router)
 # All data and AI routes require a signed application token. Auth routes above
 # remain public so users can sign in or request registration/reset.
-protected = {"dependencies": [Depends(require_permission("ai"))]}
+protected = {"dependencies": [Depends(require_ai_page)]}
 app.include_router(clinical.router, **protected)
 app.include_router(interaction.router, **protected)
 app.include_router(lab.router, **protected)

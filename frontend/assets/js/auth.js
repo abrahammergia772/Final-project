@@ -275,7 +275,21 @@ function endpointAllowed(endpoint) {
     if (path.indexOf("/auth/health-card") === 0) return canAccess(role, "healthcard");
     return true;
   }
-  if (path.indexOf("/ai/") === 0) return canAccess(role, "ai");
+  if (path.indexOf("/ai/") === 0) {
+    var pageKeys = {
+      "/ai/check-vitals": ["vitals", "ai"],
+      "/ai/analyze-lab": ["results", "ai"],
+      "/ai/check-interaction": ["prescriptions", "inventory", "ai"],
+      "/ai/interaction-drugs": ["prescriptions", "inventory", "ai"],
+      "/ai/forecast-inventory": ["inventory", "ai"],
+      "/ai/predict-disease": ["consultation", "ai"],
+      "/ai/clinical-decision/file": ["consultation", "ai"],
+      "/ai/predict-appointment": ["appointments", "ai"],
+      "/ai/symptom-chat": ["ai"]
+    };
+    var keys = pageKeys[path] || (path.indexOf("/ai/appointment/") === 0 ? ["appointments", "ai"] : ["ai"]);
+    return keys.some(function (key) { return canAccess(role, key); });
+  }
   if (path === "/patients/lookup") return role !== "patient";
   const resource = path.replace(/^\//, "").split("/")[0];
   return resourceAllowed(role, resource);
