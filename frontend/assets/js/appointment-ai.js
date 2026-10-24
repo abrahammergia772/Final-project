@@ -186,65 +186,10 @@
     });
   }
 
-  function mount(role) {
-    if (!root.document || root.document.getElementById("apptAi")) return;
-    var body = root.document.querySelector(".page-body");
-    if (!body) return;
-    var clinician = role === "doctor" || role === "nurse";
-    if (!root.document.getElementById("appt-ai-style")) {
-      var style = root.document.createElement("style");
-      style.id = "appt-ai-style";
-      style.textContent = "#apptAi,#apptAi .appt-panel{background:#fff;color:#06141B;border:1px solid #9AA6AC;border-radius:12px}#apptAi h3,#apptAi h4,#apptAi p,#apptAi label,#apptAi span{color:#06141B}#apptAi .appt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}#apptAi .appt-panel{padding:14px}#apptAi .form-row{display:flex;gap:8px;flex-wrap:wrap}#apptAi .form-control{min-width:0}#apptAi .slot-row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-top:1px solid #D5DDE1}#apptAi .risk-badge{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:700}#apptAi .risk-low{background:#DCFCE7;color:#166534}#apptAi .risk-medium{background:#FEF3C7;color:#92400E}#apptAi .risk-high{background:#FEE2E2;color:#991B1B}#apptAi .risk-unknown{background:#E5E7EB;color:#06141B}#apptAi .appt-warn{color:#991B1B}#apptAi .appt-note{font-size:13px}#apptAi .prefill{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}#apptAi .prefill span{border:1px solid #9AA6AC;border-radius:8px;padding:4px 8px}#apptAi .check-line{display:flex;gap:8px;align-items:flex-start;margin-top:8px}html[data-theme=\"dark\"] #apptAi,html[data-theme=\"dark\"] #apptAi .appt-panel{background:#11212D;color:#F4F7F8}html[data-theme=\"dark\"] #apptAi h3,html[data-theme=\"dark\"] #apptAi h4,html[data-theme=\"dark\"] #apptAi p,html[data-theme=\"dark\"] #apptAi label,html[data-theme=\"dark\"] #apptAi span{color:#F4F7F8}";
-      root.document.head.appendChild(style);
-    }
-    var card = root.document.createElement("div");
-    card.id = "apptAi";
-    card.style.marginBottom = "16px";
-    card.innerHTML = ""
-      + "<div class=\"appt-grid\">"
-      + "<section class=\"appt-panel\"><h3>Book appointment</h3><p>Groq suggests open slots from the hospital calendar. It does not invent a doctor or a time.</p>"
-      + "<div class=\"form-row\"><input class=\"form-control\" id=\"aiPatient\" placeholder=\"Patient name\"><select class=\"form-control\" id=\"aiDept\"><option>Internal Medicine</option><option>Pediatrics</option><option>Cardiology</option><option>Maternity</option><option>Orthopedics</option></select></div>"
-      + "<div class=\"form-row\" style=\"margin-top:8px\"><select class=\"form-control\" id=\"aiDoc\"><option>Loading doctors…</option></select><select class=\"form-control\" id=\"aiUrgency\"><option value=\"Routine\">Routine</option><option value=\"Urgent\">Urgent</option><option value=\"Emergency\">Emergency</option></select></div>"
-      + "<input class=\"form-control\" id=\"aiReason\" placeholder=\"Reason for visit\" style=\"margin-top:8px\">"
-      + "<button type=\"button\" class=\"btn btn-primary\" id=\"aiSchedule\" style=\"margin-top:8px\">Check Available Slots</button><div id=\"aiSlots\"></div></section>"
-      + "<section class=\"appt-panel\"><h3>AI pre-screening</h3><p>Questions come from Groq. Known fields come only from the saved record.</p><div id=\"aiScreen\"><p class=\"appt-note\">Enter a patient name to load the intake questions.</p></div></section>"
-      + "<section class=\"appt-panel\"><h3>No-show risk</h3><div id=\"aiRisk\"><p class=\"appt-note\">Enter a patient name to score saved visits.</p></div></section>"
-      + (clinician ? "<section class=\"appt-panel\"><h3>Doctor brief</h3><button type=\"button\" class=\"btn\" id=\"aiBriefBtn\">Open doctor brief</button><div id=\"aiBrief\"></div></section>" : "")
-      + "<section class=\"appt-panel\"><h3>Send reminder</h3><p>Africa's Talking must accept an SMS before it is counted. Sandbox does not reach a real phone.</p><button type=\"button\" class=\"btn btn-primary\" id=\"aiRemindBtn\">Send reminders</button><div id=\"aiRemind\"></div></section>"
-      + "</div>";
-    body.insertBefore(card, body.firstChild);
-    if (typeof loadDoctorList === "function") {
-      loadDoctorList().then(function (result) {
-        var select = box("aiDoc");
-        if (!select) return;
-        if (!result || !result.ok || !result.items.length) {
-          select.innerHTML = "<option>No doctor is registered</option>";
-          return;
-        }
-        select.innerHTML = result.items.map(function (doctor) {
-          return "<option>" + esc(doctor.name) + "</option>";
-        }).join("");
-      });
-    }
-    var name = box("aiPatient");
-    var timer = 0;
-    if (name) name.addEventListener("input", function () {
-      root.clearTimeout(timer);
-      timer = root.setTimeout(function () {
-        if (value("aiPatient").length < 3) return;
-        loadScreen();
-        loadRisk();
-      }, 500);
-    });
-    box("aiSchedule").onclick = checkSlots;
-    box("aiRemindBtn").onclick = sendReminders;
-    var brief = box("aiBriefBtn");
-    if (brief) brief.onclick = loadBrief;
-    apiFetch("/health", "GET", null, { quiet: true, skipAuth: true }).then(function (res) {
-      if (res && res.ok && res.data && res.data.sms_live === false) {
-        showSection("aiRemind", "<p class=\"appt-warn\">Africa's Talking username is sandbox. An accepted SMS stays in the simulator and does not reach a phone.</p>");
-      }
-    });
+  function mount() {
+    if (!root.document) return;
+    var old = root.document.getElementById("apptAi");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
   }
 
   root.AppointmentAI = { mount: mount };

@@ -55,7 +55,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/appointment-ai.js?v=3"></script>
+<script src="../assets/js/appointment-ai.js?v=4"></script>
 <script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
@@ -141,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let APPT = [];
 function loadPageData() {
-  if (window.AppointmentAI) AppointmentAI.mount("doctor");
   apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(r => {
     if (!r.ok) { document.getElementById("apptCount").textContent = r.error || "Could not load appointments."; return; }
     APPT = r.data.items || []; renderAppts();
