@@ -23,7 +23,7 @@
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Appointments"></header>
 <section class="page-body">
-<style>#apptCount,#apptActionResult,.table-toolbar h3{color:#06141B}html[data-theme="dark"] #apptCount,html[data-theme="dark"] #apptActionResult,html[data-theme="dark"] .table-toolbar h3{color:#F4F7F8}html[data-theme="dark"] #apptBody .btn{background:#11212D;color:#F4F7F8;border-color:#9AA6AC}</style>
+<style>#apptCount,#apptActionResult,.table-toolbar h3{color:#06141B}html[data-theme="dark"] #apptCount,html[data-theme="dark"] #apptActionResult,html[data-theme="dark"] .table-toolbar h3{color:#F4F7F8}html[data-theme="dark"] #apptBody .btn{background:#11212D;color:#F4F7F8;border-color:#9AA6AC}#apptBody .row-acts{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-end;gap:4px}#apptBody .row-act{padding:3px 7px;font-size:12px;line-height:1.1;border-radius:8px;margin:0;white-space:nowrap;min-height:26px}#apptBody .row-acts .btn-icon{width:26px;height:26px;flex:0 0 26px;padding:0}#apptBody .row-acts .btn-icon svg{width:14px;height:14px}#apptTable th:last-child,#apptTable td:last-child{white-space:nowrap;width:1%}</style>
 
 <div class="card" style="padding:0">
   <div class="table-toolbar" style="align-items:flex-start;gap:10px;flex-wrap:wrap">
@@ -228,11 +228,11 @@ function renderAppts() {
       ? rows.length + " saved visit" + (rows.length === 1 ? "" : "s") + ", " + upcoming + " from today onward." + mineText
       : "No saved appointment matches." + mineText;
   }
-  const btn = (id, label) => `<button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowAction('${encodeURIComponent(id)}','${label}')">${label === "remind" ? "Send reminder" : label === "intake" ? "Intake" : label === "brief" ? "Doctor brief" : "Follow-up"}</button>`;
+  const btn = (id, label) => `<button type="button" class="btn row-act" style="color:#06141B;background:#fff;border:1px solid #9AA6AC" onclick="rowAction('${encodeURIComponent(id)}','${label}')">${label === "remind" ? "Send reminder" : label === "intake" ? "Intake" : label === "brief" ? "Doctor brief" : "Follow-up"}</button>`;
   document.getElementById("apptBody").innerHTML = rows.length ? rows.map(a => `<tr class="${typeof isUpcomingAppointment === "function" && !isUpcomingAppointment(a) ? "row-muted" : ""}">
     <td><strong>${esc(formatDate(a.date))}</strong></td><td><span class="time-pill">${esc(a.time)}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td><td>${esc(a.type)}</td>
     <td>${esc(a.dept)}</td><td>${apptBadge(a.status)}</td>
-    <td><div class="actions" style="justify-content:flex-end;flex-wrap:wrap">
+    <td><div class="actions row-acts">
       ${btn(a.id, "remind")}${btn(a.id, "intake")}${btn(a.id, "brief")}${btn(a.id, "follow")}
       <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setStatus('${a.id}','attended')">${ICONS.check}</button>

@@ -23,6 +23,7 @@
 <main class="main-content" id="mainContent">
 <header class="topbar" id="topbar" data-title="Appointments"></header>
 <section class="page-body">
+<style>#apptBody .row-acts{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-end;gap:4px}#apptBody .row-act{padding:3px 7px;font-size:12px;line-height:1.1;border-radius:8px;margin:0;white-space:nowrap;min-height:26px}#apptBody .row-acts .btn-icon{width:26px;height:26px;flex:0 0 26px;padding:0}#apptBody .row-acts .btn-icon svg{width:14px;height:14px}#apptTable th:last-child,#apptTable td:last-child{white-space:nowrap;width:1%}html[data-theme="dark"] #apptBody .btn{background:#11212D;color:#F4F7F8;border-color:#9AA6AC}</style>
 
 <div class="flex-between mb-4"><div class="chip-group" id="viewToggle">
     <span class="chip selected" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> List View</span>
@@ -176,11 +177,11 @@ function renderAppts() {
     <td><span class="time-pill">${a.time}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td>
     <td>${esc(a.dept)}</td><td>${esc(a.type)}</td><td>${noShowBadge(a)}</td>
     <td>${apptBadge(a.status)}</td>
-    <td><div class="actions" style="justify-content:flex-end;flex-wrap:wrap">
-      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="sendOneReminder('${encodeURIComponent(a.id)}')">Send reminder</button>
-      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowExtra('${encodeURIComponent(a.id)}','intake')">Intake</button>
-      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowExtra('${encodeURIComponent(a.id)}','brief')">Doctor brief</button>
-      <button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowExtra('${encodeURIComponent(a.id)}','follow')">Follow-up</button>
+    <td><div class="actions row-acts">
+      <button type="button" class="btn row-act" style="color:#06141B;background:#fff;border:1px solid #9AA6AC" onclick="sendOneReminder('${encodeURIComponent(a.id)}')">Send reminder</button>
+      <button type="button" class="btn row-act" style="color:#06141B;background:#fff;border:1px solid #9AA6AC" onclick="rowExtra('${encodeURIComponent(a.id)}','intake')">Intake</button>
+      <button type="button" class="btn row-act" style="color:#06141B;background:#fff;border:1px solid #9AA6AC" onclick="rowExtra('${encodeURIComponent(a.id)}','brief')">Doctor brief</button>
+      <button type="button" class="btn row-act" style="color:#06141B;background:#fff;border:1px solid #9AA6AC" onclick="rowExtra('${encodeURIComponent(a.id)}','follow')">Follow-up</button>
       <button class="btn-icon" title="Edit" onclick="editAppt('${encodeURIComponent(a.id)}')">${ICONS.edit}</button>
       <button class="btn-icon success" title="Mark attended" onclick="setA('${a.id}','attended')">${ICONS.check}</button>
       <button class="btn-icon warning" title="Reschedule to other appointment" onclick="moveAppt('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
