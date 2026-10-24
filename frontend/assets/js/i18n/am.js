@@ -581,7 +581,7 @@ window.I18N_AM = {
 "via fingerprint": "በጣት አሻራ",
 
 /* ---------- Messaging ---------- */
-"📄 Health Report": "📄 የጤና ሪፖርት",
+"Health Report": "የጤና ሪፖርት",
 "Tip:": "ጠቃሚ ምክር፡",
 "double-click": "ሁለት ጠቅታ",
 "to minimize it (click again to restore).": "ለማጠፍ (ለመመለስ እንደገና ጠቅ ያድርጉ)።",

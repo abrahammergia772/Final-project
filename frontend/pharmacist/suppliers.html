@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="../assets/css/sidebar.css?v=26" />
 <link rel="stylesheet" href="../assets/css/components.css?v=7" />
 <link rel="stylesheet" href="../assets/css/dashboard.css?v=11" />
-<link rel="stylesheet" href="../assets/css/modules.css" />
+<link rel="stylesheet" href="../assets/css/modules.css?v=2" />
 
   <script src="../assets/js/theme.js?v=2"></script></head>
 <body>
@@ -157,7 +157,7 @@ function renderSupps() {
   document.getElementById("suppBody").innerHTML = SUPS.length ? SUPS.map(s => `<tr>
     <td><strong>${esc(s.name)}</strong><div class="text-sm text-gray" style="color:#6B7280">${esc(s.categories)}</div></td>
     <td>${esc(s.contact)}</td><td>${esc(s.phone)}</td><td>${s.lead_time} days</td>
-    <td><span class="badge badge-${s.rating >= 4 ? "success" : s.rating >= 3 ? "warning" : "danger"}">${s.rating} ★</span></td></tr>`).join("") : emptyRow(5);
+    <td><span class="badge badge-${s.rating >= 4 ? "success" : s.rating >= 3 ? "warning" : "danger"}">${s.rating}</span></td></tr>`).join("") : emptyRow(5);
 }
 function poModal() {
   openModal({
@@ -195,5 +195,5 @@ function recvPo(id) { const p = POS.find(x => x.id === id); if (!p) return; p.st
 
 </script>
 
-<script src="../assets/js/i18n.js?v=18"></script></body>
+<script src="../assets/js/i18n.js?v=19"></script></body>
 </html>

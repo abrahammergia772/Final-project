@@ -656,3 +656,202 @@ html.lang-am .login-kicker { letter-spacing: 0; text-transform: none; }
 .login-card-wide { max-width: 640px; }
 .login-scroll .login-panel { align-items: flex-start; }
 .login-scroll .login-card { padding-top: 12px; padding-bottom: 28px; }
+
+/* Quiet system chrome. Status is a mark and a word, not a colored pill. */
+.badge,
+.badge-success,
+.badge-warning,
+.badge-danger,
+.badge-info,
+.badge-primary,
+.badge-neutral,
+.badge-default {
+  background: transparent;
+  color: #06141B;
+  border-radius: 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #4A5C6A;
+  box-shadow: none;
+}
+.badge-success .dot { background: #0F6B45; }
+.badge-warning .dot { background: #8A5A12; }
+.badge-danger .dot { background: #9B2C2C; }
+.badge-info .dot,
+.badge-primary .dot,
+.badge-neutral .dot,
+.badge-default .dot { background: #4A5C6A; }
+html[data-theme="dark"] .badge,
+html[data-theme="dark"] .badge-success,
+html[data-theme="dark"] .badge-warning,
+html[data-theme="dark"] .badge-danger,
+html[data-theme="dark"] .badge-info,
+html[data-theme="dark"] .badge-primary,
+html[data-theme="dark"] .badge-neutral,
+html[data-theme="dark"] .badge-default {
+  background: transparent;
+  color: #F4F7F8;
+}
+html[data-theme="dark"] .badge-success .dot { background: #8FCBB0; }
+html[data-theme="dark"] .badge-warning .dot { background: #E2C48A; }
+html[data-theme="dark"] .badge-danger .dot { background: #F0B4B4; }
+html[data-theme="dark"] .badge .dot { background: #CCD0CF; }
+
+.data-table tbody tr.row-danger {
+  background: transparent;
+  box-shadow: inset 3px 0 0 #9B2C2C;
+}
+html[data-theme="dark"] .data-table tbody tr.row-danger { background: transparent; }
+
+.shift-chip,
+.shift-morning,
+.shift-evening,
+.shift-night,
+.shift-day,
+.shift-half,
+.shift-custom {
+  background: transparent;
+  color: #06141B;
+  border-radius: 0;
+  padding: 0;
+}
+.shift-morning .sc-dot,
+.shift-half .sc-dot { background: #4A5C6A; }
+.shift-evening .sc-dot { background: #8A5A12; }
+.shift-night .sc-dot { background: #11212D; }
+.shift-day .sc-dot { background: #0F6B45; }
+.shift-custom .sc-dot { background: #9B2C2C; }
+html[data-theme="dark"] .shift-chip,
+html[data-theme="dark"] .shift-morning,
+html[data-theme="dark"] .shift-evening,
+html[data-theme="dark"] .shift-night,
+html[data-theme="dark"] .shift-day,
+html[data-theme="dark"] .shift-half,
+html[data-theme="dark"] .shift-custom {
+  background: transparent;
+  color: #F4F7F8;
+}
+html[data-theme="dark"] .shift-night .sc-dot { background: #CCD0CF; }
+
+.health-dot.ok,
+.health-dot.warn,
+.health-dot.bad { box-shadow: none; }
+.health-dot.ok { background: #0F6B45; }
+.health-dot.warn { background: #8A5A12; }
+.health-dot.bad { background: #9B2C2C; }
+
+.fp-scanner,
+.fp-scanner.ok {
+  background: #E7EEF2;
+  border-color: #9BA8AB;
+  box-shadow: none;
+}
+.fp-scanner:hover { box-shadow: none; border-color: #11212D; }
+.fp-scanner svg { color: #11212D; }
+.fp-scanner.ok { border-color: #0F6B45; }
+html[data-theme="dark"] .fp-scanner,
+html[data-theme="dark"] .fp-scanner.ok { background: #253745; border-color: #4A5C6A; }
+html[data-theme="dark"] .fp-scanner svg { color: #F4F7F8; }
+
+.msg-card.unread { background: #E7EEF2; }
+html[data-theme="dark"] .msg-card.unread { background: #253745; color: #F4F7F8; }
+
+.live-dot { animation: none; box-shadow: none; background: #0F6B45; }
+.icon-btn .notif-dot::before { animation: none; opacity: 0; }
+
+.stat-tile {
+  background: #F7F8F8;
+  color: #06141B;
+  border: 1px solid #9BA8AB;
+}
+.stat-lbl { color: #4A5C6A; }
+.stat-delta.up { color: #0F6B45; }
+.stat-delta.dn { color: #9B2C2C; }
+html[data-theme="dark"] .stat-tile { background: #253745; color: #F4F7F8; border-color: #4A5C6A; }
+html[data-theme="dark"] .stat-lbl { color: #CCD0CF; }
+html[data-theme="dark"] .stat-delta.up { color: #8FCBB0; }
+html[data-theme="dark"] .stat-delta.dn { color: #F0B4B4; }
+
+.flow-node .flow-dot,
+.flow-node.done .flow-dot,
+.flow-node.active .flow-dot,
+.flow-node.wait .flow-dot,
+.tl-dot,
+.tl-dot.ok,
+.tl-dot.warn,
+.tl-dot.ai,
+.tl-chip,
+.tl-chip.normal,
+.tl-chip.ai,
+.seg-doctor,
+.seg-nurse,
+.seg-pharm {
+  background: #E7EEF2;
+  color: #11212D;
+}
+.flow-node.urgent .flow-dot,
+.tl-dot.alert,
+.tl-chip.urgent {
+  background: #E8DCDC;
+  color: #9B2C2C;
+}
+html[data-theme="dark"] .flow-node .flow-dot,
+html[data-theme="dark"] .flow-node.done .flow-dot,
+html[data-theme="dark"] .flow-node.active .flow-dot,
+html[data-theme="dark"] .flow-node.wait .flow-dot,
+html[data-theme="dark"] .tl-dot,
+html[data-theme="dark"] .tl-dot.ok,
+html[data-theme="dark"] .tl-dot.warn,
+html[data-theme="dark"] .tl-dot.ai,
+html[data-theme="dark"] .tl-chip,
+html[data-theme="dark"] .tl-chip.normal,
+html[data-theme="dark"] .tl-chip.ai {
+  background: #11212D;
+  color: #F4F7F8;
+}
+html[data-theme="dark"] .flow-node.urgent .flow-dot,
+html[data-theme="dark"] .tl-dot.alert,
+html[data-theme="dark"] .tl-chip.urgent {
+  background: #3A2222;
+  color: #F0B4B4;
+}
+
+.flow-dash[data-role] .care-hero {
+  background: #F7F8F8;
+  border-color: #9BA8AB;
+  color: #06141B;
+}
+.flow-dash[data-role] .care-card { border-top-color: #11212D; }
+.flow-dash[data-role] .care-cta,
+.flow-dash[data-role] .care-btn {
+  background: #11212D;
+  color: #F7F8F8;
+}
+html[data-theme="dark"] .flow-dash[data-role] .care-hero {
+  background: #253745;
+  border-color: #4A5C6A;
+  color: #F4F7F8;
+}
+html[data-theme="dark"] .flow-dash[data-role] .care-kicker,
+html[data-theme="dark"] .flow-dash[data-role] .care-id,
+html[data-theme="dark"] .flow-dash[data-role] .care-copy h2,
+html[data-theme="dark"] .flow-dash[data-role] .care-sub { color: #F4F7F8; }
+html[data-theme="dark"] .flow-dash[data-role] .care-cta,
+html[data-theme="dark"] .flow-dash[data-role] .care-btn {
+  background: #CCD0CF;
+  color: #06141B !important;
+}
+
+.ai-ico { background: #E7EEF2 !important; color: #11212D !important; }
+.ai-bar-track { background: #E7EEF2; }
+.ai-bar-fill { background: #11212D !important; }
+html[data-theme="dark"] .ai-ico { background: #11212D !important; color: #F4F7F8 !important; }
+html[data-theme="dark"] .ai-bar-track { background: #253745; }
+html[data-theme="dark"] .ai-bar-fill { background: #CCD0CF !important; }
