@@ -28,9 +28,10 @@
 <div class="card" style="padding:0">
   <div class="table-toolbar" style="align-items:flex-start;gap:10px;flex-wrap:wrap">
     <div>
-      <h3 style="font-size:16px;margin:0;color:#06141B">All upcoming appointments</h3>
+      <h3 style="font-size:16px;margin:0;color:#06141B">Saved appointments</h3>
       <p id="apptCount" class="text-sm" style="margin:4px 0 0;color:#06141B">Loading visits…</p>
     </div>
+    <input class="form-control" id="apptFind" placeholder="Search patient or doctor, for example Abebe" style="max-width:280px">
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-primary" id="btnRemindAll" type="button">Send reminders</button>
       <button class="btn btn-primary" id="btnBook" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Book Appointment</button>
@@ -147,10 +148,36 @@ function loadPageData() {
   });
   document.getElementById("btnBook").addEventListener("click", bookModal);
   document.getElementById("btnRemindAll").addEventListener("click", () => runListedAction("all"));
+  const find = document.getElementById("apptFind");
+  if (find) find.addEventListener("input", renderAppts);
+}
+function nameTokens(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").split(" ").filter(function (part) {
+    return part && ["dr", "doctor", "prof", "mr", "mrs", "ms", "md"].indexOf(part) < 0;
+  });
+}
+function namesMatch(left, right) {
+  const a = nameTokens(left), b = nameTokens(right);
+  if (!a.length || !b.length) return false;
+  const short = a.join(" ").length <= b.join(" ").length ? a : b;
+  const long = short === a ? b : a;
+  function hit(token, words) {
+    if (token.length === 1) return words.some(function (word) { return word.indexOf(token) === 0; });
+    return words.some(function (word) { return word.length >= 2 && (word === token || word.indexOf(token) === 0 || token.indexOf(word) === 0); });
+  }
+  const needed = short.filter(function (token) { return token.length >= 2; });
+  return (needed.length ? needed : short).every(function (token) { return hit(token, long); });
 }
 function upcomingAppts() {
-  return APPT.filter(a => typeof isUpcomingAppointment === "function" ? isUpcomingAppointment(a) : true)
-    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || String(a.time || "").localeCompare(String(b.time || "")));
+  return APPT.filter(a => typeof isUpcomingAppointment === "function" ? isUpcomingAppointment(a) : true);
+}
+function sortedAppts() {
+  return APPT.slice().sort(function (a, b) {
+    const au = typeof isUpcomingAppointment === "function" && isUpcomingAppointment(a) ? 0 : 1;
+    const bu = typeof isUpcomingAppointment === "function" && isUpcomingAppointment(b) ? 0 : 1;
+    if (au !== bu) return au - bu;
+    return String(b.date || "").localeCompare(String(a.date || "")) || String(a.time || "").localeCompare(String(b.time || ""));
+  });
 }
 function showActionResult(text, ok) {
   const box = document.getElementById("apptActionResult");
@@ -186,11 +213,24 @@ function rowAction(id, kind) {
   });
 }
 function renderAppts() {
-  const rows = upcomingAppts();
+  const q = (document.getElementById("apptFind") && document.getElementById("apptFind").value || "").trim().toLowerCase();
+  const who = typeof getUserName === "function" ? getUserName() : "";
+  const rows = sortedAppts().filter(function (a) {
+    if (!q) return true;
+    return (String(a.patient || "") + " " + String(a.doctor || "") + " " + String(a.dept || "") + " " + String(a.date || "")).toLowerCase().indexOf(q) >= 0
+      || namesMatch(q, a.doctor) || namesMatch(q, a.patient);
+  });
+  const mine = who ? APPT.filter(function (a) { return namesMatch(who, a.doctor); }) : [];
   const count = document.getElementById("apptCount");
-  if (count) count.textContent = rows.length ? rows.length + " open visits from today onward, for every doctor." : "No upcoming appointment is saved.";
+  if (count) {
+    const upcoming = rows.filter(function (a) { return typeof isUpcomingAppointment !== "function" || isUpcomingAppointment(a); }).length;
+    const mineText = who ? " Signed in as " + who + ". " + mine.length + " saved visit" + (mine.length === 1 ? "" : "s") + " match that doctor name." : "";
+    count.textContent = rows.length
+      ? rows.length + " saved visit" + (rows.length === 1 ? "" : "s") + ", " + upcoming + " from today onward." + mineText
+      : "No saved appointment matches." + mineText;
+  }
   const btn = (id, label) => `<button type="button" class="btn" style="color:#06141B;background:#fff;border:1px solid #9AA6AC;margin:0 4px 4px 0" onclick="rowAction('${encodeURIComponent(id)}','${label}')">${label === "remind" ? "Send reminder" : label === "intake" ? "Intake" : label === "brief" ? "Doctor brief" : "Follow-up"}</button>`;
-  document.getElementById("apptBody").innerHTML = rows.length ? rows.map(a => `<tr>
+  document.getElementById("apptBody").innerHTML = rows.length ? rows.map(a => `<tr class="${typeof isUpcomingAppointment === "function" && !isUpcomingAppointment(a) ? "row-muted" : ""}">
     <td><strong>${esc(formatDate(a.date))}</strong></td><td><span class="time-pill">${esc(a.time)}</span></td><td><strong>${esc(a.patient)}</strong></td><td>${esc(a.doctor)}</td><td>${esc(a.type)}</td>
     <td>${esc(a.dept)}</td><td>${apptBadge(a.status)}</td>
     <td><div class="actions" style="justify-content:flex-end;flex-wrap:wrap">
@@ -199,7 +239,7 @@ function renderAppts() {
       <button class="btn-icon success" title="Mark attended" onclick="setStatus('${a.id}','attended')">${ICONS.check}</button>
       <button class="btn-icon warning" title="Reschedule to other appointment" onclick="moveAppt('${encodeURIComponent(a.id)}')">${ICONS.refresh}</button>
       <button class="btn-icon danger" title="Cancel" onclick="setStatus('${a.id}','cancelled')">${ICONS.x}</button>
-    </div></td></tr>`).join("") : emptyRow(8, "No upcoming appointments.");
+    </div></td></tr>`).join("") : emptyRow(8, "No saved appointment matches that search.");
 }
 function apptBadge(s) {
   const m = { confirmed:["success","Confirmed"], "checked-in":["info","Checked in"], completed:["neutral","Completed"], cancelled:["danger","Cancelled"], attended:["success","Attended"], rescheduled:["warning","Rescheduled"] };

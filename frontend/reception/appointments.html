@@ -32,7 +32,7 @@
   <button class="btn btn-primary" id="btnBook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5v14M5 12h14"/></svg> Book Appointment</button></div>
 <div id="calView" class="card mb-4 hidden"><div id="calGrid"></div></div>
 <div class="card" style="padding:0" id="listView">
-  <div class="table-toolbar"><div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="apptSearch" placeholder="Search patient…"></div>
+  <div class="table-toolbar"><div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="apptSearch" placeholder="Search patient or doctor"></div>
     <span class="badge badge-info" id="apptCount">0 appointments</span></div>
   <div class="table-wrap">
     <table class="data-table" id="apptTable">
@@ -269,7 +269,10 @@ function renderCalendar() {
   days.forEach(d => cells += `<div style="font-weight:700;text-align:center;color:#6B7280;font-size:12px;padding:8px">${d}</div>`);
   for (let i = 0; i < startDow; i++) cells += `<div></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
-    const count = APPT.filter(a => +a.date.split("-")[2] === d).length;
+    const count = APPT.filter(function (a) {
+      const parts = String(a.date || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+      return parts && Number(parts[1]) === y && Number(parts[2]) === m + 1 && Number(parts[3]) === d;
+    }).length;
     const isToday = d === today;
     cells += `<div style="border:1px solid #E5E7EB;border-radius:8px;min-height:64px;padding:6px;background:${isToday ? "#E1EFFA" : "#fff"}">
       <strong style="color:${isToday ? "var(--primary)" : "#111827"}">${d}</strong>

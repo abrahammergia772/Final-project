@@ -426,6 +426,23 @@
     return apiFetch(path, "GET", null, { quiet: true }).then(rowsOf, function () { return []; });
   }
   function sameDay(value) { return String(value || "").slice(0, 10) === todayIso(); }
+  function nameTokens(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").split(" ").filter(function (part) {
+      return part && ["dr", "doctor", "prof", "mr", "mrs", "ms", "md"].indexOf(part) < 0;
+    });
+  }
+  function namesMatch(left, right) {
+    var a = nameTokens(left), b = nameTokens(right);
+    if (!a.length || !b.length) return false;
+    var short = a.join(" ").length <= b.join(" ").length ? a : b;
+    var long = short === a ? b : a;
+    function hit(token, words) {
+      if (token.length === 1) return words.some(function (word) { return word.indexOf(token) === 0; });
+      return words.some(function (word) { return word.length >= 2 && (word === token || word.indexOf(token) === 0 || token.indexOf(word) === 0); });
+    }
+    var needed = short.filter(function (token) { return token.length >= 2; });
+    return (needed.length ? needed : short).every(function (token) { return hit(token, long); });
+  }
   function statusOf(row) { return String((row && (row.status || row.stage)) || "").toLowerCase(); }
   function countWhere(rows, test) { return (rows || []).filter(test).length; }
   function setFlowCount(root, name, n) {
@@ -517,6 +534,8 @@
           var appt = all[0], requests = all[1], results = all[2];
           var today = appt.filter(function (row) { return sameDay(row.date); });
           var open = appt.filter(function (row) { return !/cancel|complete|attended|discharg/i.test(statusOf(row)); });
+          var who = typeof getUserName === "function" ? getUserName() : "";
+          var mine = who ? appt.filter(function (row) { return namesMatch(who, row.doctor); }) : [];
           var consult = appt.filter(function (row) { return /consult|in-service|in service/i.test(statusOf(row)); });
           var urgent = appt.filter(function (row) { return /urgent|emergency/i.test(statusOf(row) + " " + (row.priority || "")); });
           var done = appt.filter(function (row) { return /complete|attended|discharg/i.test(statusOf(row)) && sameDay(row.date); });
@@ -527,10 +546,11 @@
           setFlowCount(root, "Urgent", urgent.length);
           setFlowCount(root, "Lab", labOpen.length);
           setFlowCount(root, "Discharged", done.length);
-          setStat(root, 0, String(today.length), "Saved appointments today");
+          setStat(root, 0, String(mine.length || today.length), mine.length ? "Saved visits for " + who : "Saved appointments today");
           setStat(root, 1, "—", "Wait time is not recorded");
-          paintTimeline(root, today.concat(results).slice(0, 4).map(function (row) {
-            return { title: row.test || row.type || "Saved visit", text: [row.patient, row.doctor, row.status || row.time].filter(Boolean).join(" · "), time: stamp(row), href: row.test ? "patients.html" : "appointments.html" };
+          var shown = (mine.length ? mine : today).concat(mine.length ? [] : results);
+          paintTimeline(root, shown.slice(0, 4).map(function (row) {
+            return { title: row.patient || row.test || row.type || "Saved visit", text: [row.type || row.test, row.doctor, row.date, row.status || row.time].filter(Boolean).join(" · "), time: stamp(row), href: row.test ? "patients.html" : "appointments.html" };
           }));
         });
       },

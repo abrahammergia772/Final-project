@@ -224,7 +224,13 @@ def list_rows(endpoint: str, limit: int = 500) -> Dict[str, Any]:
     if client is None:
         return {"ok": False, "error": "Supabase is not configured", "source": "none", "items": [], "total": 0}
     try:
-        resp = client.table(table).select("*").limit(limit).execute()
+        query = client.table(table).select("*")
+        if endpoint == "appointments":
+            query = query.order("created_at", desc=True)
+        try:
+            resp = query.limit(limit).execute()
+        except Exception:
+            resp = client.table(table).select("*").limit(limit).execute()
         items = [_present(endpoint, _hide_secrets(dict(item))) for item in (resp.data or [])]
         return {"ok": True, "items": items, "total": len(items), "source": "supabase"}
     except Exception as exc:  # noqa: BLE001

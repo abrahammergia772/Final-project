@@ -86,6 +86,36 @@ def _authorize(resource: str, user, write: bool = False):
     assert_resource(user, resource)
 
 
+def _name_tokens(value: str) -> list:
+    stop = {"dr", "doctor", "prof", "mr", "mrs", "ms", "md"}
+    chars = []
+    for ch in str(value or "").lower():
+        chars.append(ch if ch.isalnum() else " ")
+    return [part for part in "".join(chars).split() if part and part not in stop]
+
+
+def _person_match(left: str, right: str) -> bool:
+    """Match a short saved name such as Abebe M to Abebe Mekonnen, without matching a different person."""
+    a = _name_tokens(left)
+    b = _name_tokens(right)
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    short, long = (a, b) if len(" ".join(a)) <= len(" ".join(b)) else (b, a)
+
+    def hit(token: str, words: list) -> bool:
+        if len(token) == 1:
+            return any(word.startswith(token) for word in words)
+        return any(
+            len(word) >= 2 and (word == token or word.startswith(token) or token.startswith(word))
+            for word in words
+        )
+
+    needed = [token for token in short if len(token) >= 2] or short
+    return all(hit(token, long) for token in needed)
+
+
 def _owns(row: dict, user) -> bool:
     email = str(user.get("email") or "").strip().lower()
     name = str(user.get("name") or "").strip().lower()
@@ -93,10 +123,10 @@ def _owns(row: dict, user) -> bool:
     values = {str(row.get(key) or "").strip().lower() for key in fields}
     if email and email in values:
         return True
-    if name and name in values:
+    if name and (name in values or any(_person_match(name, value) for value in values if value)):
         return True
     patient = str(row.get("patient") or "").strip().lower()
-    return bool(patient and ((name and name in patient) or (email and email in patient)))
+    return bool(patient and ((name and (name in patient or _person_match(name, patient))) or (email and email in patient)))
 
 
 def _scope(resource: str, result: dict, user) -> dict:
@@ -249,12 +279,21 @@ def message_directory(user=Depends(current_user)):
     return {"items": items, "total": len(items)}
 
 
+def _is_doctor_role(value: str) -> bool:
+    text = " ".join(str(value or "").lower().replace(".", " ").split())
+    if not text:
+        return False
+    if text in {"dr", "physician", "consultant", "surgeon"}:
+        return True
+    return "doctor" in text.split()
+
+
 def _doctor_items() -> list:
     people = []
     users = list_rows("users", 500)
     if users.get("ok"):
         for row in users.get("items") or []:
-            if str(row.get("role") or "").lower() != "doctor":
+            if not _is_doctor_role(row.get("role") or ""):
                 continue
             if str(row.get("status") or "").lower() == "inactive":
                 continue
@@ -272,7 +311,7 @@ def _doctor_items() -> list:
     if staff.get("ok"):
         known = {item["name"].lower() for item in people}
         for row in staff.get("items") or []:
-            if "doctor" not in str(row.get("role") or "").lower():
+            if not _is_doctor_role(row.get("role") or ""):
                 continue
             if str(row.get("status") or "").lower() == "inactive":
                 continue
@@ -286,6 +325,21 @@ def _doctor_items() -> list:
                 "email": str(details.get("email") or ""),
                 "department": row.get("dept") or "",
                 "phone": row.get("contact") or "",
+            })
+    known = {item["name"].lower() for item in people}
+    visits = list_rows("appointments", 500)
+    if visits.get("ok"):
+        for row in visits.get("items") or []:
+            name = " ".join(str(row.get("doctor") or "").split())
+            if not name or name.lower() in known:
+                continue
+            known.add(name.lower())
+            people.append({
+                "id": "",
+                "name": name,
+                "email": "",
+                "department": row.get("dept") or "",
+                "phone": "",
             })
     people.sort(key=lambda item: item["name"].lower())
     return people
