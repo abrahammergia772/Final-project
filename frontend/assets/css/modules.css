@@ -855,3 +855,35 @@ html[data-theme="dark"] .flow-dash[data-role] .care-btn {
 html[data-theme="dark"] .ai-ico { background: #11212D !important; color: #F4F7F8 !important; }
 html[data-theme="dark"] .ai-bar-track { background: #253745; }
 html[data-theme="dark"] .ai-bar-fill { background: #CCD0CF !important; }
+
+/* No floating shadows. A border is the edge. */
+:root,
+html[data-theme="dark"] {
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+}
+html body *,
+html body *::before,
+html body *::after {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+.login-mark { filter: none !important; }
+.stat-card:hover,
+.bed-card:hover,
+.patient-card:hover,
+.quick-action:hover,
+.demo-role:hover,
+.login-split .demo-role:hover,
+.ai-vid-row:hover {
+  transform: none;
+}
+.data-table tbody tr.row-danger {
+  border-left: 3px solid #9B2C2C;
+}
+:focus-visible {
+  outline: 2px solid #11212D;
+  outline-offset: 2px;
+}
+html[data-theme="dark"] :focus-visible { outline-color: #CCD0CF; }

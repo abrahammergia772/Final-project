@@ -43,7 +43,7 @@ function showDeviceAccountList(message) {
   sheet.setAttribute("aria-label", "Google accounts on this device");
   sheet.style.cssText = "position:fixed;inset:0;z-index:80;background:rgba(6,20,27,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;";
   sheet.innerHTML = ''
-    + '<div style="width:min(420px,100%);background:#fff;color:#06141B;border-radius:16px;padding:18px 16px 16px;box-shadow:0 16px 40px rgba(6,20,27,.25);">'
+    + '<div style="width:min(420px,100%);background:#fff;color:#06141B;border-radius:16px;padding:18px 16px 16px;">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">'
     + '<strong style="font-size:16px;">Google accounts on this device</strong>'
     + '<button type="button" id="googleAccountClose" style="border:0;background:#F4F7F8;color:#06141B;border-radius:8px;padding:6px 10px;font-weight:600;">Close</button>'

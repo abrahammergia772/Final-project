@@ -496,7 +496,7 @@ function attachRecipientPicker(input, hint) {
   input.parentNode.insertBefore(box, input);
   box.appendChild(input);
   const list = document.createElement("div");
-  list.style.cssText = "display:none;position:absolute;z-index:20;left:0;right:0;top:100%;background:#fff;border:1px solid #E5E7EB;border-radius:12px;max-height:240px;overflow:auto;box-shadow:0 10px 28px rgba(15,23,42,.12)";
+  list.style.cssText = "display:none;position:absolute;z-index:20;left:0;right:0;top:100%;background:#fff;border:1px solid #E5E7EB;border-radius:12px;max-height:240px;overflow:auto;";
   box.appendChild(list);
   let picked = null;
   function choices() {
