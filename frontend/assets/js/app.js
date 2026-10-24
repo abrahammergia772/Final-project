@@ -111,6 +111,7 @@ window.SPA = { mode: true, current: "" };
       for (const fn of inits) {
         try { fn(); } catch (e) { console.error("page init error:", e); }
       }
+      if (typeof fillRegisteredPatientSelects === "function") fillRegisteredPatientSelects(document.getElementById("spaBody") || document);
     }
   }
 

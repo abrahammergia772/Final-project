@@ -1486,6 +1486,9 @@ function initPatientSuggest() {
     if (isPatientNameField(e.target)) showPatientSuggest(e.target);
   });
   document.addEventListener("keydown", onPatientSuggestKey, true);
+  document.addEventListener("change", function (e) {
+    if (e.target && e.target.tagName === "SELECT" && e.target.dataset.patientSelect === "1") rememberPatientChoice(e.target);
+  });
   document.addEventListener("click", function (e) {
     if (e.target.closest && e.target.closest(".patient-suggest")) return;
     if (isPatientNameField(e.target)) return;
@@ -1508,26 +1511,65 @@ function needsPatientNames(sel) {
   if (/patient/.test(id) || /patient/.test(blob)) return true;
   return text.indexOf("Abel Mekonnen") >= 0 || text.indexOf("Could not read names") >= 0 || text.indexOf("No registered patients") >= 0 || text.indexOf("Select patient") >= 0 || text.indexOf("Choose a patient") >= 0 || text.indexOf("Loading registered patients") >= 0;
 }
+function nameChooserInput(input) {
+  if (!isPatientNameField(input)) return false;
+  var id = (input.id || "").toLowerCase();
+  if (/^(rf|rl|filefirst|filelast|pffirst|pflast|upatname)$/.test(id)) return false;
+  return true;
+}
+function ensurePatientNameDropdowns(root) {
+  var scope = root && root.querySelectorAll ? root : document;
+  Array.prototype.forEach.call(scope.querySelectorAll("input"), function (input) {
+    if (!nameChooserInput(input)) return;
+    var sel = document.createElement("select");
+    sel.className = input.className || "form-control";
+    if (sel.className.indexOf("form-control") < 0) sel.className += " form-control";
+    if (input.id) sel.id = input.id;
+    if (input.name) sel.name = input.name;
+    if (input.getAttribute("style")) sel.setAttribute("style", input.getAttribute("style"));
+    sel.required = !!input.required;
+    sel.dataset.patientSelect = "1";
+    sel.setAttribute("aria-label", "Patient name");
+    sel.innerHTML = '<option value="">Select a name</option>';
+    input.replaceWith(sel);
+  });
+}
+function rememberPatientChoice(sel) {
+  if (!sel || sel.tagName !== "SELECT") return;
+  var opt = sel.options[sel.selectedIndex];
+  sel.dataset.patientId = opt ? (opt.getAttribute("data-id") || "") : "";
+  sel.dataset.patientName = sel.value || "";
+  sel.dataset.email = opt ? (opt.getAttribute("data-email") || "") : "";
+  var mail = sel.dataset.email || "";
+  ["rE", "fileEmail", "pfEmail", "invEmail"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el || !mail) return;
+    if (!el.value || el.dataset.filledFromPatient === "1") {
+      el.value = mail;
+      el.dataset.filledFromPatient = "1";
+    }
+  });
+}
 function fillRegisteredPatientSelects(root) {
+  ensurePatientNameDropdowns(root && root.tagName === "SELECT" ? root.parentNode : root);
   var scope = root && root.tagName === "SELECT" ? null : (root || document);
   var selects = scope ? scope.querySelectorAll("select") : [root];
   Array.prototype.forEach.call(selects, function (sel) {
     if (!needsPatientNames(sel)) return;
     sel.dataset.patientSelect = "1";
     var current = sel.value;
-    var blank = "— Select patient —";
+    var blank = "Select a name";
     var existing = sel.textContent || "";
     if (existing.indexOf("All patients") >= 0) blank = "All patients";
-    else if (existing.indexOf("Choose a patient") >= 0) blank = "— Choose a patient —";
-    else if (existing.indexOf("Loading registered") >= 0) blank = "— Select patient —";
     loadRegisteredPatients().then(function (rows) {
-      var html = (rows || []).map(function (p) {
+      var people = (rows || []).filter(function (p) { return usablePatientName(patientFullName(p)); });
+      people.sort(function (a, b) { return patientFullName(a).localeCompare(patientFullName(b)); });
+      var html = people.map(function (p) {
         var name = patientFullName(p);
-        if (!usablePatientName(name)) return "";
         var mail = patientEmail(p);
         var label = name + (mail ? " · " + mail : "");
-        return '<option value="' + esc(name) + '">' + esc(label) + "</option>";
-      }).filter(Boolean).join("");
+        return '<option value="' + esc(name) + '" data-id="' + esc(p.id || "") + '" data-email="' + esc(mail) + '">' + esc(label) + "</option>";
+      }).join("");
       if (!html && _regPatientError) {
         sel.innerHTML = '<option value="">' + esc(_regPatientError) + "</option>";
         return;
