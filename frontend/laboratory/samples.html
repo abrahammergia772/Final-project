@@ -28,7 +28,7 @@
   {s1}{s2}{s3}{s4}
 </div>
 <div class="alert alert-info mb-4"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
-  <div class="alert-body"><span class="alert-title">Pipeline:</span> Collected → Received → Processing → Result Ready → Completed &nbsp;·&nbsp; average turnaround <strong>3.4 h</strong></div></div>
+  <div class="alert-body"><span class="alert-title">Pipeline:</span> Collected → Received → Processing → Result Ready → Completed &nbsp;·&nbsp; average turnaround <strong id="tatAvg">—</strong></div></div>
 <div class="flex-between mb-4"><div class="filters" style="display:flex;gap:12px;flex-wrap:wrap">
     <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="form-control" id="smpSearch" placeholder="Search sample ID or patient…"></div>
     <select class="form-control" id="smpStage" style="width:180px"><option value="">All stages</option><option>collected</option><option>received</option><option>processing</option><option>result-ready</option><option>completed</option></select>
@@ -53,7 +53,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -142,6 +142,9 @@ const STAGE_BADGE = { collected:["neutral","Collected"], received:["info","Recei
 function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.SAMPLES).then(r => {
     if (!r.ok) return; SMPS = r.data.items; renderSmps();
+    const tats = (SMPS || []).map(function (row) { return Number(row.tat); }).filter(function (n) { return isFinite(n) && n > 0; });
+    const avg = document.getElementById("tatAvg");
+    if (avg) avg.textContent = tats.length ? (Math.round(tats.reduce(function (s, n) { return s + n; }, 0) / tats.length * 10) / 10) + " h" : "not recorded";
     attachDataTable(document.getElementById("smpTable"), {
       searchInput: document.getElementById("smpSearch"), pagerEl: document.getElementById("smpPager"), pageSize: 8,
       filterFn: row => { const s = document.getElementById("smpStage").value; return !s || row.cells[5].textContent.includes(s); }
@@ -185,7 +188,7 @@ function advance(id) {
 function regModal() {
   openModal({
     title: "Register Sample",
-    body: `<div class="form-group"><label>Patient</label><input class="form-control" id="smPat" list="smPats"><datalist id="smPats">${["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Ruth Gebre","Yohannes Mamo","Mahlet Shiferaw"].map(n => `<option value="${n}">`).join("")}</datalist></div>
+    body: `<div class="form-group"><label>Patient</label><input class="form-control" id="smPat" list="smPats"><datalist id="smPats">${[].map(n => `<option value="${n}">`).join("")}</datalist></div>
       <div class="form-row">
         <div class="form-group"><label>Test</label><select class="form-control" id="smTest"><option>Complete Blood Count</option><option>Fasting Blood Sugar</option><option>Lipid Profile</option><option>Kidney Function</option><option>Liver Function</option><option>Thyroid Panel</option><option>Malaria Test</option><option>Urinalysis</option></select></div>
         <div class="form-group"><label>Sample Type</label><select class="form-control" id="smType"><option>Whole blood</option><option>Serum</option><option>Plasma</option><option>Urine</option><option>Swab</option><option>Sputum</option></select></div>

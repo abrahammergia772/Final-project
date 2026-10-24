@@ -306,7 +306,7 @@ function openAppointmentEditor(opts) {
     body: `<div class="alert alert-info mb-3"><div class="alert-body">Current: <strong>${esc(row.patient || "")}</strong> · ${esc(row.date || "")} ${esc(row.time || "")} · ${esc(row.doctor || "")}</div></div>
       ${mode === "reschedule" ? `<div class="form-group"><label>Reschedule to other appointment</label><select class="form-control" id="apptMove">${otherOptions}</select><div class="text-sm" id="apptMoveNote" style="margin-top:6px;color:#6B7280">Choose another appointment to take its date, time, and doctor, or set a new slot below.</div></div>` : ""}
       ${mode === "edit" && opts.canEditPatient !== false ? `<div class="form-group"><label>Patient <span class="req">*</span></label><input class="form-control" id="apptPatient" value="${esc(row.patient || "")}"></div>` : ""}
-      <div class="form-group"><label>Doctor</label><select class="form-control" id="apptDoctor">${optionList(doctors, row.doctor || doctors[0])}</select></div>
+      <div class="form-group"><label>Doctor</label><select class="form-control" id="apptDoctor"><option value="">Loading saved doctors…</option></select></div>
       <div class="form-row">
         <div class="form-group"><label>Date</label><input class="form-control" type="date" id="apptDate" value="${esc(row.date || "")}"></div>
         <div class="form-group"><label>Time</label><input class="form-control" type="time" id="apptTime" value="${esc(apptTimeValue(row.time))}"></div>
@@ -321,11 +321,19 @@ function openAppointmentEditor(opts) {
     ov.querySelector("[data-c]").onclick = () => ov.remove();
     loadDoctorList().then(function (result) {
       const select = ov.querySelector("#apptDoctor");
-      if (!select || !result.ok || !result.items.length) return;
-      const names = result.items.map(function (doctor) { return doctor.name; });
-      const current = select.value;
-      if (current && names.indexOf(current) < 0) names.unshift(current);
-      select.innerHTML = optionList(names, current || names[0]);
+      if (!select) return;
+      const saved = row.doctor || "";
+      if (!result.ok) {
+        select.innerHTML = saved ? optionList([saved], saved) : '<option value="">The doctor list could not be loaded</option>';
+        return;
+      }
+      const names = result.items.map(function (doctor) { return doctor.name; }).filter(Boolean);
+      if (saved && names.indexOf(saved) < 0) names.unshift(saved);
+      if (!names.length) {
+        select.innerHTML = '<option value="">No doctor is registered</option>';
+        return;
+      }
+      select.innerHTML = optionList(names, saved || names[0]);
     });
     const move = ov.querySelector("#apptMove");
     if (move) move.addEventListener("change", () => {
@@ -1466,6 +1474,7 @@ function initPatientSuggest() {
   window.addEventListener("scroll", function () {
     if (_suggestInput && _suggestEl && !_suggestEl.hidden) placePatientSuggest(_suggestInput);
   }, true);
+  fillRegisteredPatientSelects(document);
 }
 function needsPatientNames(sel) {
   if (!sel || sel.tagName !== "SELECT") return false;

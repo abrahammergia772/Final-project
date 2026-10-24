@@ -45,7 +45,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -175,7 +175,7 @@ function updatePlan(id) {
 function newPlan() {
   openModal({
     title: "New Care Plan",
-    body: `<div class="form-group"><label>Patient</label><input class="form-control" list="cpPats" placeholder="Search…"><datalist id="cpPats">${["Selam Tadesse","Yohannes Mamo","Ruth Gebre","Biruk Ayele"].map(n=>`<option value="${n}">`).join("")}</datalist></div>
+    body: `<div class="form-group"><label>Patient</label><input class="form-control" list="cpPats" placeholder="Search…"><datalist id="cpPats">${[].map(n=>`<option value="${n}">`).join("")}</datalist></div>
       <div class="form-group"><label>Plan Title</label><input class="form-control" placeholder="e.g. Post-op recovery"></div>
       <div class="form-group"><label>Steps (one per line)</label><textarea class="form-control" rows="4" placeholder="Daily wound care&#10;Physiotherapy 20 min&#10;Pain assessment q4h"></textarea></div>`,
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="saveNew">Create Plan</button>`

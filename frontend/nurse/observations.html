@@ -32,10 +32,10 @@
       <input type="range" min="0" max="10" value="3" id="painScore">
       <div class="flex-between text-sm text-gray" style="color:#6B7280"><span>No pain</span><span>Worst pain</span></div></div>
     <div class="form-row">
-      <div class="form-group"><label>Intake (ml)</label><input class="form-control" type="number" id="obIn" value="200"></div>
-      <div class="form-group"><label>Output (ml)</label><input class="form-control" type="number" id="obOut" value="150"></div>
+      <div class="form-group"><label>Intake (ml)</label><input class="form-control" type="number" id="obIn" value=""></div>
+      <div class="form-group"><label>Output (ml)</label><input class="form-control" type="number" id="obOut" value=""></div>
     </div>
-    <div class="form-group"><label>Temperature (°C)</label><input class="form-control" type="number" step="0.1" id="obTemp" value="36.9"></div>
+    <div class="form-group"><label>Temperature (°C)</label><input class="form-control" type="number" step="0.1" id="obTemp" value=""></div>
     <div class="form-group"><label>Notes</label><textarea class="form-control" rows="3" id="obNotes" placeholder="e.g. Alert and oriented, ambulating with assistance…"></textarea></div>
     <button class="btn btn-primary btn-block" id="btnSaveOb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg> Save Observation</button>
   </section>
@@ -65,7 +65,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -148,18 +148,17 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("nurse"); initLayout(); loadPageData();
 });
-let OBS = [
-  { id:"O-1", time:"06:00", patient:"Selam Tadesse", pain: 3, intake: 300, output: 220, temp: 36.8, nurse: "Marta Tesfaye", notes: "Resting comfortably" },
-  { id:"O-2", time:"08:00", patient:"Selam Tadesse", pain: 4, intake: 200, output: 180, temp: 37.0, nurse: "Marta Tesfaye", notes: "Pain after repositioning" },
-  { id:"O-3", time:"08:30", patient:"Biruk Ayele", pain: 2, intake: 250, output: 150, temp: 36.7, nurse: "Bethelehem Girma", notes: "Tolerating oral fluids" },
-  { id:"O-4", time:"09:00", patient:"Ruth Gebre", pain: 5, intake: 150, output: 90, temp: 36.9, nurse: "Marta Tesfaye", notes: "Reduced urine output, monitor" },
-  { id:"O-5", time:"09:30", patient:"Yohannes Mamo", pain: 1, intake: 400, output: 350, temp: 37.1, nurse: "Bethelehem Girma", notes: "Good oral intake" }
-];
+let OBS = [];
 function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.PATIENTS).then(r => {
     if (!r.ok) return;
     document.getElementById("obPatient").innerHTML = '<option value="">— Select patient —</option>' +
-      r.data.items.map(p => `<option value="${p.id}">${esc(p.id)} — ${esc(p.first_name + " " + p.last_name)}</option>`).join("");
+      (r.data.items || []).map(p => `<option value="${esc(p.id)}">${esc(p.id)} — ${esc(p.first_name + " " + p.last_name)}</option>`).join("");
+  });
+  apiFetch(CONFIG.ENDPOINTS.OBSERVATIONS).then(r => {
+    OBS = (r.ok && r.data && r.data.items) || [];
+    if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.OBSERVATIONS, OBS);
+    renderObs();
   });
   document.getElementById("painScore").addEventListener("input", e => {
     const v = e.target.value;
@@ -167,13 +166,15 @@ function loadPageData() {
     document.getElementById("painVal").style.color = v >= 7 ? "var(--danger)" : v >= 4 ? "var(--warning)" : "var(--primary)";
   });
   document.getElementById("btnSaveOb").addEventListener("click", saveObs);
-  renderObs();
 }
 function saveObs() {
   if (!document.getElementById("obPatient").value) { showToast("Select a patient first","error"); return; }
   const pain = +document.getElementById("painScore").value;
   const t = new Date().toTimeString().slice(0, 5);
-  (function(){var _row={ id: uid("O"), time: t, patient: "Recorded", pain, intake: +document.getElementById("obIn").value || 0, output: +document.getElementById("obOut").value || 0, temp: +document.getElementById("obTemp").value || 36.5, nurse: getUserName(), notes: document.getElementById("obNotes").value.trim() };OBS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.OBSERVATIONS,_row);return _row;})();
+  const sel = document.getElementById("obPatient");
+  const label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : "";
+  const patient = label.split("—").slice(1).join("—").trim() || label;
+  (function(){var _row={ id: uid("O"), time: t, patient: patient, pain, intake: +document.getElementById("obIn").value || 0, output: +document.getElementById("obOut").value || 0, temp: +document.getElementById("obTemp").value || 0, nurse: getUserName(), notes: document.getElementById("obNotes").value.trim() };OBS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.OBSERVATIONS,_row);return _row;})();
   renderObs();
   showToast("Observation saved — pain " + pain + "/10", "success");
   document.getElementById("obNotes").value = "";
@@ -183,13 +184,13 @@ function renderObs() {
     <td><span class="time-pill">${o.time}</span></td><td><strong>${esc(o.patient)}</strong></td>
     <td><span class="badge badge-${o.pain >= 7 ? "danger" : o.pain >= 4 ? "warning" : "success"}">${o.pain}/10</span></td>
     <td>${o.intake} / ${o.output}</td><td>${o.temp}°C</td><td class="text-sm text-gray" style="color:#6B7280">${esc(o.nurse)}</td></tr>`).join("") : emptyRow(6);
-  const ins = OBS.filter(o => o.patient === "Selam Tadesse").reduce((s, o) => s + o.intake, 0);
-  const outs = OBS.filter(o => o.patient === "Selam Tadesse").reduce((s, o) => s + o.output, 0);
+  const ins = OBS.reduce((s, o) => s + (Number(o.intake) || 0), 0);
+  const outs = OBS.reduce((s, o) => s + (Number(o.output) || 0), 0);
   document.getElementById("obTotalIn").textContent = ins + " ml";
   document.getElementById("obTotalOut").textContent = outs + " ml";
   document.getElementById("obNet").textContent = (ins - outs) + " ml";
-  document.getElementById("obChart").innerHTML = lineChart(
-    OBS.map(o => ({ label: o.time, value: o.intake - o.output })), { height: 180, color: "#0891B2", valueFmt: v => v + "ml" });
+  document.getElementById("obChart").innerHTML = OBS.length ? lineChart(
+    OBS.map(o => ({ label: o.time || "", value: (Number(o.intake) || 0) - (Number(o.output) || 0) })), { height: 180, color: "#0891B2", valueFmt: v => v + "ml" }) : '<p class="text-sm" style="color:var(--dark)">No saved observations yet.</p>';
 }
 
 </script>

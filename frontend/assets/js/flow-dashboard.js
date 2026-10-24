@@ -45,11 +45,7 @@
         { val: "47", label: "Patients today", delta: "↑ 12% vs yesterday", up: true },
         { val: "18m", label: "Avg wait time", delta: "↑ 4m vs yesterday", up: false }
       ],
-      timeline: [
-        { kind: "ai", title: "AI flagged high-risk", text: "Abebe Bekele · BP 160/95 · flagged for review", chip: "Urgent", chipCls: "urgent", time: "2m ago" },
-        { kind: "ok", title: "Lab result ready", text: "Tigist Alemu · CBC complete", chip: "Normal", chipCls: "normal", time: "8m ago" },
-        { kind: "warn", title: "Appointment no-show", text: "Dawit Haile · 09:30 slot missed", chip: "Follow up", chipCls: "ai", time: "14m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Clinical decision", pct: 91, runs: 34, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "clinical-decision.html" },
         { name: "Lab analyzer", pct: 88, runs: 21, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "flask", prompt: "Show Lab analyzer details", href: "ai-diagnosis.html" },
@@ -77,11 +73,7 @@
         { val: "18", label: "Assigned patients", delta: "↑ 2 today", up: true },
         { val: "4", label: "Meds due", delta: "Needs this hour", up: false }
       ],
-      timeline: [
-        { kind: "alert", title: "Vitals overdue", text: "Bed 12 · BP not recorded this hour", chip: "Urgent", chipCls: "urgent", time: "3m ago" },
-        { kind: "ok", title: "Medication given", text: "Hana Tadesse · morning dose recorded", chip: "Done", chipCls: "normal", time: "11m ago" },
-        { kind: "ai", title: "AI vitals check", text: "Rising pulse flagged on ward B", chip: "Review", chipCls: "ai", time: "19m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Vitals alert", pct: 84, runs: 18, color: "#E24B4A", bg: "#FCEBEB", ink: "#A32D2D", icon: "heart", prompt: "Show Vitals alert details", href: "vitals.html" },
         { name: "Clinical decision", pct: 91, runs: 12, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "vitals.html" }
@@ -108,11 +100,7 @@
         { val: "26", label: "Orders today", delta: "↑ 5 vs yesterday", up: true },
         { val: "2", label: "Low-stock items", delta: "Needs reorder", up: false }
       ],
-      timeline: [
-        { kind: "warn", title: "Interaction warning", text: "Warfarin + ibuprofen held for review", chip: "Review", chipCls: "urgent", time: "4m ago" },
-        { kind: "ok", title: "Prescription dispensed", text: "Amoxicillin 500mg · counter 2", chip: "Done", chipCls: "normal", time: "9m ago" },
-        { kind: "ai", title: "Inventory forecast", text: "Paracetamol may run low this week", chip: "AI", chipCls: "ai", time: "22m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Drug interaction", pct: 96, runs: 15, color: "#BA7517", bg: "#FAEEDA", ink: "#633806", icon: "pill", prompt: "Show Drug interaction details", href: "ai-interaction.html" },
         { name: "Inventory forecast", pct: 79, runs: 9, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "box", prompt: "Show Inventory forecast details", href: "inventory.html" }
@@ -139,11 +127,7 @@
         { val: "33", label: "Arrivals today", delta: "↑ 6 vs yesterday", up: true },
         { val: "2", label: "No-shows", delta: "Follow up needed", up: false }
       ],
-      timeline: [
-        { kind: "ok", title: "Patient registered", text: "New invoice opened at the front desk", chip: "Done", chipCls: "normal", time: "1m ago" },
-        { kind: "warn", title: "Queue waiting", text: "9 people still in the morning queue", chip: "Queue", chipCls: "urgent", time: "6m ago" },
-        { kind: "ai", title: "No-show prediction", text: "Two afternoon slots look at risk", chip: "AI", chipCls: "ai", time: "18m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Appointment AI", pct: 86, runs: 27, color: "#185FA5", bg: "#E6F1FB", ink: "#0C447C", icon: "cal", prompt: "Show Appointment AI details", href: "appointments.html" },
         { name: "Symptom chatbot", pct: 90, runs: 11, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Symptom chatbot details", href: "queue.html" }
@@ -170,11 +154,7 @@
         { val: "42", label: "Staff accounts", delta: "All roles active", up: true },
         { val: "1", label: "Audit flags", delta: "Needs review", up: false }
       ],
-      timeline: [
-        { kind: "warn", title: "Shift gap", text: "Evening pharmacy cover is still open", chip: "Shift", chipCls: "urgent", time: "5m ago" },
-        { kind: "ok", title: "User approved", text: "New nurse account is active", chip: "Done", chipCls: "normal", time: "16m ago" },
-        { kind: "ai", title: "Module health", text: "All seven AI modules responded", chip: "AI", chipCls: "ai", time: "28m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Clinical decision", pct: 91, runs: 34, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "ai-config.html" },
         { name: "Drug interaction", pct: 96, runs: 15, color: "#BA7517", bg: "#FAEEDA", ink: "#633806", icon: "pill", prompt: "Show Drug interaction details", href: "ai-config.html" },
@@ -203,11 +183,7 @@
         { val: "ETB 48k", label: "Collections today", delta: "↑ 8% vs yesterday", up: true },
         { val: "2", label: "Open complaints", delta: "Waiting on reply", up: false }
       ],
-      timeline: [
-        { kind: "warn", title: "Complaint opened", text: "Waiting time at reception · ticket 214", chip: "Open", chipCls: "urgent", time: "7m ago" },
-        { kind: "ok", title: "Morning report", text: "Department summary is ready", chip: "Done", chipCls: "normal", time: "20m ago" },
-        { kind: "ai", title: "Appointment forecast", text: "Afternoon clinic may run over", chip: "AI", chipCls: "ai", time: "31m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Appointment AI", pct: 86, runs: 27, color: "#185FA5", bg: "#E6F1FB", ink: "#0C447C", icon: "cal", prompt: "Show Appointment AI details", href: "reports.html" },
         { name: "Inventory forecast", pct: 79, runs: 9, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "box", prompt: "Show Inventory forecast details", href: "finance.html" }
@@ -234,11 +210,7 @@
         { val: "30", label: "Samples today", delta: "↑ 4 vs yesterday", up: true },
         { val: "42m", label: "Avg turnaround", delta: "↑ 6m vs yesterday", up: false }
       ],
-      timeline: [
-        { kind: "ok", title: "CBC delivered", text: "Tigist Alemu · result sent to the doctor", chip: "Done", chipCls: "normal", time: "8m ago" },
-        { kind: "ai", title: "Lab analyzer", text: "Abnormal range suggested on sample 118", chip: "Review", chipCls: "ai", time: "12m ago" },
-        { kind: "warn", title: "Sample waiting", text: "4 results still need a sign-off", chip: "Pending", chipCls: "urgent", time: "17m ago" }
-      ],
+      timeline: [],
       ai: [
         { name: "Lab analyzer", pct: 88, runs: 21, color: "#1D9E75", bg: "#E1F5EE", ink: "#085041", icon: "flask", prompt: "Show Lab analyzer details", href: "ai-analyzer.html" },
         { name: "Clinical decision", pct: 91, runs: 6, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Clinical decision details", href: "test-requests.html" }
@@ -265,11 +237,7 @@
         { val: "1", label: "Upcoming visit", delta: "This morning", up: true },
         { val: "1", label: "Open result", delta: "Ready to view", up: true }
       ],
-      timeline: [
-        { kind: "ok", title: "Lab result ready", text: "Your latest result is available to view", chip: "Ready", chipCls: "normal", time: "8m ago" },
-        { kind: "ai", title: "Symptom chatbot", text: "A suggestion is waiting if you want it", chip: "AI", chipCls: "ai", time: "1h ago" },
-        { kind: "warn", title: "Bill open", text: "One invoice is still unpaid", chip: "Bill", chipCls: "urgent", time: "Yesterday" }
-      ],
+      timeline: [],
       ai: [
         { name: "Symptom chatbot", pct: 90, runs: 4, color: "#7F77DD", bg: "#EEEDFE", ink: "#3C3489", icon: "spark", prompt: "Show Symptom chatbot details", href: "ai-chatbot.html" },
         { name: "Appointment AI", pct: 86, runs: 2, color: "#185FA5", bg: "#E6F1FB", ink: "#0C447C", icon: "cal", prompt: "Show Appointment AI details", href: "appointments.html" }
@@ -436,6 +404,283 @@
     return day;
   }
 
+
+  function todayIso() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function rowsOf(res) {
+    var data = res && res.data;
+    var items = data && (data.items || data);
+    return Array.isArray(items) ? items : [];
+  }
+  function canRead(path) {
+    if (!path) return false;
+    if (typeof endpointAllowed === "function" && !endpointAllowed(path)) return false;
+    return typeof apiFetch === "function";
+  }
+  function getList(name) {
+    var map = (window.CONFIG && CONFIG.ENDPOINTS) || {};
+    var path = map[name] || "";
+    if (!canRead(path)) return Promise.resolve([]);
+    return apiFetch(path, "GET", null, { quiet: true }).then(rowsOf, function () { return []; });
+  }
+  function sameDay(value) { return String(value || "").slice(0, 10) === todayIso(); }
+  function statusOf(row) { return String((row && (row.status || row.stage)) || "").toLowerCase(); }
+  function countWhere(rows, test) { return (rows || []).filter(test).length; }
+  function setFlowCount(root, name, n) {
+    var nodes = root.querySelectorAll(".flow-node");
+    Array.prototype.forEach.call(nodes, function (node) {
+      var label = node.querySelector(".flow-name");
+      if (!label || label.textContent !== name) return;
+      var dot = node.querySelector(".flow-dot");
+      if (dot) dot.textContent = String(n);
+      node.setAttribute("data-answer", n + " saved records are in " + name + ".");
+      node.classList.remove("done", "active", "wait", "urgent");
+      node.classList.add(n ? "active" : "done");
+    });
+  }
+  function setStat(root, index, val, delta) {
+    var tile = root.querySelectorAll(".stat-tile")[index];
+    if (!tile) return;
+    var value = tile.querySelector(".stat-val");
+    var note = tile.querySelector(".stat-delta");
+    var label = tile.querySelector(".stat-lbl");
+    if (value) value.textContent = val;
+    if (note) {
+      note.removeAttribute("data-i18n");
+      note.textContent = delta;
+      note.classList.remove("up", "dn");
+    }
+    tile.setAttribute("data-answer", (label ? label.textContent : "This") + " is " + val + ". " + delta + ".");
+  }
+  function paintTimeline(root, rows) {
+    var feed = root.querySelector(".timeline");
+    if (!feed) return;
+    if (!rows.length) {
+      feed.innerHTML = '<div class="tl-item"><div class="tl-dot ok">' + I.ok + '</div><div class="tl-body"><div class="tl-top"><div class="tl-title">No saved activity</div><time class="tl-time">Now</time></div><p class="tl-text">Saved hospital records will appear here.</p></div></div>';
+      return;
+    }
+    feed.innerHTML = rows.slice(0, 4).map(function (item) {
+      var kind = item.kind === "warn" ? "warn" : "ok";
+      return '<button type="button" class="tl-item" data-prompt="Show ' + esc(item.title) + '" data-answer="' + esc(item.title + ". " + item.text) + '" data-href="' + esc(item.href || "") + '"><div class="tl-dot ' + kind + '">' + (kind === "warn" ? I.warn : I.ok) + '</div><div class="tl-body"><div class="tl-top"><div class="tl-title">' + esc(item.title) + '</div><time class="tl-time">' + esc(item.time || "Saved") + '</time></div><p class="tl-text">' + esc(item.text) + "</p></div></button>";
+    }).join("");
+  }
+  function stamp(row) {
+    return String(row.date || row.ts || row.time || row.arrived || row.publish_date || "Saved").replace("T", " ").slice(0, 16);
+  }
+  function applyHealth(root, health) {
+    var models = (health && health.models) || {};
+    var map = {
+      "Clinical decision": !!models.clinical,
+      "Lab analyzer": !!models.lab,
+      "Vitals alert": !!models.vitals,
+      "Drug interaction": !!models.drug,
+      "Inventory forecast": !!models.inventory,
+      "Appointment AI": !!(health && health.groq),
+      "Symptom chatbot": !!(health && health.groq)
+    };
+    Array.prototype.forEach.call(root.querySelectorAll(".ai-card"), function (card) {
+      var nameEl = card.querySelector(".ai-name");
+      if (!nameEl || !Object.prototype.hasOwnProperty.call(map, nameEl.textContent)) return;
+      var on = map[nameEl.textContent];
+      var pct = card.querySelector(".ai-pct");
+      var runs = card.querySelector(".ai-runs");
+      var bar = card.querySelector(".ai-bar-fill");
+      if (pct) pct.textContent = on ? "On" : "Off";
+      if (runs) runs.textContent = on ? "Loaded" : "Not loaded";
+      if (bar) bar.style.width = on ? "100%" : "0%";
+      card.setAttribute("data-answer", nameEl.textContent + (on ? " is loaded." : " is not loaded."));
+    });
+  }
+  function setShift(root, counts) {
+    var keys = ["Doctors", "Nurses", "Pharm", "Off"];
+    var segs = root.querySelectorAll(".shift-track .seg");
+    var legend = root.querySelectorAll(".shift-legend span");
+    keys.forEach(function (key, i) {
+      var n = counts[key] || 0;
+      if (segs[i]) {
+        segs[i].textContent = n + " " + key;
+        segs[i].setAttribute("data-answer", n + " saved " + key + " accounts. This is the staff list, not a timed attendance roster.");
+      }
+      if (legend[i]) {
+        var mark = legend[i].querySelector("i");
+        var cls = mark ? mark.className : "";
+        legend[i].innerHTML = '<i class="' + cls + '"></i>' + n + " " + key;
+      }
+    });
+  }
+  function refreshLive(root, role) {
+    var jobs = {
+      doctor: function () {
+        return Promise.all([getList("APPOINTMENTS"), getList("LAB_REQUESTS"), getList("LAB_RESULTS"), getList("PATIENTS")]).then(function (all) {
+          var appt = all[0], requests = all[1], results = all[2];
+          var today = appt.filter(function (row) { return sameDay(row.date); });
+          var open = appt.filter(function (row) { return !/cancel|complete|attended|discharg/i.test(statusOf(row)); });
+          var consult = appt.filter(function (row) { return /consult|in-service|in service/i.test(statusOf(row)); });
+          var urgent = appt.filter(function (row) { return /urgent|emergency/i.test(statusOf(row) + " " + (row.priority || "")); });
+          var done = appt.filter(function (row) { return /complete|attended|discharg/i.test(statusOf(row)) && sameDay(row.date); });
+          var labOpen = requests.filter(function (row) { return !/complete|result|deliver/i.test(statusOf(row)); });
+          setFlowCount(root, "Triage", 0);
+          setFlowCount(root, "Waiting", open.length);
+          setFlowCount(root, "In consult", consult.length);
+          setFlowCount(root, "Urgent", urgent.length);
+          setFlowCount(root, "Lab", labOpen.length);
+          setFlowCount(root, "Discharged", done.length);
+          setStat(root, 0, String(today.length), "Saved appointments today");
+          setStat(root, 1, "—", "Wait time is not recorded");
+          paintTimeline(root, today.concat(results).slice(0, 4).map(function (row) {
+            return { title: row.test || row.type || "Saved visit", text: [row.patient, row.doctor, row.status || row.time].filter(Boolean).join(" · "), time: stamp(row), href: row.test ? "patients.html" : "appointments.html" };
+          }));
+        });
+      },
+      nurse: function () {
+        return Promise.all([getList("VITALS"), getList("OBSERVATIONS"), getList("MEDICATIONS"), getList("PATIENTS"), getList("MESSAGES")]).then(function (all) {
+          var vitals = all[0], obs = all[1], meds = all[2], patients = all[3], messages = all[4];
+          var due = meds.filter(function (row) { return /pending|due/i.test(statusOf(row)); });
+          var notes = messages.filter(function (row) { return /handover/i.test(row.subject || ""); });
+          setFlowCount(root, "Vitals", vitals.length);
+          setFlowCount(root, "Observations", obs.length);
+          setFlowCount(root, "Meds due", due.length);
+          setFlowCount(root, "Handover", notes.length);
+          setStat(root, 0, String(patients.length), "Saved patients");
+          setStat(root, 1, String(due.length), due.length ? "Marked pending" : "None marked pending");
+          var rows = due.slice(0, 2).map(function (row) {
+            return { title: "Medication pending", text: [row.patient, row.drug, row.dose, row.due].filter(Boolean).join(" · "), time: row.due || "Saved", href: "medications.html", kind: "warn" };
+          }).concat(obs.slice(0, 2).map(function (row) {
+            return { title: "Observation saved", text: [row.patient, row.notes].filter(Boolean).join(" · "), time: row.time || "Saved", href: "observations.html" };
+          }));
+          paintTimeline(root, rows);
+        });
+      },
+      pharmacist: function () {
+        return Promise.all([getList("PRESCRIPTIONS"), getList("INVENTORY")]).then(function (all) {
+          var rx = all[0], stock = all[1];
+          var open = rx.filter(function (row) { return !/dispens|complete|cancel/i.test(statusOf(row)); });
+          var done = rx.filter(function (row) { return /dispens/i.test(statusOf(row)); });
+          var low = stock.filter(function (row) { return /low|out/i.test(statusOf(row)); });
+          setFlowCount(root, "Orders", open.length);
+          setFlowCount(root, "Review", 0);
+          setFlowCount(root, "Dispensed", done.length);
+          setFlowCount(root, "Stock alert", low.length);
+          setStat(root, 0, String(rx.filter(function (row) { return sameDay(row.date); }).length), "Saved prescriptions today");
+          setStat(root, 1, String(low.length), low.length ? "Marked low or out" : "No low-stock mark");
+          paintTimeline(root, low.slice(0, 3).map(function (row) {
+            return { title: row.name || "Stock item", text: [row.status, row.stock, row.unit].filter(function (part) { return part !== undefined && part !== ""; }).join(" · "), time: "Saved", href: "inventory.html", kind: "warn" };
+          }));
+        });
+      },
+      reception: function () {
+        return Promise.all([getList("QUEUE"), getList("APPOINTMENTS"), getList("PATIENTS"), getList("REFERRALS")]).then(function (all) {
+          var queue = all[0], appt = all[1], patients = all[2], referrals = all[3];
+          var waiting = countWhere(queue, function (row) { return statusOf(row) === "waiting"; });
+          var serving = countWhere(queue, function (row) { return statusOf(row) === "in-service"; });
+          var today = appt.filter(function (row) { return sameDay(row.date); });
+          var missed = today.filter(function (row) { return /no-?show|missed/i.test(statusOf(row)); });
+          setFlowCount(root, "Walk-in", waiting + serving);
+          setFlowCount(root, "Queue", waiting);
+          setFlowCount(root, "Registered", patients.length);
+          setFlowCount(root, "Referred", referrals.length);
+          setStat(root, 0, String(today.length), "Saved appointments today");
+          setStat(root, 1, String(missed.length), missed.length ? "Marked no-show" : "No saved no-show today");
+          paintTimeline(root, queue.slice(0, 4).map(function (row) {
+            return { title: row.status === "in-service" ? "Now serving" : "Queue", text: [row.name, row.dept, row.status].filter(Boolean).join(" · "), time: row.arrived || "Saved", href: "queue.html", kind: row.status === "held" ? "warn" : "ok" };
+          }));
+        });
+      },
+      admin: function () {
+        return Promise.all([getList("USERS"), getList("SHIFTS"), getList("ANNOUNCEMENTS"), getList("AUDIT_LOGS")]).then(function (all) {
+          var users = all[0], shifts = all[1], notes = all[2], logs = all[3];
+          setFlowCount(root, "Users", users.length);
+          setFlowCount(root, "Shifts", shifts.length);
+          setFlowCount(root, "Notices", notes.length);
+          setFlowCount(root, "Audit", logs.length);
+          setStat(root, 0, String(users.length), "Saved accounts");
+          setStat(root, 1, String(logs.length), logs.length ? "Saved audit rows" : "No saved audit rows");
+          paintTimeline(root, logs.slice(0, 4).map(function (row) {
+            return { title: row.action || "Audit", text: [row.user, row.detail].filter(Boolean).join(" · "), time: stamp(row), href: "audit-logs.html", kind: /fail|deny/i.test(row.status || "") ? "warn" : "ok" };
+          }));
+        });
+      },
+      manager: function () {
+        return Promise.all([getList("DEPARTMENTS"), getList("BILLS"), getList("COMPLAINTS"), getList("FINANCE")]).then(function (all) {
+          var depts = all[0], bills = all[1], complaints = all[2], finance = all[3];
+          var open = complaints.filter(function (row) { return !/resolv|clos/i.test(statusOf(row)); });
+          var paid = bills.filter(function (row) { return /paid|settled/i.test(statusOf(row)) && sameDay(row.date); });
+          var sum = paid.reduce(function (total, row) { return total + (Number(row.paid || row.amount) || 0); }, 0);
+          setFlowCount(root, "Departments", depts.length);
+          setFlowCount(root, "Finance", bills.length + finance.length);
+          setFlowCount(root, "Complaints", open.length);
+          setFlowCount(root, "Reports", finance.length);
+          setStat(root, 0, "ETB " + Math.round(sum).toLocaleString("en-US"), paid.length ? "Paid bills saved today" : "No paid bill saved today");
+          setStat(root, 1, String(open.length), open.length ? "Still open" : "No open complaint");
+          paintTimeline(root, open.slice(0, 4).map(function (row) {
+            return { title: row.subject || "Complaint", text: [row.reporter, row.status].filter(Boolean).join(" · "), time: stamp(row), href: "complaints.html", kind: "warn" };
+          }));
+        });
+      },
+      laboratory: function () {
+        return Promise.all([getList("SAMPLES"), getList("LAB_RESULTS")]).then(function (all) {
+          var samples = all[0], results = all[1];
+          function stage(name) { return countWhere(samples, function (row) { return statusOf(row) === name; }); }
+          var tats = samples.map(function (row) { return Number(row.tat); }).filter(function (n) { return isFinite(n) && n > 0; });
+          var avg = tats.length ? Math.round(tats.reduce(function (s, n) { return s + n; }, 0) / tats.length) : null;
+          setFlowCount(root, "Received", stage("received") + stage("collected"));
+          setFlowCount(root, "Processing", stage("processing"));
+          setFlowCount(root, "Result", stage("result-ready") + results.filter(function (row) { return !/complete|deliver/i.test(statusOf(row)); }).length);
+          setFlowCount(root, "Delivered", stage("completed") + countWhere(results, function (row) { return /complete|deliver/i.test(statusOf(row)); }));
+          setStat(root, 0, String(samples.filter(function (row) { return sameDay(row.collected || row.date); }).length), "Samples dated today");
+          setStat(root, 1, avg == null ? "—" : String(avg), avg == null ? "Turnaround is not recorded" : "Average of saved turnaround values");
+          paintTimeline(root, samples.slice(0, 4).map(function (row) {
+            return { title: row.test || "Sample", text: [row.patient, row.stage].filter(Boolean).join(" · "), time: row.collected || "Saved", href: "samples.html" };
+          }));
+        });
+      },
+      patient: function () {
+        return Promise.all([getList("APPOINTMENTS"), getList("PRESCRIPTIONS"), getList("LAB_RESULTS"), getList("BILLS")]).then(function (all) {
+          var appt = all[0], rx = all[1], labs = all[2], bills = all[3];
+          var upcoming = appt.filter(function (row) { return !/cancel|complete|attended/i.test(statusOf(row)); });
+          var unpaid = bills.filter(function (row) { return !/paid|settled/i.test(statusOf(row)); });
+          setFlowCount(root, "Appointment", upcoming.length);
+          setFlowCount(root, "Consult", countWhere(appt, function (row) { return /consult/i.test(statusOf(row)); }));
+          setFlowCount(root, "Lab", labs.length);
+          setFlowCount(root, "Prescription", rx.length);
+          setStat(root, 0, String(upcoming.length), upcoming.length ? "Saved upcoming visits" : "No upcoming visit saved");
+          setStat(root, 1, String(labs.length), labs.length ? "Saved lab results" : "No lab result saved");
+          var rows = upcoming.slice(0, 2).map(function (row) {
+            return { title: row.type || "Appointment", text: [row.date, row.time, row.doctor, row.dept].filter(Boolean).join(" · "), time: stamp(row), href: "appointments.html" };
+          }).concat(unpaid.slice(0, 2).map(function (row) {
+            return { title: "Bill open", text: [row.service || row.description, row.amount].filter(Boolean).join(" · "), time: stamp(row), href: "bills.html", kind: "warn" };
+          }));
+          paintTimeline(root, rows);
+        });
+      }
+    };
+    var run = jobs[role];
+    if (run) run();
+    if (role !== "patient") {
+      getList("STAFF").then(function (staff) {
+        var counts = { Doctors: 0, Nurses: 0, Pharm: 0, Off: 0 };
+        (staff || []).forEach(function (row) {
+          var name = String(row.role || "").toLowerCase();
+          var off = /off|leave|inactive/i.test(String(row.status || "") + " " + String(row.shift || ""));
+          if (off) counts.Off += 1;
+          else if (name.indexOf("doctor") >= 0) counts.Doctors += 1;
+          else if (name.indexOf("nurse") >= 0) counts.Nurses += 1;
+          else if (name.indexOf("pharm") >= 0) counts.Pharm += 1;
+        });
+        setShift(root, counts);
+      });
+    }
+    if (window.CONFIG && CONFIG.API_BASE_URL) {
+      fetch(CONFIG.API_BASE_URL + "/health", { cache: "no-store" }).then(function (res) {
+        return res.json();
+      }).then(function (health) {
+        applyHealth(root, health);
+      }).catch(function () {});
+    }
+  }
+
   function mount(root) {
     if (!root) return;
     var role = root.getAttribute("data-flow-role") || "doctor";
@@ -457,40 +702,31 @@
       laboratory: "results.html", patient: "records.html"
     }[role] || "dashboard.html";
     var flow = cfg.flow.map(function (item) {
-      var badge = item.badge ? '<span class="flow-badge">' + item.badge + "</span>" : "";
-      var answer = item.n + " patients are in " + item.name + ".";
-      return '<button type="button" class="flow-node ' + item.cls + '" role="listitem" data-prompt="' + esc(item.prompt) + '" data-answer="' + esc(answer) + '" data-href="' + esc(item.href) + '">' +
-        '<span class="flow-dot">' + item.n + badge + "</span>" +
+      var answer = "Saved records for " + item.name + " are loading.";
+      return '<button type="button" class="flow-node ' + item.cls + '" role="listitem" data-flow-name="' + esc(item.name) + '" data-prompt="' + esc(item.prompt) + '" data-answer="' + esc(answer) + '" data-href="' + esc(item.href) + '">' +
+        '<span class="flow-dot">…</span>' +
         '<span class="flow-name" data-i18n="' + esc(item.name) + '">' + esc(item.name) + "</span></button>";
     }).join("");
     var stats = cfg.stats.map(function (s, i) {
       var href = (statPages[role] || [])[i] || "dashboard.html";
-      var answer = s.label + " is " + s.val + ". " + s.delta + ".";
-      return '<button type="button" class="stat-tile" data-prompt="Show ' + esc(s.label) + '" data-answer="' + esc(answer) + '" data-href="' + esc(href) + '"><div class="stat-val">' + esc(s.val) + '</div><div class="stat-lbl" data-i18n="' + esc(s.label) + '">' + esc(s.label) +
-        '</div><div class="stat-delta ' + (s.up ? "up" : "dn") + '" data-i18n="' + esc(s.delta) + '">' + esc(s.delta) + "</div></button>";
+      var answer = s.label + " is loading from saved records.";
+      return '<button type="button" class="stat-tile" data-prompt="Show ' + esc(s.label) + '" data-answer="' + esc(answer) + '" data-href="' + esc(href) + '"><div class="stat-val">…</div><div class="stat-lbl" data-i18n="' + esc(s.label) + '">' + esc(s.label) +
+        '</div><div class="stat-delta">Loading saved records</div></button>';
     }).join("");
-    var timeline = cfg.timeline.map(function (t) {
-      var href = t.href || timePage;
-      var answer = t.title + ". " + t.text;
-      return '<button type="button" class="tl-item" data-prompt="Show ' + esc(t.title) + '" data-answer="' + esc(answer) + '" data-href="' + esc(href) + '"><div class="tl-dot ' + t.kind + '">' + (I[t.kind === "ai" ? "spark" : t.kind === "ok" ? "ok" : "warn"]) +
-        '</div><div class="tl-body"><div class="tl-top"><div class="tl-title" data-i18n="' + esc(t.title) + '">' + esc(t.title) +
-        '</div><time class="tl-time">' + esc(t.time) + '</time></div><p class="tl-text">' + esc(t.text) +
-        '</p><span class="tl-chip ' + t.chipCls + '" data-i18n="' + esc(t.chip) + '">' + esc(t.chip) + "</span></div></button>";
-    }).join("");
+    var timeline = '<div class="tl-item"><div class="tl-dot ok">' + I.ok + '</div><div class="tl-body"><div class="tl-top"><div class="tl-title">Loading saved activity</div><time class="tl-time">Now</time></div><p class="tl-text">Only saved hospital records are shown here.</p></div></div>';
     var segs = SHIFT.map(function (s) {
-      var answer = s.n + " " + s.label + " are on this shift (" + shift.time + ").";
-      return '<button type="button" class="seg ' + s.cls + '" style="flex:' + s.flex + '" data-prompt="Show ' + esc(s.label) + ' shift" data-answer="' + esc(answer) + '" data-href="shifts.html">' + s.n + " " + s.label + "</button>";
+      var answer = "Saved " + s.label + " accounts are loading. This is not a timed attendance roster.";
+      return '<button type="button" class="seg ' + s.cls + '" style="flex:' + s.flex + '" data-prompt="Show ' + esc(s.label) + ' shift" data-answer="' + esc(answer) + '" data-href="shifts.html">… ' + s.label + "</button>";
     }).join("");
     var legend = SHIFT.map(function (s) {
-      return "<span><i class=\"" + s.cls + "\"></i>" + s.n + " " + s.label + "</span>";
+      return "<span><i class=\"" + s.cls + "\"></i>… " + s.label + "</span>";
     }).join("");
     var ai = cfg.ai.map(function (m) {
-      var aiAnswer = m.name + " is at " + m.pct + "% after " + m.runs + " runs.";
+      var aiAnswer = m.name + " is being checked against the loaded model files.";
       return '<button type="button" class="ai-card" role="button" tabindex="0" data-prompt="' + esc(m.prompt) + '" data-answer="' + esc(aiAnswer) + '" data-href="' + esc(m.href) + '">' +
         '<div class="ai-top"><span class="ai-ico" style="background:' + m.bg + ";color:" + m.ink + '">' + I[m.icon] + "</span>" +
-        '<span class="ai-name" data-i18n="' + esc(m.name) + '">' + esc(m.name) + '</span><span class="ai-meta"><span class="ai-pct">' + m.pct +
-        '%</span><div class="ai-runs">' + m.runs + ' runs</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:' +
-        m.pct + "%;background:" + m.color + '"></div></div></button>';
+        '<span class="ai-name" data-i18n="' + esc(m.name) + '">' + esc(m.name) + '</span><span class="ai-meta"><span class="ai-pct">…</span><div class="ai-runs">Checking</div></span></div><div class="ai-bar-track"><div class="ai-bar-fill" style="width:0%;background:' +
+        m.color + '"></div></div></button>';
     }).join("");
     var must = (cfg.must || []).map(function (item) {
       var mustAnswer = "Opening " + item.name + ". " + item.note + ".";
@@ -534,7 +770,7 @@
       '<section class="timeline-section" aria-label="Live activity"><p class="section-label" data-i18n="Live activity">Live activity</p><div class="timeline" role="feed">' + timeline + "</div></section>" +
       shiftCard +
       '<section aria-label="AI module health"><p class="section-label" data-i18n="AI module health">AI module health</p><div class="ai-grid">' + ai + "</div></section></div>";
-
+    refreshLive(root, role);
     }
 
   window.FlowDash = {

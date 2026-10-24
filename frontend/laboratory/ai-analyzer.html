@@ -36,7 +36,7 @@
       <span class="chip" data-type="thyroid">Thyroid</span>
       <span class="chip" data-type="diabetes">Diabetes</span>
     </div>
-    <div class="form-group mt-4"><label>Patient</label><select class="form-control" id="anPatient"><option>Abel Mekonnen (P-1001)</option><option>Hana Wolde (P-1002)</option><option>Selam Tadesse (P-1004)</option><option>Ruth Gebre (P-1006)</option><option>Yohannes Mamo (P-1009)</option></select></div>
+    <div class="form-group mt-4"><label>Patient</label><select class="form-control" id="anPatient" data-patient-select="1"><option value="">Loading registered patients…</option></select></div>
     <h3 class="mb-3">2. Enter Values</h3>
     <div id="labForm"></div>
     <button class="btn btn-primary btn-lg btn-block" id="btnAnalyze"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg> Analyze Results</button>
@@ -55,7 +55,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",

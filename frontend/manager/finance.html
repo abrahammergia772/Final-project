@@ -25,13 +25,13 @@
 <section class="page-body">
 
 <div class="stat-grid">
-  <div class="stat-card "><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-value">ETB 842,500</div><div class="stat-label">Revenue (This Month)</div><div class="stat-trend text-success">↗ +14% vs last month</div></div></div><div class="stat-card color-info"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg></div><div><div class="stat-value">ETB 513,200</div><div class="stat-label">Expenses</div><div class="stat-trend text-success">↗ 5.2% under budget</div></div></div><div class="stat-card color-success"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></div><div><div class="stat-value">ETB 329,300</div><div class="stat-label">Net Profit</div><div class="stat-trend text-success">↗ margin 39%</div></div></div><div class="stat-card color-warning"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><div class="stat-value">ETB 96,400</div><div class="stat-label">Outstanding Receivables</div><div class="stat-trend text-danger">↘ 14 unpaid invoices</div></div></div>
+  <div class="stat-card "><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-value"> <span id="finRev">—</span></div><div class="stat-label">Revenue (This Month)</div><div class="stat-trend" id="finRevNote">From saved bills</div></div></div><div class="stat-card color-info"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg></div><div><div class="stat-value"> <span id="finExp">—</span></div><div class="stat-label">Expenses</div><div class="stat-trend" id="finExpNote">From saved finance rows</div></div></div><div class="stat-card color-success"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></div><div><div class="stat-value"> <span id="finNet">—</span></div><div class="stat-label">Net</div><div class="stat-trend" id="finNetNote">Revenue minus saved expenses</div></div></div><div class="stat-card color-warning"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><div class="stat-value"> <span id="finDue">—</span></div><div class="stat-label">Outstanding Receivables</div><div class="stat-trend" id="finDueNote">Unpaid saved bills</div></div></div>
 </div>
 <div class="panel-grid cols-2">
   <section class="panel"><div class="panel-header"><div><h3>Revenue vs Expenses — 12 Months</h3><div class="sub">Monthly totals in ETB</div></div><button class="btn btn-secondary btn-sm" onclick="exportFinance()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg> CSV</button></div><div class="panel-body"><div class="chart-box" id="finFlowChart"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Revenue by Department (ETB)</h3></div></div><div class="panel-body"><div class="chart-box" id="finDeptChart"></div></div></section>
 </div>
 <div class="panel-grid">
-  <section class="panel"><div class="panel-header"><div><h3>Budget vs Actual by Department</h3><div class="sub">This quarter (ETB thousands)</div></div></div><div class="panel-body"><div class="chart-box" id="finBudgetChart"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Top Revenue Services</h3></div></div><div class="panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>Service</th><th>Units</th><th>Revenue (ETB)</th><th>Share</th></tr></thead><tbody id="finSvcBody"></tbody></table></div></div></section>
+  <section class="panel"><div class="panel-header"><div><h3>Budget vs Actual by Department</h3><div class="sub">Saved finance rows</div></div></div><div class="panel-body"><div class="chart-box" id="finBudgetChart"></div></div></section><section class="panel"><div class="panel-header"><div><h3>Top Revenue Services</h3></div></div><div class="panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>Service</th><th>Units</th><th>Revenue (ETB)</th><th>Share</th></tr></thead><tbody id="finSvcBody"></tbody></table></div></div></section>
 </div>
 
 </section>
@@ -43,7 +43,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -126,47 +126,65 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("manager"); initLayout(); loadPageData();
 });
+function money(n) { return "ETB " + Math.round(Number(n) || 0).toLocaleString("en-US"); }
+let FIN_ROWS = [];
 function loadPageData() {
-  const months = ["Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"];
-  const rev = [0,0,0,0,0,0,0,0,0,0,0,0];
-  const exp = [0,0,0,0,0,0,0,0,0,0,0,0];
-  const flow = months.map((m, i) => ({ label: m, value: rev[i] }));
-  const flow2 = months.map((m, i) => ({ label: m, value: exp[i] }));
-  // two series in one chart → overlay two line charts
-  document.getElementById("finFlowChart").innerHTML =
-    lineChart(flow, { height: 250, color: "#1A6FA8" }) + "<br>" + lineChart(flow2, { height: 250, color: "#DC2626" });
-  const dept = [];
-  document.getElementById("finDeptChart").innerHTML = barChart(dept, { height: 250, color: "#18BF75" });
-  const budget = [
-    {label:"Medicine", value:190, actual: 178}, {label:"Pharmacy", value:130, actual: 122},
-    {label:"Surgery", value:110, actual: 104}, {label:"Maternity", value:95, actual: 91},
-    {label:"Cardiology", value:100, actual: 96}, {label:"Lab", value:70, actual: 63}
-  ];
-  const maxB = Math.max(...budget.map(b => b.value), 1);
-  const pw = 620, ph = 250, pl = 44, pr = 14, pt = 14, pb = 34;
-  const plotW = pw - pl - pr, plotH = ph - pt - pb, step = plotW / budget.length, bw = Math.min(38, step * 0.35);
-  let s = "";
-  for (let i = 0; i <= 4; i++) { const y = pt + (plotH/4)*i; s += `<line x1="${pl}" y1="${y}" x2="${pw-pr}" y2="${y}" stroke="#E5E7EB"/><text x="${pl-8}" y="${y+4}" font-size="11" fill="#6B7280" text-anchor="end">${Math.round(maxB/4*(4-i))}</text>`; }
-  budget.forEach((b, i) => {
-    const x = pl + step*i + (step-bw)/2;
-    const y1 = pt + plotH - (b.value/maxB)*plotH, y2 = pt + plotH - (b.actual/maxB)*plotH;
-    s += `<rect x="${x}" y="${y1}" width="${bw}" height="${(b.value/maxB)*plotH}" rx="4" fill="#1A6FA8" opacity="0.85"/>`;
-    s += `<rect x="${x+bw+2}" y="${y2}" width="${bw}" height="${(b.actual/maxB)*plotH}" rx="4" fill="#18BF75" opacity="0.9"/>`;
-    s += `<text x="${x+bw}" y="${ph-10}" font-size="9" fill="#6B7280" text-anchor="middle">${b.label}</text>`;
+  Promise.all([
+    apiFetch(CONFIG.ENDPOINTS.BILLS),
+    apiFetch(CONFIG.ENDPOINTS.FINANCE)
+  ]).then(function (results) {
+    const bills = (results[0].ok && results[0].data && results[0].data.items) || [];
+    const finance = (results[1].ok && results[1].data && results[1].data.items) || [];
+    FIN_ROWS = bills.map(function (row) { return { month: String(row.date || "").slice(0, 7) || "Saved", kind: "bill", amount: Number(row.amount) || 0, status: row.status || "", service: row.service || row.description || "Bill" }; })
+      .concat(finance.map(function (row) { return { month: String(row.date || "").slice(0, 7) || "Saved", kind: "finance", amount: Number(row.amount) || 0, status: row.status || "", service: row.category || row.description || "Finance" }; }));
+    const paid = bills.filter(function (row) { return /paid|settled/i.test(row.status || ""); });
+    const unpaid = bills.filter(function (row) { return !/paid|settled|cancel/i.test(row.status || ""); });
+    const expenses = finance.filter(function (row) { return /expens|out/i.test((row.category || "") + " " + (row.status || "")) || Number(row.amount) < 0; });
+    const rev = paid.reduce(function (s, row) { return s + (Number(row.paid || row.amount) || 0); }, 0);
+    const exp = expenses.reduce(function (s, row) { return s + Math.abs(Number(row.amount) || 0); }, 0);
+    const due = unpaid.reduce(function (s, row) { return s + (Number(row.amount) || 0); }, 0);
+    document.getElementById("finRev").textContent = money(rev);
+    document.getElementById("finExp").textContent = money(exp);
+    document.getElementById("finNet").textContent = money(rev - exp);
+    document.getElementById("finDue").textContent = money(due);
+    document.getElementById("finRevNote").textContent = paid.length + " paid bills";
+    document.getElementById("finExpNote").textContent = expenses.length ? expenses.length + " expense rows" : "No expense rows saved";
+    document.getElementById("finDueNote").textContent = unpaid.length + " unpaid bills";
+    const byMonth = {};
+    paid.forEach(function (row) {
+      const key = String(row.date || "").slice(0, 7) || "Saved";
+      byMonth[key] = (byMonth[key] || 0) + (Number(row.paid || row.amount) || 0);
+    });
+    const months = Object.keys(byMonth).sort();
+    const flow = months.length ? months.map(function (m) { return { label: m, value: byMonth[m] }; }) : [{ label: "None", value: 0 }];
+    document.getElementById("finFlowChart").innerHTML = lineChart(flow, { height: 250, color: "#11212D" });
+    const byDept = {};
+    finance.forEach(function (row) {
+      const key = row.category || row.description || "Saved";
+      byDept[key] = (byDept[key] || 0) + Math.abs(Number(row.amount) || 0);
+    });
+    const dept = Object.keys(byDept).map(function (key) { return { label: key, value: byDept[key] }; });
+    document.getElementById("finDeptChart").innerHTML = dept.length ? barChart(dept, { height: 250, color: "#11212D" }) : '<p class="text-sm" style="color:var(--dark)">No saved finance rows.</p>';
+    document.getElementById("finBudgetChart").innerHTML = dept.length ? barChart(dept, { height: 250, color: "#253745" }) : '<p class="text-sm" style="color:var(--dark)">No department budget is saved.</p>';
+    const byService = {};
+    paid.forEach(function (row) {
+      const key = row.service || row.description || "Bill";
+      if (!byService[key]) byService[key] = { n: 0, amount: 0 };
+      byService[key].n += 1;
+      byService[key].amount += Number(row.paid || row.amount) || 0;
+    });
+    const services = Object.keys(byService).map(function (key) { return [key, byService[key].n, byService[key].amount]; }).sort(function (a, b) { return b[2] - a[2]; });
+    const total = services.reduce(function (s, row) { return s + row[2]; }, 0) || 1;
+    document.getElementById("finSvcBody").innerHTML = services.length ? services.map(function (row) {
+      const share = Math.round(row[2] / total * 100);
+      return `<tr><td><strong>${esc(row[0])}</strong></td><td>${row[1]}</td><td>${money(row[2])}</td><td>${share}%</td></tr>`;
+    }).join("") : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--dark)">No paid bills saved.</td></tr>';
   });
-  document.getElementById("finBudgetChart").innerHTML = `<svg viewBox="0 0 ${pw} ${ph}" xmlns="http://www.w3.org/2000/svg">${s}</svg>
-    <div class="chart-legend"><span class="lg-item"><span class="lg-swatch" style="background:#1A6FA8"></span> Budget</span>
-    <span class="lg-item"><span class="lg-swatch" style="background:#18BF75"></span> Actual</span></div>`;
-  const svc = [];
-  const total = svc.reduce((s2, x) => s2 + x[2], 0);
-  document.getElementById("finSvcBody").innerHTML = svc.map(x => `<tr>
-    <td><strong>${esc(x[0])}</strong></td><td>${x[1]}</td><td>${formatCurrency(x[2])}</td>
-    <td><div class="ai-confidence"><div class="progress" style="min-width:80px"><div class="progress-bar high" style="width:${Math.round(x[2]/total*100)}%"></div></div><span class="pct" style="min-width:40px">${Math.round(x[2]/total*100)}%</span></div></td></tr>`).join("");
 }
 function exportFinance() {
-  exportCSV("finance-summary.csv", ["Month","Revenue (ETB)","Expenses (ETB)"],
-    []);
-  showToast("Finance summary exported to CSV","success");
+  exportCSV("finance-summary.csv", ["Month","Kind","Service","Status","Amount"],
+    FIN_ROWS.map(function (row) { return [row.month, row.kind, row.service, row.status, row.amount]; }));
+  showToast(FIN_ROWS.length ? "Saved finance rows exported" : "No saved finance rows to export", FIN_ROWS.length ? "success" : "info");
 }
 
 </script>

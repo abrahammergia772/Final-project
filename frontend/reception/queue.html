@@ -58,7 +58,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -141,19 +141,16 @@ const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"curren
 document.addEventListener("DOMContentLoaded", () => {
   checkSession(); checkRoleAccess("reception"); initLayout(); loadPageData();
 });
-let QUEUE = [
-  { id:"Q-1", name:"Mahlet Shiferaw", dept:"Internal Medicine", arrived:"08:10", status:"in-service" },
-  { id:"Q-2", name:"Kidist Assefa", dept:"Cardiology", arrived:"08:15", status:"waiting" },
-  { id:"Q-3", name:"Biruk Ayele", dept:"Pediatrics", arrived:"08:22", status:"waiting" },
-  { id:"Q-4", name:"Tewodros Haile", dept:"Cardiology", arrived:"08:30", status:"waiting" },
-  { id:"Q-5", name:"Ruth Gebre", dept:"Internal Medicine", arrived:"08:41", status:"waiting" },
-  { id:"Q-6", name:"Yohannes Mamo", dept:"Internal Medicine", arrived:"08:47", status:"waiting" }
-];
+let QUEUE = [];
 function loadPageData() {
-  renderQueue();
+  apiFetch(CONFIG.ENDPOINTS.QUEUE).then(function (r) {
+    QUEUE = (r.ok && r.data && r.data.items) || [];
+    if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.QUEUE, QUEUE);
+    renderQueue();
+  });
   document.getElementById("btnCallNext").addEventListener("click", callNext);
   document.getElementById("btnAddQ").addEventListener("click", addToQueue);
-  document.getElementById("btnPause").addEventListener("click", () => showToast("Queue paused for 10 minutes","info"));
+  document.getElementById("btnPause").addEventListener("click", holdCurrent);
 }
 function renderQueue() {
   const waiting = QUEUE.filter(q => q.status === "waiting");
@@ -165,8 +162,16 @@ function renderQueue() {
   document.getElementById("qBody").innerHTML = waiting.length ? waiting.map((q, i) => `
     <tr><td><span class="badge badge-neutral">${i + 1}</span></td><td><strong>${esc(q.name)}</strong></td>
     <td>${esc(q.dept)}</td><td><span class="time-pill">${q.arrived}</span></td>
-    <td class="text-sm text-gray" style="color:#6B7280">~${10 + i * 8} min</td>
-    <td style="text-align:right"><button class="btn-icon danger" title="Remove" onclick="removeQ('${q.id}')">${ICONS.trash}</button></td></tr>`).join("") : '<tr><td colspan="6" style="text-align:center;color:#6B7280;padding:32px">Queue is empty 🎉</td></tr>';
+    <td>${esc(q.status || "waiting")}</td>
+    <td style="text-align:right"><button class="btn-icon danger" title="Remove" onclick="removeQ('${q.id}')">${ICONS.trash}</button></td></tr>`).join("") : (QUEUE.some(q => q.status === "held") ? "" : '<tr><td colspan="6" style="text-align:center;color:#6B7280;padding:32px">Queue is empty</td></tr>');
+  const held = QUEUE.filter(q => q.status === "held");
+  if (held.length) {
+    document.getElementById("qBody").insertAdjacentHTML("beforeend", held.map(q => `
+    <tr><td><span class="badge badge-neutral">Hold</span></td><td><strong>${esc(q.name)}</strong></td>
+    <td>${esc(q.dept)}</td><td><span class="time-pill">${q.arrived || ""}</span></td>
+    <td>held</td>
+    <td style="text-align:right"><button class="btn btn-secondary btn-sm" type="button" onclick="returnQ('${q.id}')">Return</button></td></tr>`).join(""));
+  }
 }
 function callNext() {
   const next = QUEUE.find(q => q.status === "waiting");
@@ -184,6 +189,20 @@ function addToQueue() {
   document.getElementById("qName").value = "";
   renderQueue();
   showToast(name + " added to queue","success");
+}
+function holdCurrent() {
+  const serving = QUEUE.find(q => q.status === "in-service");
+  if (!serving) { showToast("No patient is in service", "info"); return; }
+  serving.status = "held";
+  saveRow(CONFIG.ENDPOINTS.QUEUE, serving, serving.name + " is on hold");
+  renderQueue();
+}
+function returnQ(id) {
+  const row = QUEUE.find(q => q.id === id);
+  if (!row) return;
+  row.status = "waiting";
+  saveRow(CONFIG.ENDPOINTS.QUEUE, row, row.name + " returned to the queue");
+  renderQueue();
 }
 function removeQ(id) { persistDelete(CONFIG.ENDPOINTS.QUEUE, id); QUEUE = QUEUE.filter(q => q.id !== id); renderQueue(); }
 

@@ -36,7 +36,7 @@
 </div>
 <div class="card">
   <h3 class="mb-3">Shift Handover Notes</h3>
-  <textarea class="form-control" id="handover" rows="4" placeholder="Summarize the shift: critical patients, pending tasks, incidents…">Ward 3: Selam T. BP still elevated — cardiology notified. Biruk A. improving on antibiotics. Please re-check Yohannes M. glucose at 12:00.</textarea>
+  <textarea class="form-control" id="handover" rows="4" placeholder="Summarize the shift: critical patients, pending tasks, incidents…"></textarea>
   <div class="form-actions"><button class="btn btn-primary" onclick="saveHandover()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 6L9 17l-5-5"/></svg> Save Handover</button></div>
 </div>
 
@@ -49,7 +49,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -136,6 +136,12 @@ let MEDS = [];
 function loadPageData() {
   apiFetch(CONFIG.ENDPOINTS.MEDICATIONS).then(r => {
     if (!r.ok) return; MEDS = r.data.items; renderMeds();
+  });
+  apiFetch(CONFIG.ENDPOINTS.SENT_MESSAGES).then(function (r) {
+    const items = (r.ok && r.data && r.data.items) || [];
+    const note = items.find(function (row) { return row.subject === "Shift handover"; });
+    const box = document.getElementById("handover");
+    if (note && box && !box.value) box.value = note.body || "";
   });
 }
 function renderMeds() {

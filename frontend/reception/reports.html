@@ -54,7 +54,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -252,8 +252,8 @@ function sendReport() {
     title: "Send Health Report to Patient",
     body: `<p class="text-sm mb-3" style="color:#6B7280">Send <strong>${esc(t.name)}</strong> as an individual health report to a patient. It will appear in the patient's Messages inbox.</p>
       <div class="form-group"><label>Patient <span class="req">*</span></label>
-        <select class="form-control" id="srPat"><option value="Abel Mekonnen">Abel Mekonnen (P-1001)</option><option value="Hana Wolde">Hana Wolde (P-1002)</option><option value="Dawit Kebede">Dawit Kebede (P-1003)</option><option value="Selam Tadesse">Selam Tadesse (P-1004)</option><option value="Biruk Ayele">Biruk Ayele (P-1005)</option><option value="Ruth Gebre">Ruth Gebre (P-1006)</option><option value="Tewodros Haile">Tewodros Haile (P-1007)</option><option value="Mahlet Shiferaw">Mahlet Shiferaw (P-1008)</option><option value="Yohannes Mamo">Yohannes Mamo (P-1009)</option><option value="Kidist Assefa">Kidist Assefa (P-1010)</option></select></div>
-      <div class="form-group"><label>Report Summary</label><textarea class="form-control" rows="4" id="srBody" placeholder="e.g. Your blood pressure improved — keep taking Amlodipine 5mg once daily and return for review in 30 days."></textarea></div>
+        <select class="form-control" id="srPat" data-patient-select="1"><option value="">Loading registered patients…</option></select></div>
+      <div class="form-group"><label>Report Summary</label><textarea class="form-control" rows="4" id="srBody" placeholder="Write what was saved. Do not add a result that was not recorded."></textarea></div>
       <div class="form-group"><label>Priority</label><select class="form-control" id="srPri"><option>normal</option><option>high</option></select></div>`,
     footer: `<button class="btn btn-secondary" data-c>Cancel</button><button class="btn btn-primary" id="srSend">${ICONS.send} Send to Patient</button>`
   }, {
@@ -263,7 +263,7 @@ function sendReport() {
         const name = ov.querySelector("#srPat").value.split(" (")[0];
         const body = ov.querySelector("#srBody").value.trim();
         if (!body) { showToast("Please write a summary for the report", "error"); return; }
-        saveSentReport({ patient: name, subject: t.name, body, from: getUserName() || "Dr. Daniel Alemu", priority: ov.querySelector("#srPri").value });
+        saveSentReport({ patient: name, subject: t.name, body, from: getUserName() || "Hospital staff", priority: ov.querySelector("#srPri").value });
         ov.remove();
         showToast("Health report sent to " + name + " — appears in their Messages", "success");
       };

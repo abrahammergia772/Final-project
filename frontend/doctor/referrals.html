@@ -55,7 +55,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -181,7 +181,7 @@ function renderRefs() {
 function refModal() {
   openModal({
     title: "New Referral",
-    body: `<div class="form-group"><label>Patient <span class="req">*</span></label><input class="form-control" id="rPat" list="rPats"><datalist id="rPats">${["Abel Mekonnen","Hana Wolde","Dawit Kebede","Selam Tadesse","Biruk Ayele","Ruth Gebre","Tewodros Haile","Mahlet Shiferaw","Yohannes Mamo","Kidist Assefa"].map(n => `<option value="${n}">`).join("")}</datalist></div>
+    body: `<div class="form-group"><label>Patient <span class="req">*</span></label><input class="form-control" id="rPat" list="rPats"><datalist id="rPats">${[].map(n => `<option value="${n}">`).join("")}</datalist></div>
       <div class="form-row">
         <div class="form-group"><label>Refer To</label><input class="form-control" id="rTo" placeholder="Dr. name / hospital"></div>
         <div class="form-group"><label>Specialty</label><select class="form-control" id="rSpec"><option>Cardiology</option><option>Neurology</option><option>Orthopedics</option><option>ENT</option><option>Ophthalmology</option><option>Dermatology</option><option>Psychiatry</option><option>Oncology</option><option>Internal Medicine</option></select></div>

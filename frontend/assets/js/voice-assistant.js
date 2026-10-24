@@ -2,7 +2,7 @@
    Speech in, speech out, and the same hospital actions the patient can do
    on the appointments, bills, complaints, and messages pages. */
 (function (root) {
-  var DOCTORS = ["Dr. Daniel Alemu", "Dr. Fikru Debebe", "Dr. Meron Assefa", "Dr. Tsehay Mengistu"];
+  var DOCTORS = [];
   var DEPTS = [
     ["Internal Medicine", ["internal medicine", "የውስጥ"]],
     ["Pediatrics", ["pediatric", "paediatric", "children", "child", "ሕፃናት", "ህፃናት"]],
@@ -317,18 +317,21 @@
   }
 
   function refreshDoctors() {
-    if (!root.loadDoctorList || refreshDoctors.busy) return;
-    refreshDoctors.busy = true;
-    root.loadDoctorList().then(function (result) {
-      refreshDoctors.busy = false;
-      var names = ((result && result.items) || []).map(function (row) { return row.name; }).filter(Boolean);
-      if (names.length) DOCTORS = names;
-    });
+    if (!root.loadDoctorList) return Promise.resolve(DOCTORS);
+    if (!refreshDoctors.job) {
+      refreshDoctors.job = Promise.resolve(root.loadDoctorList()).then(function (result) {
+        var names = ((result && result.items) || []).map(function (row) { return row.name; }).filter(Boolean);
+        if (names.length) DOCTORS = names;
+        return DOCTORS;
+      }).catch(function () { return DOCTORS; });
+    }
+    return refreshDoctors.job;
   }
 
   function doctorQuestion() {
     refreshDoctors();
-    return "I can book with " + DOCTORS.join(", ") + ". Which doctor?";
+    if (!DOCTORS.length) return tr("No doctor is registered yet, so I cannot name one.", "የተመዘገበ ዶክተር የለም። ስም መናገር አልችልም።");
+    return tr("I can book with " + DOCTORS.join(", ") + ". Which doctor?", "ከ " + DOCTORS.join(", ") + " ጋር መያዝ እችላለሁ። የትኛው ዶክተር?");
   }
 
   function emergencyNote(text) {
@@ -403,10 +406,11 @@
         pending = null;
         return answered("That appointment is already booked: " + describe(same[0]) + ".");
       }
+      if (!slots.doctor) return answered(doctorQuestion(), true);
       var row = {
         id: typeof uid === "function" ? uid("A") : ("A-" + Date.now().toString(36)),
         patient: typeof getUserName === "function" ? getUserName() : "",
-        doctor: slots.doctor || DOCTORS[0],
+        doctor: slots.doctor || "",
         dept: slots.dept,
         date: slots.date,
         time: slots.time,
@@ -443,7 +447,10 @@
       pending.ask = "time";
       return Promise.resolve(answered(timeQuestion(), true));
     }
-    if (!slots.doctor) slots.doctor = DOCTORS[0];
+    if (!slots.doctor) {
+      pending.ask = "doctor";
+      return Promise.resolve(answered(doctorQuestion(), true));
+    }
     return saveBook(slots, text);
   }
 
@@ -661,7 +668,7 @@
     if (intent && intent !== "hello" && !(pending && !intent)) {
       if (intent === "book") {
         pending = { kind: "book", slots: {}, ask: "" };
-        return continueBook(said);
+        return refreshDoctors().then(function () { return continueBook(said); });
       }
       if (intent === "cancel") return startCancel(said);
       if (intent === "reschedule") {
@@ -688,7 +695,7 @@
         return Promise.resolve(openHospitalPage(said));
       }
     }
-    if (pending && pending.kind === "book") return continueBook(said);
+    if (pending && pending.kind === "book") return refreshDoctors().then(function () { return continueBook(said); });
     if (pending && pending.kind === "cancel") return startCancel(said);
     if (pending && pending.kind === "reschedule") return startReschedule(said);
     if (pending && pending.kind === "complaint") return saveComplaint(said);
@@ -888,6 +895,7 @@
   }
 
   function mount() {
+    refreshDoctors();
     if (!root.document || root.document.getElementById("btnSpeak")) return;
     var input = root.document.getElementById("chatInput");
     if (!input || !input.parentNode) return;

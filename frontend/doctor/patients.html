@@ -76,7 +76,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=15"></script>
+<script src="../assets/js/utils.js?v=16"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -277,14 +277,22 @@ function viewPatient(id) {
   });
 }
 function encounters(id) {
-  const data = {
-    "P-1001": [["11/08/2026","Follow-up — hypertension review","Dr. Daniel Alemu"],["05/08/2026","Prescribed Amlodipine 5mg","Dr. Daniel Alemu"]],
-    "P-1004": [["09/08/2026","ECG + cardiac consultation","Dr. Meron Assefa"],["02/08/2026","Lipid profile ordered","Dr. Meron Assefa"]]
-  };
-  const list = data[id];
-  if (!list) return '<div class="empty-state" style="padding:20px">No prior encounters.</div>';
-  return `<div class="feed">${list.map(e => `<div class="feed-item"><div class="tile-primary feed-icon">${ICONS["file-text"]}</div>
-    <div class="feed-text"><strong>${e[1]}</strong><div class="feed-time">${e[0]} · ${e[2]}</div></div></div>`).join("")}</div>`;
+  const p = PATIENTS.find(x => x.id === id);
+  const name = p ? (p.first_name + " " + p.last_name).trim() : "";
+  const hostId = "enc-" + String(id).replace(/[^a-zA-Z0-9_-]/g, "");
+  setTimeout(function () {
+    const host = document.getElementById(hostId);
+    if (!host || !name) return;
+    apiFetch(CONFIG.ENDPOINTS.APPOINTMENTS).then(function (r) {
+      const rows = ((r.ok && r.data && r.data.items) || []).filter(function (row) {
+        return String(row.patient || "").toLowerCase() === name.toLowerCase();
+      }).slice(0, 6);
+      host.innerHTML = rows.length ? '<div class="feed">' + rows.map(function (e) {
+        return '<div class="feed-item"><div class="tile-primary feed-icon">' + ICONS["file-text"] + '</div><div class="feed-text"><strong>' + esc(e.type || "Visit") + '</strong><div class="feed-time">' + esc([e.date, e.time, e.doctor, e.status].filter(Boolean).join(" · ")) + '</div></div></div>';
+      }).join("") + '</div>' : '<div class="empty-state" style="padding:20px">No saved visits for this patient.</div>';
+    });
+  }, 0);
+  return '<div id="' + hostId + '"><div class="empty-state" style="padding:20px">Loading saved visits…</div></div>';
 }
 
 </script>
