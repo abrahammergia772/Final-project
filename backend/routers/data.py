@@ -450,45 +450,35 @@ def _saved_name_rows(endpoint: str) -> list:
 
 @router.get("/patients/lookup")
 def patient_lookup(user=Depends(current_user)):
-    """Names already saved in Supabase, for invoice and form suggestions."""
+    """Names already saved in Supabase, for every patient field and dropdown."""
     role = str(user.get("role") or "")
     if role not in {"admin", "manager", "doctor", "nurse", "pharmacist", "laboratory", "reception"}:
         raise HTTPException(status_code=403, detail="You do not have access to patient names")
     if get_client() is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
-    try:
-        people = {}
-        for row in _saved_name_rows("patients"):
-            _absorb_saved_row(people, row, prefer_row_id=True)
-        for row in _saved_name_rows("users"):
-            if str(row.get("role") or "").lower() != "patient":
-                continue
-            _absorb_saved_row(people, row, prefer_row_id=not people)
-        for endpoint in ("appointments", "cashier_invoices", "bills", "insurance"):
-            for row in _saved_name_rows(endpoint):
-                _absorb_saved_row(people, row, prefer_row_id=False)
-        items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
-        return JSONResponse(
-            {"ok": True, "items": items, "total": len(items), "source": "supabase"},
-            headers={"Cache-Control": "no-store"},
-        )
-    except HTTPException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        log.error("patient lookup failed: %s", type(exc).__name__)
-        people = {}
-        for row in _saved_name_rows("patients"):
+    people = {}
+
+    def absorb(endpoint: str, prefer_row_id: bool = False, patients_only: bool = False) -> None:
+        for row in _saved_name_rows(endpoint):
             try:
-                _absorb_saved_row(people, row, prefer_row_id=True)
+                if patients_only and str(row.get("role") or "").lower() != "patient":
+                    continue
+                _absorb_saved_row(people, row, prefer_row_id=prefer_row_id)
             except Exception:  # noqa: BLE001
                 continue
-        items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
-        if items:
-            return JSONResponse(
-                {"ok": True, "items": items, "total": len(items), "source": "supabase"},
-                headers={"Cache-Control": "no-store"},
-            )
-        raise HTTPException(status_code=503, detail="Could not read names from the hospital database") from exc
+
+    absorb("patients", prefer_row_id=True)
+    absorb("users", prefer_row_id=True, patients_only=True)
+    for endpoint in (
+        "appointments", "vitals", "observations", "prescriptions", "medications",
+        "lab_results", "lab_requests", "cashier_invoices", "bills", "insurance",
+    ):
+        absorb(endpoint, prefer_row_id=False)
+    items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
+    return JSONResponse(
+        {"ok": True, "items": items, "total": len(items), "source": "supabase"},
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @router.get("/{resource}")

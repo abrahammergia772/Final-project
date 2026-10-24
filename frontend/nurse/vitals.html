@@ -28,7 +28,7 @@
   <section class="card">
     <h3 class="mb-3">Record Vitals</h3>
     <div class="form-group"><label>Patient</label>
-      <select class="form-control" id="vtPatient"><option value="">— Select patient —</option></select></div>
+      <input class="form-control" id="vtPatient" placeholder="Type or choose a patient name" autocomplete="off"></div>
     <div class="form-row-3">
       <div class="form-group"><label>Heart Rate (bpm)</label><input class="form-control" type="number" id="vtHr" value="90"></div>
       <div class="form-group"><label>BP Systolic</label><input class="form-control" type="number" id="vtSys" value="150"></div>
@@ -63,7 +63,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=16"></script>
+<script src="../assets/js/utils.js?v=17"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -148,15 +148,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 const HISTORY = [];
  function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.PATIENTS).then(r => {
-    if (!r.ok) return;
-    document.getElementById("vtPatient").innerHTML = '<option value="">— Select patient —</option>' +
-      r.data.items.map(p => `<option value="${p.id}">${esc(p.id)} — ${esc(p.first_name + " " + p.last_name)}</option>`).join("");
-  });
   document.getElementById("btnCheckVitals").addEventListener("click", runVitalsCheck);
   document.getElementById("btnSaveVitals").addEventListener("click", () => {
     const patient = document.getElementById("vtPatient").value;
-    if (!patient) { showToast("Select a patient first","error"); return; }
+    if (!patient) { showToast("Enter a patient name","error"); return; }
     persistInsert(CONFIG.ENDPOINTS.VITALS, {
       id: uid("VT"), patient: patient, t: new Date().toISOString().slice(11, 16),
       hr: document.getElementById("vtHr").value, sys: document.getElementById("vtSys").value,
@@ -169,7 +164,7 @@ const HISTORY = [];
   renderHistory();
 }
 function runVitalsCheck() {
-  if (!document.getElementById("vtPatient").value) { showToast("Select a patient first","error"); return; }
+  if (!document.getElementById("vtPatient").value) { showToast("Enter a patient name","error"); return; }
   document.getElementById("vitalsResult").innerHTML = `<section class="card"><div class="loading-area"><div class="spinner"></div><div>Running vitals AI alert check…</div></div></section>`;
   checkVitalsAI({
     hr: document.getElementById("vtHr").value, sys: document.getElementById("vtSys").value,

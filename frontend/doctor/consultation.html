@@ -27,7 +27,7 @@
 <div class="card mb-4">
   <div class="flex-between wrap" style="gap:12px">
     <div><h3 style="font-size:16px">Select Patient</h3><p class="text-sm text-gray" style="color:#6B7280">Search by name or patient ID</p></div>
-    <select class="form-control" id="patientSelect" style="width:320px"><option value="">— Choose a patient —</option></select>
+    <select class="form-control" id="patientSelect" data-patient-select="1" style="width:320px"><option value="">— Choose a patient —</option></select>
   </div>
   <div id="patientSummary" class="mt-4"></div>
 </div>
@@ -89,7 +89,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=16"></script>
+<script src="../assets/js/utils.js?v=17"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -175,13 +175,17 @@ document.addEventListener("DOMContentLoaded", () => {
 let PATIENTS = [], DRUGS = [], rxItems = [], labs = new Set(), selPatient = null;
 const DRUG_CATALOG = ["Paracetamol 500mg","Amlodipine 5mg","Metformin 500mg","Insulin Glargine","Amoxicillin 250mg","Salbutamol Inhaler","Atorvastatin 20mg","Bisoprolol 2.5mg","Enalapril 10mg","Aspirin 81mg","Furosemide 40mg","Artemether/Lumefantrine","Ceftriaxone 1g","Hydrocortisone 100mg","ORS Sachets","Warfarin 5mg","Digoxin 0.25mg"];
 function loadPageData() {
-  apiFetch(CONFIG.ENDPOINTS.PATIENTS).then(r => {
-    if (!r.ok) return;
-    PATIENTS = r.data.items;
-    document.getElementById("patientSelect").innerHTML = '<option value="">— Choose a patient —</option>' +
-      PATIENTS.map(p => `<option value="${p.id}">${esc(p.id)} — ${esc(p.first_name + " " + p.last_name)}</option>`).join("");
+  const nameReady = (typeof loadRegisteredPatients === "function") ? loadRegisteredPatients() : Promise.resolve([]);
+  nameReady.then(function (rows) {
+    PATIENTS = rows || [];
+    if (window.fillRegisteredPatientSelects) fillRegisteredPatientSelects(document.getElementById("patientSelect"));
     const qp = new URLSearchParams(location.search).get("patient");
-    if (qp) { document.getElementById("patientSelect").value = qp; showPatient(qp); }
+    if (qp) {
+      const row = PATIENTS.find(function (p) { return p.id === qp || p.name === qp; });
+      const name = row ? ((row.first_name || "") + " " + (row.last_name || "")).trim() || row.name || qp : qp;
+      document.getElementById("patientSelect").value = name;
+      showPatient(name);
+    }
   });
   document.getElementById("drugList").innerHTML = DRUG_CATALOG.map(d => `<option value="${d}">`).join("");
   document.getElementById("aiSuggestChips").innerHTML = [
@@ -194,7 +198,7 @@ function loadPageData() {
   document.getElementById("patientSelect").addEventListener("change", e => showPatient(e.target.value));
 }
 function showPatient(id) {
-  selPatient = PATIENTS.find(p => p.id === id);
+  selPatient = PATIENTS.find(p => p.id === id || p.name === id || ((p.first_name || "") + " " + (p.last_name || "")).trim() === id);
   if (!selPatient) { document.getElementById("patientSummary").innerHTML = ""; return; }
   const p = selPatient;
   document.getElementById("patientSummary").innerHTML = `<div class="flex-between wrap" style="gap:14px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:16px">

@@ -1230,18 +1230,33 @@ function mergePatientRows(lists) {
   });
   return Object.keys(byName).map(function (key) { return byName[key]; });
 }
+function savedNamePaths() {
+  var map = (window.CONFIG && CONFIG.ENDPOINTS) || {};
+  var paths = [
+    map.PATIENT_LOOKUP || "/patients/lookup",
+    (map.PATIENTS || "/patients") + "?limit=500",
+    (map.APPOINTMENTS || "/appointments") + "?limit=500",
+    (map.VITALS || "/vitals") + "?limit=500",
+    (map.OBSERVATIONS || "/observations") + "?limit=500",
+    (map.PRESCRIPTIONS || "/prescriptions") + "?limit=500"
+  ];
+  return paths.filter(function (path, index) {
+    if (paths.indexOf(path) !== index) return false;
+    if (typeof endpointAllowed !== "function") return true;
+    return endpointAllowed(path);
+  });
+}
 function loadRegisteredPatients() {
   if (typeof getUserRole === "function" && getUserRole() === "patient") return Promise.resolve([]);
   if (_regPatients && (Date.now() - _regPatientAt) < 20000) return Promise.resolve(_regPatients);
   if (_regPatientJob) return _regPatientJob;
-  var patientsPath = (window.CONFIG && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.PATIENTS) || "/patients";
-  var lookupPath = (window.CONFIG && CONFIG.ENDPOINTS && CONFIG.ENDPOINTS.PATIENT_LOOKUP) || "/patients/lookup";
-  _regPatientJob = Promise.all([
-    fetchSavedNames(patientsPath + "?limit=500"),
-    fetchSavedNames(lookupPath)
-  ]).then(function (results) {
+  var paths = savedNamePaths();
+  if (!paths.length) paths = ["/patients/lookup", "/patients?limit=500"];
+  _regPatientJob = Promise.all(paths.map(fetchSavedNames)).then(function (results) {
     _regPatientJob = null;
-    var rows = mergePatientRows(results.map(patientRowsFrom));
+    var rows = mergePatientRows(results.map(patientRowsFrom)).filter(function (row) {
+      return usablePatientName(patientFullName(row));
+    });
     if (rows.length) {
       _regPatientError = "";
       _regPatients = rows;
@@ -1249,14 +1264,15 @@ function loadRegisteredPatients() {
       return rows;
     }
     var failed = (results || []).filter(function (res) { return !res || !res.ok; });
-    if (failed.length) {
-      _regPatients = null;
-      _regPatientError = (failed[0] && failed[0].error) || "Could not read names from the hospital database";
-      return [];
-    }
-    _regPatientError = "";
-    _regPatients = [];
-    _regPatientAt = Date.now();
+    var everyFailed = results.length && failed.length === results.length;
+    _regPatients = everyFailed ? null : [];
+    _regPatientError = everyFailed ? ((failed[0] && failed[0].error) || "Could not read names from the hospital database") : "";
+    if (!everyFailed) _regPatientAt = Date.now();
+    return [];
+  }).catch(function () {
+    _regPatientJob = null;
+    _regPatients = null;
+    _regPatientError = "Could not read names from the hospital database";
     return [];
   });
   return _regPatientJob;
@@ -1270,8 +1286,16 @@ window.refreshRegisteredPatients = function () {
 
 function patientFullName(p) {
   if (!p) return "";
+  if (typeof p === "string") return p.trim();
   var full = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
-  return full || p.name || "";
+  var details = p.details && typeof p.details === "object" ? p.details : {};
+  return String(full || p.name || p.patient || details.patient_name || details.name || "").trim();
+}
+function usablePatientName(name) {
+  var text = String(name || "").trim();
+  if (text.length < 2) return false;
+  if (/^(P|VT|A|O|HC|RX)-[A-Za-z0-9-]+$/i.test(text)) return false;
+  return !/could not read names|no registered patient|select patient|choose a patient|loading registered/i.test(text);
 }
 function patientFieldBlob(input) {
   var label = "";
@@ -1412,8 +1436,7 @@ function showPatientSuggest(input) {
   if (!isPatientNameField(input)) return;
   if (input.getAttribute("list")) input.removeAttribute("list");
   var query = input.value.trim();
-  if (query.length < 1) { hidePatientSuggest(); return; }
-  if (input.dataset.patientName && query === input.dataset.patientName) {
+  if (input.dataset.patientName && query && query === input.dataset.patientName) {
     hidePatientSuggest();
     return;
   }
@@ -1424,13 +1447,16 @@ function showPatientSuggest(input) {
   if (!_regPatients) paintPatientSuggest(input, [], "Loading registered patients…");
   loadRegisteredPatients().then(function (rows) {
     if (_suggestInput !== input || input.value.trim() !== query) return;
-    var hits = (rows || []).filter(function (p) { return patientMatches(p, query) && patientFullName(p); });
-    hits.sort(function (a, b) { return rankPatient(a, query) - rankPatient(b, query); });
-    hits = hits.slice(0, 8);
+    var hits = (rows || []).filter(function (p) {
+      return usablePatientName(patientFullName(p)) && (!query || patientMatches(p, query));
+    });
+    if (query) hits.sort(function (a, b) { return rankPatient(a, query) - rankPatient(b, query); });
+    else hits.sort(function (a, b) { return patientFullName(a).localeCompare(patientFullName(b)); });
+    hits = hits.slice(0, query ? 8 : 12);
     _suggestIndex = hits.length ? 0 : -1;
-    if (!hits.length) {
-      paintPatientSuggest(input, [], _regPatientError || (_regPatients && _regPatients.length ? "No registered patient with that name" : "No registered patients"));
-    } else paintPatientSuggest(input, hits);
+    if (hits.length) paintPatientSuggest(input, hits);
+    else if ((rows || []).length) paintPatientSuggest(input, [], "No registered patient with that name");
+    else paintPatientSuggest(input, [], _regPatientError || "No registered patients");
   });
 }
 function onPatientSuggestKey(e) {
@@ -1478,9 +1504,14 @@ function initPatientSuggest() {
 }
 function needsPatientNames(sel) {
   if (!sel || sel.tagName !== "SELECT") return false;
+  if (sel.dataset.patientSelect === "off") return false;
   if (sel.dataset.patientSelect === "1") return true;
+  var id = (sel.id || "").toLowerCase();
+  if (/condition|gender|blood|priority|status|dept|type|ward/.test(id) && id.indexOf("patient") < 0) return false;
+  var blob = patientFieldBlob(sel);
   var text = sel.textContent || "";
-  return text.indexOf("Abel Mekonnen") >= 0 || text.indexOf("Could not read names") >= 0 || text.indexOf("No registered patients") >= 0;
+  if (/patient/.test(id) || /patient/.test(blob)) return true;
+  return text.indexOf("Abel Mekonnen") >= 0 || text.indexOf("Could not read names") >= 0 || text.indexOf("No registered patients") >= 0 || text.indexOf("Select patient") >= 0 || text.indexOf("Choose a patient") >= 0 || text.indexOf("Loading registered patients") >= 0;
 }
 function fillRegisteredPatientSelects(root) {
   var scope = root && root.tagName === "SELECT" ? null : (root || document);
@@ -1488,14 +1519,26 @@ function fillRegisteredPatientSelects(root) {
   Array.prototype.forEach.call(selects, function (sel) {
     if (!needsPatientNames(sel)) return;
     sel.dataset.patientSelect = "1";
+    var current = sel.value;
+    var blank = "— Select patient —";
+    var existing = sel.textContent || "";
+    if (existing.indexOf("All patients") >= 0) blank = "All patients";
+    else if (existing.indexOf("Choose a patient") >= 0) blank = "— Choose a patient —";
+    else if (existing.indexOf("Loading registered") >= 0) blank = "— Select patient —";
     loadRegisteredPatients().then(function (rows) {
       var html = (rows || []).map(function (p) {
         var name = patientFullName(p);
-        if (!name) return "";
-        var label = name + (patientEmail(p) ? " · " + patientEmail(p) : "");
+        if (!usablePatientName(name)) return "";
+        var mail = patientEmail(p);
+        var label = name + (mail ? " · " + mail : "");
         return '<option value="' + esc(name) + '">' + esc(label) + "</option>";
       }).filter(Boolean).join("");
-      sel.innerHTML = html || '<option value="">' + esc(_regPatientError || "No registered patients") + "</option>";
+      if (!html && _regPatientError) {
+        sel.innerHTML = '<option value="">' + esc(_regPatientError) + "</option>";
+        return;
+      }
+      sel.innerHTML = '<option value="">' + esc(blank) + "</option>" + html;
+      if (current) sel.value = current;
     });
   });
 }
