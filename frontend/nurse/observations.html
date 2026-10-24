@@ -27,7 +27,7 @@
 <div class="panel-grid cols-2">
   <section class="card">
     <h3 class="mb-3">Record Observation</h3>
-    <div class="form-group"><label>Patient</label><select class="form-control" id="obPatient" data-patient-select="1"><option value="">— Select patient —</option></select></div>
+    <div class="form-group"><label>Patient</label><input class="form-control" id="obPatient" placeholder="Type or choose a patient name" autocomplete="off"></div>
     <div class="form-group"><label>Pain Score: <strong id="painVal" style="color:var(--primary)">3 / 10</strong></label>
       <input type="range" min="0" max="10" value="3" id="painScore">
       <div class="flex-between text-sm text-gray" style="color:#6B7280"><span>No pain</span><span>Worst pain</span></div></div>
@@ -65,7 +65,7 @@
 <script src="../assets/js/nav.js?v=4"></script>
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js?v=3"></script>
-<script src="../assets/js/utils.js?v=17"></script>
+<script src="../assets/js/utils.js?v=18"></script>
 <script src="../assets/js/shell.js?v=13"></script>
 <script>
 const ICONS = {"grid": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>",
@@ -150,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let OBS = [];
 function loadPageData() {
-  if (window.fillRegisteredPatientSelects) fillRegisteredPatientSelects(document.getElementById("obPatient"));
   apiFetch(CONFIG.ENDPOINTS.OBSERVATIONS).then(r => {
     OBS = (r.ok && r.data && r.data.items) || [];
     if (typeof markKnown === "function") markKnown(CONFIG.ENDPOINTS.OBSERVATIONS, OBS);
@@ -164,11 +163,10 @@ function loadPageData() {
   document.getElementById("btnSaveOb").addEventListener("click", saveObs);
 }
 function saveObs() {
-  if (!document.getElementById("obPatient").value) { showToast("Select a patient first","error"); return; }
+  if (!document.getElementById("obPatient").value) { showToast("Enter a patient name","error"); return; }
   const pain = +document.getElementById("painScore").value;
   const t = new Date().toTimeString().slice(0, 5);
-  const sel = document.getElementById("obPatient");
-  const patient = sel.value || (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : "");
+  const patient = document.getElementById("obPatient").value.trim();
   (function(){var _row={ id: uid("O"), time: t, patient: patient, pain, intake: +document.getElementById("obIn").value || 0, output: +document.getElementById("obOut").value || 0, temp: +document.getElementById("obTemp").value || 0, nurse: getUserName(), notes: document.getElementById("obNotes").value.trim() };OBS.unshift(_row);persistInsert(CONFIG.ENDPOINTS.OBSERVATIONS,_row);return _row;})();
   renderObs();
   showToast("Observation saved — pain " + pain + "/10", "success");

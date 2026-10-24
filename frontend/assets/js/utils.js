@@ -1194,18 +1194,25 @@ function patientRowsFrom(res) {
   return Array.isArray(items) ? items : [];
 }
 function fetchSavedNames(path) {
+  if (typeof apiFetch === "function") {
+    return apiFetch(path, "GET", null, { quiet: true }).then(function (res) {
+      return res || { ok: false, data: {}, error: "" };
+    }).catch(function () {
+      return { ok: false, data: {}, error: "" };
+    });
+  }
   if (!window.CONFIG || !CONFIG.API_BASE_URL || typeof fetch !== "function") {
-    return Promise.resolve({ ok: false, error: "Could not read names from the hospital database" });
+    return Promise.resolve({ ok: false, data: {}, error: "" });
   }
   var headers = { "Accept": "application/json" };
   var session = typeof getSession === "function" ? getSession() : null;
   if (session && session.token) headers.Authorization = "Bearer " + session.token;
-  return fetch(CONFIG.API_BASE_URL + path, { method: "GET", headers: headers, cache: "no-store" }).then(function (res) {
+  return fetch(CONFIG.API_BASE_URL + path, { method: "GET", headers: headers }).then(function (res) {
     return res.json().catch(function () { return {}; }).then(function (data) {
       return { ok: res.ok, status: res.status, data: data, error: (data && (data.detail || data.error)) || "" };
     });
   }).catch(function () {
-    return { ok: false, error: "Could not read names from the hospital database" };
+    return { ok: false, data: {}, error: "" };
   });
 }
 function mergePatientRows(lists) {
@@ -1232,19 +1239,7 @@ function mergePatientRows(lists) {
 }
 function savedNamePaths() {
   var map = (window.CONFIG && CONFIG.ENDPOINTS) || {};
-  var paths = [
-    map.PATIENT_LOOKUP || "/patients/lookup",
-    (map.PATIENTS || "/patients") + "?limit=500",
-    (map.APPOINTMENTS || "/appointments") + "?limit=500",
-    (map.VITALS || "/vitals") + "?limit=500",
-    (map.OBSERVATIONS || "/observations") + "?limit=500",
-    (map.PRESCRIPTIONS || "/prescriptions") + "?limit=500"
-  ];
-  return paths.filter(function (path, index) {
-    if (paths.indexOf(path) !== index) return false;
-    if (typeof endpointAllowed !== "function") return true;
-    return endpointAllowed(path);
-  });
+  return [map.PATIENT_LOOKUP || "/patients/lookup", (map.PATIENTS || "/patients") + "?limit=500"];
 }
 function loadRegisteredPatients() {
   if (typeof getUserRole === "function" && getUserRole() === "patient") return Promise.resolve([]);
@@ -1266,13 +1261,13 @@ function loadRegisteredPatients() {
     var failed = (results || []).filter(function (res) { return !res || !res.ok; });
     var everyFailed = results.length && failed.length === results.length;
     _regPatients = everyFailed ? null : [];
-    _regPatientError = everyFailed ? ((failed[0] && failed[0].error) || "Could not read names from the hospital database") : "";
+    _regPatientError = "";
     if (!everyFailed) _regPatientAt = Date.now();
     return [];
   }).catch(function () {
     _regPatientJob = null;
     _regPatients = null;
-    _regPatientError = "Could not read names from the hospital database";
+    _regPatientError = "";
     return [];
   });
   return _regPatientJob;

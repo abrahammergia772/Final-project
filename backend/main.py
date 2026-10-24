@@ -113,9 +113,22 @@ def root():
             "models": {m: model_loader.module_loaded(m) for m in MODULES}}
 
 
+def _name_probe() -> dict:
+    try:
+        from db import get_client
+        client = get_client()
+        if client is None:
+            return {"ok": False, "error": "no-client"}
+        resp = client.table("patients").select("id").limit(5).execute()
+        return {"ok": True, "count": len(resp.data or [])}
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": type(exc).__name__}
+
+
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "2.0.44", "groq": groq_configured(), "mail": mail_configured(),
+    return {"status": "ok", "version": "2.0.45", "groq": groq_configured(), "mail": mail_configured(),
+            "name_probe": _name_probe(),
             "google": bool(os.getenv("GOOGLE_CLIENT_ID", "").strip() or os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()),
             "sms": sms_configured(),
             "sms_live": sms_live(),

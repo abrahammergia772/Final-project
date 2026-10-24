@@ -448,6 +448,22 @@ def _saved_name_rows(endpoint: str) -> list:
     return items if isinstance(items, list) else []
 
 
+def _light_rows(table: str, columns: str) -> list:
+    """Read only the name columns. A full-row read can fail or time out."""
+    client = get_client()
+    if client is None:
+        return []
+    try:
+        resp = client.table(table).select(columns).limit(500).execute()
+        return list(resp.data or [])
+    except Exception:
+        try:
+            resp = client.table(table).select("*").limit(200).execute()
+            return list(resp.data or [])
+        except Exception:
+            return []
+
+
 @router.get("/patients/lookup")
 def patient_lookup(user=Depends(current_user)):
     """Names already saved in Supabase, for every patient field and dropdown."""
@@ -457,23 +473,24 @@ def patient_lookup(user=Depends(current_user)):
     if get_client() is None:
         raise HTTPException(status_code=503, detail="Supabase is not configured")
     people = {}
-
-    def absorb(endpoint: str, prefer_row_id: bool = False, patients_only: bool = False) -> None:
-        for row in _saved_name_rows(endpoint):
-            try:
-                if patients_only and str(row.get("role") or "").lower() != "patient":
-                    continue
-                _absorb_saved_row(people, row, prefer_row_id=prefer_row_id)
-            except Exception:  # noqa: BLE001
+    for row in _light_rows("patients", "id,first_name,last_name,phone,email"):
+        try:
+            _absorb_saved_row(people, row, prefer_row_id=True)
+        except Exception:
+            continue
+    for row in _light_rows("users", "id,name,email,phone,role"):
+        try:
+            if str(row.get("role") or "").lower() != "patient":
                 continue
-
-    absorb("patients", prefer_row_id=True)
-    absorb("users", prefer_row_id=True, patients_only=True)
-    for endpoint in (
-        "appointments", "vitals", "observations", "prescriptions", "medications",
-        "lab_results", "lab_requests", "cashier_invoices", "bills", "insurance",
-    ):
-        absorb(endpoint, prefer_row_id=False)
+            _absorb_saved_row(people, row, prefer_row_id=True)
+        except Exception:
+            continue
+    for table in ("appointments", "vitals", "observations", "prescriptions"):
+        for row in _light_rows(table, "id,patient"):
+            try:
+                _absorb_saved_row(people, row, prefer_row_id=False)
+            except Exception:
+                continue
     items = sorted(people.values(), key=lambda person: str(person.get("name") or "").lower())
     return JSONResponse(
         {"ok": True, "items": items, "total": len(items), "source": "supabase"},
