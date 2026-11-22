@@ -20,7 +20,7 @@
 <header class="topbar" id="topbar" data-title=""></header>
 <section class="page-body">
 <figure class="role-home">
-  <img id="roleHomeImg" alt="A nurse at a patient's bedside" />
+  <img id="roleHomeImg" alt="A nurse and doctor discussing care beside a patient" />
   <figcaption class="land-on">
     <p class="land-kicker" data-i18n="Otona Campus">Otona Campus</p>
     <h2 data-i18n="Care, close to Damota.">Care, close to Damota.</h2>
@@ -43,7 +43,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   var img = document.getElementById("roleHomeImg");
-  if (img) img.src = (typeof basePath === "function" ? basePath() : "../") + "assets/images/home/nurse.jpg";
+  if (img) img.src = (typeof basePath === "function" ? basePath() : "../") + "assets/images/home/nurse.jpg?v=4";
   if (typeof checkSession === "function") checkSession();
   if (typeof checkRoleAccess === "function") checkRoleAccess("nurse");
   if (typeof initLayout === "function") initLayout();

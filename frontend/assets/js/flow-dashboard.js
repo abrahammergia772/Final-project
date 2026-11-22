@@ -17,16 +17,16 @@
   function rolePhoto(role) {
     var base = (typeof basePath === "function") ? basePath() : "";
     var alt = {
-      doctor: "A doctor speaking with a patient",
-      nurse: "A nurse checking a patient's blood pressure",
-      pharmacist: "A pharmacist at the dispensing counter",
-      laboratory: "A laboratory scientist with a sample",
-      reception: "A receptionist at the hospital desk",
-      admin: "A hospital administrator at a desk",
-      manager: "A hospital manager in the corridor",
-      patient: "A patient waiting calmly with a card"
+      doctor: 'A doctor consulting with a patient',
+      nurse: 'A nurse and doctor discussing care beside a patient',
+      laboratory: 'A laboratory professional using a microscope',
+      pharmacist: 'A pharmacist checking medicine on a pharmacy shelf',
+      reception: 'A receptionist assisting a patient at a medical reception desk',
+      admin: 'A healthcare professional working on a laptop in an office',
+      manager: 'Two healthcare professionals discussing work in a hospital',
+      patient: 'A patient talking with a doctor during a consultation',
     }[role] || "Hospital staff";
-    return '<img class="role-photo" src="' + base + "assets/images/roles/" + role + '.jpg" alt="' + esc(alt) + '">';
+    return '<img class="role-photo" src="' + base + "assets/images/roles/" + role + '.jpg?v=2" alt="' + esc(alt) + '">';
   }
 
   var ROLES = {
