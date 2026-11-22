@@ -79,6 +79,7 @@
     });
     html += '<div class="home-col"><div class="nav-section-label">MESSAGES</div>';
     html += navLink("messages.html", "Messages", "mail", perm, spa, cur);
+    html += navLink("calls.html", "Audio & Video Calls", "phone", perm, spa, cur);
     html += '<div class="nav-section-label">ACCOUNT</div>';
     html += navLink("settings.html", "Settings", "settings", perm, spa, cur);
     html += '<div class="nav-section-label">CONTACT</div>';
@@ -100,8 +101,21 @@
     document.body.classList.remove("has-auth-foot");
   }
 
+  var callingPromise;
+  window.loadCalling = function () {
+    if (!callingPromise) callingPromise = new Promise(function (resolve, reject) {
+      var script = document.createElement("script");
+      script.src = asset("assets/js/calls.js?v=1");
+      script.onload = function () { resolve(window.HospitalCalls); };
+      script.onerror = function () { callingPromise = null; reject(new Error("Could not load calling.")); };
+      document.head.appendChild(script);
+    });
+    return callingPromise;
+  };
+
   function buildShell(role) {
     role = role || roleFromPath() || "";
+    if (signedIn()) window.loadCalling().then(function (calls) { calls.startPolling(); }).catch(function () {});
     var cfg = (window.NAV_ROLES || {})[role] || { label: role, nav: [] };
     var perm = (window.NAV_PERM_MAP || {})[role] || {};
     var sb = document.getElementById("sidebar");

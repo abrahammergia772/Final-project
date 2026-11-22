@@ -31,7 +31,7 @@ from security import current_user
 from groq_client import configured as groq_configured, model_name as groq_model_name
 from mailer import configured as mail_configured, key_shape as mail_key_shape, provider_name as mail_provider
 from sms import configured as sms_configured, live_account as sms_live
-from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, payments, reports
+from routers import auth, clinical, interaction, lab, vitals, inventory, appointment, chatbot, data, payments, reports, calls
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("mediq")
@@ -161,4 +161,5 @@ app.include_router(chatbot.router, **protected)
 # without the AI permission; the route checks reports or AI itself.
 app.include_router(reports.router, dependencies=[Depends(current_user)])
 app.include_router(payments.router, dependencies=[Depends(current_user)])
+app.include_router(calls.router)
 app.include_router(data.router)

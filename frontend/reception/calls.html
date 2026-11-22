@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio &amp; Video Calls — Wolaita Sodo Hospital</title>
+<link rel="icon" type="image/png" href="../assets/images/favicon.png">
+<link rel="stylesheet" href="../assets/css/global.css?v=2">
+<link rel="stylesheet" href="../assets/css/sidebar.css?v=26">
+<link rel="stylesheet" href="../assets/css/components.css?v=7">
+<link rel="stylesheet" href="../assets/css/dashboard.css?v=11">
+<script src="../assets/js/theme.js?v=2"></script>
+</head><body>
+<aside class="sidebar" id="sidebar"></aside><div class="mobile-overlay" id="mobileOverlay"></div>
+<main class="main-content" id="mainContent"><header class="topbar" id="topbar" data-title="Audio &amp; Video Calls"></header>
+<section class="page-body"><div id="callPage">
+<style>
+#callPage {max-width:1100px;margin:0 auto;color:var(--text-primary, #11212d)}
+.call-intro {margin-bottom:22px}.call-intro h2 {margin:0 0 6px;font-size:28px}.call-intro p {color:#526370;margin:0;line-height:1.5}
+.call-panels {display:grid;grid-template-columns:1fr 1fr;gap:16px}.call-panel {padding:20px;background:var(--card-bg, #fff);border:1px solid #d6dfe2;border-radius:14px}
+.call-panel h3 {margin:0 0 8px;font-size:18px}.call-panel p {line-height:1.45}.call-directory {max-height:300px;overflow:auto;border:1px solid #d6dfe2;border-radius:8px;margin:10px 0 14px}
+.call-person {display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #edf1f2;cursor:pointer}.call-person[hidden] {display:none}.call-person:last-child {border-bottom:0}
+.call-row {display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #edf1f2}.call-actions {display:flex;gap:8px}
+.call-controls {display:flex;gap:10px;flex-wrap:wrap;align-items:center}.call-controls select {max-width:160px}.call-message {margin:14px 0;min-height:1.4em;color:#36526a}.call-message.is-error {color:#b42318}
+#callMeeting {margin-top:12px;border-radius:12px;overflow:hidden;min-height:400px}#callMeeting[hidden] {display:none}#callMeeting iframe {border:0}
+@media(max-width:700px){.call-panels{grid-template-columns:1fr}#callMeeting{min-height:360px}}
+</style>
+<div class="call-intro"><h2>Audio &amp; video calls</h2><p>Invite one person or a group. Participants must be signed in to receive invitations.</p></div>
+<div class="call-panels">
+<section class="call-panel"><h3>Start a call</h3><p>Choose up to 20 participants.</p>
+<label for="callSearch">Find a person by account email</label><div class="call-controls"><input id="callSearch" class="form-control" type="email" placeholder="name@example.com"><button id="callFind" class="btn btn-outline" type="button">Find</button></div>
+<div id="callDirectory" class="call-directory" aria-label="Participants">Search for a participant by email.</div>
+<div class="call-controls"><label for="callMode">Call type</label><select id="callMode" class="form-control"><option value="video">Video</option><option value="audio">Audio</option></select><button class="btn btn-primary" type="button" id="callStart">Start call</button></div>
+</section>
+<section class="call-panel"><h3>Calls &amp; invitations</h3><p>Incoming calls appear here while you are signed in.</p><div id="callInvitations">Loading calls…</div></section>
+</div>
+<p class="call-message" id="callMessage" role="status" aria-live="polite"></p>
+<button id="callEnd" class="btn btn-outline" type="button" hidden>Leave / end call</button>
+<div id="callMeeting" hidden aria-label="Jitsi meeting"></div>
+<p style="margin-top:16px;color:#667780;font-size:13px">Camera and microphone access require a secure HTTPS connection and your permission. Do not discuss patient information until the hospital has approved and secured the Jitsi deployment.</p>
+</div></section></main>
+<div id="modalContainer"></div><div id="toastContainer"></div>
+<script src="../assets/js/config.js"></script><script src="../assets/js/icons.js"></script><script src="../assets/js/nav.js?v=4"></script><script src="../assets/js/auth.js?v=6"></script><script src="../assets/js/api.js?v=3"></script><script src="../assets/js/utils.js?v=19"></script><script src="../assets/js/shell.js?v=14"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  if (!checkSession() || !checkRoleAccess("reception")) return;
+  initLayout();
+  window.loadCalling().then(function (calls) { return calls.mount(); }).catch(function () {
+    var msg = document.getElementById("callMessage"); if (msg) msg.textContent = "Unable to load calling. Please refresh.";
+  });
+});
+</script><script src="../assets/js/i18n.js?v=19"></script></body></html>
