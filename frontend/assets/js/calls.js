@@ -1,7 +1,7 @@
 /* Audio/video calling through an explicitly configured Jitsi deployment. */
 (function () {
   'use strict';
-  var timer = null, currentCall = null, conference = null, busy = false, lastItems = [], pollToken = null;
+  var timer = null, currentCall = null, conference = null, busy = false, lastItems = [], pollToken = null, loadedJitsiScript = '';
   var selectedPeople = new Map(), searchResult = null;
   var observer = new MutationObserver(function () {
     if (currentCall && !document.getElementById('callMeeting')) leaveMeeting();
@@ -109,11 +109,17 @@
     renderDirectory();
     message(searchResult ? 'Select the person to add them to the call.' : 'No active account found for that email.', !searchResult);
   }
-  function jitsiScript(domain) {
+  function jitsiScript(domain, provider, appId) {
     return new Promise(function (resolve, reject) {
-      if (window.JitsiMeetExternalAPI) { resolve(); return; }
-      var script = document.createElement('script'); script.src = 'https://' + domain + '/external_api.js';
-      script.onload = resolve; script.onerror = function () { script.remove(); reject(new Error('Could not load the configured Jitsi server.')); };
+      if (!/^[a-z0-9][a-z0-9.:-]*$/i.test(domain) ||
+          (provider === 'jaas' && (domain !== '8x8.vc' || !/^vpaas-magic-cookie-[a-z0-9_-]+$/i.test(appId)))) {
+        reject(new Error('Invalid Jitsi server configuration.')); return;
+      }
+      var src = 'https://' + domain + (provider === 'jaas' ? '/' + appId : '') + '/external_api.js';
+      if (window.JitsiMeetExternalAPI && loadedJitsiScript === src) { resolve(); return; }
+      var script = document.createElement('script'); script.src = src;
+      script.onload = function () { loadedJitsiScript = src; resolve(); };
+      script.onerror = function () { script.remove(); reject(new Error('Could not load the configured Jitsi server.')); };
       document.head.appendChild(script);
     });
   }
@@ -124,7 +130,7 @@
     if (!result.ok) { message(result.error || 'Unable to join.', true); await refresh(); return; }
     var data = result.data;
     try {
-      await jitsiScript(data.domain);
+      await jitsiScript(data.domain, data.provider, data.app_id);
       var target = el('callMeeting'); if (!target) return;
       target.hidden = false; target.replaceChildren();
       currentCall = id;

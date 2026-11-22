@@ -105,7 +105,7 @@
   window.loadCalling = function () {
     if (!callingPromise) callingPromise = new Promise(function (resolve, reject) {
       var script = document.createElement("script");
-      script.src = asset("assets/js/calls.js?v=1");
+      script.src = asset("assets/js/calls.js?v=2");
       script.onload = function () { resolve(window.HospitalCalls); };
       script.onerror = function () { callingPromise = null; reject(new Error("Could not load calling.")); };
       document.head.appendChild(script);

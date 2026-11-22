@@ -1,23 +1,36 @@
 # Audio and video calling setup
 
-The application includes Jitsi-based one-to-one and group calls for all eight roles. Users find participants by their exact account email, select up to 20 people, and start an audio or video call. Invitations are polled about every eight seconds while the recipient is signed in with the app open. They can accept or decline on the Calls page. Audio calls start with the camera muted; users can control audio/video in Jitsi. The caller leaving ends invitations for the whole group; other participants leaving only removes their own invitation. Invitations expire after one hour. There is no offline push notification or call recording built into this app.
+The app supports authenticated one-to-one and group calls for all roles. It supports either Jitsi as a Service (JaaS) or a separately deployed private JWT-authenticated Jitsi server. It does not support authenticating JaaS calls through `meet.jit.si`.
 
-## Required deployment
+Users find participants by exact account email, select up to 20 people, and choose audio or video. Invitations appear while recipients are signed in with the app open, normally within eight seconds. No offline push is provided. The caller leaving ends invitations; invitations expire after one hour. Audio calls start with the camera muted.
 
-1. Run `sql/call_invites.sql` in the Supabase SQL editor. It enables RLS and revokes browser access. Keep the Supabase service-role key on the backend only.
-2. Deploy a **private, HTTPS Jitsi Meet server** with JWT authentication enabled and anonymous/guest room access disabled. Configure its accepted issuer, audience and domain to match the settings below; test that it rejects missing, invalid, expired, and wrong-room tokens. Use a Jitsi deployment compatible with HS256 JWT authentication and Jitsi's external iframe API. Configure TURN for restrictive networks and set the appropriate iframe/permissions policies for camera and microphone.
-3. Set these backend environment variables, then redeploy the API:
-   - `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` — existing database URL and server-only service-role key.
-   - `JITSI_DOMAIN` — Jitsi host, optionally with port, **without** `https://` or a path, for example `meet.example.org`.
-   - `JITSI_APP_ID` — accepted Jitsi JWT issuer.
-   - `JITSI_APP_SECRET` — strong shared secret used by the Jitsi JWT verifier; never put it in browser files or the repository.
-4. Serve the frontend over HTTPS, point `CONFIG.API_BASE_URL` at the updated API, and configure backend CORS for the frontend origin. Redeploy the frontend. Camera and microphone permission must be allowed in the browser.
-5. Sign in as two different users in separate browsers, open the app for both, and test an individual call, a group call, audio-only, decline, leaving and ending. Verify that a non-invited account and a direct room URL without a valid token cannot join. Check restrictive-network connectivity.
+## 1. Database and web prerequisites
 
-The backend rejects call creation and joining when the Jitsi settings are absent; it does not silently fall back to a public Jitsi service. Once configured, the app generates random room names and short-lived, room-scoped signed Jitsi JWTs only for invited active accounts. Tokens expire within 30 minutes (or sooner if the invitation expires).
+- Run `sql/call_invites.sql` in your Supabase SQL editor. Existing installations that already ran it do not need to run it again.
+- Set `SUPABASE_URL`, `SUPABASE_KEY`, and `SUPABASE_SERVICE_KEY` on the backend. The service-role key must stay on the backend.
+- Use HTTPS for the frontend and ensure backend CORS allows its exact origin. Browser camera/microphone permissions must be granted.
+
+## 2. Configure Jitsi as a Service (JaaS)
+
+The public `meet.jit.si` site is not the JaaS service. JaaS uses `8x8.vc` and a room path prefixed by the application's AppID. The backend generates a separate, room-scoped RS256 JWT for each invited participant; only the call creator is given the moderator claim.
+
+1. In the [JaaS console](https://jaas.8x8.vc/), open **API Keys**. Create or add an RSA key pair and keep the private key securely. If you lost a generated private key, create a replacement key pair in the console; it cannot be recovered there. See [JaaS API keys](https://developer.8x8.com/jaas/docs/jaas-console-api-keys/).
+2. On the Render **backend web service** (not the frontend), set these environment variables:
+   - `CALL_PROVIDER`: `jaas`
+   - `JAAS_APP_ID`: the full JaaS AppID, beginning `vpaas-magic-cookie-`.
+   - `JAAS_KEY_ID`: the full key ID (`kid`) shown for the uploaded public key, including the AppID and slash.
+   - `JAAS_PRIVATE_KEY`: the corresponding RSA private key in PEM format. Use a multiline secret value, or a single line with literal `\n` where each line break belongs. Use an unencrypted RSA key of at least 2048 bits.
+3. Save and redeploy the backend so it installs the updated requirements and reads these settings. Redeploy the frontend too. Refresh your browser and start a **new** call.
+4. Test with two different accounts. The caller must join as moderator and the recipient must accept their invitation. Verify unauthorized users and tokens for another room cannot join. Review your JaaS account's security and access settings separately.
+
+Never paste the private key, JWT, service-role key, or meeting links into a chat, public issue, frontend file, or repository. `JITSI_DOMAIN` and `JITSI_APP_SECRET` are for the private-server mode and are not used when `CALL_PROVIDER=jaas`. Merely changing the domain to `8x8.vc` without the code and settings above will not work.
+
+## 3. Alternative: private Jitsi server
+
+To use an independent server instead of JaaS, set `CALL_PROVIDER=private` (or omit it), `JITSI_DOMAIN` to the server's HTTPS hostname without `https://` or a path, `JITSI_APP_ID` to its JWT issuer, and `JITSI_APP_SECRET` to the server-only shared secret. The private Jitsi server must require and validate HS256 tokens, accept audience `jitsi` and the configured issuer, and validate the subject (the configured hostname) and room. Disable anonymous room access. Configure TURN and required network ports. The API cannot enforce who enters a meeting on an anonymously accessible Jitsi server. Verify missing, invalid, expired, and wrong-room JWTs are rejected.
 
 ## Safety and operational limitations
 
-**This integration is not yet approved or verified for real patient information.** Jitsi must actually enforce JWT validation and room restrictions: the API alone cannot secure an anonymously accessible Jitsi server. The meeting service receives participant names and media. TLS in transit does not by itself provide end-to-end encryption or regulatory compliance. The hospital must assess hosting, privacy, consent, recording, retention, audit, access policies, role/relationship restrictions, account security, and applicable laws before clinical use. Jitsi scripts are loaded from the configured server, which must be trusted and maintained.
+**This integration is not yet approved or verified for real patient information.** The meeting service receives participant names and media. TLS does not by itself provide end-to-end encryption or regulatory compliance. The hospital must assess hosting, privacy, consent, recording, retention, audit, access policies, role/relationship restrictions, account security, and applicable laws before clinical use. Server-provided Jitsi scripts must be trusted and maintained.
 
-Exact-email lookup limits casual browsing of the user directory but is not a complete defense against account enumeration; add rate limiting and relationship-based authorization before production. An issued JWT cannot be revoked by the API once delivered; ending a call updates app invitations and connected app clients leave on their next poll, but cannot guarantee immediate removal of a copied token or an external Jitsi client. Configure Jitsi-side moderation and revocation controls if needed. If a host closes the tab without leaving, invitations may remain active until expiry. Clean up expired records on a schedule according to the hospital's retention policy. Test the complete deployed system, including Jitsi token validation and both browsers, before relying on it.
+Exact-email lookup limits casual browsing of the user directory but is not a complete defense against account enumeration; add rate limiting and relationship-based authorization before production. An issued JWT cannot be revoked by this API once delivered; ending a call updates app invitations and connected app clients leave on their next poll, but cannot guarantee immediate removal of a copied token or an external Jitsi client. Configure meeting-service moderation and revocation controls if needed. If a host closes the tab without leaving, invitations may remain active until expiry. Clean up expired records on a schedule according to the hospital's retention policy. Test the deployed system—including token validation and both browsers—before relying on it.

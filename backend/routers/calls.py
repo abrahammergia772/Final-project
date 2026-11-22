@@ -1,6 +1,6 @@
-"""Authenticated call invitations and short-lived Jitsi room tokens.
+"""Authenticated call invitations and short-lived Jitsi or JaaS room tokens.
 
-The Jitsi deployment must itself require and validate these JWTs. This API
+A private Jitsi deployment must itself require and validate these JWTs. This API
 cannot enforce who enters a meeting on an anonymously accessible Jitsi server.
 """
 import base64
@@ -32,12 +32,35 @@ def _client():
 
 
 def _jitsi():
+    provider = os.getenv("CALL_PROVIDER", "private").strip().lower()
+    if provider == "jaas":
+        app_id = os.getenv("JAAS_APP_ID", "").strip()
+        kid = os.getenv("JAAS_KEY_ID", "").strip()
+        pem = os.getenv("JAAS_PRIVATE_KEY", "").strip().replace("\\n", "\n")
+        if (not re.fullmatch(r"vpaas-magic-cookie-[A-Za-z0-9_-]+", app_id)
+                or not kid.startswith(app_id + "/")
+                or not re.fullmatch(re.escape(app_id) + r"/[A-Za-z0-9_-]+", kid)
+                or not pem):
+            raise HTTPException(503, "JaaS is not configured. Set JAAS_APP_ID, JAAS_KEY_ID and JAAS_PRIVATE_KEY on the backend.")
+        try:
+            from cryptography.hazmat.primitives import serialization
+            from cryptography.hazmat.primitives.asymmetric import rsa
+            key = serialization.load_pem_private_key(pem.encode(), password=None)
+            if not isinstance(key, rsa.RSAPrivateKey) or key.key_size < 2048:
+                raise ValueError("RSA key must be at least 2048 bits")
+        except (ImportError, ValueError, TypeError) as exc:
+            raise HTTPException(503, "JaaS private key is invalid or its signing dependency is unavailable.") from exc
+        return {"provider": "jaas", "domain": "8x8.vc", "app_id": app_id, "kid": kid, "key": key}
+    if provider != "private":
+        raise HTTPException(503, "Unknown call provider. Use private or jaas.")
     domain = os.getenv("JITSI_DOMAIN", "").strip().lower()
     app_id = os.getenv("JITSI_APP_ID", "").strip()
     secret = os.getenv("JITSI_APP_SECRET", "").strip()
+    if domain in {"meet.jit.si", "8x8.vc"}:
+        raise HTTPException(503, "This provider is not a private Jitsi server. For JaaS set CALL_PROVIDER=jaas.")
     if not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::[0-9]{1,5})?", domain) or not app_id or not secret:
         raise HTTPException(503, "Calling is not configured. Configure a private JWT-authenticated Jitsi server first.")
-    return domain, app_id, secret
+    return {"provider": "private", "domain": domain, "app_id": app_id, "secret": secret}
 
 
 def _now():
@@ -74,17 +97,30 @@ def _row(client, call_id, user_id):
     return row
 
 
-def _jwt(domain, app_id, secret, room, person, expires_at):
+def _jwt(config, room, person, expires_at, moderator=False):
     def b64(obj):
         return base64.urlsafe_b64encode(json.dumps(obj, separators=(",", ":")).encode()).rstrip(b"=").decode()
     now = int(time.time())
     exp = min(now + 1800, int(datetime.fromisoformat(expires_at.replace("Z", "+00:00")).timestamp()))
-    payload = {"aud": "jitsi", "iss": app_id, "sub": domain.split(":")[0], "room": room,
-               "iat": now, "nbf": now - 10, "exp": exp,
-               "context": {"user": {"id": str(person["id"]), "name": person.get("name") or "Hospital user"}}}
-    unsigned = b64({"alg": "HS256", "typ": "JWT"}) + "." + b64(payload)
-    sig = base64.urlsafe_b64encode(hmac.new(secret.encode(), unsigned.encode(), hashlib.sha256).digest()).rstrip(b"=").decode()
-    return unsigned + "." + sig
+    participant = {"id": str(person["id"]), "name": person.get("name") or "Hospital user"}
+    if config["provider"] == "jaas":
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import padding
+        participant["moderator"] = bool(moderator)
+        payload = {"aud": "jitsi", "iss": "chat", "sub": config["app_id"], "room": room,
+                   "iat": now, "nbf": now - 10, "exp": exp,
+                   "context": {"user": participant, "room": {"regex": False},
+                               "features": {"recording": False, "livestreaming": False,
+                                            "transcription": False, "outbound-call": False}}}
+        header = {"alg": "RS256", "kid": config["kid"], "typ": "JWT"}
+        unsigned = b64(header) + "." + b64(payload)
+        signature = config["key"].sign(unsigned.encode(), padding.PKCS1v15(), hashes.SHA256())
+    else:
+        payload = {"aud": "jitsi", "iss": config["app_id"], "sub": config["domain"].split(":")[0], "room": room,
+                   "iat": now, "nbf": now - 10, "exp": exp, "context": {"user": participant}}
+        unsigned = b64({"alg": "HS256", "typ": "JWT"}) + "." + b64(payload)
+        signature = hmac.new(config["secret"].encode(), unsigned.encode(), hashlib.sha256).digest()
+    return unsigned + "." + base64.urlsafe_b64encode(signature).rstrip(b"=").decode()
 
 
 class NewCall(BaseModel):
@@ -142,7 +178,7 @@ def create_call(req: NewCall, user=Depends(current_user)):
 
 @router.post("/{call_id}/join")
 def join_call(call_id: str, user=Depends(current_user)):
-    domain, app_id, secret = _jitsi()
+    config = _jitsi()
     client = _client()
     person = _active_user(client, user)
     row = _row(client, call_id, user["sub"])
@@ -156,8 +192,11 @@ def join_call(call_id: str, user=Depends(current_user)):
             raise HTTPException(409, "This invitation is no longer available.")
     # Recheck host after acceptance to reduce races with ending a call.
     _row(client, call_id, row["caller_id"])
-    return {"domain": domain, "room": row["room"], "mode": row["mode"],
-            "token": _jwt(domain, app_id, secret, row["room"], person, row["expires_at"]),
+    is_jaas = config["provider"] == "jaas"
+    return {"domain": config["domain"], "provider": config["provider"],
+            "app_id": config["app_id"] if is_jaas else "",
+            "room": (config["app_id"] + "/" if is_jaas else "") + row["room"], "mode": row["mode"],
+            "token": _jwt(config, row["room"], person, row["expires_at"], str(person["id"]) == row["caller_id"]),
             "name": person.get("name") or "Hospital user"}
 
 

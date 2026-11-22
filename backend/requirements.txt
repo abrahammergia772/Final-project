@@ -12,3 +12,4 @@ xgboost==3.0.2
 lightgbm==4.7.0
 supabase==2.15.0
 httpx==0.28.1
+cryptography==44.0.3
