@@ -1,0 +1,168 @@
+/* A shared, readable glass system for standalone pages and the SPA. */
+:root {
+  --font-main: Inter, 'Noto Sans Ethiopic', 'Segoe UI', system-ui, sans-serif;
+  --glass-surface: rgba(250, 253, 255, .76);
+  --glass-border: rgba(255, 255, 255, .78);
+  --glass-shadow: 0 12px 36px rgba(34, 72, 93, .09), 0 1px 2px rgba(29, 62, 79, .06);
+  --glass-blur: blur(16px) saturate(125%);
+}
+html[data-theme="dark"] {
+  --glass-surface: rgba(25, 45, 57, .82);
+  --glass-border: rgba(181, 213, 225, .16);
+  --glass-shadow: 0 12px 36px rgba(0, 0, 0, .19), 0 1px 2px rgba(0, 0, 0, .12);
+}
+body {
+  font-family: var(--font-main);
+  font-size: 15px;
+  line-height: 1.55;
+  background: radial-gradient(ellipse at 12% 4%, rgba(181, 217, 227, .9), transparent 38%),
+              radial-gradient(ellipse at 88% 14%, rgba(185, 216, 225, .78), transparent 37%),
+              radial-gradient(ellipse at 60% 88%, rgba(201, 229, 223, .75), transparent 42%),
+              #e6f0f3;
+  background-attachment: fixed;
+}
+html[data-theme="dark"] body {
+  background: radial-gradient(ellipse at 14% 4%, rgba(32, 81, 98, .68), transparent 42%),
+              radial-gradient(ellipse at 88% 14%, rgba(29, 65, 85, .72), transparent 40%),
+              radial-gradient(ellipse at 55% 88%, rgba(22, 78, 71, .35), transparent 44%),
+              #0c1b24;
+  background-attachment: fixed;
+}
+body input, body textarea, body select, body button { font-family: var(--font-main); }
+body :is(.page-body, .login-body) :is(h1, h2, h3, h4),
+body.home-shell .topbar .page-title,
+body.home-shell .brand-lockup { font-family: var(--font-main); font-style: normal; letter-spacing: -.025em; }
+body .page-body h1 { line-height: 1.2; }
+body .page-body h2 { line-height: 1.2; }
+body .page-body h3 { line-height: 1.3; }
+body .page-body :is(.text-sm, .hint, .stat-label, .section-label, .flow-section-label) { line-height: 1.45; }
+body .page-body .text-sm { font-size: 13px; }
+body .page-body :is(.form-control, .btn, .data-table, .panel, .card) { line-height: 1.5; }
+body .page-body .data-table { font-size: 14px; }
+body .page-body :is(.form-group label, .login-field label) { font-size: 13px; }
+
+/* Navigation stays legible, with a translucent layer over the page. */
+body.home-shell .topbar, body .topbar {
+  background: rgba(245, 251, 253, .78);
+  border-bottom: 1px solid rgba(255, 255, 255, .75);
+  box-shadow: 0 8px 26px rgba(27, 69, 86, .08);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+html[data-theme="dark"] body.home-shell .topbar, html[data-theme="dark"] body .topbar {
+  background: rgba(12, 30, 40, .87);
+  border-bottom-color: rgba(202, 232, 239, .14);
+}
+body.home-shell .topbar-main { border-bottom-color: rgba(130, 162, 176, .24); }
+body.home-shell .topbar .page-title { font-size: 20px; font-weight: 700; }
+body .dropdown-menu, body .modal {
+  background: rgba(249, 253, 255, .96);
+  border: 1px solid rgba(255, 255, 255, .8);
+  box-shadow: 0 18px 50px rgba(13, 42, 56, .18);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+}
+html[data-theme="dark"] body :is(.dropdown-menu, .modal) { background: rgba(22, 41, 52, .97); border-color: rgba(188, 216, 228, .18); }
+body .modal-overlay { background: rgba(5, 20, 29, .54); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+
+/* The existing semantic/status colors are kept; only container surfaces change. */
+body .page-body :is(.card, .panel, .stat-card, .call-panel, .contact-hero, .direct-card, .social-tile, .msg-card, .doc-card, .identity-bar, .flow-section, .timeline-section, .shift-card, .ai-card, .flow-response, .care-card, .must-card) {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 16px;
+}
+body.home-shell .page-body .flow-dash[data-role] .care-hero,
+body .page-body .flow-dash[data-role] .care-hero {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 20px;
+}
+body .page-body .care-copy h2 { font-size: clamp(28px, 3.2vw, 42px); font-weight: 700; line-height: 1.13; letter-spacing: -.04em; }
+body .page-body .care-card { transition: transform .18s ease, box-shadow .18s ease; }
+body .page-body .care-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(30, 72, 92, .14); }
+body .page-body .role-photo { border-radius: 14px; }
+body .page-body .role-home figcaption {
+  background: rgba(247, 252, 253, .84);
+  border: 1px solid rgba(255, 255, 255, .72);
+  box-shadow: 0 12px 32px rgba(14, 44, 58, .16);
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+}
+html[data-theme="dark"] body .page-body .role-home figcaption { background: rgba(19, 39, 50, .87); border-color: rgba(202, 232, 239, .18); }
+body .page-body .role-home figcaption h2 { font-size: clamp(27px, 3.4vw, 40px); font-weight: 700; }
+body .page-body .form-control {
+  background-color: rgba(255, 255, 255, .66);
+  border-color: rgba(95, 129, 145, .4);
+  border-radius: 10px;
+  color: #102b3a;
+}
+body .page-body .form-control:focus { background-color: rgba(255, 255, 255, .94); border-color: #317f8a; box-shadow: 0 0 0 3px rgba(49, 127, 138, .18); }
+html[data-theme="dark"] body .page-body .form-control { background-color: rgba(11, 29, 39, .82); border-color: rgba(159, 193, 207, .34); color: #edf7fa; }
+html[data-theme="dark"] body .page-body .form-control::placeholder { color: #afc3cb; }
+html[data-theme="dark"] body .page-body .form-control:focus { background-color: rgba(14, 37, 49, .96); border-color: #79b8bc; }
+body .page-body .data-table thead th { font-size: 12px; letter-spacing: .025em; }
+body .page-body .data-table tbody tr:nth-child(even):not(.row-danger) { background: rgba(204, 224, 231, .3); }
+html[data-theme="dark"] body .page-body .data-table tbody tr:nth-child(even):not(.row-danger) { background: rgba(137, 181, 193, .09); }
+
+/* Related account screens share the same atmosphere as the main login. */
+body .login-body.login-split:not(.login-scene) {
+  background: linear-gradient(rgba(8, 28, 43, .28), rgba(8, 28, 43, .18)), url('../images/login-forest.jpg') center / cover fixed no-repeat, #193448;
+}
+body .login-split:not(.login-scene) .login-hero { background: rgba(7, 29, 45, .55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+body .login-split:not(.login-scene) .login-panel { background: rgba(222, 237, 243, .24); box-shadow: none; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+body .login-split:not(.login-scene) .login-card {
+  width: 100%; max-width: 480px; margin: 0; padding: 32px;
+  background: rgba(242, 249, 252, .91); color: #102c3b;
+  border: 1px solid rgba(255, 255, 255, .76); border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(7, 24, 36, .22);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+body .login-split:not(.login-scene) .login-card.login-card-wide { max-width: 640px; }
+body .login-split:not(.login-scene) .login-panel :is(h1, h2, h3, h4, label, .sub, .hint, .login-foot) { color: #163445; }
+body .login-split:not(.login-scene) .login-panel .form-control { background: rgba(255, 255, 255, .8); border-color: rgba(82, 118, 136, .4); color: #132f40; border-radius: 10px; }
+body .login-split:not(.login-scene) .login-panel .form-control::placeholder { color: #617b89; }
+body .login-split:not(.login-scene) .login-panel a:not(.btn) { color: #17566e; }
+body .login-split:not(.login-scene) .login-panel .btn-primary.btn-block { color: #fff; background: #102f42; border-radius: 10px; }
+body #loginView .login-title { font-family: var(--font-main); font-size: 32px; letter-spacing: -.04em; }
+
+@media (max-width: 768px) {
+  body .page-body .form-control { font-size: 16px; }
+  body .page-body .data-table { font-size: 13px; }
+  body .login-split:not(.login-scene) .login-card { padding: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body .page-body .care-card { transition: none; }
+  body .page-body .care-card:hover { transform: none; }
+}
+@media print {
+  body, html[data-theme="dark"] body { background: #fff; color: #000; }
+  body .page-body :is(.card, .panel, .stat-card, .care-card, .care-hero) { background: #fff; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: #777; }
+}
+
+/* Normalize display faces and keep the home photo captions high-contrast. */
+body .page-body .flow-dash .care-copy h2,
+body .login-split .login-logo h1.login-title,
+body .page-body .role-home figcaption.land-on :is(h2, .land-line) {
+  font-family: var(--font-main);
+  font-style: normal;
+}
+body .login-split .login-logo h1.login-title { font-size: clamp(28px, 3vw, 34px); font-weight: 700; line-height: 1.15; }
+body .page-body .role-home figcaption.land-on { color: #f7fbfc; background: rgba(12, 38, 52, .82); border-color: rgba(226, 245, 249, .22); }
+body .page-body .role-home figcaption.land-on h2 { font-size: clamp(28px, 3.4vw, 42px); font-weight: 700; line-height: 1.12; }
+body .page-body .role-home figcaption.land-on .land-line { font-size: clamp(16px, 1.7vw, 21px); font-weight: 500; line-height: 1.4; }
+body .login-split:not(.login-scene) .login-panel .req { color: #a72525; }
+body .login-split:not(.login-scene) .login-panel input { color-scheme: light; }
+/* Headings in individual modules previously carried unrelated serif faces. */
+body .page-body :is(h1, h2, h3, h4), body .login-body :is(h1, h2, h3, h4) { font-family: var(--font-main) !important; font-style: normal; }
+body .sidebar { background: rgba(14, 38, 51, .94); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+html[data-theme="dark"] body .sidebar { background: rgba(8, 27, 37, .96); }
+/* Keep dropdowns above animated dashboard cards, including on narrow screens. */
+body.home-shell .topbar, body .topbar { position: sticky; z-index: 1000; }
+body.home-shell .dropdown-menu, body .dropdown-menu { background: rgba(248, 252, 254, .98); }
+html[data-theme="dark"] body.home-shell .dropdown-menu, html[data-theme="dark"] body .dropdown-menu { background: rgba(19, 39, 50, .98); }
