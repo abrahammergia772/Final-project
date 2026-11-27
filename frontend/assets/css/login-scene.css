@@ -1,0 +1,111 @@
+/* Main login only: a calm, illustrated scene with a frosted sign-in card. */
+#loginView.login-scene {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0;
+  overflow: auto;
+  background: linear-gradient(180deg, rgba(4, 18, 34, .22), rgba(4, 19, 35, .04) 45%, rgba(3, 18, 29, .3)), url('../images/login-forest.jpg') center center / cover no-repeat, #1a334a;
+  color: #fff;
+  font-family: Inter, 'Noto Sans Ethiopic', system-ui, sans-serif;
+}
+#loginView.login-scene::before, #loginView.login-scene::after { display: none; }
+#loginView .scene-header {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 250px 15px 48px;
+}
+#loginView .scene-brand { display: inline-flex; align-items: center; gap: 11px; color: #fff; text-decoration: none; flex-shrink: 0; }
+#loginView .scene-brand img { width: 45px; height: 45px; object-fit: contain; border-radius: 50%; background: rgba(245, 251, 255, .93); padding: 4px; }
+#loginView .scene-brand span { display: flex; flex-direction: column; gap: 2px; }
+#loginView .scene-brand strong { color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
+#loginView .scene-brand small { color: #c9dce8; font-size: 9px; letter-spacing: .13em; font-weight: 700; line-height: 1.2; }
+#loginView .scene-nav { display: flex; align-items: center; gap: 28px; white-space: nowrap; }
+#loginView .scene-nav a { color: #f4f9fc; font-size: 13px; font-weight: 600; text-decoration: none; }
+#loginView .scene-nav a:hover { color: #fff; text-decoration: underline; text-underline-offset: 5px; }
+#loginView .scene-nav a.scene-nav-admin { border: 1px solid rgba(234, 246, 252, .65); padding: 10px 15px; border-radius: 8px; }
+#loginView .scene-nav a.scene-nav-admin:hover { background: rgba(255, 255, 255, .12); text-decoration: none; }
+#loginView .scene-main { display: flex; flex: 1 0 auto; align-items: center; justify-content: center; padding: 24px 20px 34px; }
+#loginView .login-panel { width: 100%; display: flex; justify-content: center; align-items: center; padding: 0; background: none; box-shadow: none; }
+#loginView .login-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 34px 38px 30px;
+  color: #132b3c;
+  background: rgba(237, 246, 250, .84);
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 18px;
+  box-shadow: 0 26px 70px rgba(4, 16, 29, .37), inset 0 1px 0 rgba(255, 255, 255, .6);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  animation: none;
+}
+#loginView .scene-eyebrow { display: inline-flex; align-items: center; gap: 7px; color: #36586a; font-size: 10px; font-weight: 800; letter-spacing: .13em; }
+#loginView .scene-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #287e72; box-shadow: 0 0 0 3px rgba(40, 126, 114, .12); }
+#loginView .login-title { color: #102c40; font-family: Fraunces, Georgia, serif; font-size: 37px; font-weight: 640; line-height: 1.1; letter-spacing: -.04em; margin: 14px 0 0; }
+#loginView .scene-period { color: #338e86; }
+#loginView .login-sub { color: #486272; margin: 8px 0 24px; font-size: 13px; line-height: 1.5; }
+#loginView .login-field { margin-bottom: 15px; }
+#loginView .login-field label { color: #294758; font-size: 12px; font-weight: 700; margin: 0 0 7px; }
+#loginView .login-input .field-icon { color: #587181; left: 14px; width: 17px; height: 17px; }
+#loginView .login-input input.form-control {
+  width: 100%; height: 48px; padding: 0 45px 0 42px;
+  color: #112c3d; background: rgba(255, 255, 255, .6);
+  border: 1px solid rgba(77, 111, 128, .35); border-radius: 9px;
+  font-size: 14px; box-shadow: none;
+}
+#loginView .login-input input.form-control::placeholder { color: #748c99; opacity: 1; }
+#loginView .login-input input.form-control:focus { outline: none; border-color: #237786; box-shadow: 0 0 0 3px rgba(35, 119, 134, .18); }
+#loginView .pw-toggle { color: #506d7e; }
+#loginView .pw-toggle:hover { color: #16394a; background: rgba(22, 57, 74, .08); }
+#loginView .login-submit.btn-primary.btn-block { display: flex; width: 100%; height: 48px; margin-top: 8px; border-radius: 9px; background: #102b3d; color: #fff; font-size: 14px; font-weight: 700; box-shadow: 0 8px 18px rgba(16, 43, 61, .18); }
+#loginView .login-submit.btn-primary.btn-block:hover:not(:disabled) { background: #1c465a; }
+#loginView .login-submit .btn-label { display: flex; align-items: center; justify-content: center; gap: 9px; }
+#loginView .login-submit.is-busy .btn-label { display: none; }
+#loginView .login-or { color: #5b7481; font-size: 11px; margin: 16px 0 13px; }
+#loginView .login-or::before, #loginView .login-or::after { background: rgba(87, 118, 132, .3); }
+#loginView .google-continue { height: 46px; min-height: 46px; border: 1px solid rgba(77, 111, 128, .35); border-radius: 9px; color: #203b4c; background: rgba(255, 255, 255, .75); font-size: 13px; }
+#loginView .google-continue:hover:not(:disabled) { background: #fff; }
+#loginView .login-links { margin-top: 19px; font-size: 12px; font-weight: 650; }
+#loginView .login-links a, #loginView .login-admin-link { color: #164f65; text-decoration: none; }
+#loginView .login-links a:hover, #loginView .login-admin-link:hover { text-decoration: underline; }
+#loginView .login-admin-link { display: inline-flex; margin-top: 18px; font-size: 12px; font-weight: 600; }
+#loginView .login-error { color: #8c2020; background: #fff0f0; border-color: #ef9d9d; }
+#loginView a:focus-visible, #loginView button:focus-visible { outline: 3px solid #399c9e; outline-offset: 3px; }
+#loginView .scene-footer { width: 100%; display: flex; justify-content: space-between; gap: 18px; padding: 12px 48px 24px; color: #d2e4ed; font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+#loginView .scene-footer span:last-child { font-size: 11px; letter-spacing: .02em; font-weight: 500; }
+@media (max-width: 1050px) {
+  #loginView .scene-header { padding-left: 24px; padding-right: 225px; }
+  #loginView .scene-nav { gap: 15px; }
+  #loginView .scene-nav a:first-child { display: none; }
+  #loginView .scene-footer { padding-left: 24px; padding-right: 24px; }
+}
+@media (max-width: 700px) {
+  #loginView.login-scene { background-position: center center; }
+  #loginView .scene-header { min-height: 76px; padding: 16px 200px 8px 18px; }
+  #loginView .scene-brand img { width: 38px; height: 38px; }
+  #loginView .scene-brand strong { font-size: 14px; }
+  #loginView .scene-brand small { font-size: 8px; }
+  #loginView .scene-nav { display: none; }
+  #loginView .scene-main { align-items: center; padding: 20px 16px 32px; }
+  #loginView .login-card { max-width: 440px; padding: 29px 26px 26px; }
+  #loginView .login-title { font-size: 33px; }
+  #loginView .scene-footer { padding: 8px 18px 18px; flex-direction: column; gap: 5px; font-size: 9px; }
+}
+@media (max-width: 390px) {
+  #loginView .scene-brand small { letter-spacing: .04em; }
+  #loginView .scene-brand strong { font-size: 12px; }
+  #loginView .scene-brand { gap: 7px; }
+  #loginView .scene-brand img { width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { #loginView * { scroll-behavior: auto; } }

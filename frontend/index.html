@@ -16,53 +16,37 @@
 <link rel="stylesheet" href="assets/css/dashboard.css?v=11" />
 <link rel="stylesheet" href="assets/css/flow-dashboard.css?v=10" />
 <link rel="stylesheet" href="assets/css/modules.css?v=3" />
+<link rel="stylesheet" href="assets/css/login-scene.css?v=1" />
 
   <script src="assets/js/theme.js?v=2"></script></head>
 <body>
 
 <!-- ============ LOGIN VIEW ============ -->
-<div class="login-body login-split" id="loginView">
-  <div class="login-stage">
-    <aside class="login-hero" aria-label="Wolaita Sodo Hospital">
-      <div class="login-hero-inner">
-        <img class="login-mark" src="assets/images/logo-mark.png" alt="" />
-        <p class="login-kicker">Wolaita Sodo University</p>
-        <h1 class="wide"><span>Wolaita Sodo</span><br>Hospital</h1>
-        <p class="login-tag" data-i18n="Care | Compassion | Community">Care | Compassion | Community</p>
-        <svg class="login-ecg" viewBox="0 0 320 40" aria-hidden="true">
-          <path d="M0 22 H48 L62 22 L76 8 L92 34 L106 22 H150 L164 22 L178 6 L196 36 L210 22 H320"/>
-        </svg>
-        <ul class="login-points">
-          <li>
-            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20"/><path d="M6 8v9"/></svg></span>
-            <span><strong>Ward board</strong><small>See who is in each bed</small></span>
-          </li>
-          <li>
-            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2"/><path d="M8.5 2h7M7 15h10"/></svg></span>
-            <span><strong>Laboratory</strong><small>Samples, results and the blood bank</small></span>
-          </li>
-          <li>
-            <span class="lp-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-            <span><strong>Front desk</strong><small>Queue, admissions and cashier</small></span>
-          </li>
-        </ul>
-        <p class="login-place">Wolaita Sodo, South Ethiopia</p>
-      </div>
-      <svg class="login-hills" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 150 L90 118 L160 142 L250 72 L330 128 L410 90 L500 146 L590 64 L680 130 L800 96 L800 200 L0 200 Z" fill="rgba(255,255,255,.06)"/>
-      <path d="M0 168 L120 136 L210 162 L300 104 L390 154 L500 86 L610 148 L720 112 L800 150 L800 200 L0 200 Z" fill="rgba(46,168,112,.22)"/>
-    </svg>
-    </aside>
-    <section class="login-panel">
+<div class="login-body login-split login-scene" id="loginView">
+  <header class="scene-header">
+    <a class="scene-brand" href="index.html" aria-label="Wolaita Sodo Hospital login">
+      <img src="assets/images/logo-mark.png" alt="" />
+      <span><strong>Wolaita Sodo</strong><small>UNIVERSITY HOSPITAL</small></span>
+    </a>
+    <nav class="scene-nav" aria-label="Login navigation">
+      <a href="#loginEmail">Sign in</a>
+      <a href="signup.html">Create account</a>
+      <a class="scene-nav-admin" href="admin-login.html">Administrator <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main class="scene-main">
+    <section class="login-panel" aria-labelledby="loginTitle">
       <div class="login-card">
-        <p class="login-kicker login-kicker-form">Staff and patients</p>
-        <h2 class="login-title">Welcome back</h2>
-        <p class="login-sub">Use your hospital email to continue.</p>
-
-        <div class="login-error" id="loginError">
+        <div class="scene-card-heading">
+          <span class="scene-eyebrow"><span class="scene-eyebrow-dot" aria-hidden="true"></span> WOLAITA SODO HOSPITAL</span>
+          <h1 class="login-title" id="loginTitle">Welcome back<span class="scene-period">.</span></h1>
+          <p class="login-sub">Sign in to your hospital account to continue.</p>
+        </div>
+        <div class="login-error" id="loginError" role="alert" aria-live="polite">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
           <span id="loginErrorText">Invalid credentials.</span>
         </div>
+
 
         <form id="loginForm" novalidate>
           <div class="login-field">
@@ -85,27 +69,25 @@
           </div>
           <button class="btn btn-primary btn-lg btn-block login-submit" type="submit" id="loginBtn">
             <span class="btn-spin" aria-hidden="true"></span>
-            <span class="btn-label">Sign in</span>
+            <span class="btn-label">Sign in <span aria-hidden="true">→</span></span>
           </button>
-          <div class="login-or"><span>or</span></div>
+          <div class="login-or"><span>or continue with</span></div>
           <button class="google-continue" type="button" id="googleLogin">
             <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.98 10.72A5.41 5.41 0 0 1 3.7 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.02-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.02 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>
             <span>Continue with Google</span>
           </button>
-          <p class="google-hint">Choose one of the Google accounts on this device.</p>
           <div class="login-links">
             <a href="forgot-password.html?v=5">Forgot password?</a>
-            <a href="signup.html">Create an account</a>
+            <a href="signup.html">Create an account <span aria-hidden="true">↗</span></a>
           </div>
           <div>
             <a href="admin-login.html" class="login-admin-link"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Administrator sign in</a>
           </div>
         </form>
-
-        <p class="text-center text-sm login-foot">Wolaita Sodo Hospital</p>
       </div>
     </section>
-  </div>
+  </main>
+  <footer class="scene-footer"><span>WOLAITA SODO UNIVERSITY HOSPITAL</span><span>Care · Compassion · Community</span></footer>
 </div>
 
 <!-- ============ APP VIEW (SPA shell) ============ -->
